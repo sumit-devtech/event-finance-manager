@@ -9,6 +9,7 @@ import { EventsModule } from "./events/events.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { BudgetItemsModule } from "./budget-items/budget-items.module";
+import { ReportsModule } from "./reports/reports.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 
 @Module({
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
     AuthModule,
     UsersModule,
     BudgetItemsModule,
+    ReportsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
