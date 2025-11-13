@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException, ConflictException } from "@nestjs/common";
+import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateEventDto, EventStatus } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
+import { NotificationsService } from "../notifications/notifications.service";
 import * as fs from "fs";
 import * as path from "path";
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async create(createEventDto: CreateEventDto, userId: string) {
     const { startDate, endDate, ...data } = createEventDto;
@@ -197,6 +202,22 @@ export class EventsService {
       data: { status: updateStatusDto.status },
     });
 
+    // Create notification if event is completed
+    if (updateStatusDto.status === EventStatus.Completed) {
+      const assignments = await this.prisma.client.eventAssignment.findMany({
+        where: { eventId: id },
+        select: { userId: true },
+      });
+
+      for (const assignment of assignments) {
+        await this.notificationsService.createEventCompletionNotification(
+          assignment.userId,
+          id,
+          event.name,
+        );
+      }
+    }
+
     // Create activity log
     await this.createActivityLog(userId, "event.status.updated", {
       eventId: id,
@@ -234,6 +255,8 @@ export class EventsService {
       throw new ConflictException("User is already assigned to this event");
     }
 
+    const event = await this.findOne(eventId);
+    
     const assignment = await this.prisma.client.eventAssignment.create({
       data: {
         userId: assignUserDto.userId,
@@ -251,6 +274,13 @@ export class EventsService {
         },
       },
     });
+
+    // Create notification for assigned user
+    await this.notificationsService.createEventAssignedNotification(
+      assignUserDto.userId,
+      eventId,
+      event.name,
+    );
 
     // Create activity log
     await this.createActivityLog(userId, "event.user.assigned", {

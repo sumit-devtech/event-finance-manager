@@ -2,16 +2,23 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateBudgetItemDto, BudgetItemCategory } from "./dto/create-budget-item.dto";
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
+import { NotificationsService } from "../notifications/notifications.service";
 import * as fs from "fs";
 import * as path from "path";
 
 @Injectable()
 export class BudgetItemsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async findAllByEvent(eventId: string) {
     // Verify event exists
@@ -292,6 +299,12 @@ export class BudgetItemsService {
     const variance = await this.getVariance(eventId);
 
     if (variance.isOverBudget) {
+      // Get event details
+      const event = await this.prisma.client.event.findUnique({
+        where: { id: eventId },
+        select: { name: true },
+      });
+
       // Get all users assigned to the event (Admin, EventManager, Finance roles)
       const assignments = await this.prisma.client.eventAssignment.findMany({
         where: { eventId },
@@ -322,23 +335,15 @@ export class BudgetItemsService {
         ...financeUsers.map((u) => u.id),
       ]);
 
-      // Create notifications for relevant users
-      const notifications = Array.from(userIds).map((targetUserId) => ({
-        userId: targetUserId,
-        type: "Warning" as const,
-        title: "Budget Overrun Alert",
-        message: `Event budget has exceeded estimates by ${Math.abs(variance.variancePercentage).toFixed(2)}%`,
-        metadata: {
+      // Create notifications for relevant users using NotificationsService
+      for (const targetUserId of userIds) {
+        await this.notificationsService.createOverBudgetAlertNotification(
+          targetUserId,
           eventId,
-          variance: variance.variance,
-          variancePercentage: variance.variancePercentage,
-        },
-      }));
-
-      if (notifications.length > 0) {
-        await this.prisma.client.notification.createMany({
-          data: notifications,
-        });
+          event?.name || "Unknown Event",
+          variance.variance,
+          variance.variancePercentage,
+        );
       }
 
       // Create activity log
