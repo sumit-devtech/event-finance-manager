@@ -10,12 +10,173 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Example model - replace with your actual schema
+enum UserRole {
+  Admin
+  EventManager
+  Finance
+  Viewer
+}
+
+enum EventStatus {
+  Planning
+  Active
+  Completed
+  Cancelled
+}
+
+enum BudgetItemCategory {
+  Venue
+  Catering
+  Marketing
+  Logistics
+  Entertainment
+  StaffTravel
+  Miscellaneous
+}
+
+enum NotificationType {
+  Info
+  Warning
+  Error
+  Success
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
+  password  String // Hashed password
   name      String?
+  role      UserRole @default(Viewer)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  events        EventAssignment[]
+  notifications Notification[]
+  activityLogs  ActivityLog[]
 }
 
+model Event {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  client      String? // Client or department name
+  startDate   DateTime?
+  endDate     DateTime?
+  status      EventStatus @default(Planning)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  assignments   EventAssignment[]
+  budgetItems   BudgetItem[]
+  files         File[]
+  activityLogs  ActivityLog[]
+  aiSuggestions AiBudgetSuggestion[]
+}
+
+model BudgetItem {
+  id            String             @id @default(cuid())
+  eventId       String
+  category      BudgetItemCategory
+  description   String
+  estimatedCost Decimal?           @db.Decimal(10, 2)
+  actualCost    Decimal?           @db.Decimal(10, 2)
+  vendor        String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  // Relations
+  event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  files File[]
+
+  @@index([eventId])
+  @@index([category])
+}
+
+model File {
+  id           String   @id @default(cuid())
+  eventId      String?
+  budgetItemId String?
+  filename     String
+  path         String // Storage path
+  mimeType     String?
+  size         Int? // Size in bytes
+  uploadedAt   DateTime @default(now())
+
+  // Relations
+  event      Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  budgetItem BudgetItem? @relation(fields: [budgetItemId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([budgetItemId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  metadata  Json? // Additional data as JSON
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String?
+  action    String // Action performed (e.g., "created", "updated", "deleted")
+  details   Json? // Additional details as JSON
+  createdAt DateTime @default(now())
+
+  // Relations
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventId])
+  @@index([createdAt])
+}
+
+model EventAssignment {
+  id         String   @id @default(cuid())
+  userId     String
+  eventId    String
+  role       String? // Optional role for this assignment (e.g., "Lead", "Coordinator")
+  assignedAt DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+}
+
+model AiBudgetSuggestion {
+  id            String             @id @default(cuid())
+  eventId       String
+  category      BudgetItemCategory
+  description   String
+  suggestedCost Decimal            @db.Decimal(10, 2)
+  reasoning     String? // AI reasoning for the suggestion
+  confidence    Float? // Confidence score (0-1)
+  accepted      Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([accepted])
+}
