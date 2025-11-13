@@ -8,10 +8,18 @@ import { HealthController } from "./health/health.controller";
 import { EventsModule } from "./events/events.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
+import { BudgetItemsModule } from "./budget-items/budget-items.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 
 @Module({
-  imports: [ConfigModule, PrismaModule, EventsModule, AuthModule, UsersModule],
+  imports: [
+    ConfigModule,
+    PrismaModule,
+    EventsModule,
+    AuthModule,
+    UsersModule,
+    BudgetItemsModule,
+  ],
   controllers: [AppController, HealthController],
   providers: [
     AppService,
