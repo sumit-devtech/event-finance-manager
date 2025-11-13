@@ -7,10 +7,11 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController } from "./health/health.controller";
 import { EventsModule } from "./events/events.module";
 import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 
 @Module({
-  imports: [ConfigModule, PrismaModule, EventsModule, AuthModule],
+  imports: [ConfigModule, PrismaModule, EventsModule, AuthModule, UsersModule],
   controllers: [AppController, HealthController],
   providers: [
     AppService,
