@@ -5,9 +5,10 @@ import { ConfigModule } from "./config/config.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController } from "./health/health.controller";
 import { EventsModule } from "./events/events.module";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
-  imports: [ConfigModule, PrismaModule, EventsModule],
+  imports: [ConfigModule, PrismaModule, EventsModule, AuthModule],
   controllers: [AppController, HealthController],
   providers: [AppService],
 })
