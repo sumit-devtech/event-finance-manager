@@ -11,6 +11,7 @@ import { UsersModule } from "./users/users.module";
 import { BudgetItemsModule } from "./budget-items/budget-items.module";
 import { ReportsModule } from "./reports/reports.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { FilesModule } from "./files/files.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 
 @Module({
@@ -23,6 +24,7 @@ import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
     BudgetItemsModule,
     ReportsModule,
     NotificationsModule,
+    FilesModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
