@@ -40,4 +40,5 @@ lerna-debug.log*
 *.swo
 *~
 
-.tsbuildinfo
+*.tsbuildinfo
+*.cache
