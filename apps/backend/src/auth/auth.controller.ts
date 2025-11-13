@@ -1,29 +1,41 @@
-import { Controller, Post, Body, UseGuards, Get, Request } from "@nestjs/common";
+import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { Public } from "./decorators/public.decorator";
+import { LoginDto } from "./dto/login.dto";
+import { RegisterDto } from "./dto/register.dto";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 
 @Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post("login")
-  async login(@Body() loginDto: { email: string; password: string }) {
-    // TODO: Implement login logic
-    // const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-    // return this.authService.login(user);
-    return { message: "Login endpoint - to be implemented" };
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
+  @Public()
   @Post("register")
-  async register(@Body() registerDto: { email: string; password: string; name?: string }) {
-    // TODO: Implement registration logic
-    return { message: "Register endpoint - to be implemented" };
+  @HttpCode(HttpStatus.CREATED)
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
+
+  @Public()
+  @Post("refresh")
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refresh(refreshTokenDto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get("profile")
-  getProfile(@Request() req) {
-    return req.user;
+  @Post("logout")
+  @HttpCode(HttpStatus.OK)
+  async logout(@Request() req) {
+    return this.authService.logout(req.user.id);
   }
 }
 
