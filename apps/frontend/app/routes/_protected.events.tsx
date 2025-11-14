@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect, useRef, useCallback } from "react";
 
-interface Event {
+export interface Event {
   id: string;
   name: string;
   description: string | null;
