@@ -4,7 +4,7 @@ import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { env } from "~/lib/env";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   PieChart,
   Pie,
@@ -93,6 +93,16 @@ export default function ReportsPage() {
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
   const [reportType, setReportType] = useState<"summary" | "comparison">("summary");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Get auth token from localStorage for client-side export
   const getAuthToken = () => {
@@ -174,18 +184,19 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p className="text-sm text-gray-600 mt-1">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Reports & Analytics</h1>
+        <p className="text-sm sm:text-base text-gray-600">
           View comprehensive reports and analytics for your events
         </p>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 bg-white p-4 rounded-lg shadow">
-        <Form method="get" className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="mb-6 bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+        <Form method="get" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
             <select
@@ -228,16 +239,16 @@ export default function ReportsPage() {
             />
           </div>
 
-          <div className="md:col-span-4 flex gap-2">
+          <div className="sm:col-span-2 lg:col-span-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
             >
               Apply Filters
             </button>
             <Link
               to="/reports"
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 sm:flex-none px-6 py-2.5 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium text-center"
             >
               Clear Filters
             </Link>
@@ -246,12 +257,12 @@ export default function ReportsPage() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
         {/* Events by Status Pie Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Events by Status</h2>
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Events by Status</h2>
           {statusChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={statusChartData}
@@ -259,7 +270,7 @@ export default function ReportsPage() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  outerRadius={isMobile ? 60 : 80}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -268,81 +279,108 @@ export default function ReportsPage() {
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-500">
-              No data available
+            <div className="h-[250px] sm:h-[300px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+              <div className="text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-sm">No data available</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Events Timeline Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Events Timeline</h2>
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Events Overview</h2>
           {events.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={events.slice(0, 10).map((e) => ({ name: e.name, count: 1 }))}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#8884d8" />
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={events.slice(0, 10).map((e) => ({ name: e.name.length > 15 ? e.name.substring(0, 15) + "..." : e.name, fullName: e.name, count: 1 }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis 
+                  dataKey="name" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={80}
+                  tick={{ fontSize: 10 }}
+                />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Bar dataKey="count" fill="#8884d8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-500">
-              No data available
+            <div className="h-[250px] sm:h-[300px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+              <div className="text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-sm">No data available</p>
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* Report Generation Section */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Generate Reports</h2>
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Generate Reports</h2>
 
         {/* Report Type Selection */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
-          <div className="flex gap-4">
-            <label className="flex items-center">
+        <div className="mb-4 sm:mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">Report Type</label>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            <label className="flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50"
+              style={{ borderColor: reportType === "summary" ? "#4f46e5" : "#e5e7eb" }}
+            >
               <input
                 type="radio"
                 name="reportType"
                 value="summary"
                 checked={reportType === "summary"}
                 onChange={(e) => setReportType(e.target.value as "summary" | "comparison")}
-                className="mr-2"
+                className="mr-3 w-4 h-4 text-indigo-600 focus:ring-indigo-500"
               />
-              Event Summary Report
+              <span className="font-medium text-gray-900">Event Summary Report</span>
             </label>
-            <label className="flex items-center">
+            <label className="flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50"
+              style={{ borderColor: reportType === "comparison" ? "#4f46e5" : "#e5e7eb" }}
+            >
               <input
                 type="radio"
                 name="reportType"
                 value="comparison"
                 checked={reportType === "comparison"}
                 onChange={(e) => setReportType(e.target.value as "summary" | "comparison")}
-                className="mr-2"
+                className="mr-3 w-4 h-4 text-indigo-600 focus:ring-indigo-500"
               />
-              Comparison Report
+              <span className="font-medium text-gray-900">Comparison Report</span>
             </label>
           </div>
         </div>
 
         {/* Event Selection */}
         {reportType === "summary" ? (
-          <div className="mb-4">
+          <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Select Event for Summary Report
             </label>
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900"
             >
               <option value="">-- Select an event --</option>
               {events.map((event) => (
@@ -354,49 +392,74 @@ export default function ReportsPage() {
             {selectedEventId && (
               <Link
                 to={`/reports/event-summary/${selectedEventId}`}
-                className="mt-2 inline-block text-sm text-indigo-600 hover:text-indigo-900"
+                className="mt-3 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-900 transition-colors"
               >
-                View Detailed Summary →
+                View Detailed Summary
+                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             )}
           </div>
         ) : (
-          <div className="mb-4">
+          <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Events for Comparison (Select at least 2)
+              Select Events for Comparison <span className="text-gray-500">(Select at least 2)</span>
             </label>
-            <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-2">
+            <div className="max-h-48 sm:max-h-64 overflow-y-auto border-2 border-gray-300 rounded-lg p-3 bg-gray-50">
               {events.length === 0 ? (
-                <p className="text-sm text-gray-500 p-2">No events available</p>
+                <p className="text-sm text-gray-500 p-3 text-center">No events available</p>
               ) : (
-                events.map((event) => (
-                  <label key={event.id} className="flex items-center p-2 hover:bg-gray-50">
-                    <input
-                      type="checkbox"
-                      checked={selectedEventIds.includes(event.id)}
-                      onChange={() => toggleEventSelection(event.id)}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">
-                      {event.name} ({event.status}) - {event.client || "No client"}
-                    </span>
-                  </label>
-                ))
+                <div className="space-y-2">
+                  {events.map((event) => (
+                    <label 
+                      key={event.id} 
+                      className={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        selectedEventIds.includes(event.id)
+                          ? "bg-indigo-50 border-indigo-300"
+                          : "bg-white border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedEventIds.includes(event.id)}
+                        onChange={() => toggleEventSelection(event.id)}
+                        className="mt-0.5 mr-3 w-4 h-4 text-indigo-600 focus:ring-indigo-500 rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium text-gray-900 block truncate">
+                          {event.name}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {event.status} {event.client && `• ${event.client}`}
+                        </span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
               )}
             </div>
             {selectedEventIds.length >= 2 && (
               <Link
                 to={`/reports/comparison?eventIds=${selectedEventIds.join(",")}`}
-                className="mt-2 inline-block text-sm text-indigo-600 hover:text-indigo-900"
+                className="mt-3 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-900 transition-colors"
               >
-                View Detailed Comparison →
+                View Detailed Comparison
+                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
+            )}
+            {selectedEventIds.length > 0 && selectedEventIds.length < 2 && (
+              <p className="mt-2 text-sm text-amber-600">
+                Please select at least 2 events for comparison
+              </p>
             )}
           </div>
         )}
 
         {/* Export Buttons */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             onClick={() => handleExport("pdf")}
@@ -405,8 +468,11 @@ export default function ReportsPage() {
               (reportType === "summary" && !selectedEventId) ||
               (reportType === "comparison" && selectedEventIds.length < 2)
             }
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
             Export PDF
           </button>
           <button
@@ -417,8 +483,11 @@ export default function ReportsPage() {
               (reportType === "summary" && !selectedEventId) ||
               (reportType === "comparison" && selectedEventIds.length < 2)
             }
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             Export CSV
           </button>
           <button
@@ -429,34 +498,37 @@ export default function ReportsPage() {
               (reportType === "summary" && !selectedEventId) ||
               (reportType === "comparison" && selectedEventIds.length < 2)
             }
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             Export Excel
           </button>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="text-sm text-gray-600">Total Events</div>
-          <div className="text-2xl font-bold text-gray-900">{events.length}</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
+        <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-4 sm:p-6 rounded-xl shadow-lg text-white">
+          <div className="text-xs sm:text-sm opacity-90 mb-1">Total Events</div>
+          <div className="text-2xl sm:text-3xl font-bold">{events.length}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="text-sm text-gray-600">Active Events</div>
-          <div className="text-2xl font-bold text-green-600">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 sm:p-6 rounded-xl shadow-lg text-white">
+          <div className="text-xs sm:text-sm opacity-90 mb-1">Active Events</div>
+          <div className="text-2xl sm:text-3xl font-bold">
             {events.filter((e) => e.status === "Active").length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="text-sm text-gray-600">Completed Events</div>
-          <div className="text-2xl font-bold text-blue-600">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 sm:p-6 rounded-xl shadow-lg text-white">
+          <div className="text-xs sm:text-sm opacity-90 mb-1">Completed Events</div>
+          <div className="text-2xl sm:text-3xl font-bold">
             {events.filter((e) => e.status === "Completed").length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="text-sm text-gray-600">Planning Events</div>
-          <div className="text-2xl font-bold text-yellow-600">
+        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-4 sm:p-6 rounded-xl shadow-lg text-white">
+          <div className="text-xs sm:text-sm opacity-90 mb-1">Planning Events</div>
+          <div className="text-2xl sm:text-3xl font-bold">
             {events.filter((e) => e.status === "Planning").length}
           </div>
         </div>
