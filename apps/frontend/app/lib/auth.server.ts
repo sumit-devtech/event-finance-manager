@@ -118,8 +118,8 @@ export async function loginUser(
 }
 
 /**
- * Logout user and clear session
- * Returns headers to clear the session cookie
+ * Logout user and call logout API
+ * Note: Session clearing should be done in the route action, not here
  */
 export async function logoutUser(request: Request) {
   const token = await getAuthTokenFromSession(request);
@@ -133,15 +133,5 @@ export async function logoutUser(request: Request) {
       console.error("Logout API call failed:", error);
     }
   }
-
-  // Clear session - destroySession returns a cookie string to clear the session
-  const session = await getSessionFromRequest(request);
-  const cookieHeader = await destroySession(session);
-
-  return {
-    headers: {
-      "Set-Cookie": cookieHeader,
-    },
-  };
 }
 

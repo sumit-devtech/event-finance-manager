@@ -131,6 +131,7 @@ export class EventsService {
         _count: {
           select: {
             files: true,
+            budgetItems: true,
             activityLogs: true,
             aiSuggestions: true,
           },

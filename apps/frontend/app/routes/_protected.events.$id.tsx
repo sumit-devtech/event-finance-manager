@@ -38,6 +38,7 @@ interface EventDetail {
     description: string;
     estimatedCost: number | null;
     actualCost: number | null;
+    vendor: string | null;
   }>;
   _count: {
     files: number;
@@ -57,7 +58,7 @@ interface User {
  * Loader - fetch event detail and users
  */
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  await requireAuth(request);
+  const user = await requireAuth(request);
   const token = await getAuthTokenFromSession(request);
   const eventId = params.id!;
 
@@ -71,7 +72,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       // Users endpoint requires Admin role, so non-admin users will get empty array
       users = [];
     }
-    return json({ event, users });
+    return json({ event, users, user });
   } catch (error: any) {
     throw new Response("Event not found", { status: 404 });
   }
@@ -127,6 +128,47 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return redirect(`/events/${eventId}`);
     }
 
+    if (intent === "createBudgetItem") {
+      const category = formData.get("category") as string;
+      const description = formData.get("description") as string;
+      const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : undefined;
+      const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : undefined;
+      const vendor = formData.get("vendor") as string || undefined;
+
+      await api.post(`/events/${eventId}/budget-items`, {
+        category,
+        description,
+        estimatedCost,
+        actualCost,
+        vendor,
+      }, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "updateBudgetItem") {
+      const budgetItemId = formData.get("budgetItemId") as string;
+      const category = formData.get("category") as string;
+      const description = formData.get("description") as string;
+      const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : null;
+      const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : null;
+      const vendor = formData.get("vendor") as string || undefined;
+
+      await api.put(`/budget-items/${budgetItemId}`, {
+        category,
+        description,
+        estimatedCost,
+        actualCost,
+        vendor,
+      }, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "deleteBudgetItem") {
+      const budgetItemId = formData.get("budgetItemId") as string;
+      await api.delete(`/budget-items/${budgetItemId}`, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
     return json({ error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
     console.error("Action error:", error);
@@ -154,7 +196,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EventDetailPage() {
-  const { event, users } = useLoaderData<typeof loader>();
+  const { event, users, user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
@@ -162,7 +204,13 @@ export default function EventDetailPage() {
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showBudgetItemModal, setShowBudgetItemModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(event.status);
+  const [selectedBudgetItem, setSelectedBudgetItem] = useState<EventDetail["budgetItems"][0] | null>(null);
+
+  const canManageBudget = user?.role === "Admin" || user?.role === "EventManager" || user?.role === "Finance";
+  const canAssignUsers = user?.role === "Admin" || user?.role === "EventManager";
+  const canUploadFiles = user?.role === "Admin" || user?.role === "EventManager" || user?.role === "Finance";
 
   const isLoading = navigation.state === "submitting" || navigation.state === "loading";
 
@@ -224,6 +272,25 @@ export default function EventDetailPage() {
       formData.append("fileId", fileId);
       submit(formData, { method: "post" });
     }
+  };
+
+  const handleDeleteBudgetItem = (budgetItemId: string) => {
+    if (confirm("Are you sure you want to delete this budget item?")) {
+      const formData = new FormData();
+      formData.append("intent", "deleteBudgetItem");
+      formData.append("budgetItemId", budgetItemId);
+      submit(formData, { method: "post" });
+    }
+  };
+
+  const handleEditBudgetItem = (item: EventDetail["budgetItems"][0]) => {
+    setSelectedBudgetItem(item);
+    setShowBudgetItemModal(true);
+  };
+
+  const handleAddBudgetItem = () => {
+    setSelectedBudgetItem(null);
+    setShowBudgetItemModal(true);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -357,13 +424,15 @@ export default function EventDetailPage() {
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Assigned Users</h2>
-              <button
-                type="button"
-                onClick={() => setShowAssignModal(true)}
-                className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
-              >
-                + Assign User
-              </button>
+              {canAssignUsers && (
+                <button
+                  type="button"
+                  onClick={() => setShowAssignModal(true)}
+                  className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                >
+                  + Assign User
+                </button>
+              )}
             </div>
             {event.assignments.length === 0 ? (
               <p className="text-sm text-gray-500">No users assigned</p>
@@ -382,13 +451,15 @@ export default function EventDetailPage() {
                         <div className="text-xs text-gray-500">{assignment.role}</div>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleUnassignUser(assignment.user.id)}
-                      className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
-                    >
-                      Remove
-                    </button>
+                    {canAssignUsers && (
+                      <button
+                        type="button"
+                        onClick={() => handleUnassignUser(assignment.user.id)}
+                        className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -399,21 +470,23 @@ export default function EventDetailPage() {
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Files</h2>
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
-                >
-                  + Upload File
-                </button>
-              </div>
+              {canUploadFiles && (
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                  >
+                    + Upload File
+                  </button>
+                </div>
+              )}
             </div>
             {event.files.length === 0 ? (
               <p className="text-sm text-gray-500">No files uploaded</p>
@@ -430,13 +503,15 @@ export default function EventDetailPage() {
                         {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteFile(file.id)}
-                      className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
-                    >
-                      Delete
-                    </button>
+                    {canUploadFiles && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteFile(file.id)}
+                        className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -470,9 +545,22 @@ export default function EventDetailPage() {
           </div>
 
           {/* Budget Items */}
-          {event.budgetItems.length > 0 && (
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget Items</h2>
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Budget Items</h2>
+              {canManageBudget && (
+                <button
+                  type="button"
+                  onClick={handleAddBudgetItem}
+                  className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                >
+                  + Add Budget Item
+                </button>
+              )}
+            </div>
+            {event.budgetItems.length === 0 ? (
+              <p className="text-sm text-gray-500">No budget items added</p>
+            ) : (
               <div className="space-y-3">
                 {event.budgetItems.map((item) => {
                   const cost = item.actualCost ?? item.estimatedCost ?? 0;
@@ -483,9 +571,38 @@ export default function EventDetailPage() {
                         {item.description && (
                           <div className="text-xs text-gray-500 mt-1">{item.description}</div>
                         )}
+                        {item.vendor && (
+                          <div className="text-xs text-gray-400 mt-1">Vendor: {item.vendor}</div>
+                        )}
+                        {item.estimatedCost && item.actualCost && (
+                          <div className="text-xs mt-1">
+                            <span className="text-gray-500">Est: ${item.estimatedCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            <span className="text-gray-700 ml-2">Actual: ${item.actualCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-sm font-semibold text-gray-900 ml-4">
-                        ${Number(cost).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <div className="flex items-center space-x-2 ml-4">
+                        <div className="text-sm font-semibold text-gray-900">
+                          ${Number(cost).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        {canManageBudget && (
+                          <div className="flex space-x-1">
+                            <button
+                              type="button"
+                              onClick={() => handleEditBudgetItem(item)}
+                              className="text-xs text-blue-600 hover:text-blue-900 cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteBudgetItem(item.id)}
+                              className="text-xs text-red-600 hover:text-red-900 cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -502,8 +619,8 @@ export default function EventDetailPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
         </div>
       </div>
@@ -584,6 +701,21 @@ export default function EventDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Budget Item Modal */}
+      {showBudgetItemModal && (
+        <BudgetItemModal
+          eventId={event.id}
+          item={selectedBudgetItem}
+          onClose={() => {
+            setShowBudgetItemModal(false);
+            setSelectedBudgetItem(null);
+          }}
+          onSubmit={() => {
+            // Page will reload after redirect
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -626,7 +758,7 @@ function AssignUserForm({
           <option value="">-- Select a user --</option>
           {availableUsers.map((user) => (
             <option key={user.id} value={user.id}>
-              {user.name || user.email} ({user.role})
+              {user.name ? `${user.name} (${user.email})` : user.email}
             </option>
           ))}
         </select>
@@ -659,6 +791,146 @@ function AssignUserForm({
         </button>
       </div>
     </form>
+  );
+}
+
+// Budget Item Modal
+function BudgetItemModal({
+  eventId,
+  item,
+  onClose,
+  onSubmit,
+}: {
+  eventId: string;
+  item: EventDetail["budgetItems"][0] | null;
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  const submit = useSubmit();
+  const isEdit = !!item;
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    formData.append("intent", isEdit ? "updateBudgetItem" : "createBudgetItem");
+    if (isEdit) {
+      formData.append("budgetItemId", item.id);
+    }
+    submit(formData, { method: "post" });
+    onSubmit();
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[101]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-bold mb-4">{isEdit ? "Edit Budget Item" : "Add Budget Item"}</h2>
+        <Form method="post" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category *
+              </label>
+              <select
+                name="category"
+                required
+                defaultValue={item?.category || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">Select category</option>
+                <option value="Venue">Venue</option>
+                <option value="Catering">Catering</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="StaffTravel">Staff Travel</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description *
+              </label>
+              <textarea
+                name="description"
+                required
+                rows={3}
+                defaultValue={item?.description || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Vendor
+              </label>
+              <input
+                type="text"
+                name="vendor"
+                defaultValue={item?.vendor || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Estimated Cost
+                </label>
+                <input
+                  type="number"
+                  name="estimatedCost"
+                  step="0.01"
+                  min="0"
+                  defaultValue={item?.estimatedCost || ""}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Actual Cost
+                </label>
+                <input
+                  type="number"
+                  name="actualCost"
+                  step="0.01"
+                  min="0"
+                  defaultValue={item?.actualCost || ""}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
+              >
+                {isEdit ? "Update" : "Create"}
+              </button>
+            </div>
+          </div>
+        </Form>
+      </div>
+    </div>
   );
 }
 

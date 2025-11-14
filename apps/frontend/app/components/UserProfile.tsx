@@ -4,7 +4,7 @@
  * Displays user information and provides logout functionality
  */
 
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, useSubmit } from "@remix-run/react";
 import { useState, useRef, useEffect } from "react";
 import type { User } from "~/lib/auth";
 
@@ -15,6 +15,7 @@ interface UserProfileProps {
 export function UserProfile({ user }: UserProfileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const submit = useSubmit();
 
   // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
@@ -140,15 +141,22 @@ export function UserProfile({ user }: UserProfileProps) {
             >
               Profile Settings
             </Link>
-            <Form action="/logout" method="post">
-              <button
-                type="submit"
-                className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
-                onClick={() => setIsOpen(false)}
-              >
-                Sign Out
-              </button>
-            </Form>
+            <button
+              type="button"
+              className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsOpen(false);
+                // Submit logout form
+                const formData = new FormData();
+                submit(formData, {
+                  method: "post",
+                  action: "/logout",
+                });
+              }}
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       )}

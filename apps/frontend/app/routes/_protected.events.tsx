@@ -3,7 +3,7 @@ import { useLoaderData, useActionData, useNavigation, Form, useSubmit, useRevali
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 interface Event {
   id: string;
@@ -169,6 +169,7 @@ export default function EventsPage() {
   const [departmentFilter, setDepartmentFilter] = useState(searchParams.get("department") || "");
   const [startDateFrom, setStartDateFrom] = useState(searchParams.get("startDateFrom") || "");
   const [startDateTo, setStartDateTo] = useState(searchParams.get("startDateTo") || "");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -197,7 +198,7 @@ export default function EventsPage() {
   }, [actionData, revalidator]);
 
   // Apply filters
-  const handleFilter = (e?: React.MouseEvent) => {
+  const handleFilter = useCallback((e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -211,7 +212,7 @@ export default function EventsPage() {
     
     const search = params.toString();
     navigate(`/events${search ? `?${search}` : ""}`);
-  };
+  }, [statusFilter, clientFilter, departmentFilter, startDateFrom, startDateTo, navigate]);
 
   // Clear filters
   const handleClearFilters = (e?: React.MouseEvent) => {
@@ -593,6 +594,7 @@ export default function EventsPage() {
       {showDetailModal && selectedEventId && (
         <EventDetailModal
           eventId={selectedEventId}
+          user={user}
           onClose={() => {
             setShowDetailModal(false);
             setSelectedEventId(null);
@@ -892,10 +894,12 @@ function EditEventModal({
 // Event Detail Modal Component
 function EventDetailModal({
   eventId,
+  user,
   onClose,
   onRefresh,
 }: {
   eventId: string;
+    user: { role: string } | undefined;
   onClose: () => void;
   onRefresh: () => void;
 }) {
@@ -905,7 +909,13 @@ function EventDetailModal({
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showBudgetItemModal, setShowBudgetItemModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedBudgetItem, setSelectedBudgetItem] = useState<any>(null);
+
+  const canManageBudget = user?.role === "Admin" || user?.role === "EventManager" || user?.role === "Finance";
+  const canAssignUsers = user?.role === "Admin" || user?.role === "EventManager";
+  const canUploadFiles = user?.role === "Admin" || user?.role === "EventManager" || user?.role === "Finance";
 
   // Load event data when modal opens
   useEffect(() => {
@@ -1018,6 +1028,32 @@ function EventDetailModal({
         onRefresh();
       }, 500);
     }
+  };
+
+  const handleDeleteBudgetItem = (budgetItemId: string) => {
+    if (confirm("Are you sure you want to delete this budget item?")) {
+      const formData = new FormData();
+      formData.append("intent", "deleteBudgetItem");
+      formData.append("budgetItemId", budgetItemId);
+      submit(formData, {
+        method: "post",
+        action: `/events/${eventId}`,
+      });
+      setTimeout(() => {
+        fetcher.load(`/events/${eventId}`);
+        onRefresh();
+      }, 500);
+    }
+  };
+
+  const handleEditBudgetItem = (item: any) => {
+    setSelectedBudgetItem(item);
+    setShowBudgetItemModal(true);
+  };
+
+  const handleAddBudgetItem = () => {
+    setSelectedBudgetItem(null);
+    setShowBudgetItemModal(true);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -1165,13 +1201,15 @@ function EventDetailModal({
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Assigned Users</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowAssignModal(true)}
-                  className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
-                >
-                  + Assign User
-                </button>
+                {canAssignUsers && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAssignModal(true)}
+                    className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                  >
+                    + Assign User
+                  </button>
+                )}
               </div>
               {event.assignments.length === 0 ? (
                 <p className="text-sm text-gray-500">No users assigned</p>
@@ -1190,13 +1228,15 @@ function EventDetailModal({
                           <div className="text-xs text-gray-500">{assignment.role}</div>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleUnassignUser(assignment.user.id)}
-                        className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
-                      >
-                        Remove
-                      </button>
+                      {canAssignUsers && (
+                        <button
+                          type="button"
+                          onClick={() => handleUnassignUser(assignment.user.id)}
+                          className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1207,21 +1247,23 @@ function EventDetailModal({
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Files</h3>
-                <div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
-                  >
-                    + Upload File
-                  </button>
-                </div>
+                {canUploadFiles && (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                    >
+                      + Upload File
+                    </button>
+                  </div>
+                )}
               </div>
               {event.files.length === 0 ? (
                 <p className="text-sm text-gray-500">No files uploaded</p>
@@ -1238,13 +1280,15 @@ function EventDetailModal({
                           {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteFile(file.id)}
-                        className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
-                      >
-                        Delete
-                      </button>
+                      {canUploadFiles && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteFile(file.id)}
+                          className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1278,9 +1322,22 @@ function EventDetailModal({
             </div>
 
             {/* Budget Items */}
-            {event.budgetItems.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget Items</h3>
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Budget Items</h3>
+                {canManageBudget && (
+                  <button
+                    type="button"
+                    onClick={handleAddBudgetItem}
+                    className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                  >
+                    + Add Budget Item
+                  </button>
+                )}
+              </div>
+              {event.budgetItems.length === 0 ? (
+                <p className="text-sm text-gray-500">No budget items added</p>
+              ) : (
                 <div className="space-y-3">
                   {event.budgetItems.map((item) => {
                     const cost = item.actualCost ?? item.estimatedCost ?? 0;
@@ -1291,9 +1348,38 @@ function EventDetailModal({
                           {item.description && (
                             <div className="text-xs text-gray-500 mt-1">{item.description}</div>
                           )}
+                          {item.vendor && (
+                            <div className="text-xs text-gray-400 mt-1">Vendor: {item.vendor}</div>
+                          )}
+                          {item.estimatedCost && item.actualCost && (
+                            <div className="text-xs mt-1">
+                              <span className="text-gray-500">Est: ${item.estimatedCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              <span className="text-gray-700 ml-2">Actual: ${item.actualCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="text-sm font-semibold text-gray-900 ml-4">
-                          ${Number(cost).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <div className="flex items-center space-x-2 ml-4">
+                          <div className="text-sm font-semibold text-gray-900">
+                            ${Number(cost).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </div>
+                          {canManageBudget && (
+                            <div className="flex space-x-1">
+                              <button
+                                type="button"
+                                onClick={() => handleEditBudgetItem(item)}
+                                className="text-xs text-blue-600 hover:text-blue-900 cursor-pointer"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteBudgetItem(item.id)}
+                                className="text-xs text-red-600 hover:text-red-900 cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -1309,9 +1395,9 @@ function EventDetailModal({
                       </span>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                  </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1391,6 +1477,24 @@ function EventDetailModal({
             </div>
           </div>
         )}
+
+        {/* Budget Item Modal */}
+        {showBudgetItemModal && (
+          <BudgetItemModal
+            eventId={eventId}
+            item={selectedBudgetItem}
+            onClose={() => {
+              setShowBudgetItemModal(false);
+              setSelectedBudgetItem(null);
+            }}
+            onSuccess={() => {
+              setTimeout(() => {
+                fetcher.load(`/events/${eventId}`);
+                onRefresh();
+              }, 500);
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -1435,7 +1539,7 @@ function AssignUserForm({
           <option value="">-- Select a user --</option>
           {availableUsers.map((user) => (
             <option key={user.id} value={user.id}>
-              {user.name || user.email} ({user.role})
+              {user.name ? `${user.name} (${user.email})` : user.email}
             </option>
           ))}
         </select>
@@ -1468,5 +1572,148 @@ function AssignUserForm({
         </button>
       </div>
     </form>
+  );
+}
+
+// Budget Item Modal Component
+function BudgetItemModal({
+  eventId,
+  item,
+  onClose,
+  onSuccess,
+}: {
+  eventId: string;
+  item: any;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const submit = useSubmit();
+  const isEdit = !!item;
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    formData.append("intent", isEdit ? "updateBudgetItem" : "createBudgetItem");
+    if (isEdit) {
+      formData.append("budgetItemId", item.id);
+    }
+    submit(formData, {
+      method: "post",
+      action: `/events/${eventId}`,
+    });
+    onSuccess();
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[201]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-bold mb-4">{isEdit ? "Edit Budget Item" : "Add Budget Item"}</h2>
+        <Form method="post" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category *
+              </label>
+              <select
+                name="category"
+                required
+                defaultValue={item?.category || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">Select category</option>
+                <option value="Venue">Venue</option>
+                <option value="Catering">Catering</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="StaffTravel">Staff Travel</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description *
+              </label>
+              <textarea
+                name="description"
+                required
+                rows={3}
+                defaultValue={item?.description || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Vendor
+              </label>
+              <input
+                type="text"
+                name="vendor"
+                defaultValue={item?.vendor || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Estimated Cost
+                </label>
+                <input
+                  type="number"
+                  name="estimatedCost"
+                  step="0.01"
+                  min="0"
+                  defaultValue={item?.estimatedCost || ""}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Actual Cost
+                </label>
+                <input
+                  type="number"
+                  name="actualCost"
+                  step="0.01"
+                  min="0"
+                  defaultValue={item?.actualCost || ""}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
+              >
+                {isEdit ? "Update" : "Create"}
+              </button>
+            </div>
+          </div>
+        </Form>
+      </div>
+    </div>
   );
 }
