@@ -49,24 +49,31 @@ export function UserProfile({ user }: UserProfileProps) {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-50" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        aria-label="User menu"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
       >
-        <div className="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full text-white text-sm font-medium">
+        <div className="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full text-white text-sm font-medium flex-shrink-0">
           {user.name
             ? user.name.charAt(0).toUpperCase()
             : user.email.charAt(0).toUpperCase()}
         </div>
-        <div className="hidden md:block text-left">
-          <div className="text-sm font-medium text-gray-900">
+        <div className="hidden sm:block text-left min-w-0">
+          <div className="text-sm font-medium text-gray-900 truncate">
             {user.name || user.email}
           </div>
           <div className="text-xs text-gray-500">{user.role}</div>
         </div>
         <svg
-          className={`w-4 h-4 text-gray-500 transition-transform ${
+          className={`w-4 h-4 text-gray-500 transition-transform flex-shrink-0 ${
             isOpen ? "rotate-180" : ""
           }`}
           fill="none"
@@ -83,7 +90,7 @@ export function UserProfile({ user }: UserProfileProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[60] max-w-[calc(100vw-2rem)]">
           <div className="px-4 py-3 border-b border-gray-200">
             <div className="text-sm font-medium text-gray-900">
               {user.name || user.email}
