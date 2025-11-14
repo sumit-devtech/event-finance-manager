@@ -57,12 +57,14 @@ export class EventsController {
   findAll(
     @Query("status") status?: EventStatus,
     @Query("client") client?: string,
+    @Query("department") department?: string,
     @Query("startDateFrom") startDateFrom?: string,
     @Query("startDateTo") startDateTo?: string,
   ) {
     return this.eventsService.findAll({
       status,
       client,
+      department,
       startDateFrom,
       startDateTo,
     });

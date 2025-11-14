@@ -39,6 +39,7 @@ export class EventsService {
   async findAll(filters?: {
     status?: EventStatus;
     client?: string;
+    department?: string;
     startDateFrom?: string;
     startDateTo?: string;
   }) {
@@ -48,7 +49,14 @@ export class EventsService {
       where.status = filters.status;
     }
 
-    if (filters?.client) {
+    // Handle client and department filters (both filter the client field)
+    // If both are provided, we'll prioritize department, otherwise use whichever is provided
+    if (filters?.department) {
+      where.client = {
+        contains: filters.department,
+        mode: "insensitive",
+      };
+    } else if (filters?.client) {
       where.client = {
         contains: filters.client,
         mode: "insensitive",
@@ -123,6 +131,7 @@ export class EventsService {
         _count: {
           select: {
             files: true,
+            budgetItems: true,
             activityLogs: true,
             aiSuggestions: true,
           },

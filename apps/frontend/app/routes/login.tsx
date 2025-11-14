@@ -7,9 +7,14 @@ import { getCurrentUser } from "~/lib/auth.server";
  * Loader - redirect to home if already logged in
  */
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getCurrentUser(request);
-  if (user) {
-    return redirect("/");
+  try {
+    const user = await getCurrentUser(request);
+    if (user) {
+      return redirect("/");
+    }
+  } catch (error) {
+    // If there's an error getting user (e.g., invalid session), continue to login page
+    console.error("Error checking current user:", error);
   }
   
   const url = new URL(request.url);

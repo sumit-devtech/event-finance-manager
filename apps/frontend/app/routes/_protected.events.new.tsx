@@ -1,0 +1,207 @@
+import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, useActionData, useNavigation, Link, useLoaderData, useRouteError } from "@remix-run/react";
+import { requireRole } from "~/lib/auth.server";
+import { api } from "~/lib/api";
+import { getAuthTokenFromSession } from "~/lib/session";
+
+/**
+ * Loader - ensure user has permission to create events
+ */
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireRole(request, ["Admin", "EventManager"]);
+  return json({ user, success: true });
+}
+
+/**
+ * Action - create new event
+ */
+export async function action({ request }: ActionFunctionArgs) {
+  await requireRole(request, ["Admin", "EventManager"]);
+  const token = await getAuthTokenFromSession(request);
+  const formData = await request.formData();
+
+  const name = formData.get("name") as string;
+  if (!name) {
+    return json({ error: "Event name is required" }, { status: 400 });
+  }
+
+  const eventData: any = {
+    name,
+  };
+
+  const description = formData.get("description") as string;
+  if (description && description.trim()) {
+    eventData.description = description.trim();
+  }
+
+  const client = formData.get("client") as string;
+  if (client && client.trim()) {
+    eventData.client = client.trim();
+  }
+
+  const startDate = formData.get("startDate") as string;
+  if (startDate) {
+    eventData.startDate = startDate;
+  }
+
+  const endDate = formData.get("endDate") as string;
+  if (endDate) {
+    eventData.endDate = endDate;
+  }
+
+  const status = formData.get("status") as string;
+  if (status) {
+    eventData.status = status;
+  }
+
+  try {
+    const newEvent = await api.post("/events", eventData, { token: token || undefined });
+    return redirect(`/events/${newEvent.id}`);
+  } catch (error: any) {
+    console.error("Error creating event:", error);
+    return json({ error: error.message || "Failed to create event" }, { status: 400 });
+  }
+}
+
+export default function NewEventPage() {
+  const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Create New Event</h1>
+      </div>
+
+      <div className="bg-white shadow rounded-lg p-6">
+        {actionData?.error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+            {actionData.error}
+          </div>
+        )}
+
+        <Form method="post" className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Event Name *
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="client" className="block text-sm font-medium text-gray-700 mb-1">
+              Client
+            </label>
+            <input
+              type="text"
+              id="client"
+              name="client"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="startDate"
+                name="startDate"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
+                End Date
+              </label>
+              <input
+                type="date"
+                id="endDate"
+                name="endDate"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              id="status"
+              name="status"
+              defaultValue="Planning"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="Planning">Planning</option>
+              <option value="Active">Active</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Link
+              to="/events"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+            >
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              {isSubmitting ? "Creating..." : "Create Event"}
+            </button>
+          </div>
+        </Form>
+      </div>
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-gray-900 text-center">Error</h1>
+        <p className="mt-2 text-gray-600 text-center">
+          {error instanceof Error ? error.message : "An error occurred"}
+        </p>
+        <div className="mt-6 text-center">
+          <Link
+            to="/events"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+          >
+            Back to Events
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
