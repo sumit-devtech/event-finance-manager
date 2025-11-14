@@ -129,11 +129,12 @@ export async function logoutUser(request: Request) {
     try {
       await api.post("/auth/logout", {}, { token });
     } catch (error) {
-      // Continue with logout even if API call fails
+      // Log error but continue with logout even if API call fails
+      console.error("Logout API call failed:", error);
     }
   }
 
-  // Clear session
+  // Clear session - destroySession returns a cookie string to clear the session
   const session = await getSessionFromRequest(request);
   const cookieHeader = await destroySession(session);
 

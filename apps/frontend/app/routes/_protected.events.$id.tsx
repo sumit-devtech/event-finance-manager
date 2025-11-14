@@ -28,16 +28,16 @@ interface EventDetail {
   files: Array<{
     id: string;
     filename: string;
-    originalName: string;
     mimeType: string;
     size: number;
-    createdAt: string;
+    uploadedAt: string;
   }>;
   budgetItems: Array<{
     id: string;
     category: string;
     description: string;
-    amount: number;
+    estimatedCost: number | null;
+    actualCost: number | null;
   }>;
   _count: {
     files: number;
@@ -81,11 +81,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
  * Action - handle status update, file upload, assignment
  */
 export async function action({ request, params }: ActionFunctionArgs) {
-  await requireAuth(request);
+  const user = await requireAuth(request);
   const token = await getAuthTokenFromSession(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
   const eventId = params.id!;
+
+  // Debug logging (remove in production)
+  console.log("Action called:", { intent, eventId, userRole: user.role, hasToken: !!token });
 
   const tokenOption = token ? { token } : {};
 
@@ -126,7 +129,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     return json({ error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
-    return json({ error: error.message || "An error occurred" }, { status: 400 });
+    console.error("Action error:", error);
+    // Extract error message from API error
+    let errorMessage = "An error occurred";
+    let statusCode = 400;
+
+    // Handle ApiClientError from api.ts
+    if (error.statusCode) {
+      statusCode = error.statusCode;
+      errorMessage = error.message || `Error ${statusCode}: Request failed`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    // Log full error for debugging
+    console.error("Full error details:", {
+      message: errorMessage,
+      statusCode,
+      error: error,
+    });
+
+    return json({ error: errorMessage }, { status: statusCode });
   }
 }
 
@@ -218,9 +241,14 @@ export default function EventDetailPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
           <div className="mt-2 flex items-center space-x-4">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
+            <button
+              type="button"
+              onClick={() => setShowStatusModal(true)}
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(event.status)}`}
+              title="Click to update status"
+            >
               {event.status}
-            </span>
+            </button>
             {event.client && (
               <span className="text-sm text-gray-600">Client: {event.client}</span>
             )}
@@ -233,13 +261,6 @@ export default function EventDetailPage() {
           >
             Edit
           </Link>
-          <button
-            type="button"
-            onClick={() => setShowStatusModal(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
-          >
-            Update Status
-          </button>
         </div>
       </div>
 
@@ -255,29 +276,78 @@ export default function EventDetailPage() {
           {/* Event Details */}
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Event Details</h2>
-            <dl className="grid grid-cols-1 gap-4">
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <dt className="text-sm font-medium text-gray-500">Event Name</dt>
+                <dd className="mt-1 text-sm text-gray-900 font-semibold">{event.name}</dd>
+              </div>
               {event.description && (
-                <div>
+                <div className="md:col-span-2">
                   <dt className="text-sm font-medium text-gray-500">Description</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{event.description}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{event.description}</dd>
+                </div>
+              )}
+              {event.client && (
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Client</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{event.client}</dd>
                 </div>
               )}
               <div>
+                <dt className="text-sm font-medium text-gray-500">Status</dt>
+                <dd className="mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowStatusModal(true)}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(event.status)}`}
+                    title="Click to update status"
+                  >
+                    {event.status}
+                  </button>
+                </dd>
+              </div>
+              <div>
                 <dt className="text-sm font-medium text-gray-500">Start Date</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {event.startDate ? new Date(event.startDate).toLocaleDateString() : "-"}
+                  {event.startDate ? new Date(event.startDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  }) : "-"}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">End Date</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {event.endDate ? new Date(event.endDate).toLocaleDateString() : "-"}
+                  {event.endDate ? new Date(event.endDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  }) : "-"}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">Created</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {new Date(event.createdAt).toLocaleDateString()}
+                  {new Date(event.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
+                <dd className="mt-1 text-sm text-gray-900">
+                  {new Date(event.updatedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
                 </dd>
               </div>
             </dl>
@@ -355,9 +425,9 @@ export default function EventDetailPage() {
                     className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
                   >
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{file.originalName}</div>
+                      <div className="text-sm font-medium text-gray-900">{file.filename}</div>
                       <div className="text-xs text-gray-500">
-                        {formatFileSize(file.size)} • {new Date(file.createdAt).toLocaleDateString()}
+                        {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
                       </div>
                     </div>
                     <button
@@ -381,6 +451,10 @@ export default function EventDetailPage() {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h2>
             <dl className="space-y-3">
               <div>
+                <dt className="text-sm text-gray-500">Assigned Users</dt>
+                <dd className="text-2xl font-semibold text-gray-900">{event.assignments.length}</dd>
+              </div>
+              <div>
                 <dt className="text-sm text-gray-500">Budget Items</dt>
                 <dd className="text-2xl font-semibold text-gray-900">{event._count.budgetItems}</dd>
               </div>
@@ -395,28 +469,42 @@ export default function EventDetailPage() {
             </dl>
           </div>
 
-          {/* Budget Summary */}
+          {/* Budget Items */}
           {event.budgetItems.length > 0 && (
             <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget Summary</h2>
-              <div className="space-y-2">
-                {event.budgetItems.slice(0, 5).map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{item.description}</span>
-                    <span className="font-medium text-gray-900">${item.amount.toFixed(2)}</span>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget Items</h2>
+              <div className="space-y-3">
+                {event.budgetItems.map((item) => {
+                  const cost = item.actualCost ?? item.estimatedCost ?? 0;
+                  return (
+                    <div key={item.id} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-gray-900">{item.category}</div>
+                        {item.description && (
+                          <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                        )}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900 ml-4">
+                        ${Number(cost).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-gray-900">Total Budget</span>
+                    <span className="text-lg font-bold text-indigo-600">
+                      ${event.budgetItems.reduce((sum, item) => {
+                        const cost = item.actualCost ?? item.estimatedCost ?? 0;
+                        return sum + Number(cost);
+                      }, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
                   </div>
-                ))}
-                {event.budgetItems.length > 5 && (
-                  <Link
-                    to={`/budget?eventId=${event.id}`}
-                    className="text-sm text-indigo-600 hover:text-indigo-900"
-                  >
-                    View all budget items →
-                  </Link>
-                )}
+                </div>
               </div>
             </div>
           )}
+
         </div>
       </div>
 

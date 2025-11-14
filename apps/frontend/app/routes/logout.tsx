@@ -1,15 +1,28 @@
 import { type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { logoutUser } from "~/lib/auth.server";
+import { getSessionFromRequest, destroySession } from "~/lib/session";
 
 /**
  * Action - handle logout
  */
 export async function action({ request }: ActionFunctionArgs) {
-  const result = await logoutUser(request);
-  return redirect("/login", {
-    headers: result.headers,
-  });
+  try {
+    const result = await logoutUser(request);
+    return redirect("/login", {
+      headers: result.headers,
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+    // Even if logout fails, try to clear session and redirect
+    const session = await getSessionFromRequest(request);
+    const cookieHeader = await destroySession(session);
+    return redirect("/login", {
+      headers: {
+        "Set-Cookie": cookieHeader,
+      },
+    });
+  }
 }
 
 /**
