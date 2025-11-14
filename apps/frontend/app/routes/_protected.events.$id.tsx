@@ -547,7 +547,15 @@ export default function EventDetailPage() {
           {/* Budget Items */}
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Budget Items</h2>
+              <div className="flex items-center space-x-3">
+                <h2 className="text-lg font-semibold text-gray-900">Budget Items</h2>
+                <Link
+                  to={`/events/${event.id}/budget`}
+                  className="text-sm text-indigo-600 hover:text-indigo-900 font-medium"
+                >
+                  View Full Budget →
+                </Link>
+              </div>
               {canManageBudget && (
                 <button
                   type="button"
