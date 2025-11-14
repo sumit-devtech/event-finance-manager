@@ -294,40 +294,34 @@ export default function ReportsPage() {
           )}
         </div>
 
-        {/* Events Timeline Chart */}
+        {/* Events Overview Chart */}
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Events Overview</h2>
-          {events.length > 0 ? (
+          {statusChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={events.slice(0, 10).map((e) => ({ name: e.name.length > 15 ? e.name.substring(0, 15) + "..." : e.name, fullName: e.name, count: 1 }))}>
+              <BarChart data={statusChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80}
-                  tick={{ fontSize: 10 }}
-                />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    fontSize: '12px'
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    fontSize: "12px",
                   }}
                 />
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="count" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[250px] sm:h-[300px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+            <div className="h-[250px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
               <div className="text-center">
                 <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <p className="text-sm">No data available</p>
+                <p className="text-sm">No events data available</p>
               </div>
             </div>
           )}

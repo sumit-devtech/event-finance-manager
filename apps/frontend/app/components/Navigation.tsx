@@ -34,12 +34,6 @@ const menuItems: MenuItem[] = [
     roles: ["Admin", "EventManager", "Finance", "Viewer"],
   },
   {
-    name: "Budget",
-    href: "/budget",
-    icon: "💰",
-    roles: ["Admin", "EventManager", "Finance", "Viewer"],
-  },
-  {
     name: "Reports",
     href: "/reports",
     icon: "📈",

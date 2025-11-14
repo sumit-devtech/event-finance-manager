@@ -1,5 +1,6 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Link, useSearchParams, useSubmit, useNavigation } from "@remix-run/react";
+import React from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
@@ -406,6 +407,164 @@ export default function ComparisonReportPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Budget Items by Category Comparison */}
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Budget Items by Category</h2>
+        {categoryComparisonData.length > 0 ? (
+          <>
+            {/* Category Comparison Chart */}
+            <div className="mb-6">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={categoryComparisonData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="category" 
+                    angle={-45} 
+                    textAnchor="end" 
+                    height={100}
+                    tick={{ fontSize: 10 }}
+                  />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value: number) => formatCurrency(value)}
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
+                  {comparison.events.map((event, index) => (
+                    <Bar 
+                      key={`estimated-${index}`}
+                      dataKey={`Event ${index + 1} Estimated`} 
+                      fill={index === 0 ? "#8884d8" : index === 1 ? "#82ca9d" : "#ffc658"} 
+                      name={`${event.event.name} (Est.)`}
+                      radius={[4, 4, 0, 0]}
+                    />
+                  ))}
+                  {comparison.events.map((event, index) => (
+                    <Bar 
+                      key={`actual-${index}`}
+                      dataKey={`Event ${index + 1} Actual`} 
+                      fill={index === 0 ? "#8884d8" : index === 1 ? "#82ca9d" : "#ffc658"} 
+                      name={`${event.event.name} (Act.)`}
+                      radius={[4, 4, 0, 0]}
+                      opacity={0.7}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Category Comparison Table */}
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">
+                        Category
+                      </th>
+                      {comparison.events.map((event, index) => (
+                        <React.Fragment key={event.event.id}>
+                          <th colSpan={2} className="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-l-2 border-gray-200">
+                            {event.event.name}
+                          </th>
+                        </React.Fragment>
+                      ))}
+                    </tr>
+                    <tr>
+                      <th className="px-4 sm:px-6 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider sticky left-0 bg-gray-50 z-10"></th>
+                      {comparison.events.map((event) => (
+                        <React.Fragment key={event.event.id}>
+                          <th className="px-4 sm:px-6 py-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider border-l-2 border-gray-200">
+                            Estimated
+                          </th>
+                          <th className="px-4 sm:px-6 py-2 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            Actual
+                          </th>
+                        </React.Fragment>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {categoryComparisonData.map((row, rowIndex) => (
+                      <tr key={row.category} className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 sticky left-0 bg-inherit z-10">
+                          {row.category}
+                        </td>
+                        {comparison.events.map((event, eventIndex) => {
+                          const estimated = row[`Event ${eventIndex + 1} Estimated`] as number || 0;
+                          const actual = row[`Event ${eventIndex + 1} Actual`] as number || 0;
+                          const variance = actual - estimated;
+                          return (
+                            <React.Fragment key={event.event.id}>
+                              <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right border-l-2 border-gray-200 ${
+                                estimated === 0 ? "text-gray-400" : ""
+                              }`}>
+                                {estimated > 0 ? formatCurrency(estimated) : "-"}
+                              </td>
+                              <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-right ${
+                                variance > 0
+                                  ? "text-red-600 font-semibold"
+                                  : variance < 0
+                                    ? "text-green-600 font-semibold"
+                                    : "text-gray-900"
+                              } ${actual === 0 ? "text-gray-400" : ""}`}>
+                                {actual > 0 ? formatCurrency(actual) : "-"}
+                                {actual > 0 && estimated > 0 && (
+                                  <div className={`text-xs mt-0.5 ${
+                                    variance > 0 ? "text-red-500" : variance < 0 ? "text-green-500" : "text-gray-500"
+                                  }`}>
+                                    {variance > 0 ? "+" : ""}{formatCurrency(variance)}
+                                  </div>
+                                )}
+                              </td>
+                            </React.Fragment>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                    {/* Totals Row */}
+                    <tr className="bg-indigo-50 font-semibold border-t-2 border-indigo-200">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-indigo-900 sticky left-0 bg-indigo-50 z-10">
+                        Total
+                      </td>
+                      {comparison.events.map((event, eventIndex) => (
+                        <React.Fragment key={event.event.id}>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-indigo-900 text-right border-l-2 border-indigo-200">
+                            {formatCurrency(event.budget.totalEstimated)}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-indigo-900 text-right">
+                            {formatCurrency(event.budget.totalActual)}
+                            <div className={`text-xs mt-0.5 ${
+                              event.budget.variance > 0 ? "text-red-600" : event.budget.variance < 0 ? "text-green-600" : "text-indigo-700"
+                            }`}>
+                              {event.budget.variance > 0 ? "+" : ""}{formatCurrency(event.budget.variance)}
+                            </div>
+                          </td>
+                        </React.Fragment>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="h-[200px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+            <div className="text-center">
+              <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <p className="text-sm">No category data available</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Variance Trend Line Chart */}

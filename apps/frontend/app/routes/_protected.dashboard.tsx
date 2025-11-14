@@ -252,30 +252,49 @@ export default function Dashboard() {
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
               Status Distribution
-        </h2>
+            </h2>
             {statusData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={statusData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
+                    label={false}
+                    outerRadius={90}
+                    innerRadius={20}
                     fill="#8884d8"
                     dataKey="value"
+                    paddingAngle={2}
                   >
                     {statusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: "12px" }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(255, 255, 255, 0.95)",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                      pointerEvents: "none",
+                    }}
+                    formatter={(value: number, name: string, props: any) => {
+                      const total = statusData.reduce((sum, item) => sum + item.value, 0);
+                      const percent = ((value / total) * 100).toFixed(0);
+                      return [`${name}: ${value} (${percent}%)`, ''];
+                    }}
+                  />
+                  <Legend
+                    wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
+                    verticalAlign="bottom"
+                    height={36}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[250px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+                <div className="h-[300px] flex items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
                 <div className="text-center">
                   <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
