@@ -20,7 +20,8 @@
     "@remix-run/serve": "^2.7.0",
     "isbot": "^4.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "recharts": "^2.12.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.7.0",
