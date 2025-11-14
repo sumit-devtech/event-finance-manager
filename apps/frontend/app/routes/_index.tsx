@@ -1,6 +1,7 @@
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { getCurrentUser } from "~/lib/auth.server";
+import type { User } from "~/lib/auth";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getCurrentUser(request);
@@ -8,6 +9,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
+  const { user } = useLoaderData<typeof loader>() as { user: User | null };
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -27,14 +29,16 @@ export default function Index() {
                 Get Started
               </Link>
             </div>
-            <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-              <Link
-                to="/dashboard"
-                className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-              >
-                Dashboard
-              </Link>
-            </div>
+            {user && (
+              <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+                <Link
+                  to="/dashboard"
+                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+                >
+                  Dashboard
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

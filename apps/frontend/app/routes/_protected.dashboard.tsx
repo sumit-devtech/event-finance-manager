@@ -1,19 +1,27 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { requireAuth } from "~/lib/auth.server";
+import { useMatches } from "@remix-run/react";
 import type { User } from "~/lib/auth";
 
 /**
- * Protected route loader
- * Uses requireAuth to ensure user is authenticated
+ * Dashboard route - nested under _protected layout
+ * User data comes from parent _protected loader
  */
-export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireAuth(request);
-  return json({ user });
-}
-
 export default function Dashboard() {
-  const { user } = useLoaderData<typeof loader>() as { user: User };
+  // Get user data from parent route loader using useMatches
+  const matches = useMatches();
+  const protectedRouteData = matches.find(
+    (match) => match.id === "routes/_protected"
+  )?.data as { user: User } | undefined;
+  const user = protectedRouteData?.user;
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white shadow rounded-lg p-6">
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto">

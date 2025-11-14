@@ -1,34 +1,29 @@
 /**
- * Protected Route Wrapper
+ * Protected Route Layout
  * 
- * This file demonstrates how to protect routes using the requireAuth utility.
- * Any route that imports and uses requireAuth in its loader will be protected.
- * 
- * Example usage in a route file:
- * 
- * import { requireAuth } from "~/lib/auth.server";
- * 
- * export async function loader({ request }: LoaderFunctionArgs) {
- *   const user = await requireAuth(request);
- *   // User is guaranteed to be authenticated here
- *   return json({ user });
- * }
+ * This layout route protects all child routes and provides the main application layout.
+ * Any route nested under this will require authentication.
  */
 
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
+import { Layout } from "~/components/Layout";
+import type { User } from "~/lib/auth";
 
 /**
- * Example protected loader
- * This demonstrates the pattern for protecting routes
+ * Protected loader - ensures user is authenticated
  */
 export async function loader({ request }: LoaderFunctionArgs) {
-  // This will redirect to /login if not authenticated
   const user = await requireAuth(request);
-  
-  return {
-    user,
-    message: "This is a protected route",
-  };
+  return json({ user });
+}
+
+/**
+ * Layout component that wraps all protected routes
+ */
+export default function ProtectedLayout() {
+  const { user } = useLoaderData<typeof loader>() as { user: User };
+  return <Layout user={user} />;
 }
 
