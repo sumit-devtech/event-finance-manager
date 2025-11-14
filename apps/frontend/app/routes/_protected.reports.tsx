@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Form, Link, useSubmit, useNavigation } from "@remix-run/react";
+import { useLoaderData, Form, Link, useSubmit, useNavigation, Outlet, useLocation } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
@@ -88,12 +88,16 @@ export default function ReportsPage() {
   const { events, user } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const submit = useSubmit();
+  const location = useLocation();
   const isSubmitting = navigation.state === "submitting";
 
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
   const [reportType, setReportType] = useState<"summary" | "comparison">("summary");
   const [isMobile, setIsMobile] = useState(false);
+
+  // Check if we're on a child route (like /reports/comparison)
+  const isChildRoute = location.pathname !== "/reports";
 
   useEffect(() => {
     const checkMobile = () => {
@@ -103,6 +107,11 @@ export default function ReportsPage() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // If we're on a child route, render the outlet
+  if (isChildRoute) {
+    return <Outlet />;
+  }
 
   // Get auth token from localStorage for client-side export
   const getAuthToken = () => {
