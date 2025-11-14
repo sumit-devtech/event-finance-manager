@@ -1,0 +1,576 @@
+import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, useLoaderData, useActionData, useNavigation, useSubmit, Link } from "@remix-run/react";
+import { requireAuth } from "~/lib/auth.server";
+import { api } from "~/lib/api";
+import { getAuthTokenFromSession } from "~/lib/session";
+import { useState, useEffect, useRef } from "react";
+
+interface EventDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  client: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  assignments: Array<{
+    id: string;
+    role: string | null;
+    user: {
+      id: string;
+      name: string | null;
+      email: string;
+      role: string;
+    };
+  }>;
+  files: Array<{
+    id: string;
+    filename: string;
+    originalName: string;
+    mimeType: string;
+    size: number;
+    createdAt: string;
+  }>;
+  budgetItems: Array<{
+    id: string;
+    category: string;
+    description: string;
+    amount: number;
+  }>;
+  _count: {
+    files: number;
+    budgetItems: number;
+    activityLogs: number;
+  };
+}
+
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+}
+
+/**
+ * Loader - fetch event detail and users
+ */
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireAuth(request);
+  const token = await getAuthTokenFromSession(request);
+  const eventId = params.id!;
+
+  try {
+    const event = await api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined });
+    // Try to fetch users, but don't fail if user doesn't have permission (non-admin)
+    let users: User[] = [];
+    try {
+      users = await api.get<User[]>("/users", { token: token || undefined });
+    } catch {
+      // Users endpoint requires Admin role, so non-admin users will get empty array
+      users = [];
+    }
+    return json({ event, users });
+  } catch (error: any) {
+    throw new Response("Event not found", { status: 404 });
+  }
+}
+
+/**
+ * Action - handle status update, file upload, assignment
+ */
+export async function action({ request, params }: ActionFunctionArgs) {
+  await requireAuth(request);
+  const token = await getAuthTokenFromSession(request);
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  const eventId = params.id!;
+
+  const tokenOption = token ? { token } : {};
+
+  try {
+    if (intent === "updateStatus") {
+      const status = formData.get("status") as string;
+      await api.put(`/events/${eventId}/status`, { status }, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "assignUser") {
+      const userId = formData.get("userId") as string;
+      const role = formData.get("role") as string || undefined;
+      await api.post(`/events/${eventId}/assign`, { userId, role }, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "unassignUser") {
+      const userId = formData.get("userId") as string;
+      await api.delete(`/events/${eventId}/assign/${userId}`, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "uploadFile") {
+      const file = formData.get("file") as File;
+      if (!file) {
+        return json({ error: "No file selected" }, { status: 400 });
+      }
+      await api.upload(`/events/${eventId}/files`, file, {}, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "deleteFile") {
+      const fileId = formData.get("fileId") as string;
+      await api.delete(`/events/${eventId}/files/${fileId}`, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    return json({ error: "Invalid action" }, { status: 400 });
+  } catch (error: any) {
+    return json({ error: error.message || "An error occurred" }, { status: 400 });
+  }
+}
+
+export default function EventDetailPage() {
+  const { event, users } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(event.status);
+
+  const isLoading = navigation.state === "submitting" || navigation.state === "loading";
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Planning":
+        return "bg-blue-100 text-blue-800";
+      case "Active":
+        return "bg-green-100 text-green-800";
+      case "Completed":
+        return "bg-gray-100 text-gray-800";
+      case "Cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleStatusUpdate = () => {
+    const formData = new FormData();
+    formData.append("intent", "updateStatus");
+    formData.append("status", selectedStatus);
+    submit(formData, { method: "post" });
+    setShowStatusModal(false);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("intent", "uploadFile");
+      formData.append("file", file);
+      submit(formData, { method: "post", encType: "multipart/form-data" });
+    }
+  };
+
+  const handleAssignUser = (userId: string, role: string) => {
+    const formData = new FormData();
+    formData.append("intent", "assignUser");
+    formData.append("userId", userId);
+    formData.append("role", role);
+    submit(formData, { method: "post" });
+    setShowAssignModal(false);
+  };
+
+  const handleUnassignUser = (userId: string) => {
+    if (confirm("Are you sure you want to remove this user from the event?")) {
+      const formData = new FormData();
+      formData.append("intent", "unassignUser");
+      formData.append("userId", userId);
+      submit(formData, { method: "post" });
+    }
+  };
+
+  const handleDeleteFile = (fileId: string) => {
+    if (confirm("Are you sure you want to delete this file?")) {
+      const formData = new FormData();
+      formData.append("intent", "deleteFile");
+      formData.append("fileId", fileId);
+      submit(formData, { method: "post" });
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
+          <div className="mt-2 flex items-center space-x-4">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
+              {event.status}
+            </span>
+            {event.client && (
+              <span className="text-sm text-gray-600">Client: {event.client}</span>
+            )}
+          </div>
+        </div>
+        <div className="flex space-x-2">
+          <Link
+            to={`/events/${event.id}/edit`}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+          >
+            Edit
+          </Link>
+          <button
+            type="button"
+            onClick={() => setShowStatusModal(true)}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
+          >
+            Update Status
+          </button>
+        </div>
+      </div>
+
+      {actionData?.error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+          {actionData.error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Event Details */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Event Details</h2>
+            <dl className="grid grid-cols-1 gap-4">
+              {event.description && (
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Description</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{event.description}</dd>
+                </div>
+              )}
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Start Date</dt>
+                <dd className="mt-1 text-sm text-gray-900">
+                  {event.startDate ? new Date(event.startDate).toLocaleDateString() : "-"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">End Date</dt>
+                <dd className="mt-1 text-sm text-gray-900">
+                  {event.endDate ? new Date(event.endDate).toLocaleDateString() : "-"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Created</dt>
+                <dd className="mt-1 text-sm text-gray-900">
+                  {new Date(event.createdAt).toLocaleDateString()}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Assigned Users */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Assigned Users</h2>
+              <button
+                type="button"
+                onClick={() => setShowAssignModal(true)}
+                className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+              >
+                + Assign User
+              </button>
+            </div>
+            {event.assignments.length === 0 ? (
+              <p className="text-sm text-gray-500">No users assigned</p>
+            ) : (
+              <div className="space-y-2">
+                {event.assignments.map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {assignment.user.name || assignment.user.email}
+                      </div>
+                      {assignment.role && (
+                        <div className="text-xs text-gray-500">{assignment.role}</div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleUnassignUser(assignment.user.id)}
+                      className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Files */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Files</h2>
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-sm text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                >
+                  + Upload File
+                </button>
+              </div>
+            </div>
+            {event.files.length === 0 ? (
+              <p className="text-sm text-gray-500">No files uploaded</p>
+            ) : (
+              <div className="space-y-2">
+                {event.files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{file.originalName}</div>
+                      <div className="text-xs text-gray-500">
+                        {formatFileSize(file.size)} • {new Date(file.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteFile(file.id)}
+                      className="text-sm text-red-600 hover:text-red-900 cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Quick Stats */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h2>
+            <dl className="space-y-3">
+              <div>
+                <dt className="text-sm text-gray-500">Budget Items</dt>
+                <dd className="text-2xl font-semibold text-gray-900">{event._count.budgetItems}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Files</dt>
+                <dd className="text-2xl font-semibold text-gray-900">{event._count.files}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Activity Logs</dt>
+                <dd className="text-2xl font-semibold text-gray-900">{event._count.activityLogs}</dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Budget Summary */}
+          {event.budgetItems.length > 0 && (
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget Summary</h2>
+              <div className="space-y-2">
+                {event.budgetItems.slice(0, 5).map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span className="text-gray-600">{item.description}</span>
+                    <span className="font-medium text-gray-900">${item.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+                {event.budgetItems.length > 5 && (
+                  <Link
+                    to={`/budget?eventId=${event.id}`}
+                    className="text-sm text-indigo-600 hover:text-indigo-900"
+                  >
+                    View all budget items →
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Status Update Modal */}
+      {showStatusModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowStatusModal(false);
+            }
+          }}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[101]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-4">Update Status</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Status
+                </label>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="Planning">Planning</option>
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowStatusModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStatusUpdate}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Assign User Modal */}
+      {showAssignModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAssignModal(false);
+            }
+          }}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[101]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-4">Assign User</h2>
+            <AssignUserForm
+              users={users}
+              assignedUserIds={event.assignments.map((a) => a.user.id)}
+              onAssign={handleAssignUser}
+              onCancel={() => setShowAssignModal(false)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssignUserForm({
+  users,
+  assignedUserIds,
+  onAssign,
+  onCancel,
+}: {
+  users: User[];
+  assignedUserIds: string[];
+  onAssign: (userId: string, role: string) => void;
+  onCancel: () => void;
+}) {
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [role, setRole] = useState("");
+
+  const availableUsers = users.filter((user) => !assignedUserIds.includes(user.id));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedUserId) {
+      onAssign(selectedUserId, role);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Select User
+        </label>
+        <select
+          value={selectedUserId}
+          onChange={(e) => setSelectedUserId(e.target.value)}
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="">-- Select a user --</option>
+          {availableUsers.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.name || user.email} ({user.role})
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Role (optional)
+        </label>
+        <input
+          type="text"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          placeholder="e.g., Manager, Coordinator"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+      <div className="flex justify-end space-x-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
+        >
+          Assign
+        </button>
+      </div>
+    </form>
+  );
+}
+
