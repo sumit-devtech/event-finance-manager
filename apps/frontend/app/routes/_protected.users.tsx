@@ -1,5 +1,5 @@
-import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useActionData, useNavigation, Form, useSubmit } from "@remix-run/react";
+import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { useLoaderData, useActionData, useNavigation, Form, useSubmit, useRevalidator } from "@remix-run/react";
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
@@ -124,6 +124,7 @@ export default function UsersPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
+    const revalidator = useRevalidator();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -145,6 +146,24 @@ export default function UsersPage() {
       setActivityLogs(actionData.logs as ActivityLog[]);
     }
   }, [actionData, showActivityLogs]);
+
+    // Reload data after successful actions (except delete which redirects)
+    useEffect(() => {
+        if (actionData?.success && "message" in actionData && actionData.message) {
+            // Close all modals
+            setShowCreateModal(false);
+            setShowEditModal(false);
+            setShowRoleModal(false);
+            setShowEventModal(false);
+            setSelectedUser(null);
+
+            // Reload the page data after a short delay to show the success message
+            const timer = setTimeout(() => {
+                revalidator.revalidate();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [actionData, revalidator]);
 
   // Filter users
   const filteredUsers = users.filter((user) => {
@@ -213,8 +232,12 @@ export default function UsersPage() {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
         <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  type="button"
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      setShowCreateModal(true);
+                  }}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors"
         >
           Create User
         </button>
@@ -319,41 +342,55 @@ export default function UsersPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex justify-end space-x-2">
                     <button
-                      onClick={() => {
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
                         setSelectedUser(user);
                         setShowEditModal(true);
                       }}
-                      className="text-indigo-600 hover:text-indigo-900"
+                                className="text-indigo-600 hover:text-indigo-900 cursor-pointer transition-colors"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => {
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
                         setSelectedUser(user);
                         setShowRoleModal(true);
                       }}
-                      className="text-blue-600 hover:text-blue-900"
+                                className="text-blue-600 hover:text-blue-900 cursor-pointer transition-colors"
                     >
                       Role
                     </button>
                     <button
-                      onClick={() => {
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
                         setSelectedUser(user);
                         setShowEventModal(true);
                       }}
-                      className="text-green-600 hover:text-green-900"
+                                className="text-green-600 hover:text-green-900 cursor-pointer transition-colors"
                     >
                       Events
                     </button>
                     <button
-                      onClick={() => handleViewActivityLogs(user.id)}
-                      className="text-purple-600 hover:text-purple-900"
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewActivityLogs(user.id);
+                                }}
+                                className="text-purple-600 hover:text-purple-900 cursor-pointer transition-colors"
                     >
                       Logs
                     </button>
                     <button
-                      onClick={() => handleDelete(user.id)}
-                      className="text-red-600 hover:text-red-900"
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(user.id);
+                                }}
+                                className="text-red-600 hover:text-red-900 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={isLoading}
                     >
                       Delete
@@ -381,9 +418,13 @@ export default function UsersPage() {
           </div>
           <div className="flex space-x-2">
             <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                          type="button"
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentPage((p) => Math.max(1, p - 1));
+                          }}
               disabled={currentPage === 1}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
             >
               Previous
             </button>
@@ -391,8 +432,12 @@ export default function UsersPage() {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 border rounded-lg text-sm font-medium ${
+                      type="button"
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentPage(page);
+                      }}
+                      className={`px-3 py-2 border rounded-lg text-sm font-medium cursor-pointer transition-colors ${
                     currentPage === page
                       ? "bg-indigo-600 text-white border-indigo-600"
                       : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
@@ -403,9 +448,13 @@ export default function UsersPage() {
               ))}
             </div>
             <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                          type="button"
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentPage((p) => Math.min(totalPages, p + 1));
+                          }}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
             >
               Next
             </button>
@@ -490,8 +539,18 @@ function UserFormModal({
   const submit = useSubmit();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]"
+          onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                  onClose();
+              }
+          }}
+      >
+          <div
+              className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[101]"
+              onClick={(e) => e.stopPropagation()}
+          >
         <h2 className="text-xl font-bold mb-4">
           {intent === "create" ? "Create User" : "Edit User"}
         </h2>
@@ -499,6 +558,7 @@ function UserFormModal({
           method="post"
           onSubmit={(e) => {
             e.preventDefault();
+              e.stopPropagation();
             const formData = new FormData(e.currentTarget);
             formData.append("intent", intent);
             if (user) {
@@ -563,15 +623,18 @@ function UserFormModal({
           <div className="mt-6 flex justify-end space-x-3">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              onClose();
+                          }}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition-colors"
             >
               {isLoading ? "Saving..." : intent === "create" ? "Create" : "Update"}
             </button>
@@ -630,15 +693,18 @@ function RoleAssignmentModal({
           <div className="mt-6 flex justify-end space-x-3">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              onClose();
+                          }}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition-colors"
             >
               {isLoading ? "Assigning..." : "Assign Role"}
             </button>
@@ -711,15 +777,18 @@ function EventAssignmentModal({
           <div className="mt-6 flex justify-end space-x-3">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              onClose();
+                          }}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition-colors"
             >
               {isLoading ? "Assigning..." : "Assign Event"}
             </button>

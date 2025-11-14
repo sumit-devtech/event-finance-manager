@@ -79,7 +79,7 @@ export function Navigation({ user, isOpen, onClose }: NavigationProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden"
+          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-30 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -87,10 +87,11 @@ export function Navigation({ user, isOpen, onClose }: NavigationProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-screen w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:fixed lg:z-auto
+          fixed top-0 left-0 z-30 h-screen w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+          lg:translate-x-0 lg:fixed
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col h-full">
           {/* Logo/Brand */}
@@ -105,8 +106,12 @@ export function Navigation({ user, isOpen, onClose }: NavigationProps) {
               </span>
             </Link>
             <button
-              onClick={onClose}
-              className="lg:hidden p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="lg:hidden p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
               aria-label="Close menu"
             >
               <svg

@@ -29,13 +29,17 @@ export function Layout({ user }: LayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
         {/* Header - Fixed at top */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 flex-shrink-0">
-          <div className="px-4 sm:px-6 lg:px-8 relative">
+        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 flex-shrink-0 relative">
+          <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               {/* Mobile menu button */}
               <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 -ml-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSidebarOpen(true);
+                }}
+                className="lg:hidden p-2 -ml-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 cursor-pointer"
                 aria-label="Open menu"
               >
                 <svg

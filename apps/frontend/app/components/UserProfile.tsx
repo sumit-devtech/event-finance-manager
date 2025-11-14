@@ -16,8 +16,10 @@ export function UserProfile({ user }: UserProfileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
+    if (!isOpen) return;
+
     function handleClickOutside(event: MouseEvent) {
       if (
         dropdownRef.current &&
@@ -27,11 +29,24 @@ export function UserProfile({ user }: UserProfileProps) {
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    // Use a small delay to avoid immediate closure
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }, 0);
+
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
-  }, []);
+  }, [isOpen]);
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -49,14 +64,17 @@ export function UserProfile({ user }: UserProfileProps) {
   };
 
   return (
-    <div className="relative z-50" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
         onClick={(e) => {
           e.stopPropagation();
-          setIsOpen(!isOpen);
+          setIsOpen((prev) => {
+            const newState = !prev;
+            return newState;
+          });
         }}
-        className="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        className="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer relative z-50"
         aria-label="User menu"
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -90,7 +108,15 @@ export function UserProfile({ user }: UserProfileProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[60] max-w-[calc(100vw-2rem)]">
+        <div 
+          className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 max-w-[calc(100vw-2rem)] z-[100]"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <div className="px-4 py-3 border-b border-gray-200">
             <div className="text-sm font-medium text-gray-900">
               {user.name || user.email}
