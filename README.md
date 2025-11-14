@@ -1,80 +1,72 @@
 # Event Finance Manager
 
-A monorepo for managing event finances, built with Turborepo, Remix, and NestJS.
+Event Finance Manager application with NestJS backend and Remix frontend.
 
-## Structure
+## Architecture
 
-This monorepo contains:
+- **Backend**: NestJS API running on `http://localhost:3333/api`
+- **Frontend**: Remix app running on `http://localhost:5173`
+- **Database**: PostgreSQL (Neon)
 
-- `apps/frontend` - Remix frontend application
-- `apps/backend` - NestJS backend API
-- `packages/shared` - Shared TypeScript types and utilities
-- `packages/database` - Prisma schema and database client
+## Quick Start
 
-## Prerequisites
-
-- Node.js >= 18.0.0
-- pnpm >= 8.0.0
-
-## Getting Started
-
-1. Fix permissions (if you previously ran commands with sudo):
-   ```bash
-   sudo chown -R $(whoami) node_modules .turbo
-   ```
-
-2. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-2. Set up environment variables:
-   - Create `.env` files in `apps/backend` and `packages/database` with your `DATABASE_URL`
-
-3. Generate Prisma client:
-   ```bash
-   pnpm --filter @event-finance-manager/database db:generate
-   ```
-
-4. Run database migrations:
-   ```bash
-   pnpm --filter @event-finance-manager/database db:migrate
-   ```
-
-5. Start development servers:
-   ```bash
-   pnpm dev
-   ```
-
-## Available Scripts
-
-- `pnpm build` - Build all packages and apps
-- `pnpm dev` - Start all apps in development mode
-- `pnpm lint` - Lint all packages and apps
-- `pnpm format` - Format code with Prettier
-- `pnpm type-check` - Type check all packages and apps
-- `pnpm clean` - Clean all build artifacts
-
-## Workspace Scripts
-
-You can run scripts for specific packages using pnpm filters:
+### 1. Install Dependencies
 
 ```bash
-# Build a specific package
-pnpm --filter @event-finance-manager/frontend build
-
-# Run dev for a specific app
-pnpm --filter @event-finance-manager/backend dev
-
-# Run database commands
-pnpm --filter @event-finance-manager/database db:studio
+pnpm install
 ```
 
-## Tech Stack
+### 2. Setup Database
 
-- **Monorepo**: Turborepo
-- **Package Manager**: pnpm
-- **Frontend**: Remix
-- **Backend**: NestJS
-- **Database**: Prisma + PostgreSQL
-- **Language**: TypeScript
+```bash
+cd packages/database
+pnpm db:generate  # Generate Prisma Client
+pnpm db:push      # Push schema to database
+pnpm db:seed      # Create test users
+```
+
+### 3. Start Backend
+
+```bash
+cd apps/backend
+pnpm dev
+```
+
+Backend will run on: `http://localhost:3333/api`
+
+### 4. Start Frontend
+
+```bash
+cd apps/frontend
+pnpm dev
+```
+
+Frontend will run on: `http://localhost:5173`
+
+## Test Users
+
+After running `pnpm db:seed`, you can login with:
+
+- **Admin**: `admin@test.com` / `password123`
+- **Event Manager**: `manager@test.com` / `password123`
+- **Finance**: `finance@test.com` / `password123`
+- **Viewer**: `viewer@test.com` / `password123`
+
+## Environment Variables
+
+### Backend (`apps/backend/.env`)
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret for JWT tokens
+- `PORT` - Backend port (default: 3333)
+- `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5173)
+
+### Frontend (`apps/frontend/.env`)
+- `API_BASE_URL` - Backend API URL (default: http://localhost:3333/api)
+- `SESSION_SECRET` - Session encryption secret
+
+## Port Configuration
+
+- **Backend**: Port `3333` (NestJS API)
+- **Frontend**: Port `5173` (Remix/Vite dev server)
+
+Make sure both services are running on different ports!

@@ -16,7 +16,11 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:5173",
+      "http://localhost:3333", // Allow Remix dev server if on same port
+      "http://localhost:3000", // Common alternative port
+    ],
     credentials: true,
   });
 
