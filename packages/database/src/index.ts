@@ -1,9 +1,5 @@
 export { PrismaClient } from "@prisma/client";
 
-// Re-export Prisma enums directly - Prisma exports them as both const and type
-// Using type-only import first to get the types, then importing values
-import type { UserRole as UserRoleType, EventStatus as EventStatusType, BudgetItemCategory as BudgetItemCategoryType, NotificationType as NotificationTypeType } from "@prisma/client";
-
 // Import enum values using require to avoid TypeScript resolution issues
 const prismaClient = require("@prisma/client");
 
@@ -13,11 +9,12 @@ export const EventStatus = prismaClient.EventStatus;
 export const BudgetItemCategory = prismaClient.BudgetItemCategory;
 export const NotificationType = prismaClient.NotificationType;
 
-// Re-export enum types - these can be used for type annotations
-export type UserRole = UserRoleType;
-export type EventStatus = EventStatusType;
-export type BudgetItemCategory = BudgetItemCategoryType;
-export type NotificationType = NotificationTypeType;
+// Define enum types based on the actual enum values
+// This ensures TypeScript can resolve the types correctly
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+export type EventStatus = typeof EventStatus[keyof typeof EventStatus];
+export type BudgetItemCategory = typeof BudgetItemCategory[keyof typeof BudgetItemCategory];
+export type NotificationType = typeof NotificationType[keyof typeof NotificationType];
 
 export * from "./client";
 

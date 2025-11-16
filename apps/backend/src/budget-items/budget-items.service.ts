@@ -6,7 +6,8 @@ import {
   forwardRef,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateBudgetItemDto, BudgetItemCategory } from "./dto/create-budget-item.dto";
+import { CreateBudgetItemDto } from "./dto/create-budget-item.dto";
+import { BudgetItemCategory } from "@event-finance-manager/database";
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import * as fs from "fs";

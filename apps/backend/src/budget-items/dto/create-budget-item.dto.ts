@@ -1,15 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, Min } from "class-validator";
 import { Type } from "class-transformer";
-
-export enum BudgetItemCategory {
-  Venue = "Venue",
-  Catering = "Catering",
-  Marketing = "Marketing",
-  Logistics = "Logistics",
-  Entertainment = "Entertainment",
-  StaffTravel = "StaffTravel",
-  Miscellaneous = "Miscellaneous",
-}
+import { BudgetItemCategory } from "@event-finance-manager/database";
 
 export class CreateBudgetItemDto {
   @IsEnum(BudgetItemCategory)
