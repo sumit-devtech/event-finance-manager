@@ -8,7 +8,10 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "type-check": "turbo run type-check",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "check": "bash scripts/check-types.sh",
+    "check:full": "bash scripts/pre-deploy-check.sh",
+    "pre-deploy": "pnpm check && echo '✅ Ready for deployment!'"
   },
   "devDependencies": {
     "@turbo/gen": "^2.0.0",
@@ -25,4 +28,3 @@
     "pnpm": ">=8.0.0"
   }
 }
-
