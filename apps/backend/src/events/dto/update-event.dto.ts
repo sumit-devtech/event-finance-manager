@@ -1,5 +1,5 @@
 import { IsString, IsOptional, IsDateString, IsEnum } from "class-validator";
-import { EventStatus } from "./create-event.dto";
+import { EventStatus } from "@event-finance-manager/database";
 
 export class UpdateEventDto {
   @IsOptional()

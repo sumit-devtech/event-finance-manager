@@ -55,7 +55,18 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const newEvent = await api.post("/events", eventData, { token: token || undefined });
+    interface Event {
+      id: string;
+      name: string;
+      description?: string;
+      client?: string;
+      startDate?: string;
+      endDate?: string;
+      status?: string;
+      createdAt: string;
+      updatedAt: string;
+    }
+    const newEvent = await api.post<Event>("/events", eventData, { token: token || undefined });
     return redirect(`/events/${newEvent.id}`);
   } catch (error: any) {
     console.error("Error creating event:", error);

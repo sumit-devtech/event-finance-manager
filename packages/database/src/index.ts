@@ -1,7 +1,7 @@
 export { PrismaClient } from "@prisma/client";
 
-// Export Prisma types
-export type {
+// Export Prisma enums (as values, not types, since enums are both types and values)
+export {
   NotificationType,
   UserRole,
   EventStatus,

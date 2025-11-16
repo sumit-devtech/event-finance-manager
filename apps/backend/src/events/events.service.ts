@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateEventDto, EventStatus } from "./dto/create-event.dto";
+import { CreateEventDto } from "./dto/create-event.dto";
+import { EventStatus } from "@event-finance-manager/database";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
