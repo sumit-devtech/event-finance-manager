@@ -5,8 +5,8 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: cd apps/backend && pnpm install --frozen-lockfile && cd ../.. && pnpm --filter @event-finance-manager/database db:generate && pnpm --filter @event-finance-manager/database db:push && pnpm --filter @event-finance-manager/backend build
-    startCommand: cd apps/backend && pnpm start:prod
+    buildCommand: cd ../.. && pnpm install --frozen-lockfile && cd packages/database && pnpm db:generate && pnpm db:push && cd ../../apps/backend && pnpm build
+    startCommand: pnpm start:prod
     rootDir: apps/backend
     envVars:
       - key: DATABASE_URL
