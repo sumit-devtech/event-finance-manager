@@ -1,0 +1,49 @@
+services:
+  # Backend Service
+  - type: web
+    name: event-finance-manager-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd apps/backend && pnpm install --frozen-lockfile && cd ../.. && pnpm --filter @event-finance-manager/database db:generate && pnpm --filter @event-finance-manager/database db:push && pnpm --filter @event-finance-manager/backend build
+    startCommand: cd apps/backend && pnpm start:prod
+    rootDir: apps/backend
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3333
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        sync: false
+
+  # Frontend Service
+  - type: web
+    name: event-finance-manager-frontend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @event-finance-manager/frontend build
+    startCommand: cd apps/frontend && node build/index.js
+    rootDir: apps/frontend
+    envVars:
+      - key: API_BASE_URL
+        sync: false
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+
+databases:
+  - name: event-finance-manager-db
+    databaseName: eventfinancemanager
+    user: eventfinancemanager
+    plan: free
+

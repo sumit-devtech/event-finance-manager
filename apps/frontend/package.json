@@ -8,7 +8,7 @@
     "build": "remix build",
     "dev": "remix dev",
     "lint": "eslint .",
-    "start": "remix-serve ./build/index.js",
+    "start": "node build/index.js",
     "type-check": "tsc",
     "clean": "rm -rf .cache build"
   },
