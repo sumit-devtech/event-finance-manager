@@ -16,7 +16,12 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "incremental": true
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+        "@event-finance-manager/database": ["packages/database/src"],
+        "@event-finance-manager/shared": ["packages/shared/src"]
+      }
   },
   "exclude": ["node_modules", "dist", "build", ".next"]
 }
