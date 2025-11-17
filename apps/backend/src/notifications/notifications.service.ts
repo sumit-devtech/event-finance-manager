@@ -119,7 +119,7 @@ export class NotificationsService {
   async createEventAssignedNotification(userId: string, eventId: string, eventName: string) {
     return this.createNotification({
       userId,
-      type: "Info",
+      type: NotificationType.Info,
       title: "Event Assigned",
       message: `You have been assigned to the event: ${eventName}`,
       metadata: { eventId, eventName },
@@ -130,7 +130,7 @@ export class NotificationsService {
   async createBudgetApprovalNotification(userId: string, eventId: string, eventName: string) {
     return this.createNotification({
       userId,
-      type: "Warning",
+      type: NotificationType.Warning,
       title: "Budget Approval Required",
       message: `Budget approval is required for event: ${eventName}`,
       metadata: { eventId, eventName },
@@ -147,7 +147,7 @@ export class NotificationsService {
   ) {
     return this.createNotification({
       userId,
-      type: "Error",
+      type: NotificationType.Error,
       title: "Budget Overrun Alert",
       message: `Event "${eventName}" has exceeded budget by ${Math.abs(variancePercentage).toFixed(2)}%`,
       metadata: { eventId, eventName, variance, variancePercentage },
@@ -158,7 +158,7 @@ export class NotificationsService {
   async createEventCompletionNotification(userId: string, eventId: string, eventName: string) {
     return this.createNotification({
       userId,
-      type: "Success",
+      type: NotificationType.Success,
       title: "Event Completed",
       message: `Event "${eventName}" has been marked as completed`,
       metadata: { eventId, eventName },
