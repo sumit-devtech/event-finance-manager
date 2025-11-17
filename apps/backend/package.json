@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "nest build --tsc",
+    "build": "pnpm --filter @event-finance-manager/database build && nest build --tsc",
     "predev": "nest build --tsc || true",
     "dev": "nest start --watch --preserveWatchOutput",
-    "start": "node dist/main",
-    "start:prod": "node dist/main",
+    "start": "node dist/main.js",
+    "start:prod": "node dist/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
