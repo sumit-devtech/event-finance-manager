@@ -1,4 +1,4 @@
-export { PrismaClient } from "@prisma/client";
+export { PrismaClient, NotificationType } from "@prisma/client";
 
 export * from "./client";
 
