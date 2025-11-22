@@ -10,7 +10,6 @@
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "baseUrl": "./",
     "incremental": true,
     "composite": false,
@@ -19,7 +18,11 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@event-finance-manager/database": ["../../packages/database/src"],
+      "@event-finance-manager/shared": ["../../packages/shared/src"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -2,12 +2,13 @@
   "name": "@event-finance-manager/backend",
   "version": "0.0.0",
   "private": true,
+  "main": "dist/apps/backend/src/main.js",
   "scripts": {
     "build": "nest build --tsc",
     "predev": "nest build --tsc || true",
-    "dev": "nest start --watch --preserveWatchOutput",
-    "start": "node dist/main",
-    "start:prod": "node dist/main",
+    "dev": "nest build --watch --tsc & sleep 2 && node dist/apps/backend/src/main.js",
+    "start": "node dist/apps/backend/src/main.js",
+    "start:prod": "node dist/apps/backend/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
