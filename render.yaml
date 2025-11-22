@@ -1,0 +1,39 @@
+services:
+  # Backend API Service
+  - type: web
+    name: event-finance-manager-backend
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/backend build
+    startCommand: cd apps/backend && node dist/apps/backend/src/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false  # Set this in Render dashboard after creating PostgreSQL database
+      - key: JWT_SECRET
+        sync: false  # Generate a secure random string and set in Render dashboard
+      - key: FRONTEND_URL
+        sync: false  # Set this manually after frontend is deployed (e.g., https://event-finance-manager-frontend.onrender.com)
+
+  # Frontend Web Service
+  - type: web
+    name: event-finance-manager-frontend
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/frontend build
+    startCommand: cd apps/frontend && pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: VITE_API_BASE_URL
+        sync: false  # Set this manually after backend is deployed (e.g., https://event-finance-manager-backend.onrender.com/api)
+      - key: SESSION_SECRET
+        sync: false  # Generate a secure random string and set in Render dashboard
+

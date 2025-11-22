@@ -70,3 +70,21 @@ After running `pnpm db:seed`, you can login with:
 - **Frontend**: Port `5173` (Remix/Vite dev server)
 
 Make sure both services are running on different ports!
+
+## Deployment
+
+This application can be deployed to Render.com. See the deployment guides:
+
+- **[DEPLOY_STEPS.md](./DEPLOY_STEPS.md)** ⭐ **START HERE** - Complete step-by-step guide
+- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Quick checklist reference
+- **[RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)** - Detailed technical guide
+
+### Quick Deploy to Render
+
+1. **Create PostgreSQL database** on Render
+2. **Deploy backend** using `render.yaml` blueprint (or manual setup)
+3. **Run database migrations** via Render Shell
+4. **Deploy frontend** and configure `VITE_API_BASE_URL`
+5. **Update backend CORS** with frontend URL
+
+👉 **For complete instructions, see [DEPLOY_STEPS.md](./DEPLOY_STEPS.md)**
