@@ -5,7 +5,7 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: pnpm install --frozen-lockfile && cd packages/database && pnpm dlx prisma generate && cd ../.. && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/backend build
+    buildCommand: pnpm install --frozen-lockfile || (cd packages/database && pnpm add prisma@^5.22.0 --save-prod && cd ../.. && pnpm install --frozen-lockfile) && cd packages/database && pnpm dlx prisma generate && cd ../.. && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/backend build
     startCommand: cd apps/backend && node dist/apps/backend/src/main.js
     envVars:
       - key: NODE_ENV
@@ -25,7 +25,7 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: pnpm install --frozen-lockfile && cd packages/database && pnpm dlx prisma generate && cd ../.. && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/frontend build
+    buildCommand: pnpm install --frozen-lockfile || (cd packages/database && pnpm add prisma@^5.22.0 --save-prod && cd ../.. && pnpm install --frozen-lockfile) && cd packages/database && pnpm dlx prisma generate && cd ../.. && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/frontend build
     startCommand: cd apps/frontend && pnpm start
     envVars:
       - key: NODE_ENV
