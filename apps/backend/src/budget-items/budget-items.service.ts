@@ -96,10 +96,18 @@ export class BudgetItemsService {
     // Check for over-budget alerts
     await this.checkOverBudgetAlerts(eventId, userId);
 
+    // Get event details for activity log
+    const event = await this.prisma.client.event.findUnique({
+      where: { id: eventId },
+      select: { name: true },
+    });
+
     // Create activity log
     await this.createActivityLog(userId, "budget-item.created", {
       budgetItemId: budgetItem.id,
+      description: budgetItem.description,
       eventId,
+      eventName: event?.name,
       category: budgetItem.category,
     }, eventId);
 
@@ -111,20 +119,50 @@ export class BudgetItemsService {
     const eventId = budgetItem.eventId;
 
     const updateData: any = {};
-    if (updateBudgetItemDto.category !== undefined) {
+    const changedFields: string[] = [];
+
+    // Compare and track only changed fields
+    if (updateBudgetItemDto.category !== undefined && updateBudgetItemDto.category !== budgetItem.category) {
       updateData.category = updateBudgetItemDto.category;
+      changedFields.push('category');
     }
-    if (updateBudgetItemDto.description !== undefined) {
+    if (updateBudgetItemDto.description !== undefined && updateBudgetItemDto.description !== budgetItem.description) {
       updateData.description = updateBudgetItemDto.description;
+      changedFields.push('description');
     }
     if (updateBudgetItemDto.estimatedCost !== undefined) {
-      updateData.estimatedCost = updateBudgetItemDto.estimatedCost;
+      const newEstimatedCost = updateBudgetItemDto.estimatedCost;
+      const existingEstimatedCost = budgetItem.estimatedCost;
+      // Compare Decimal values by converting to number
+      const newValue = newEstimatedCost ? Number(newEstimatedCost) : null;
+      const existingValue = existingEstimatedCost ? Number(existingEstimatedCost) : null;
+      if (newValue !== existingValue) {
+        updateData.estimatedCost = updateBudgetItemDto.estimatedCost;
+        changedFields.push('estimatedCost');
+      }
     }
     if (updateBudgetItemDto.actualCost !== undefined) {
-      updateData.actualCost = updateBudgetItemDto.actualCost;
+      const newActualCost = updateBudgetItemDto.actualCost;
+      const existingActualCost = budgetItem.actualCost;
+      // Compare Decimal values by converting to number
+      const newValue = newActualCost ? Number(newActualCost) : null;
+      const existingValue = existingActualCost ? Number(existingActualCost) : null;
+      if (newValue !== existingValue) {
+        updateData.actualCost = updateBudgetItemDto.actualCost;
+        changedFields.push('actualCost');
+      }
     }
-    if (updateBudgetItemDto.vendor !== undefined) {
+    if (updateBudgetItemDto.vendor !== undefined && updateBudgetItemDto.vendor !== budgetItem.vendor) {
       updateData.vendor = updateBudgetItemDto.vendor;
+      changedFields.push('vendor');
+    }
+
+    // If no changes, return existing budget item with files included
+    if (changedFields.length === 0) {
+      return {
+        ...budgetItem,
+        files: budgetItem.files || [],
+      };
     }
 
     const updatedBudgetItem = await this.prisma.client.budgetItem.update({
@@ -138,11 +176,19 @@ export class BudgetItemsService {
     // Check for over-budget alerts
     await this.checkOverBudgetAlerts(eventId, userId);
 
-    // Create activity log
+    // Get event details for activity log
+    const event = await this.prisma.client.event.findUnique({
+      where: { id: eventId },
+      select: { name: true },
+    });
+
+    // Create activity log with only changed fields
     await this.createActivityLog(userId, "budget-item.updated", {
       budgetItemId: id,
+      description: updatedBudgetItem.description,
       eventId,
-      changes: Object.keys(updateData),
+      eventName: event?.name,
+      changes: changedFields,
     }, eventId);
 
     return updatedBudgetItem;
@@ -159,10 +205,18 @@ export class BudgetItemsService {
     // Check for over-budget alerts
     await this.checkOverBudgetAlerts(eventId, userId);
 
+    // Get event details for activity log
+    const event = await this.prisma.client.event.findUnique({
+      where: { id: eventId },
+      select: { name: true },
+    });
+
     // Create activity log
     await this.createActivityLog(userId, "budget-item.deleted", {
       budgetItemId: id,
+      description: budgetItem.description,
       eventId,
+      eventName: event?.name,
       category: budgetItem.category,
     }, eventId);
   }
@@ -276,10 +330,18 @@ export class BudgetItemsService {
       where: { id: fileId },
     });
 
+    // Get event details for activity log
+    const event = await this.prisma.client.event.findUnique({
+      where: { id: eventId },
+      select: { name: true },
+    });
+
     // Create activity log
     await this.createActivityLog(userId, "budget-item.file.deleted", {
       budgetItemId,
+      description: budgetItem.description,
       eventId,
+      eventName: event?.name,
       fileId,
       filename: file.filename,
     }, eventId);

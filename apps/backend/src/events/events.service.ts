@@ -152,12 +152,64 @@ export class EventsService {
     // Check if event exists
     const existingEvent = await this.findOne(id);
 
-    const updateData: any = { ...data };
+    const updateData: any = {};
+    const changedFields: string[] = [];
+
+    // Helper function to normalize values for comparison (empty string -> null)
+    const normalize = (value: any): any => {
+      if (value === "" || value === undefined) return null;
+      return value;
+    };
+
+    // Compare and track only changed fields
+    if (data.name !== undefined) {
+      const normalizedName = normalize(data.name);
+      const existingName = normalize(existingEvent.name);
+      if (normalizedName !== existingName) {
+        updateData.name = data.name;
+        changedFields.push('name');
+      }
+    }
+    if (data.description !== undefined) {
+      const normalizedDesc = normalize(data.description);
+      const existingDesc = normalize(existingEvent.description);
+      if (normalizedDesc !== existingDesc) {
+        updateData.description = data.description;
+        changedFields.push('description');
+      }
+    }
+    if (data.client !== undefined) {
+      const normalizedClient = normalize(data.client);
+      const existingClient = normalize(existingEvent.client);
+      if (normalizedClient !== existingClient) {
+        updateData.client = data.client;
+        changedFields.push('client');
+      }
+    }
+    if (data.status !== undefined && data.status !== existingEvent.status) {
+      updateData.status = data.status;
+      changedFields.push('status');
+    }
     if (startDate !== undefined) {
-      updateData.startDate = startDate ? new Date(startDate) : null;
+      const newStartDate = startDate ? new Date(startDate) : null;
+      const existingStartDate = existingEvent.startDate ? new Date(existingEvent.startDate) : null;
+      if (newStartDate?.getTime() !== existingStartDate?.getTime()) {
+        updateData.startDate = newStartDate;
+        changedFields.push('startDate');
+      }
     }
     if (endDate !== undefined) {
-      updateData.endDate = endDate ? new Date(endDate) : null;
+      const newEndDate = endDate ? new Date(endDate) : null;
+      const existingEndDate = existingEvent.endDate ? new Date(existingEvent.endDate) : null;
+      if (newEndDate?.getTime() !== existingEndDate?.getTime()) {
+        updateData.endDate = newEndDate;
+        changedFields.push('endDate');
+      }
+    }
+
+    // If no changes, return existing event
+    if (changedFields.length === 0) {
+      return existingEvent;
     }
 
     const updatedEvent = await this.prisma.client.event.update({
@@ -165,9 +217,10 @@ export class EventsService {
       data: updateData,
     });
 
-    // Create activity log
+    // Create activity log with only changed fields (use keys from updateData as source of truth)
     await this.createActivityLog(userId, "event.updated", {
       eventId: id,
+      eventName: updatedEvent.name,
       changes: Object.keys(updateData),
     }, id);
 
@@ -227,9 +280,10 @@ export class EventsService {
       }
     }
 
-    // Create activity log
+    // Create activity log (event is already fetched above)
     await this.createActivityLog(userId, "event.status.updated", {
       eventId: id,
+      eventName: event.name,
       oldStatus,
       newStatus: updateStatusDto.status,
     }, id);
@@ -291,10 +345,18 @@ export class EventsService {
       event.name,
     );
 
+    // Get user details for activity log
+    const assignedUser = await this.prisma.client.user.findUnique({
+      where: { id: assignUserDto.userId },
+      select: { name: true, email: true },
+    });
+
     // Create activity log
     await this.createActivityLog(userId, "event.user.assigned", {
       eventId,
+      eventName: event.name,
       userId: assignUserDto.userId,
+      userName: assignedUser?.name || assignedUser?.email || assignUserDto.userId,
       role: assignUserDto.role,
     }, eventId);
 
@@ -328,10 +390,19 @@ export class EventsService {
       },
     });
 
+    // Get user and event details for activity log
+    const unassignedUser = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true },
+    });
+    const event = await this.findOne(eventId);
+
     // Create activity log
     await this.createActivityLog(adminUserId, "event.user.unassigned", {
       eventId,
+      eventName: event.name,
       userId,
+      userName: unassignedUser?.name || unassignedUser?.email || userId,
     }, eventId);
   }
 
@@ -340,8 +411,8 @@ export class EventsService {
     file: { originalname: string; path: string; mimetype: string; size: number },
     userId: string,
   ) {
-    // Verify event exists
-    await this.findOne(eventId);
+    // Verify event exists and get name
+    const event = await this.findOne(eventId);
 
     const fileRecord = await this.prisma.client.file.create({
       data: {
@@ -356,6 +427,7 @@ export class EventsService {
     // Create activity log
     await this.createActivityLog(userId, "event.file.uploaded", {
       eventId,
+      eventName: event.name,
       fileId: fileRecord.id,
       filename: file.originalname,
     }, eventId);
@@ -390,9 +462,13 @@ export class EventsService {
       where: { id: fileId },
     });
 
+    // Get event details for activity log
+    const event = await this.findOne(eventId);
+
     // Create activity log
     await this.createActivityLog(userId, "event.file.deleted", {
       eventId,
+      eventName: event.name,
       fileId,
       filename: file.filename,
     }, eventId);

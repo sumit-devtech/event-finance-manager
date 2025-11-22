@@ -39,13 +39,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const eventId = params.id!;
 
+  // Only send fields that have values (not empty strings)
   const eventData: any = {};
-  if (formData.get("name")) eventData.name = formData.get("name");
-  if (formData.get("description")) eventData.description = formData.get("description");
-  if (formData.get("client")) eventData.client = formData.get("client");
-  if (formData.get("startDate")) eventData.startDate = formData.get("startDate");
-  if (formData.get("endDate")) eventData.endDate = formData.get("endDate");
-  if (formData.get("status")) eventData.status = formData.get("status");
+  const name = formData.get("name")?.toString().trim();
+  const description = formData.get("description")?.toString().trim();
+  const client = formData.get("client")?.toString().trim();
+  const startDate = formData.get("startDate")?.toString().trim();
+  const endDate = formData.get("endDate")?.toString().trim();
+  const status = formData.get("status")?.toString().trim();
+
+  if (name) eventData.name = name;
+  if (description) eventData.description = description;
+  if (client) eventData.client = client;
+  if (startDate) eventData.startDate = startDate;
+  if (endDate) eventData.endDate = endDate;
+  if (status) eventData.status = status;
 
   try {
     await api.put(`/events/${eventId}`, eventData, { token: token || undefined });

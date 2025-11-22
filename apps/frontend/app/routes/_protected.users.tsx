@@ -4,6 +4,7 @@ import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect } from "react";
+import React from "react";
 import type { User } from "~/lib/auth";
 
 interface UserWithCounts {
@@ -1120,6 +1121,186 @@ function EventAssignmentModal({
   );
 }
 
+// Format action name into human-readable text
+function formatActionName(action: string): string {
+  return action
+    .replace(/\./g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .replace(/\b(event|user|budget|item|file)\b/gi, (match) => {
+      const words: Record<string, string> = {
+        'event': 'Event',
+        'user': 'User',
+        'budget': 'Budget',
+        'item': 'Item',
+        'file': 'File',
+      };
+      return words[match.toLowerCase()] || match;
+    });
+}
+
+// Format activity log details into human-readable text (returns JSX elements)
+function formatActivityLogDetails(action: string, details: any, log: ActivityLog): React.ReactNode {
+  if (!details) {
+    return <span className="text-gray-500 italic">No details available</span>;
+  }
+
+  // Handle stringified JSON
+  if (typeof details === 'string') {
+    try {
+      details = JSON.parse(details);
+    } catch {
+      return <span>{details}</span>;
+    }
+  }
+
+  if (typeof details !== 'object') {
+    return <span>{String(details)}</span>;
+  }
+
+  const lines: React.ReactNode[] = [];
+
+  // Helper to format field names
+  const formatFieldName = (field: string): string => {
+    return field.replace(/([A-Z])/g, ' $1').trim().replace(/^\w/, c => c.toUpperCase());
+  };
+
+  // Event actions
+  if (action === 'event.created') {
+    if (details.eventName) lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName}"</span></div>);
+  } else if (action === 'event.updated') {
+    if (details.changes && Array.isArray(details.changes)) {
+      const changeFields = details.changes.map((c: string) => formatFieldName(c)).join(', ');
+      lines.push(<div key="changes">Updated fields: <span className="font-semibold">{changeFields}</span></div>);
+    }
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'event.deleted') {
+    if (details.eventName) lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName}"</span></div>);
+  } else if (action === 'event.status.updated') {
+    if (details.oldStatus && details.newStatus) {
+      lines.push(<div key="status">Status changed from <span className="font-semibold">"{details.oldStatus}"</span> to <span className="font-semibold">"{details.newStatus}"</span></div>);
+    }
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'event.user.assigned') {
+    if (details.userName) lines.push(<div key="user">User: <span className="font-semibold">{details.userName}</span></div>);
+    if (details.role) lines.push(<div key="role">Role: <span className="font-semibold">{details.role}</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'event.user.unassigned') {
+    if (details.userName) lines.push(<div key="user">User: <span className="font-semibold">{details.userName}</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'event.file.uploaded') {
+    if (details.filename) lines.push(<div key="file">File: <span className="font-semibold">"{details.filename}"</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'event.file.deleted') {
+    if (details.filename) lines.push(<div key="file">File: <span className="font-semibold">"{details.filename}"</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  }
+  // Budget item actions
+  else if (action === 'budget-item.created') {
+    if (details.description) lines.push(<div key="description">Description: <span className="font-semibold">"{details.description}"</span></div>);
+    if (details.category) lines.push(<div key="category">Category: <span className="font-semibold">{details.category}</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'budget-item.updated') {
+    if (details.changes && Array.isArray(details.changes)) {
+      const changeFields = details.changes.map((c: string) => formatFieldName(c)).join(', ');
+      lines.push(<div key="changes">Updated fields: <span className="font-semibold">{changeFields}</span></div>);
+    }
+    if (details.description) lines.push(<div key="description">Description: <span className="font-semibold">"{details.description}"</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'budget-item.deleted') {
+    if (details.description) lines.push(<div key="description">Description: <span className="font-semibold">"{details.description}"</span></div>);
+    if (details.category) lines.push(<div key="category">Category: <span className="font-semibold">{details.category}</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'budget-item.file.uploaded') {
+    if (details.filename) lines.push(<div key="file">File: <span className="font-semibold">"{details.filename}"</span></div>);
+    if (details.description) lines.push(<div key="description">Budget Item: <span className="font-semibold">"{details.description}"</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'budget-item.file.deleted') {
+    if (details.filename) lines.push(<div key="file">File: <span className="font-semibold">"{details.filename}"</span></div>);
+    if (details.description) lines.push(<div key="description">Budget Item: <span className="font-semibold">"{details.description}"</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  } else if (action === 'budget.over-budget.alert') {
+    if (details.variance !== undefined) {
+      const variance = parseFloat(details.variance);
+      const sign = variance >= 0 ? '+' : '';
+      lines.push(<div key="variance">Budget variance: <span className="font-semibold">{sign}{variance.toFixed(2)}</span></div>);
+    }
+    if (details.variancePercentage !== undefined) {
+      const percentage = parseFloat(details.variancePercentage);
+      const sign = percentage >= 0 ? '+' : '';
+      lines.push(<div key="percentage">Variance percentage: <span className="font-semibold">{sign}{percentage.toFixed(2)}%</span></div>);
+    }
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  }
+  // User actions
+  else if (action === 'user.created') {
+    if (details.userName) lines.push(<div key="user">User: <span className="font-semibold">{details.userName}</span></div>);
+    if (details.email) lines.push(<div key="email">Email: <span className="font-semibold">{details.email}</span></div>);
+  } else if (action === 'user.updated') {
+    if (details.changes && Array.isArray(details.changes)) {
+      const changeFields = details.changes.map((c: string) => formatFieldName(c)).join(', ');
+      lines.push(<div key="changes">Updated fields: <span className="font-semibold">{changeFields}</span></div>);
+    }
+    if (details.userName) lines.push(<div key="user">User: <span className="font-semibold">{details.userName}</span></div>);
+  } else if (action === 'user.deleted') {
+    if (details.email) lines.push(<div key="email">Email: <span className="font-semibold">{details.email}</span></div>);
+  } else if (action === 'user.role.assigned') {
+    if (details.userName) lines.push(<div key="user">User: <span className="font-semibold">{details.userName}</span></div>);
+    if (details.oldRole && details.newRole) {
+      lines.push(<div key="role">Role changed from <span className="font-semibold">"{details.oldRole}"</span> to <span className="font-semibold">"{details.newRole}"</span></div>);
+    } else if (details.newRole) {
+      lines.push(<div key="role">Role assigned: <span className="font-semibold">{details.newRole}</span></div>);
+    }
+  } else if (action === 'user.event.assigned') {
+    if (details.userName) lines.push(<div key="user">User: <span className="font-semibold">{details.userName}</span></div>);
+    if (details.role) lines.push(<div key="role">Role: <span className="font-semibold">{details.role}</span></div>);
+    if (details.eventName || log.event?.name) {
+      lines.push(<div key="event">Event: <span className="font-semibold">"{details.eventName || log.event?.name}"</span></div>);
+    }
+  }
+  // Fallback: format as key-value pairs
+  else {
+    Object.keys(details).forEach((key, index) => {
+      const value = details[key];
+      if (value !== null && value !== undefined && !key.includes('Id') && key !== 'userId' && key !== 'eventId' && key !== 'budgetItemId' && key !== 'fileId') {
+        const formattedKey = formatFieldName(key);
+        if (Array.isArray(value)) {
+          lines.push(<div key={index}>{formattedKey}: <span className="font-semibold">{value.join(', ')}</span></div>);
+        } else if (typeof value === 'object') {
+          lines.push(<div key={index}>{formattedKey}: <span className="font-semibold">{JSON.stringify(value)}</span></div>);
+        } else {
+          lines.push(<div key={index}>{formattedKey}: <span className="font-semibold">{value}</span></div>);
+        }
+      }
+    });
+  }
+
+  return lines.length > 0 ? <div className="space-y-1">{lines}</div> : <span className="text-gray-500 italic">No details available</span>;
+}
+
 // Activity Logs Modal
 function ActivityLogsModal({
   userId,
@@ -1175,7 +1356,7 @@ function ActivityLogsModal({
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-gray-900 text-sm sm:text-base">{log.action}</span>
+                        <span className="font-semibold text-gray-900 text-sm sm:text-base">{formatActionName(log.action)}</span>
                         {log.event && (
                           <span className="inline-flex items-center gap-1 text-xs sm:text-sm text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1196,8 +1377,8 @@ function ActivityLogsModal({
                   {log.details && (
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <p className="text-xs font-medium text-gray-600 mb-2">Details:</p>
-                      <div className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200 overflow-x-auto">
-                        <pre className="whitespace-pre-wrap font-mono">{JSON.stringify(log.details, null, 2)}</pre>
+                      <div className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        {formatActivityLogDetails(log.action, log.details, log)}
                       </div>
                     </div>
                   )}

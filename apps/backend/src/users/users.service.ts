@@ -105,6 +105,7 @@ export class UsersService {
     // Create activity log
     await this.createActivityLog(adminUserId, "user.created", {
       userId: user.id,
+      userName: user.name || user.email,
       email: user.email,
     });
 
@@ -162,10 +163,12 @@ export class UsersService {
       },
     });
 
-    // Create activity log
+    // Create activity log - only include fields that actually changed
+    const changedFieldNames = Object.keys(changes);
     await this.createActivityLog(adminUserId, "user.updated", {
       userId: id,
-      changes,
+      userName: updatedUser.name || updatedUser.email,
+      changes: changedFieldNames,
     });
 
     return updatedUser;
@@ -199,9 +202,13 @@ export class UsersService {
       data: { role: assignRoleDto.role },
     });
 
+    // Get user details for activity log
+    const targetUser = await this.findOne(userId);
+
     // Create activity log
     await this.createActivityLog(adminUserId, "user.role.assigned", {
       userId,
+      userName: targetUser.name || targetUser.email,
       oldRole,
       newRole: assignRoleDto.role,
     });
@@ -240,13 +247,18 @@ export class UsersService {
       },
     });
 
+    // Get user details for activity log
+    const assignedUser = await this.findOne(userId);
+
     // Create activity log
     await this.createActivityLog(
       adminUserId,
       "user.event.assigned",
       {
         userId,
+        userName: assignedUser.name || assignedUser.email,
         eventId: assignEventDto.eventId,
+        eventName: event.name,
         role: assignEventDto.role,
       },
       assignEventDto.eventId,
