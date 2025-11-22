@@ -5,7 +5,7 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: NODE_ENV=development pnpm install --no-frozen-lockfile && pnpm --filter @event-finance-manager/database exec prisma generate && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/backend build
+    buildCommand: pnpm install --no-frozen-lockfile --prod=false && pnpm --filter @event-finance-manager/database exec prisma generate && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/backend build
     startCommand: cd apps/backend && node dist/apps/backend/src/main.js
     envVars:
       - key: NODE_ENV
@@ -25,7 +25,7 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: NODE_ENV=development pnpm install --no-frozen-lockfile && pnpm --filter @event-finance-manager/database exec prisma generate && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/frontend build
+    buildCommand: pnpm install --no-frozen-lockfile --prod=false && pnpm --filter @event-finance-manager/database exec prisma generate && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/frontend build
     startCommand: cd apps/frontend && pnpm start
     envVars:
       - key: NODE_ENV
