@@ -5,7 +5,7 @@ import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/events/:eventId/roi")
+@Controller("v1/events/:eventId/roi")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class RoiController {
   constructor(private readonly roiService: RoiService) {}

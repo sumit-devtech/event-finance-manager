@@ -18,7 +18,7 @@ import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/events")
+@Controller("v1/events")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}

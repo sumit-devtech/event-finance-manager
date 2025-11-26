@@ -25,7 +25,6 @@ This is a Remix application that connects to the `backend-simplifi` API (running
 - **TypeScript**: Type-safe development
 - **Tailwind CSS**: Utility-first CSS framework
 - **Recharts**: Chart library for data visualization
-- **Express**: Server runtime
 
 ## Getting Started
 
@@ -94,7 +93,7 @@ apps/simplifi-frontend/
 │   ├── entry.client.tsx # Client entry point
 │   ├── entry.server.tsx # Server entry point
 │   └── root.tsx         # Root component
-├── server.mjs           # Express server setup
+├── remix.config.js      # Remix configuration
 ├── vite.config.ts       # Vite configuration
 └── package.json         # Dependencies and scripts
 ```

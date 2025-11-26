@@ -30,9 +30,12 @@ export default function Expenses() {
             Track and manage all expenses
           </p>
         </div>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+        <Link
+          to="/expenses/new"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+        >
           Add Expense
-        </button>
+        </Link>
       </div>
 
       <div className="bg-white shadow rounded-lg overflow-hidden">

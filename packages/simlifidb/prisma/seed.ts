@@ -1,4 +1,4 @@
-import { prisma} from "../src/client";
+import { prismaSimplifi as prisma } from "../src/client";
 import * as bcrypt from "bcrypt";
 
 async function main() {

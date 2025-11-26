@@ -16,7 +16,7 @@ import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/vendors")
+@Controller("v1/vendors")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}

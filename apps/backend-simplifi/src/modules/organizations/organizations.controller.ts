@@ -11,7 +11,7 @@ import { UpdateOrganizationDto } from "./dto/update-organization.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/organizations")
+@Controller("v1/organizations")
 @UseGuards(JwtAuthGuard)
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}

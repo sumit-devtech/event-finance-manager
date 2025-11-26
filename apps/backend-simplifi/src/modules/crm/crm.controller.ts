@@ -6,7 +6,7 @@ import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/events/:eventId/crm-sync")
+@Controller("v1/events/:eventId/crm-sync")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CrmController {
   constructor(private readonly crmService: CrmService) {}

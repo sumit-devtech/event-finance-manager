@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link, useParams, useFetcher, Form } from "@remix-run/react";
+import { useLoaderData, Link, useParams, useFetcher, Form, Outlet, useMatches } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/auth.server";
@@ -31,6 +31,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function EventDetail() {
   const { event } = useLoaderData<typeof loader>();
   const params = useParams();
+  const matches = useMatches();
+  // Check if we have a child route rendered (budget, expenses, roi, etc.)
+  const hasChildRoute = matches.some(match => 
+    match.id.includes("events.$id.budget") ||
+    match.id.includes("events.$id.expenses") ||
+    match.id.includes("events.$id.roi") ||
+    match.id.includes("events.$id.insights") ||
+    match.id.includes("events.$id.crm-sync") ||
+    match.id.includes("events.$id.stakeholders") ||
+    match.id.includes("events.$id.edit") ||
+    match.id.includes("events.$id.budgets")
+  );
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -71,85 +83,118 @@ export default function EventDetail() {
         <nav className="-mb-px flex space-x-8">
           <Link
             to={`/events/${params.id}`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              !hasChildRoute
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             Overview
           </Link>
           <Link
             to={`/events/${params.id}/budget`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              matches.some(m => m.id.includes("events.$id.budget"))
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             Budget Planning
           </Link>
           <Link
             to={`/events/${params.id}/expenses`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              matches.some(m => m.id.includes("events.$id.expenses"))
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             Expenses
           </Link>
           <Link
             to={`/events/${params.id}/roi`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              matches.some(m => m.id.includes("events.$id.roi"))
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             ROI Analytics
           </Link>
           <Link
             to={`/events/${params.id}/insights`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              matches.some(m => m.id.includes("events.$id.insights"))
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             Insights
           </Link>
           <Link
             to={`/events/${params.id}/crm-sync`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              matches.some(m => m.id.includes("events.$id.crm-sync"))
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             CRM Sync
           </Link>
           <Link
             to={`/events/${params.id}/stakeholders`}
-            className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              matches.some(m => m.id.includes("events.$id.stakeholders"))
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
           >
             Stakeholders
           </Link>
         </nav>
       </div>
 
-      {/* Event Details */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-          <div>
-            <dt className="text-sm font-medium text-gray-500">Status</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                event.status === "active" ? "bg-green-100 text-green-800" :
-                event.status === "completed" ? "bg-blue-100 text-blue-800" :
-                event.status === "planning" ? "bg-yellow-100 text-yellow-800" :
-                "bg-gray-100 text-gray-800"
-              }`}>
-                {event.status}
-              </span>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-gray-500">Start Date</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {event.startDate ? new Date(event.startDate).toLocaleDateString() : "N/A"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-gray-500">End Date</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {event.endDate ? new Date(event.endDate).toLocaleDateString() : "N/A"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-gray-500">Created At</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {new Date(event.createdAt).toLocaleDateString()}
-            </dd>
-          </div>
-        </dl>
-      </div>
+      {/* Event Details - Overview (only show when no child route) */}
+      {!hasChildRoute && (
+        <div className="bg-white shadow rounded-lg p-6">
+          <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div>
+              <dt className="text-sm font-medium text-gray-500">Status</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  event.status === "active" ? "bg-green-100 text-green-800" :
+                  event.status === "completed" ? "bg-blue-100 text-blue-800" :
+                  event.status === "planning" ? "bg-yellow-100 text-yellow-800" :
+                  "bg-gray-100 text-gray-800"
+                }`}>
+                  {event.status}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">Start Date</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {event.startDate ? new Date(event.startDate).toLocaleDateString() : "N/A"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">End Date</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {event.endDate ? new Date(event.endDate).toLocaleDateString() : "N/A"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">Created At</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {new Date(event.createdAt).toLocaleDateString()}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      )}
+      
+      {/* Always render outlet for child routes */}
+      <Outlet />
     </div>
   );
 }

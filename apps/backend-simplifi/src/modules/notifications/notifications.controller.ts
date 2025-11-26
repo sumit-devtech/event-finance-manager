@@ -3,7 +3,7 @@ import { NotificationsService } from "./notifications.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/notifications")
+@Controller("v1/notifications")
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}

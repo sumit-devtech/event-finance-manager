@@ -320,7 +320,7 @@ apps/simplifi-frontend/
 │   ├── entry.client.tsx
 │   ├── entry.server.tsx
 │   └── root.tsx
-├── server.mjs                     # Express server
+├── remix.config.js                # Remix configuration
 ├── vite.config.ts                 # Vite config
 ├── tsconfig.json                  # TypeScript config
 └── package.json                   # Dependencies

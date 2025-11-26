@@ -33,9 +33,12 @@ export default function EventExpenses() {
         </Link>
         <div className="flex justify-between items-center mt-2">
           <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+          <Link
+            to="/expenses/new"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+          >
             Add Expense
-          </button>
+          </Link>
         </div>
       </div>
 

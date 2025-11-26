@@ -6,7 +6,7 @@ import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../../common/decorators/current-user.decorator";
 
-@Controller("api/v1/events/:eventId/stakeholders")
+@Controller("v1/events/:eventId/stakeholders")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StakeholdersController {
   constructor(private readonly eventsService: EventsService) {}
