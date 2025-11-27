@@ -19,7 +19,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-        "@event-finance-manager/database": ["packages/database/src"],
+        "@event-finance-manager/event-db": ["packages/event-db/src"],
         "@event-finance-manager/shared": ["packages/shared/src"]
       }
   },

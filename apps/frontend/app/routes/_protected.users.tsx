@@ -14,6 +14,7 @@ interface UserWithCounts {
   role: string;
   createdAt: string;
   updatedAt: string;
+  assignedEventIds?: string[];
   _count: {
     events: number;
     activityLogs: number;
@@ -50,7 +51,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     api.get<any[]>("/events", { token: token || undefined }),
   ]);
 
-  return json({ users, events, currentUser: user });
+  // Fetch user details with assigned event IDs for each user
+  const usersWithAssignments = await Promise.all(
+    users.map(async (u) => {
+      try {
+        const userDetails = await api.get<any>(`/users/${u.id}`, { token: token || undefined });
+        const assignedEventIds = userDetails.assignedEventIds || [];
+        console.log(`[Loader] User ${u.id} (${u.email}) has assigned events:`, assignedEventIds);
+        return { ...u, assignedEventIds };
+      } catch (error) {
+        console.error(`[Loader] Failed to fetch assignments for user ${u.id}:`, error);
+        return { ...u, assignedEventIds: [] };
+      }
+    })
+  );
+
+  console.log(`[Loader] Loaded ${usersWithAssignments.length} users with assignments`);
+  return json({ users: usersWithAssignments, events, currentUser: user });
 }
 
 /**
@@ -80,9 +97,13 @@ export async function action({ request }: ActionFunctionArgs) {
       const updateData: any = {};
       if (formData.get("email")) updateData.email = formData.get("email");
       if (formData.get("password")) updateData.password = formData.get("password");
-      if (formData.get("name")) updateData.name = formData.get("name");
+      // Always include name field if it exists in formData (even if empty string)
+      if (formData.has("name")) {
+        updateData.name = formData.get("name") as string;
+      }
       if (formData.get("role")) updateData.role = formData.get("role");
 
+      console.log("Updating user:", userId, "with data:", updateData); // Debug log
       const updatedUser = await api.put<UserWithCounts>(`/users/${userId}`, updateData, tokenOption);
       return json({ success: true, user: updatedUser, message: "User updated successfully" });
     }
@@ -142,6 +163,16 @@ export default function UsersPage() {
   const navigation = useNavigation();
   const submit = useSubmit();
     const revalidator = useRevalidator();
+
+  // Debug: Log users to see what fields they have
+  useEffect(() => {
+    if (users && users.length > 0) {
+      console.log("Users data:", users);
+      console.log("First user:", users[0]);
+      console.log("First user name:", users[0]?.name);
+      console.log("First user fullName:", (users[0] as any)?.fullName);
+    }
+  }, [users]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -331,11 +362,9 @@ export default function UsersPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-base font-bold text-gray-900 truncate">
-                              {user.name || user.email}
+                              {user.name && user.name.trim() ? user.name : "No name"}
                             </div>
-                            {user.name && (
-                              <div className="text-sm text-gray-600 truncate mt-0.5">{user.email}</div>
-                            )}
+                            <div className="text-sm text-gray-600 truncate mt-0.5">{user.email}</div>
                           </div>
                         </div>
                       </div>
@@ -484,7 +513,7 @@ export default function UsersPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {user.name || user.email}
+                            {user.name && user.name.trim() ? user.name : "No name"}
                           </div>
                           <div className="text-sm text-gray-500">{user.email}</div>
                         </div>
@@ -663,6 +692,7 @@ export default function UsersPage() {
         <EventAssignmentModal
           user={selectedUser}
           events={events}
+          assignedEventIds={selectedUser.assignedEventIds || []}
           onClose={() => {
             setShowEventModal(false);
             setSelectedUser(null);
@@ -699,6 +729,13 @@ function UserFormModal({
   isLoading: boolean;
 }) {
   const submit = useSubmit();
+
+  // Debug: Log user object to see what fields it has
+  if (user && intent === "update") {
+    console.log("Edit user object:", user);
+    console.log("User name field:", user.name);
+    console.log("User fullName field:", (user as any).fullName);
+  }
 
   return (
     <div
@@ -980,15 +1017,38 @@ function RoleAssignmentModal({
 function EventAssignmentModal({
   user,
   events,
+  assignedEventIds,
   onClose,
   isLoading,
 }: {
   user: UserWithCounts;
   events: any[];
+    assignedEventIds: string[];
   onClose: () => void;
   isLoading: boolean;
 }) {
   const submit = useSubmit();
+
+  // Filter out events that are already assigned to this user
+  // Debug logging
+  console.log(`[EventAssignmentModal] User: ${user.id} (${user.name || user.email})`);
+  console.log(`[EventAssignmentModal] Assigned Event IDs:`, assignedEventIds);
+  console.log(`[EventAssignmentModal] Assigned Event IDs type:`, typeof assignedEventIds, Array.isArray(assignedEventIds));
+  console.log(`[EventAssignmentModal] Total events: ${events.length}`);
+
+  // Ensure assignedEventIds is an array
+  const assignedIds = Array.isArray(assignedEventIds) ? assignedEventIds : [];
+
+  const availableEvents = events.filter((event) => {
+    const isAssigned = assignedIds.includes(event.id);
+    if (isAssigned) {
+      console.log(`[EventAssignmentModal] Filtering out assigned event: ${event.id} (${event.name})`);
+    }
+    return !isAssigned;
+  });
+
+  console.log(`[EventAssignmentModal] Available events after filtering: ${availableEvents.length}`);
+  console.log(`[EventAssignmentModal] Available event IDs:`, availableEvents.map(e => e.id));
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
@@ -1041,13 +1101,15 @@ function EventAssignmentModal({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Event <span className="text-red-500">*</span>
                 </label>
-                {events.length === 0 ? (
+                {availableEvents.length === 0 ? (
                   <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800 flex items-center gap-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
-                      No events available to assign
+                      {events.length === 0
+                        ? "No events available to assign"
+                        : "All events are already assigned to this user"}
                     </p>
                   </div>
                 ) : (
@@ -1057,7 +1119,7 @@ function EventAssignmentModal({
                     className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900"
                   >
                     <option value="">-- Select an event --</option>
-                    {events.map((event) => (
+                      {availableEvents.map((event) => (
                       <option key={event.id} value={event.id}>
                         {event.name} ({event.status})
                       </option>

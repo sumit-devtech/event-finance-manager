@@ -74,7 +74,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
     return json({ event, users, user });
   } catch (error: any) {
-    throw new Response("Event not found", { status: 404 });
+    console.error("Error loading event:", error);
+    console.error("Event ID:", eventId);
+    console.error("Error details:", error.message, error.statusCode);
+    throw new Response(`Event not found: ${error.message || "Unknown error"}`, { status: error.statusCode || 404 });
   }
 }
 

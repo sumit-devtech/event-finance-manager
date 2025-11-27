@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { NotificationType } from "@event-finance-manager/database";
+import { NotificationType } from "@event-finance-manager/event-db";
 
 // Dynamic import for nodemailer
 let nodemailer: any;

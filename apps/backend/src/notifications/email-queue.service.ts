@@ -52,13 +52,13 @@ export class EmailQueueService {
       try {
         const user = await this.prisma.client.user.findUnique({
           where: { id: job.userId },
-          select: { email: true, name: true },
+          select: { email: true, fullName: true },
         });
 
         if (user?.email) {
           await this.emailService.sendNotificationEmail({
             to: user.email,
-            name: user.name || "User",
+            name: user.fullName || "User",
             type: job.type as any,
             title: job.title,
             message: job.message,

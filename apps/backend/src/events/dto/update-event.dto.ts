@@ -12,7 +12,11 @@ export class UpdateEventDto {
 
   @IsOptional()
   @IsString()
-  client?: string;
+  location?: string; // Note: simlifidb uses 'location' instead of 'client'
+  
+  @IsOptional()
+  @IsString()
+  client?: string; // Deprecated: kept for backward compatibility, maps to 'location'
 
   @IsOptional()
   @IsDateString()

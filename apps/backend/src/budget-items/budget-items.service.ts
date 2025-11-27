@@ -27,15 +27,7 @@ export class BudgetItemsService {
     return this.prisma.client.budgetItem.findMany({
       where: { eventId },
       include: {
-        files: {
-          select: {
-            id: true,
-            filename: true,
-            mimeType: true,
-            size: true,
-            uploadedAt: true,
-          },
-        },
+        vendorLink: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -54,15 +46,7 @@ export class BudgetItemsService {
             status: true,
           },
         },
-        files: {
-          select: {
-            id: true,
-            filename: true,
-            mimeType: true,
-            size: true,
-            uploadedAt: true,
-          },
-        },
+        vendorLink: true,
       },
     });
 
@@ -79,17 +63,17 @@ export class BudgetItemsService {
 
     const budgetItem = await this.prisma.client.budgetItem.create({
       data: {
-        eventId,
+        eventId: eventId,
         category: createBudgetItemDto.category,
-        description: createBudgetItemDto.description,
+        description: createBudgetItemDto.description || createBudgetItemDto.category,
+        vendor: createBudgetItemDto.vendor || null,
         estimatedCost: createBudgetItemDto.estimatedCost
-          ? createBudgetItemDto.estimatedCost
+          ? Number(createBudgetItemDto.estimatedCost)
           : null,
-        actualCost: createBudgetItemDto.actualCost ? createBudgetItemDto.actualCost : null,
-        vendor: createBudgetItemDto.vendor,
+        actualCost: createBudgetItemDto.actualCost ? Number(createBudgetItemDto.actualCost) : null,
       },
       include: {
-        files: true,
+        vendorLink: true,
       },
     });
 
@@ -131,24 +115,18 @@ export class BudgetItemsService {
       changedFields.push('description');
     }
     if (updateBudgetItemDto.estimatedCost !== undefined) {
-      const newEstimatedCost = updateBudgetItemDto.estimatedCost;
-      const existingEstimatedCost = budgetItem.estimatedCost;
-      // Compare Decimal values by converting to number
-      const newValue = newEstimatedCost ? Number(newEstimatedCost) : null;
-      const existingValue = existingEstimatedCost ? Number(existingEstimatedCost) : null;
+      const newValue = updateBudgetItemDto.estimatedCost ? Number(updateBudgetItemDto.estimatedCost) : null;
+      const existingValue = budgetItem.estimatedCost ? Number(budgetItem.estimatedCost) : null;
       if (newValue !== existingValue) {
-        updateData.estimatedCost = updateBudgetItemDto.estimatedCost;
+        updateData.estimatedCost = newValue;
         changedFields.push('estimatedCost');
       }
     }
     if (updateBudgetItemDto.actualCost !== undefined) {
-      const newActualCost = updateBudgetItemDto.actualCost;
-      const existingActualCost = budgetItem.actualCost;
-      // Compare Decimal values by converting to number
-      const newValue = newActualCost ? Number(newActualCost) : null;
-      const existingValue = existingActualCost ? Number(existingActualCost) : null;
+      const newValue = updateBudgetItemDto.actualCost ? Number(updateBudgetItemDto.actualCost) : null;
+      const existingValue = budgetItem.actualCost ? Number(budgetItem.actualCost) : null;
       if (newValue !== existingValue) {
-        updateData.actualCost = updateBudgetItemDto.actualCost;
+        updateData.actualCost = newValue;
         changedFields.push('actualCost');
       }
     }
@@ -157,19 +135,16 @@ export class BudgetItemsService {
       changedFields.push('vendor');
     }
 
-    // If no changes, return existing budget item with files included
+    // If no changes, return existing budget item
     if (changedFields.length === 0) {
-      return {
-        ...budgetItem,
-        files: budgetItem.files || [],
-      };
+      return budgetItem;
     }
 
     const updatedBudgetItem = await this.prisma.client.budgetItem.update({
       where: { id },
       data: updateData,
       include: {
-        files: true,
+        vendorLink: true,
       },
     });
 
@@ -225,6 +200,7 @@ export class BudgetItemsService {
     // Verify event exists
     await this.verifyEventExists(eventId);
 
+    // Get budget items directly from event
     const budgetItems = await this.prisma.client.budgetItem.findMany({
       where: { eventId },
     });
@@ -280,71 +256,49 @@ export class BudgetItemsService {
     userId: string,
   ) {
     const budgetItem = await this.findOne(budgetItemId);
-    const eventId = budgetItem.eventId;
-
+    
     const fileRecord = await this.prisma.client.file.create({
       data: {
-        budgetItemId,
-        eventId,
+        budgetItemId: budgetItemId,
+        eventId: budgetItem.eventId,
         filename: file.originalname,
         path: file.path,
         mimeType: file.mimetype,
         size: file.size,
       },
     });
-
-    // Create activity log
-    await this.createActivityLog(userId, "budget-item.file.uploaded", {
-      budgetItemId,
-      eventId,
-      fileId: fileRecord.id,
-      filename: file.originalname,
-    }, eventId);
-
+    
     return fileRecord;
   }
 
   async deleteFile(budgetItemId: string, fileId: string, userId: string) {
     const budgetItem = await this.findOne(budgetItemId);
-    const eventId = budgetItem.eventId;
-
-    const file = await this.prisma.client.file.findUnique({
-      where: { id: fileId },
+    
+    const file = await this.prisma.client.file.findFirst({
+      where: {
+        id: fileId,
+        budgetItemId: budgetItemId,
+      },
     });
-
-    if (!file || file.budgetItemId !== budgetItemId) {
-      throw new NotFoundException("File not found");
+    
+    if (!file) {
+      throw new NotFoundException(`File with ID ${fileId} not found for this budget item`);
     }
-
-    // Delete physical file
-    const filePath = path.resolve(file.path);
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-      } catch (error) {
-        console.error(`Failed to delete physical file: ${filePath}`, error);
+    
+    // Delete physical file if it exists
+    try {
+      if (require("fs").existsSync(file.path)) {
+        require("fs").unlinkSync(file.path);
       }
+    } catch (error) {
+      console.error(`Failed to delete physical file: ${file.path}`, error);
     }
-
+    
     await this.prisma.client.file.delete({
       where: { id: fileId },
     });
-
-    // Get event details for activity log
-    const event = await this.prisma.client.event.findUnique({
-      where: { id: eventId },
-      select: { name: true },
-    });
-
-    // Create activity log
-    await this.createActivityLog(userId, "budget-item.file.deleted", {
-      budgetItemId,
-      description: budgetItem.description,
-      eventId,
-      eventName: event?.name,
-      fileId,
-      filename: file.filename,
-    }, eventId);
+    
+    return { message: "File deleted successfully" };
   }
 
   private async verifyEventExists(eventId: string) {
@@ -361,26 +315,21 @@ export class BudgetItemsService {
     const variance = await this.getVariance(eventId);
 
     if (variance.isOverBudget) {
-      // Get event details
+      // Get event creator and assigned users
       const event = await this.prisma.client.event.findUnique({
         where: { id: eventId },
-        select: { name: true },
-      });
-
-      // Get all users assigned to the event (Admin, EventManager, Finance roles)
-      const assignments = await this.prisma.client.eventAssignment.findMany({
-        where: { eventId },
-        include: {
-          user: {
+        select: {
+          name: true,
+          createdBy: true,
+          assignments: {
             select: {
-              id: true,
-              role: true,
+              userId: true,
             },
           },
         },
       });
 
-      // Also include Finance role users and Admins
+      // Get Finance/Admin users
       const financeUsers = await this.prisma.client.user.findMany({
         where: {
           role: {
@@ -393,7 +342,8 @@ export class BudgetItemsService {
       });
 
       const userIds = new Set([
-        ...assignments.map((a) => a.user.id),
+        ...(event?.createdBy ? [event.createdBy] : []),
+        ...(event?.assignments?.map((a) => a.userId) || []),
         ...financeUsers.map((u) => u.id),
       ]);
 
@@ -433,4 +383,3 @@ export class BudgetItemsService {
     });
   }
 }
-

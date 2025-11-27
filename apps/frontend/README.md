@@ -32,7 +32,7 @@ cp .env.example .env
 ```
 
 Required environment variables:
-- `API_BASE_URL` - Backend API base URL (default: `http://localhost:3333/api`)
+- `API_BASE_URL` - Backend API base URL (default: `http://localhost:3334/api` for backend-simplifi)
 - `SESSION_SECRET` - Secret for session encryption (change in production!)
 
 ### 4. Development

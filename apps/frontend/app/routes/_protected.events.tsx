@@ -1193,12 +1193,35 @@ function EventDetailModal({
   const event = fetcher.data?.event;
   const users = fetcher.data?.users || [];
   const isLoading = fetcher.state === "loading" || fetcher.state === "submitting";
+  const fetcherError = fetcher.data?.error || fetcher.data;
+
+  // Ensure arrays exist with defaults
+  const safeEvent = event ? {
+    ...event,
+    assignments: event.assignments || [],
+    files: event.files || [],
+    budgetItems: event.budgetItems || [],
+    _count: {
+      ...event._count,
+      files: event._count?.files || 0,
+      budgetItems: event._count?.budgetItems || 0,
+      activityLogs: event._count?.activityLogs || 0,
+    },
+  } : null;
+
+
+  // Log errors for debugging
+  useEffect(() => {
+    if (fetcher.data && !fetcher.data.event && fetcher.state === "idle") {
+      console.error("Failed to load event:", fetcher.data);
+    }
+  }, [fetcher.data, fetcher.state]);
 
   useEffect(() => {
-    if (event?.status) {
-      setSelectedStatus(event.status);
+    if (safeEvent?.status) {
+      setSelectedStatus(safeEvent.status);
     }
-  }, [event?.status]);
+  }, [safeEvent?.status]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -1224,10 +1247,6 @@ function EventDetailModal({
       action: `/events/${eventId}`,
     });
     setShowStatusModal(false);
-    setTimeout(() => {
-      fetcher.load(`/events/${eventId}`);
-      onRefresh();
-    }, 500);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1241,10 +1260,10 @@ function EventDetailModal({
         action: `/events/${eventId}`,
         encType: "multipart/form-data",
       });
-      setTimeout(() => {
-        fetcher.load(`/events/${eventId}`);
-        onRefresh();
-      }, 500);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -1258,10 +1277,6 @@ function EventDetailModal({
       action: `/events/${eventId}`,
     });
     setShowAssignModal(false);
-    setTimeout(() => {
-      fetcher.load(`/events/${eventId}`);
-      onRefresh();
-    }, 500);
   };
 
   const handleUnassignUser = (userId: string) => {
@@ -1273,10 +1288,6 @@ function EventDetailModal({
         method: "post",
         action: `/events/${eventId}`,
       });
-      setTimeout(() => {
-        fetcher.load(`/events/${eventId}`);
-        onRefresh();
-      }, 500);
     }
   };
 
@@ -1289,10 +1300,6 @@ function EventDetailModal({
         method: "post",
         action: `/events/${eventId}`,
       });
-      setTimeout(() => {
-        fetcher.load(`/events/${eventId}`);
-        onRefresh();
-      }, 500);
     }
   };
 
@@ -1305,10 +1312,6 @@ function EventDetailModal({
         method: "post",
         action: `/events/${eventId}`,
       });
-      setTimeout(() => {
-        fetcher.load(`/events/${eventId}`);
-        onRefresh();
-      }, 500);
     }
   };
 
@@ -1330,7 +1333,7 @@ function EventDetailModal({
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
   };
 
-  if (!event) {
+  if (!safeEvent) {
     return (
       <div
         className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
@@ -1389,7 +1392,7 @@ function EventDetailModal({
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{event.name}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{safeEvent.name}</h2>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
@@ -1397,17 +1400,17 @@ function EventDetailModal({
                     e.stopPropagation();
                     setShowStatusModal(true);
                   }}
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(event.status)}`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(safeEvent.status)}`}
                   title="Click to update status"
                 >
-                  {event.status}
+                  {safeEvent.status}
                 </button>
-                {event.client && (
+                {safeEvent.client && (
                   <span className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    {event.client}
+                    {safeEvent.client}
                   </span>
                 )}
               </div>
@@ -1415,7 +1418,7 @@ function EventDetailModal({
           </div>
           <div className="flex items-center gap-2 ml-4 flex-shrink-0">
             <Link
-              to={`/events/${event.id}`}
+              to={`/events/${safeEvent.id}`}
               className="hidden sm:inline-flex items-center px-4 py-2 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1453,18 +1456,18 @@ function EventDetailModal({
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="sm:col-span-2">
                     <dt className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">Event Name</dt>
-                    <dd className="mt-1 text-sm sm:text-base text-gray-900 font-semibold">{event.name}</dd>
+                    <dd className="mt-1 text-sm sm:text-base text-gray-900 font-semibold">{safeEvent.name}</dd>
                   </div>
-                  {event.description && (
+                  {safeEvent.description && (
                     <div className="sm:col-span-2">
                       <dt className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">Description</dt>
-                      <dd className="mt-1 text-sm sm:text-base text-gray-900 whitespace-pre-wrap p-3 bg-gray-50 rounded-lg">{event.description}</dd>
+                      <dd className="mt-1 text-sm sm:text-base text-gray-900 whitespace-pre-wrap p-3 bg-gray-50 rounded-lg">{safeEvent.description}</dd>
                     </div>
                   )}
-                  {event.client && (
+                  {safeEvent.client && (
                     <div>
                       <dt className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">Client</dt>
-                      <dd className="mt-1 text-sm sm:text-base text-gray-900">{event.client}</dd>
+                      <dd className="mt-1 text-sm sm:text-base text-gray-900">{safeEvent.client}</dd>
                     </div>
                   )}
                   <div>
@@ -1476,17 +1479,17 @@ function EventDetailModal({
                           e.stopPropagation();
                           setShowStatusModal(true);
                         }}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(event.status)}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(safeEvent.status)}`}
                         title="Click to update status"
                       >
-                        {event.status}
+                        {safeEvent.status}
                       </button>
                     </dd>
                   </div>
                   <div>
                     <dt className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">Start Date</dt>
                     <dd className="mt-1 text-sm sm:text-base text-gray-900">
-                      {event.startDate ? new Date(event.startDate).toLocaleDateString("en-US", {
+                      {safeEvent.startDate ? new Date(safeEvent.startDate).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric"
@@ -1496,7 +1499,7 @@ function EventDetailModal({
                   <div>
                     <dt className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">End Date</dt>
                     <dd className="mt-1 text-sm sm:text-base text-gray-900">
-                      {event.endDate ? new Date(event.endDate).toLocaleDateString("en-US", {
+                      {safeEvent.endDate ? new Date(safeEvent.endDate).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric"
@@ -1528,7 +1531,7 @@ function EventDetailModal({
                     </button>
                   )}
                 </div>
-                {event.assignments.length === 0 ? (
+                {safeEvent.assignments.length === 0 ? (
                   <div className="text-center py-8">
                     <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -1537,7 +1540,7 @@ function EventDetailModal({
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {event.assignments.map((assignment) => (
+                      {safeEvent.assignments.map((assignment) => (
                       <div
                         key={assignment.id}
                         className="flex justify-between items-center p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 hover:border-indigo-300 transition-all duration-200"
@@ -1595,7 +1598,7 @@ function EventDetailModal({
                     </div>
                   )}
                 </div>
-                {event.files.length === 0 ? (
+                {safeEvent.files.length === 0 ? (
                   <div className="text-center py-8">
                     <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1604,7 +1607,7 @@ function EventDetailModal({
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {event.files.map((file) => (
+                      {safeEvent.files.map((file) => (
                       <div
                         key={file.id}
                         className="flex justify-between items-center p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 hover:border-indigo-300 transition-all duration-200"
@@ -1644,19 +1647,19 @@ function EventDetailModal({
                 <dl className="space-y-4">
                   <div className="p-3 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg">
                     <dt className="text-xs sm:text-sm text-gray-600 uppercase tracking-wide">Assigned Users</dt>
-                    <dd className="text-2xl sm:text-3xl font-bold text-indigo-900 mt-1">{event.assignments.length}</dd>
+                    <dd className="text-2xl sm:text-3xl font-bold text-indigo-900 mt-1">{safeEvent.assignments.length}</dd>
                   </div>
                   <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
                     <dt className="text-xs sm:text-sm text-gray-600 uppercase tracking-wide">Budget Items</dt>
-                    <dd className="text-2xl sm:text-3xl font-bold text-green-900 mt-1">{event._count.budgetItems}</dd>
+                    <dd className="text-2xl sm:text-3xl font-bold text-green-900 mt-1">{safeEvent._count.budgetItems}</dd>
                   </div>
                   <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
                     <dt className="text-xs sm:text-sm text-gray-600 uppercase tracking-wide">Files</dt>
-                    <dd className="text-2xl sm:text-3xl font-bold text-blue-900 mt-1">{event._count.files}</dd>
+                    <dd className="text-2xl sm:text-3xl font-bold text-blue-900 mt-1">{safeEvent._count.files}</dd>
                   </div>
                   <div className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
                     <dt className="text-xs sm:text-sm text-gray-600 uppercase tracking-wide">Activity Logs</dt>
-                    <dd className="text-2xl sm:text-3xl font-bold text-purple-900 mt-1">{event._count.activityLogs}</dd>
+                    <dd className="text-2xl sm:text-3xl font-bold text-purple-900 mt-1">{safeEvent._count.activityLogs}</dd>
                   </div>
                 </dl>
               </div>
@@ -1672,7 +1675,7 @@ function EventDetailModal({
                       Budget Items
                     </h3>
                     <Link
-                      to={`/events/${event.id}/budget`}
+                      to={`/events/${safeEvent.id}/budget`}
                       className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-900 font-medium transition-colors"
                     >
                       View Full →
@@ -1691,7 +1694,7 @@ function EventDetailModal({
                     </button>
                   )}
                 </div>
-                {event.budgetItems.length === 0 ? (
+                {safeEvent.budgetItems.length === 0 ? (
                   <div className="text-center py-8">
                     <svg className="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1699,7 +1702,7 @@ function EventDetailModal({
                     <p className="text-sm text-gray-500">No budget items added</p>
                     {canManageBudget && (
                       <Link
-                        to={`/events/${event.id}/budget`}
+                        to={`/events/${safeEvent.id}/budget`}
                         className="mt-3 inline-block text-sm text-indigo-600 hover:text-indigo-900 font-medium"
                       >
                         Go to Budget Page →
@@ -1708,7 +1711,7 @@ function EventDetailModal({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                      {event.budgetItems.slice(0, 5).map((item) => {
+                      {safeEvent.budgetItems.slice(0, 5).map((item) => {
                         const cost = item.actualCost ?? item.estimatedCost ?? 0;
                         return (
                           <div key={item.id} className="flex justify-between items-start p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 hover:border-indigo-300 transition-all duration-200">
@@ -1753,19 +1756,19 @@ function EventDetailModal({
                           </div>
                         );
                       })}
-                      {event.budgetItems.length > 5 && (
+                      {safeEvent.budgetItems.length > 5 && (
                         <Link
-                          to={`/events/${event.id}/budget`}
+                          to={`/events/${safeEvent.id}/budget`}
                           className="block text-center text-sm text-indigo-600 hover:text-indigo-900 font-medium py-2 border-t border-gray-200"
                         >
-                          View all {event.budgetItems.length} budget items →
+                          View all {safeEvent.budgetItems.length} budget items →
                         </Link>
                       )}
                       <div className="pt-3 border-t border-gray-200">
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-semibold text-gray-900">Total Budget</span>
                           <span className="text-lg font-bold text-indigo-600">
-                            ${event.budgetItems.reduce((sum, item) => {
+                            ${safeEvent.budgetItems.reduce((sum, item) => {
                               const cost = item.actualCost ?? item.estimatedCost ?? 0;
                               return sum + Number(cost);
                             }, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1868,7 +1871,7 @@ function EventDetailModal({
                 </div>
                 <AssignUserForm
                   users={users}
-                  assignedUserIds={event.assignments.map((a) => a.user.id)}
+                  assignedUserIds={safeEvent.assignments.map((a) => a.user?.id).filter(Boolean) as string[]}
                   onAssign={handleAssignUser}
                   onCancel={() => setShowAssignModal(false)}
                 />

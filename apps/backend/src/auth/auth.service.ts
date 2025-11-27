@@ -23,14 +23,15 @@ export class AuthService {
     const user = await this.prisma.client.user.findUnique({
       where: { email },
     });
-    if (!user) {
+    console.log("user", user);
+    if (!user || !user.passwordHash) {
       throw new UnauthorizedException("Invalid credentials");
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       throw new UnauthorizedException("Invalid credentials");
     }
-    const { password: _, ...result } = user;
+    const { passwordHash: _, ...result } = user;
     return result;
   }
 
@@ -51,13 +52,14 @@ export class AuthService {
     const user = await this.prisma.client.user.create({
       data: {
         email: registerDto.email,
-        password: hashedPassword,
-        name: registerDto.name,
+        passwordHash: hashedPassword,
+        fullName: registerDto.name || registerDto.email.split("@")[0],
+        role: "Viewer", // Default role - required field
       },
       select: {
         id: true,
         email: true,
-        name: true,
+        fullName: true,
         role: true,
       },
     });
@@ -76,7 +78,7 @@ export class AuthService {
         select: {
           id: true,
           email: true,
-          name: true,
+          fullName: true,
           role: true,
         },
       });
@@ -122,7 +124,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.fullName || null,
         role: user.role,
       },
     };

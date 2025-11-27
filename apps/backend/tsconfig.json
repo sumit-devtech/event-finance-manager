@@ -20,7 +20,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@event-finance-manager/database": ["../../packages/database/src"],
+      "@event-finance-manager/simlifidb": ["../../packages/simlifidb/src"],
       "@event-finance-manager/shared": ["../../packages/shared/src"]
     }
   },

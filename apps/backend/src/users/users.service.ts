@@ -15,17 +15,18 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.client.user.findMany({
+    const users = await this.prisma.client.user.findMany({
       select: {
         id: true,
         email: true,
-        name: true,
+        fullName: true,
         role: true,
         createdAt: true,
         updatedAt: true,
         _count: {
           select: {
-            events: true,
+            createdEvents: true,
+            events: true, // Count assigned events (EventAssignment relation)
             activityLogs: true,
             notifications: true,
           },
@@ -35,6 +36,29 @@ export class UsersService {
         createdAt: "desc",
       },
     });
+console.log("users", users);
+    // Transform fullName to name for frontend compatibility
+    // Also transform _count.createdEvents + _count.assignments to _count.events
+    const transformed = users.map((user) => {
+      const { fullName, _count, ...rest } = user;
+      return {
+        ...rest,
+        name: fullName || null, // Map fullName to name, remove fullName from response
+        _count: {
+          events: (_count.events || 0), // Count assigned events (EventAssignment relation)
+          activityLogs: _count.activityLogs || 0,
+          notifications: _count.notifications || 0,
+        },
+      };
+    });
+    
+    // Debug logging
+    if (transformed.length > 0) {
+      // console.log("findAll - First user transformed:", JSON.stringify(transformed[0], null, 2));
+      // console.log("findAll - Original fullName:", users[0]?.fullName);
+    }
+    
+    return transformed;
   }
 
   async findOne(id: string) {
@@ -43,24 +67,26 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        name: true,
+        fullName: true,
         role: true,
         createdAt: true,
         updatedAt: true,
+        createdEvents: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+          },
+        },
         events: {
-          include: {
-            event: {
-              select: {
-                id: true,
-                name: true,
-                status: true,
-              },
-            },
+          select: {
+            eventId: true,
           },
         },
         _count: {
           select: {
-            events: true,
+            createdEvents: true,
+            events: true, // Count assigned events (EventAssignment relation)
             activityLogs: true,
             notifications: true,
           },
@@ -72,7 +98,25 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    return user;
+    // Transform fullName to name for frontend compatibility
+    // Also transform _count.events to _count.events (already correct)
+    // Include assignedEventIds for filtering
+    const { fullName, _count, events, ...rest } = user;
+    const transformed = {
+      ...rest,
+      name: fullName || null, // Map fullName to name, remove fullName from response
+      assignedEventIds: events.map((e) => e.eventId), // Extract event IDs for filtering
+      _count: {
+        events: (_count.events || 0), // Count assigned events (EventAssignment relation)
+        activityLogs: _count.activityLogs || 0,
+        notifications: _count.notifications || 0,
+      },
+    };
+    
+    //console.log("findOne - User transformed:", JSON.stringify(transformed, null, 2));
+    //console.log("findOne - Original fullName:", user.fullName);
+    
+    return transformed;
   }
 
   async create(createUserDto: CreateUserDto, adminUserId: string) {
@@ -88,14 +132,14 @@ export class UsersService {
     const user = await this.prisma.client.user.create({
       data: {
         email: createUserDto.email,
-        password: hashedPassword,
-        name: createUserDto.name,
+        passwordHash: hashedPassword,
+        fullName: createUserDto.name || "",
         role: createUserDto.role || "Viewer",
       },
       select: {
         id: true,
         email: true,
-        name: true,
+        fullName: true,
         role: true,
         createdAt: true,
         updatedAt: true,
@@ -105,15 +149,35 @@ export class UsersService {
     // Create activity log
     await this.createActivityLog(adminUserId, "user.created", {
       userId: user.id,
-      userName: user.name || user.email,
+      userName: user.fullName || user.email,
       email: user.email,
     });
 
-    return user;
+    // Transform fullName to name for frontend compatibility
+    const { fullName, ...rest } = user;
+    return {
+      ...rest,
+      name: fullName || null, // Map fullName to name, remove fullName from response
+    };
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, adminUserId: string) {
-    const user = await this.findOne(id);
+    // Get raw user data from database (not transformed)
+    const user = await this.prisma.client.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
 
     const updateData: any = {};
     const changes: any = {};
@@ -132,13 +196,20 @@ export class UsersService {
     }
 
     if (updateUserDto.password !== undefined) {
-      updateData.password = await bcrypt.hash(updateUserDto.password, 10);
+      updateData.passwordHash = await bcrypt.hash(updateUserDto.password, 10);
       changes.password = "updated";
     }
 
     if (updateUserDto.name !== undefined) {
-      updateData.name = updateUserDto.name;
-      changes.name = { from: user.name, to: updateUserDto.name };
+      // Always update the name, even if it's the same or empty
+      const newName = updateUserDto.name || "";
+      const oldName = user.fullName || "";
+      
+      // Only add to updateData if it's different
+      if (newName !== oldName) {
+        updateData.fullName = newName;
+        changes.name = { from: oldName, to: newName };
+      }
     }
 
     if (updateUserDto.role !== undefined && updateUserDto.role !== user.role) {
@@ -156,7 +227,7 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        name: true,
+        fullName: true,
         role: true,
         createdAt: true,
         updatedAt: true,
@@ -167,11 +238,16 @@ export class UsersService {
     const changedFieldNames = Object.keys(changes);
     await this.createActivityLog(adminUserId, "user.updated", {
       userId: id,
-      userName: updatedUser.name || updatedUser.email,
+      userName: updatedUser.fullName || updatedUser.email,
       changes: changedFieldNames,
     });
 
-    return updatedUser;
+    // Transform fullName to name for frontend compatibility
+    const { fullName, ...rest } = updatedUser;
+    return {
+      ...rest,
+      name: fullName || null, // Map fullName to name, remove fullName from response
+    };
   }
 
   async remove(id: string, adminUserId: string) {
@@ -190,7 +266,15 @@ export class UsersService {
   }
 
   async assignRole(userId: string, assignRoleDto: AssignRoleDto, adminUserId: string) {
-    const user = await this.findOne(userId);
+    const user = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { role: true, fullName: true, email: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
     const oldRole = user.role;
 
     if (oldRole === assignRoleDto.role) {
@@ -202,13 +286,10 @@ export class UsersService {
       data: { role: assignRoleDto.role },
     });
 
-    // Get user details for activity log
-    const targetUser = await this.findOne(userId);
-
     // Create activity log
     await this.createActivityLog(adminUserId, "user.role.assigned", {
       userId,
-      userName: targetUser.name || targetUser.email,
+      userName: user.fullName || user.email,
       oldRole,
       newRole: assignRoleDto.role,
     });
@@ -229,26 +310,61 @@ export class UsersService {
       throw new NotFoundException(`Event with ID ${assignEventDto.eventId} not found`);
     }
 
-    // Create or update event assignment
-    const assignment = await this.prisma.client.eventAssignment.upsert({
+    // Get user info for activity log
+    const assignedUser = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { fullName: true, email: true },
+    });
+
+    if (!assignedUser) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Check if assignment already exists
+    const existingAssignment = await this.prisma.client.eventAssignment.findUnique({
       where: {
         userId_eventId: {
-          userId,
+          userId: userId,
           eventId: assignEventDto.eventId,
         },
       },
-      create: {
-        userId,
-        eventId: assignEventDto.eventId,
-        role: assignEventDto.role,
-      },
-      update: {
-        role: assignEventDto.role,
-      },
     });
 
-    // Get user details for activity log
-    const assignedUser = await this.findOne(userId);
+    let assignment;
+    if (existingAssignment) {
+      assignment = await this.prisma.client.eventAssignment.update({
+        where: { id: existingAssignment.id },
+        data: {
+          role: assignEventDto.role,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+            },
+          },
+        },
+      });
+    } else {
+      assignment = await this.prisma.client.eventAssignment.create({
+        data: {
+          userId: userId,
+          eventId: assignEventDto.eventId,
+          role: assignEventDto.role,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+            },
+          },
+        },
+      });
+    }
 
     // Create activity log
     await this.createActivityLog(
@@ -256,7 +372,7 @@ export class UsersService {
       "user.event.assigned",
       {
         userId,
-        userName: assignedUser.name || assignedUser.email,
+        userName: assignedUser.fullName || assignedUser.email,
         eventId: assignEventDto.eventId,
         eventName: event.name,
         role: assignEventDto.role,
@@ -290,7 +406,7 @@ export class UsersService {
           select: {
             id: true,
             email: true,
-            name: true,
+            fullName: true,
           },
         },
       },

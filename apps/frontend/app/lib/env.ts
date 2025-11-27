@@ -37,9 +37,10 @@ function getEnvVar(key: string, viteKey: string, defaultValue: string): string {
 }
 
 export const env = {
-  // Backend API runs on port 3333, frontend should run on different port (5173)
+  // Backend API runs on port 3334 (backend-simplifi), frontend should run on different port (5173)
+  // backend-simplifi uses /api/v1 prefix, so endpoints are at /api/v1/auth/login, etc.
   // Use VITE_API_BASE_URL in .env for client-side access
-  API_BASE_URL: getEnvVar("API_BASE_URL", "VITE_API_BASE_URL", "http://localhost:3333/api"),
+  API_BASE_URL: getEnvVar("API_BASE_URL", "VITE_API_BASE_URL", "http://localhost:3334/api/v1"),
   // SESSION_SECRET is server-only, should not be exposed to client
   // This will only work server-side
   SESSION_SECRET: typeof process !== "undefined" && process.env 

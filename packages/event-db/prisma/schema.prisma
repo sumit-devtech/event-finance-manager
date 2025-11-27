@@ -1,0 +1,424 @@
+// Prisma Schema for Event Budget Planning System (Simplified Combined)
+// Combines multi-tenancy from Simplifi + simpler structure from old schema
+
+// ----------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma-event-db"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_EVENT_DB")
+}
+
+// Enums
+enum UserRole {
+  Admin
+  EventManager
+  Finance
+  Viewer
+}
+
+enum EventStatus {
+  Planning
+  Active
+  Completed
+  Cancelled
+}
+
+enum BudgetItemCategory {
+  Venue
+  Catering
+  Marketing
+  Logistics
+  Entertainment
+  StaffTravel
+  Miscellaneous
+}
+
+enum NotificationType {
+  Info
+  Warning
+  Error
+  Success
+}
+
+enum ExpenseStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum SubscriptionStatus {
+  Active
+  Cancelled
+  Expired
+}
+
+enum BillingCycle {
+  Monthly
+  Yearly
+}
+
+// Multi-Tenancy Root
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  industry    String?
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users        User[]
+  subscriptions Subscription[]
+  vendors       Vendor[]
+  events        Event[]
+  expenses     Expense[]
+  activityLogs ActivityLog[]
+  notifications Notification[]
+}
+
+// User Model
+model User {
+  id             String   @id @default(uuid())
+  organizationId String?
+  fullName       String
+  email          String   @unique
+  role           UserRole
+  passwordHash   String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  createdEvents Event[]      @relation("EventCreator")
+  subscriptionHistory SubscriptionHistory[]
+  expenses       Expense[]    @relation("ExpenseCreator")
+  workflowActions ApprovalWorkflow[] @relation("ApproverWorkflow")
+  activityLogs   ActivityLog[]
+  notifications  Notification[]
+  reports        Report[]
+  events         EventAssignment[]
+
+  @@index([organizationId])
+  @@index([email])
+  @@index([organizationId, isActive])
+}
+
+// Subscription Management
+model Subscription {
+  id                   String   @id @default(uuid())
+  organizationId       String?
+  planName             String
+  billingCycle         BillingCycle
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  organization       Organization?       @relation(fields: [organizationId], references: [id])
+  history            SubscriptionHistory[]
+
+  @@index([organizationId, status])
+}
+
+model SubscriptionHistory {
+  id              String   @id @default(uuid())
+  subscriptionId  String
+  action          String    // upgrade, downgrade, renew, cancel
+  oldValue        Json?
+  newValue        Json?
+  changedBy       String?
+  changedAt       DateTime @default(now())
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  user         User?        @relation(fields: [changedBy], references: [id])
+}
+
+// Event Model (Simplified)
+model Event {
+  id             String   @id @default(uuid())
+  organizationId String?
+  name           String
+  location       String?
+  startDate      DateTime?
+  endDate        DateTime?
+  eventType      String?
+  description    String?
+  status         EventStatus @default(Planning)
+  createdBy      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  creator       User?         @relation("EventCreator", fields: [createdBy], references: [id])
+  assignments   EventAssignment[]
+  stakeholders EventStakeholder[]
+  budgetItems   BudgetItem[]
+  expenses     Expense[]
+  vendorEvents VendorEvent[]
+  files         File[]
+  activityLogs ActivityLog[]
+  insights     Insight[]
+  roiMetrics   ROIMetrics?
+  crmSync      CRMSync?
+  reports      Report[]
+  aiBudgetSuggestions AiBudgetSuggestion[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([createdBy])
+  @@index([organizationId, status, startDate])
+}
+
+// User to Event Assignment
+model EventAssignment {
+  id         String   @id @default(uuid())
+  userId     String
+  eventId    String
+  role       String? // Optional role for this assignment (e.g., "Lead", "Coordinator")
+  assignedAt DateTime @default(now())
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+}
+
+// Event Stakeholders (External participants)
+model EventStakeholder {
+  id       String   @id @default(uuid())
+  eventId  String
+  name     String
+  role     String?
+  email    String?
+  phone    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@index([eventId])
+}
+
+// Vendor Management
+model Vendor {
+  id            String   @id @default(uuid())
+  organizationId String?
+  name          String
+  serviceType   String?
+  contactPerson String?
+  email         String?
+  phone         String?
+  gstNumber     String?
+  rating        Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  vendorEvents VendorEvent[]
+  budgetItems  BudgetItem[] @relation("BudgetItemVendor")
+  expenses     Expense[] @relation("ExpenseVendor")
+
+  @@index([organizationId])
+}
+
+// Vendor to Event Assignment
+model VendorEvent {
+  id        String   @id @default(uuid())
+  vendorId  String
+  eventId   String
+  assignedAt DateTime @default(now())
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+  event  Event  @relation(fields: [eventId], references: [id])
+
+  @@unique([vendorId, eventId])
+  @@index([vendorId])
+  @@index([eventId])
+}
+
+// Budget Item (Simplified - directly on Event)
+model BudgetItem {
+  id            String             @id @default(uuid())
+  eventId       String
+  category      BudgetItemCategory
+  description   String
+  vendor        String? // Simple text field (fallback)
+  vendorId      String? // Optional FK to Vendor model
+  estimatedCost Decimal?           @db.Decimal(10, 2)
+  actualCost    Decimal?           @db.Decimal(10, 2)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  vendorLink Vendor? @relation("BudgetItemVendor", fields: [vendorId], references: [id])
+  files File[]
+
+  @@index([eventId])
+  @@index([category])
+  @@index([vendorId])
+  @@index([eventId, category])
+}
+
+// Expense Tracking
+model Expense {
+  id            String   @id @default(uuid())
+  organizationId String?
+  eventId       String
+  vendor        String? // Simple text field (fallback)
+  vendorId      String? // Optional FK to Vendor model
+  title         String
+  amount        Float
+  description   String?
+  status        ExpenseStatus @default(Pending)
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  event         Event @relation(fields: [eventId], references: [id])
+  vendorLink    Vendor? @relation("ExpenseVendor", fields: [vendorId], references: [id])
+  creator       User?   @relation("ExpenseCreator", fields: [createdBy], references: [id])
+  workflows     ApprovalWorkflow[]
+
+  @@index([organizationId])
+  @@index([eventId, status])
+  @@index([eventId, status, createdAt])
+}
+
+model ApprovalWorkflow {
+  id         String   @id @default(uuid())
+  expenseId  String
+  approverId String?
+  action     String   // approved / rejected
+  comments   String?
+  actionAt   DateTime @default(now())
+  expense  Expense @relation(fields: [expenseId], references: [id])
+  approver User?   @relation("ApproverWorkflow", fields: [approverId], references: [id])
+}
+
+// Analytics & Integration
+model Insight {
+  id          String   @id @default(uuid())
+  eventId     String
+  insightType String? // e.g., "budget_variance", "category_analysis", "trend", "recommendation"
+  data        Json? // Flexible JSON structure for insight data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([insightType])
+}
+
+model ROIMetrics {
+  id               String   @id @default(uuid())
+  eventId          String   @unique
+  totalBudget      Float?
+  actualSpend      Float?
+  leadsGenerated   Int?
+  conversions      Int?
+  revenueGenerated Float?
+  roiPercent       Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+model CRMSync {
+  id            String   @id @default(uuid())
+  eventId       String   @unique
+  crmSystem     String?
+  syncStatus    String?
+  lastSyncedAt  DateTime?
+  data          Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+// Reporting
+model Report {
+  id         String   @id @default(uuid())
+  eventId    String
+  reportType String?
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  event  Event @relation(fields: [eventId], references: [id])
+  creator User? @relation(fields: [createdBy], references: [id])
+  files File[]
+}
+
+// File Storage (Flexible - can link to Event, BudgetItem, or Report)
+model File {
+  id           String   @id @default(uuid())
+  eventId      String?
+  budgetItemId String?
+  reportId     String?
+  filename     String
+  path         String // Storage path
+  mimeType     String?
+  size         Int? // Size in bytes
+  uploadedAt   DateTime @default(now())
+  event      Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  budgetItem BudgetItem? @relation(fields: [budgetItemId], references: [id], onDelete: Cascade)
+  report     Report?     @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([budgetItemId])
+  @@index([reportId])
+}
+
+// Notifications (Simplified with type enum)
+model Notification {
+  id            String           @id @default(uuid())
+  organizationId String?
+  userId        String
+  type          NotificationType
+  title         String
+  message       String
+  read          Boolean          @default(false)
+  metadata      Json? // Additional data as JSON
+  createdAt     DateTime         @default(now())
+  readAt        DateTime?
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  user          User @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([read])
+  @@index([organizationId, read])
+}
+
+// Activity Logging
+model ActivityLog {
+  id            String   @id @default(uuid())
+  organizationId String?
+  userId        String
+  eventId       String?
+  action        String // Action performed (e.g., "created", "updated", "deleted")
+  details       Json? // Additional details as JSON
+  createdAt     DateTime @default(now())
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  event         Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([createdAt])
+  @@index([organizationId, createdAt])
+}
+
+// AI Budget Suggestions
+model AiBudgetSuggestion {
+  id            String             @id @default(uuid())
+  eventId       String
+  category      BudgetItemCategory
+  description   String
+  suggestedCost Decimal            @db.Decimal(10, 2)
+  reasoning     String? // AI reasoning for the suggestion
+  confidence    Float? // Confidence score (0-1)
+  accepted      Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([accepted])
+}
+

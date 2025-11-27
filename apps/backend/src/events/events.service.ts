@@ -17,13 +17,15 @@ export class EventsService {
   ) {}
 
   async create(createEventDto: CreateEventDto, userId: string) {
-    const { startDate, endDate, ...data } = createEventDto;
+    const { startDate, endDate, client, ...data } = createEventDto;
 
     const event = await this.prisma.client.event.create({
       data: {
         ...data,
+        location: createEventDto.location || client || null, // Map client to location for backward compatibility
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
+        createdBy: userId,
       },
     });
 
@@ -49,15 +51,15 @@ export class EventsService {
       where.status = filters.status;
     }
 
-    // Handle client and department filters (both filter the client field)
-    // If both are provided, we'll prioritize department, otherwise use whichever is provided
+    // Note: simlifidb schema doesn't have 'client' field
+    // Using location or description for filtering instead
     if (filters?.department) {
-      where.client = {
+      where.location = {
         contains: filters.department,
         mode: "insensitive",
       };
     } else if (filters?.client) {
-      where.client = {
+      where.location = {
         contains: filters.client,
         mode: "insensitive",
       };
@@ -73,7 +75,7 @@ export class EventsService {
       }
     }
 
-    return this.prisma.client.event.findMany({
+    const events = await this.prisma.client.event.findMany({
       where,
       orderBy: {
         createdAt: "desc",
@@ -84,22 +86,46 @@ export class EventsService {
             user: {
               select: {
                 id: true,
-                name: true,
+                fullName: true,
                 email: true,
                 role: true,
               },
             },
           },
         },
+        stakeholders: true,
         _count: {
           select: {
-            files: true,
             budgetItems: true,
+            expenses: true,
             activityLogs: true,
+            files: true,
           },
         },
       },
     });
+
+    // Transform the response to match frontend expectations
+    return events.map((event) => ({
+      ...event,
+      client: event.location || null, // Map location to client for backward compatibility
+      assignments: event.assignments.map((assignment) => {
+        if (!assignment.user) {
+          return {
+            ...assignment,
+            user: null,
+          };
+        }
+        const { fullName, ...userRest } = assignment.user;
+        return {
+          ...assignment,
+          user: {
+            ...userRest,
+            name: fullName || null, // Map fullName to name, remove fullName
+          },
+        };
+      }),
+    }));
   }
 
   async findOne(id: string) {
@@ -111,14 +137,20 @@ export class EventsService {
             user: {
               select: {
                 id: true,
-                name: true,
+                fullName: true,
                 email: true,
                 role: true,
               },
             },
           },
         },
-        budgetItems: true,
+        stakeholders: true,
+        budgetItems: {
+          include: {
+            vendorLink: true,
+          },
+        },
+        expenses: true,
         files: {
           select: {
             id: true,
@@ -130,10 +162,10 @@ export class EventsService {
         },
         _count: {
           select: {
-            files: true,
             budgetItems: true,
+            expenses: true,
             activityLogs: true,
-            aiSuggestions: true,
+            files: true,
           },
         },
       },
@@ -143,11 +175,34 @@ export class EventsService {
       throw new NotFoundException(`Event with ID ${id} not found`);
     }
 
-    return event;
+    // Transform the response to match frontend expectations
+    const transformedEvent = {
+      ...event,
+      client: event.location || null, // Map location to client for backward compatibility
+      assignments: (event.assignments || []).map((assignment) => {
+        if (!assignment.user) {
+          return {
+            ...assignment,
+            user: null,
+          };
+        }
+        return {
+          ...assignment,
+          user: {
+            id: assignment.user.id,
+            email: assignment.user.email,
+            role: assignment.user.role,
+            name: assignment.user.fullName, // Map fullName to name
+          },
+        };
+      }),
+    };
+
+    return transformedEvent;
   }
 
   async update(id: string, updateEventDto: UpdateEventDto, userId: string) {
-    const { startDate, endDate, ...data } = updateEventDto;
+    const { startDate, endDate, client, location, ...data } = updateEventDto;
 
     // Check if event exists
     const existingEvent = await this.findOne(id);
@@ -178,12 +233,15 @@ export class EventsService {
         changedFields.push('description');
       }
     }
-    if (data.client !== undefined) {
-      const normalizedClient = normalize(data.client);
-      const existingClient = normalize(existingEvent.client);
-      if (normalizedClient !== existingClient) {
-        updateData.client = data.client;
-        changedFields.push('client');
+    // Note: simlifidb schema uses 'location' instead of 'client'
+    // Support both for backward compatibility
+    const locationValue = location !== undefined ? location : client;
+    if (locationValue !== undefined) {
+      const normalizedLocation = normalize(locationValue);
+      const existingLocation = normalize((existingEvent as any).location);
+      if (normalizedLocation !== existingLocation) {
+        updateData.location = locationValue;
+        changedFields.push('location');
       }
     }
     if (data.status !== undefined && data.status !== existingEvent.status) {
@@ -265,19 +323,13 @@ export class EventsService {
     });
 
     // Create notification if event is completed
-    if (updateStatusDto.status === EventStatus.Completed) {
-      const assignments = await this.prisma.client.eventAssignment.findMany({
-        where: { eventId: id },
-        select: { userId: true },
-      });
-
-      for (const assignment of assignments) {
-        await this.notificationsService.createEventCompletionNotification(
-          assignment.userId,
-          id,
-          event.name,
-        );
-      }
+    // Note: simlifidb doesn't have eventAssignment, using creator instead
+    if (updateStatusDto.status === EventStatus.Completed && event.createdBy) {
+      await this.notificationsService.createEventCompletionNotification(
+        event.createdBy,
+        id,
+        event.name,
+      );
     }
 
     // Create activity log (event is already fetched above)
@@ -292,12 +344,12 @@ export class EventsService {
   }
 
   async assignUser(eventId: string, assignUserDto: AssignUserDto, userId: string) {
-    // Verify event exists
-    await this.findOne(eventId);
+    const event = await this.findOne(eventId);
 
     // Verify user exists
     const user = await this.prisma.client.user.findUnique({
       where: { id: assignUserDto.userId },
+      select: { fullName: true, email: true },
     });
 
     if (!user) {
@@ -315,11 +367,35 @@ export class EventsService {
     });
 
     if (existingAssignment) {
-      throw new ConflictException("User is already assigned to this event");
+      // Update existing assignment
+      const assignment = await this.prisma.client.eventAssignment.update({
+        where: { id: existingAssignment.id },
+        data: {
+          role: assignUserDto.role,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      });
+
+      // Transform fullName to name for frontend compatibility
+      return {
+        ...assignment,
+        user: assignment.user ? {
+          ...assignment.user,
+          name: assignment.user.fullName || null,
+        } : null,
+      };
     }
 
-    const event = await this.findOne(eventId);
-    
+    // Create new assignment
     const assignment = await this.prisma.client.eventAssignment.create({
       data: {
         userId: assignUserDto.userId,
@@ -330,7 +406,7 @@ export class EventsService {
         user: {
           select: {
             id: true,
-            name: true,
+            fullName: true,
             email: true,
             role: true,
           },
@@ -345,29 +421,39 @@ export class EventsService {
       event.name,
     );
 
-    // Get user details for activity log
-    const assignedUser = await this.prisma.client.user.findUnique({
-      where: { id: assignUserDto.userId },
-      select: { name: true, email: true },
-    });
-
     // Create activity log
     await this.createActivityLog(userId, "event.user.assigned", {
       eventId,
       eventName: event.name,
       userId: assignUserDto.userId,
-      userName: assignedUser?.name || assignedUser?.email || assignUserDto.userId,
+      userName: user.fullName || user.email,
       role: assignUserDto.role,
     }, eventId);
 
-    return assignment;
+    // Transform fullName to name for frontend compatibility
+    return {
+      ...assignment,
+      user: assignment.user ? {
+        ...assignment.user,
+        name: assignment.user.fullName || null,
+      } : null,
+    };
   }
 
   async unassignUser(eventId: string, userId: string, adminUserId: string) {
-    // Verify event exists
-    await this.findOne(eventId);
+    const event = await this.findOne(eventId);
 
-    // Verify assignment exists
+    // Verify user exists
+    const user = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { email: true, fullName: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    // Find assignment
     const assignment = await this.prisma.client.eventAssignment.findUnique({
       where: {
         userId_eventId: {
@@ -382,27 +468,15 @@ export class EventsService {
     }
 
     await this.prisma.client.eventAssignment.delete({
-      where: {
-        userId_eventId: {
-          userId,
-          eventId,
-        },
-      },
+      where: { id: assignment.id },
     });
-
-    // Get user and event details for activity log
-    const unassignedUser = await this.prisma.client.user.findUnique({
-      where: { id: userId },
-      select: { name: true, email: true },
-    });
-    const event = await this.findOne(eventId);
 
     // Create activity log
     await this.createActivityLog(adminUserId, "event.user.unassigned", {
       eventId,
       eventName: event.name,
       userId,
-      userName: unassignedUser?.name || unassignedUser?.email || userId,
+      userName: user.fullName || user.email || userId,
     }, eventId);
   }
 
@@ -411,67 +485,61 @@ export class EventsService {
     file: { originalname: string; path: string; mimetype: string; size: number },
     userId: string,
   ) {
-    // Verify event exists and get name
     const event = await this.findOne(eventId);
-
+    
     const fileRecord = await this.prisma.client.file.create({
       data: {
-        eventId,
+        eventId: eventId,
         filename: file.originalname,
         path: file.path,
         mimeType: file.mimetype,
         size: file.size,
       },
     });
-
-    // Create activity log
-    await this.createActivityLog(userId, "event.file.uploaded", {
+    
+    await this.createActivityLog(userId, "file_uploaded", {
       eventId,
-      eventName: event.name,
       fileId: fileRecord.id,
       filename: file.originalname,
-    }, eventId);
-
+    });
+    
     return fileRecord;
   }
 
   async deleteFile(eventId: string, fileId: string, userId: string) {
-    // Verify event exists
-    await this.findOne(eventId);
-
-    const file = await this.prisma.client.file.findUnique({
-      where: { id: fileId },
+    const event = await this.findOne(eventId);
+    
+    const file = await this.prisma.client.file.findFirst({
+      where: {
+        id: fileId,
+        eventId: eventId,
+      },
     });
-
-    if (!file || file.eventId !== eventId) {
-      throw new NotFoundException("File not found");
+    
+    if (!file) {
+      throw new NotFoundException(`File with ID ${fileId} not found for this event`);
     }
-
-    // Delete physical file
-    const filePath = path.resolve(file.path);
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-      } catch (error) {
-        // Log error but continue with database deletion
-        console.error(`Failed to delete physical file: ${filePath}`, error);
+    
+    // Delete physical file if it exists
+    try {
+      if (require("fs").existsSync(file.path)) {
+        require("fs").unlinkSync(file.path);
       }
+    } catch (error) {
+      console.error(`Failed to delete physical file: ${file.path}`, error);
     }
-
+    
     await this.prisma.client.file.delete({
       where: { id: fileId },
     });
-
-    // Get event details for activity log
-    const event = await this.findOne(eventId);
-
-    // Create activity log
-    await this.createActivityLog(userId, "event.file.deleted", {
+    
+    await this.createActivityLog(userId, "file_deleted", {
       eventId,
-      eventName: event.name,
       fileId,
       filename: file.filename,
-    }, eventId);
+    });
+    
+    return { message: "File deleted successfully" };
   }
 
   private async createActivityLog(

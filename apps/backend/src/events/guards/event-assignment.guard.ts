@@ -26,23 +26,31 @@ export class EventAssignmentGuard implements CanActivate {
       return true;
     }
 
-    // EventManager can only edit assigned events
+    // EventManager can only edit assigned events or events they created
     if (user.role === UserRole.EventManager) {
       if (!eventId) {
         return true; // Allow creating events
       }
 
-      const assignment = await this.prisma.client.eventAssignment.findUnique({
-        where: {
-          userId_eventId: {
-            userId: user.id,
-            eventId: eventId,
+      const event = await this.prisma.client.event.findUnique({
+        where: { id: eventId },
+        select: {
+          createdBy: true,
+          assignments: {
+            where: { userId: user.id },
+            select: {
+              userId: true,
+            },
           },
         },
       });
 
-      if (!assignment) {
-        throw new ForbiddenException("You can only edit events assigned to you");
+      // Allow if user is the creator or assigned to the event
+      const isCreator = event?.createdBy === user.id;
+      const isAssigned = event?.assignments && event.assignments.length > 0;
+
+      if (!isCreator && !isAssigned) {
+        throw new ForbiddenException("You can only edit events you created or are assigned to");
       }
     }
 

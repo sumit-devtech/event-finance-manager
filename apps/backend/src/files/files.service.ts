@@ -63,16 +63,13 @@ export class FilesService {
         throw new BadRequestException("eventId and budgetItemId are required for budget-item files");
       }
 
-      // Verify budget item exists and belongs to event
-      const budgetItem = await this.prisma.client.budgetItem.findFirst({
-        where: {
-          id: uploadDto.budgetItemId,
-          eventId: uploadDto.eventId,
-        },
+      // Verify budget item exists
+      const budgetItem = await this.prisma.client.budgetItem.findUnique({
+        where: { id: uploadDto.budgetItemId },
       });
 
       if (!budgetItem) {
-        throw new NotFoundException("Budget item not found or does not belong to the specified event");
+        throw new NotFoundException("Budget item not found");
       }
 
       storagePath = this.storageService.getBudgetItemUploadPath(
@@ -103,11 +100,11 @@ export class FilesService {
     // Save file to storage
     const filePath = await this.storageService.saveFile(file, storagePath);
 
-    // Store metadata in database
+    // Create file record in database
     const fileRecord = await this.prisma.client.file.create({
       data: {
-        eventId,
-        budgetItemId,
+        eventId: eventId,
+        budgetItemId: budgetItemId,
         filename: file.originalname,
         path: filePath,
         mimeType: file.mimetype,
@@ -126,6 +123,12 @@ export class FilesService {
           select: {
             id: true,
             name: true,
+          },
+        },
+        budgetItem: {
+          select: {
+            id: true,
+            description: true,
           },
         },
       },
@@ -156,14 +159,12 @@ export class FilesService {
           select: {
             id: true,
             name: true,
-            status: true,
           },
         },
         budgetItem: {
           select: {
             id: true,
             description: true,
-            category: true,
           },
         },
       },
@@ -203,9 +204,11 @@ export class FilesService {
 
   async listFiles(filters?: { eventId?: string; budgetItemId?: string }) {
     const where: any = {};
+    
     if (filters?.eventId) {
       where.eventId = filters.eventId;
     }
+    
     if (filters?.budgetItemId) {
       where.budgetItemId = filters.budgetItemId;
     }

@@ -26,13 +26,18 @@ export class ReportsService {
     const event = await this.prisma.client.event.findUnique({
       where: { id: eventId },
       include: {
-        budgetItems: true,
+        budgetItems: {
+          include: {
+            vendorLink: true,
+          },
+        },
+        stakeholders: true,
         assignments: {
           include: {
             user: {
               select: {
                 id: true,
-                name: true,
+                fullName: true,
                 email: true,
               },
             },
@@ -45,8 +50,10 @@ export class ReportsService {
       throw new NotFoundException(`Event with ID ${eventId} not found`);
     }
 
+    // Get budget items directly from event
+    const budgetItems = event.budgetItems || [];
+
     // Calculate budget totals
-    const budgetItems = event.budgetItems;
     const totalsByCategory: Record<string, { estimated: number; actual: number; variance: number }> = {};
     let totalEstimated = 0;
     let totalActual = 0;
@@ -57,8 +64,17 @@ export class ReportsService {
         totalsByCategory[category] = { estimated: 0, actual: 0, variance: 0 };
       }
 
-      const estimated = item.estimatedCost ? Number(item.estimatedCost) : 0;
-      const actual = item.actualCost ? Number(item.actualCost) : 0;
+      // Handle Decimal type conversion (Prisma Decimal type)
+      const estimated = item.estimatedCost 
+        ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
+          ? item.estimatedCost.toNumber() 
+          : Number(item.estimatedCost)) 
+        : 0;
+      const actual = item.actualCost 
+        ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
+          ? item.actualCost.toNumber() 
+          : Number(item.actualCost)) 
+        : 0;
 
       totalsByCategory[category].estimated += estimated;
       totalsByCategory[category].actual += actual;
@@ -70,9 +86,8 @@ export class ReportsService {
     const variance = totalActual - totalEstimated;
     const variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0;
 
-    // Calculate cost per attendee (assuming we can get attendee count from assignments or use a default)
-    // Note: If there's an attendee count field, use that instead
-    const attendeeCount = event.assignments.length || 1; // Using assignments as proxy, minimum 1
+    // Calculate cost per attendee using stakeholders count
+    const attendeeCount = event.stakeholders.length || 1;
     const costPerAttendee = attendeeCount > 0 ? totalActual / attendeeCount : 0;
 
     return {
@@ -80,7 +95,7 @@ export class ReportsService {
         id: event.id,
         name: event.name,
         description: event.description,
-        client: event.client,
+        client: event.location || null, // Map location to client for frontend compatibility
         status: event.status,
         startDate: event.startDate,
         endDate: event.endDate,
@@ -97,10 +112,19 @@ export class ReportsService {
         costPerAttendee: Number(costPerAttendee.toFixed(2)),
         attendeeCount,
       },
-      assignments: event.assignments.map((a) => ({
-        user: a.user,
-        role: a.role,
-        assignedAt: a.assignedAt,
+      assignments: event.assignments.map((assignment) => ({
+        user: assignment.user ? {
+          id: assignment.user.id,
+          name: assignment.user.fullName || null, // Map fullName to name
+          email: assignment.user.email,
+        } : null,
+        role: assignment.role,
+        assignedAt: assignment.assignedAt,
+      })),
+      stakeholders: event.stakeholders.map((s) => ({
+        name: s.name,
+        role: s.role,
+        email: s.email,
       })),
       generatedAt: new Date(),
     };
@@ -117,8 +141,12 @@ export class ReportsService {
         },
       },
       include: {
-        budgetItems: true,
-        assignments: true,
+        budgetItems: {
+          include: {
+            vendorLink: true,
+          },
+        },
+        stakeholders: true,
       },
     });
 
@@ -129,7 +157,9 @@ export class ReportsService {
     }
 
     const comparison = events.map((event) => {
-      const budgetItems = event.budgetItems;
+      // Get budget items directly from event
+      const budgetItems = event.budgetItems || [];
+
       const totalsByCategory: Record<string, { estimated: number; actual: number }> = {};
       let totalEstimated = 0;
       let totalActual = 0;
@@ -140,8 +170,17 @@ export class ReportsService {
           totalsByCategory[category] = { estimated: 0, actual: 0 };
         }
 
-        const estimated = item.estimatedCost ? Number(item.estimatedCost) : 0;
-        const actual = item.actualCost ? Number(item.actualCost) : 0;
+        // Handle Decimal type conversion (Prisma Decimal type)
+        const estimated = item.estimatedCost 
+          ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
+            ? item.estimatedCost.toNumber() 
+            : Number(item.estimatedCost)) 
+          : 0;
+        const actual = item.actualCost 
+          ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
+            ? item.actualCost.toNumber() 
+            : Number(item.actualCost)) 
+          : 0;
 
         totalsByCategory[category].estimated += estimated;
         totalsByCategory[category].actual += actual;
@@ -151,14 +190,14 @@ export class ReportsService {
 
       const variance = totalActual - totalEstimated;
       const variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0;
-      const attendeeCount = event.assignments.length || 1;
+      const attendeeCount = event.stakeholders.length || 1;
       const costPerAttendee = attendeeCount > 0 ? totalActual / attendeeCount : 0;
 
       return {
         event: {
           id: event.id,
           name: event.name,
-          client: event.client,
+          client: event.location || null, // Map location to client for frontend compatibility
           status: event.status,
           startDate: event.startDate,
           endDate: event.endDate,
@@ -233,7 +272,7 @@ export class ReportsService {
       filename = `event-summary-${eventId || "report"}-${Date.now()}.csv`;
       csvContent = "Event Summary Report\n\n";
       csvContent += `Event: ${data.event.name}\n`;
-      csvContent += `Client: ${data.event.client || "N/A"}\n`;
+      csvContent += `Location: ${data.event.location || "N/A"}\n`;
       csvContent += `Status: ${data.event.status}\n\n`;
 
       csvContent += "Budget Summary\n";
@@ -293,7 +332,7 @@ export class ReportsService {
       worksheet.addRow(["Event Summary Report"]);
       worksheet.addRow([]);
       worksheet.addRow(["Event:", data.event.name]);
-      worksheet.addRow(["Client:", data.event.client || "N/A"]);
+      worksheet.addRow(["Location:", data.event.location || "N/A"]);
       worksheet.addRow(["Status:", data.event.status]);
       worksheet.addRow([]);
 
@@ -380,7 +419,7 @@ export class ReportsService {
         doc.fontSize(20).text("Event Summary Report", { align: "center" });
         doc.moveDown();
         doc.fontSize(12).text(`Event: ${data.event.name}`);
-        doc.text(`Client: ${data.event.client || "N/A"}`);
+        doc.text(`Location: ${data.event.location || "N/A"}`);
         doc.text(`Status: ${data.event.status}`);
         doc.moveDown();
 

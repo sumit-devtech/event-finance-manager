@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [remix()],
   server: {
-    port: 5173, // Frontend runs on 5173, backend on 3333
+    port: 5173, // Frontend runs on 5173, backend-simplifi on 3333 (or 3334 if PORT env not set)
   },
   css: {
     postcss: "./postcss.config.js",

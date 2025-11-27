@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { NotificationsService } from "./notifications.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { NotificationType } from "@event-finance-manager/database";
+import { NotificationType } from "@event-finance-manager/event-db";
 
 @Controller("notifications")
 @UseGuards(JwtAuthGuard)
