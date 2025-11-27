@@ -1,4 +1,4 @@
-import { PrismaClient as PrismaClientEventDb } from "./generated/prisma-event-db";
+import { PrismaClient as PrismaClientEventDb } from "./generated/prisma-database";
 
 const globalForPrisma = globalThis as unknown as {
   prismaEventDb: PrismaClientEventDb | undefined;

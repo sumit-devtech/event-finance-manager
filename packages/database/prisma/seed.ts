@@ -1,4 +1,4 @@
-import { PrismaClient } from "../src/generated/prisma-event-db";
+import { PrismaClient } from "../src/generated/prisma-database";
 import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();

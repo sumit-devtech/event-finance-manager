@@ -20,10 +20,10 @@ export type {
   ActivityLog,
   File,
   AiBudgetSuggestion,
-} from "./generated/prisma-event-db";
+} from "./generated/prisma-database";
 
 // Re-export Prisma namespace (for advanced type operations)
-export { Prisma } from "./generated/prisma-event-db";
+export { Prisma } from "./generated/prisma-database";
 
 // Re-export Prisma enums
 export { 
@@ -34,5 +34,5 @@ export {
   ExpenseStatus,
   SubscriptionStatus,
   BillingCycle
-} from "./generated/prisma-event-db";
+} from "./generated/prisma-database";
 
