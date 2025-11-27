@@ -27,7 +27,7 @@ Simplified combined database schema for Event Budget Planning System.
 
 3. **Generate Prisma Client**:
    ```bash
-   cd packages/event-db
+   cd packages/database
    pnpm db:generate
    ```
 
@@ -51,7 +51,7 @@ Simplified combined database schema for Event Budget Planning System.
 ### Import Prisma Client
 
 ```typescript
-import { prismaEventDb } from "@event-finance-manager/event-db";
+import { prismaEventDb } from "@event-finance-manager/database";
 
 // Use the client
 const events = await prismaEventDb.event.findMany({
@@ -62,8 +62,8 @@ const events = await prismaEventDb.event.findMany({
 ### Import Types
 
 ```typescript
-import type { Event, User, BudgetItem, Expense } from "@event-finance-manager/event-db";
-import { UserRole, EventStatus, BudgetItemCategory } from "@event-finance-manager/event-db";
+import type { Event, User, BudgetItem, Expense } from "@event-finance-manager/database";
+import { UserRole, EventStatus, BudgetItemCategory } from "@event-finance-manager/database";
 ```
 
 ## Schema Overview
@@ -100,7 +100,7 @@ Set `DATABASE_URL_EVENT_DB` environment variable with your PostgreSQL connection
 To generate a PNG image from the Mermaid ER diagram:
 
 ```bash
-cd packages/event-db/docs
+cd packages/database/docs
 ./generate-diagram.sh
 ```
 

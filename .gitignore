@@ -32,6 +32,7 @@ lerna-debug.log*
 
 # Turbo
 .turbo
+.turbo/*.log
 
 # IDE
 .vscode
@@ -39,6 +40,18 @@ lerna-debug.log*
 *.swp
 *.swo
 *~
+.cursor
 
+# Build artifacts
 *.tsbuildinfo
 *.cache
+*.log
+
+# Excluded apps and packages (not part of this branch)
+apps/backend-simplifi/
+apps/simplifi-frontend/
+apps/simplififrontend/
+apps/docs/
+apps/schema.md
+packages/simlifidb/
+packages/database-old/

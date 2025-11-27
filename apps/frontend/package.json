@@ -13,7 +13,7 @@
     "clean": "rm -rf .cache build"
   },
   "dependencies": {
-    "@event-finance-manager/event-db": "workspace:*",
+    "@event-finance-manager/database": "workspace:*",
     "@event-finance-manager/shared": "workspace:*",
     "@remix-run/node": "^2.7.0",
     "@remix-run/react": "^2.7.0",

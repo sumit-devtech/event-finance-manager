@@ -1,5 +1,5 @@
 {
-  "name": "@event-finance-manager/event-db",
+  "name": "@event-finance-manager/database",
   "version": "0.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

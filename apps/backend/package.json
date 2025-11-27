@@ -14,7 +14,7 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@event-finance-manager/event-db": "workspace:*",
+    "@event-finance-manager/database": "workspace:*",
     "@event-finance-manager/shared": "workspace:*",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.1.1",

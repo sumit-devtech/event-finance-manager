@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { PrismaClientEventDb, prismaEventDb } from "@event-finance-manager/event-db";
+import { PrismaClientEventDb, prismaEventDb } from "@event-finance-manager/database";
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
