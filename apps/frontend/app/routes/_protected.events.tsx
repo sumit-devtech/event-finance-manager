@@ -1193,7 +1193,7 @@ function EventDetailModal({
   const event = fetcher.data?.event;
   const users = fetcher.data?.users || [];
   const isLoading = fetcher.state === "loading" || fetcher.state === "submitting";
-  const fetcherError = fetcher.data?.error || fetcher.data;
+  const fetcherError = (fetcher.data as any)?.error || fetcher.data;
 
   // Ensure arrays exist with defaults
   const safeEvent = event ? {

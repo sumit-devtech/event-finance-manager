@@ -5,10 +5,11 @@
  */
 
 import { useState } from "react";
-import { Outlet } from "@remix-run/react";
-import { Navigation } from "./Navigation";
+import { Outlet, useLoaderData, useSearchParams, Link } from "@remix-run/react";
+import { Sidebar } from "./Sidebar";
 import { UserProfile } from "./UserProfile";
 import type { User } from "~/lib/auth";
+import { X } from "lucide-react";
 
 interface LayoutProps {
   user: User;
@@ -16,18 +17,45 @@ interface LayoutProps {
 
 export function Layout({ user }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  // Check if we're in demo mode by checking the route path or demo flag
+  const isDemo = typeof window !== 'undefined' 
+    ? window.location.pathname.startsWith('/demo') || searchParams.get('demo') === 'true'
+    : searchParams.get('demo') === 'true';
+  const loaderData = useLoaderData<any>();
+  const organization = loaderData?.organization || null;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Navigation Sidebar */}
-      <Navigation
+      <Sidebar
         user={user}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
+        organization={organization}
+        isMobileMenuOpen={sidebarOpen}
+        setIsMobileMenuOpen={setSidebarOpen}
+        isDemo={isDemo}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
+        {/* Demo Mode Banner */}
+        {isDemo && (
+          <div className="bg-yellow-50 border-b border-yellow-200 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-yellow-800 text-sm font-medium">
+                Demo Mode: You're viewing demo data. Changes won't be saved.
+              </span>
+            </div>
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-yellow-800 hover:text-yellow-900 text-sm font-medium"
+            >
+              <span>Exit Demo</span>
+              <X size={16} />
+            </Link>
+          </div>
+        )}
+        
         {/* Header - Fixed at top */}
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 flex-shrink-0 relative">
           <div className="px-4 sm:px-6 lg:px-8">

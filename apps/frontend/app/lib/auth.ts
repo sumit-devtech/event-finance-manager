@@ -13,6 +13,7 @@ export interface User {
   email: string;
   name?: string;
   role: string;
+  organizationId?: string;
 }
 
 export interface AuthResponse {
