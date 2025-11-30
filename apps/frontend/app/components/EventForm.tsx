@@ -22,20 +22,19 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
   ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg border border-gray-200">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{isEdit ? 'Edit Event' : 'Create New Event'}</h2>
-            <p className="text-gray-600 mt-1">Fill in the details below to create or update an event</p>
-          </div>
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
+          <h3 className="text-xl font-semibold text-gray-900">
+            {isEdit ? 'Edit Event' : 'Create New Event'}
+          </h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             type="button"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
@@ -50,7 +49,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
         {isDemo && (
           <div className="mx-6 mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">
             <p className="font-medium">Demo Mode</p>
-            <p className="text-sm mt-1">You're creating a demo event. Changes won't be saved.</p>
+            <p className="text-sm mt-1">This event won't be saved in demo mode.</p>
           </div>
         )}
 

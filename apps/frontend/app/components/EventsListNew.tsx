@@ -254,20 +254,18 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
 
   if (showForm) {
     return (
-      <div className="space-y-6">
-        <EventForm 
-          event={selectedEvent} 
-          onClose={handleCloseForm} 
-          user={user || {
-            id: 'demo-user',
-            name: 'Demo User',
-            email: 'demo@example.com',
-            role: 'EventManager',
-          } as User} 
-          organization={organization} 
-          isDemo={isDemo} 
-        />
-      </div>
+      <EventForm
+        event={selectedEvent}
+        onClose={handleCloseForm}
+        user={user || {
+          id: 'demo-user',
+          name: 'Demo User',
+          email: 'demo@example.com',
+          role: 'EventManager',
+        } as User}
+        organization={organization}
+        isDemo={isDemo}
+      />
     );
   }
 
@@ -833,14 +831,14 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
                               >
                                 <Edit size={16} />
-                                <span>Edit Event</span>
+                                <span>Edit</span>
                               </button>
                               <button
                                 onClick={() => handleDeleteEvent(event.id)}
                                 className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg"
                               >
                                 <Trash size={16} />
-                                <span>Delete Event</span>
+                                <span>Delete</span>
                               </button>
                             </div>
                           )}
