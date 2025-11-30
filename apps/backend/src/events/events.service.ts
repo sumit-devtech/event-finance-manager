@@ -44,6 +44,8 @@ export class EventsService {
     department?: string;
     startDateFrom?: string;
     startDateTo?: string;
+    limit?: number;
+    offset?: number;
   }) {
     const where: any = {};
 
@@ -75,14 +77,33 @@ export class EventsService {
       }
     }
 
+    // Optimize: Use select instead of include, limit relations
     const events = await this.prisma.client.event.findMany({
       where,
       orderBy: {
         createdAt: "desc",
       },
-      include: {
+      take: filters?.limit || 50, // Default limit to prevent fetching too many
+      skip: filters?.offset || 0,
+      select: {
+        id: true,
+        name: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+        eventType: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        organizationId: true,
+        createdBy: true,
+        // Only include minimal assignment data
         assignments: {
-          include: {
+          select: {
+            id: true,
+            userId: true,
+            role: true,
             user: {
               select: {
                 id: true,
@@ -92,14 +113,16 @@ export class EventsService {
               },
             },
           },
+          take: 5, // Limit to first 5 assignments
         },
-        stakeholders: true,
+        // Only count stakeholders, don't fetch all
         _count: {
           select: {
             budgetItems: true,
             expenses: true,
             activityLogs: true,
             files: true,
+            stakeholders: true,
           },
         },
       },
@@ -109,6 +132,7 @@ export class EventsService {
     return events.map((event) => ({
       ...event,
       client: event.location || null, // Map location to client for backward compatibility
+      stakeholders: undefined, // Remove stakeholders from response (we only need count)
       assignments: event.assignments.map((assignment) => {
         if (!assignment.user) {
           return {
@@ -128,12 +152,29 @@ export class EventsService {
     }));
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, includeDetails: boolean = false) {
+    // Optimize: Only fetch full details when needed
     const event = await this.prisma.client.event.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+        eventType: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        organizationId: true,
+        createdBy: true,
         assignments: {
-          include: {
+          select: {
+            id: true,
+            userId: true,
+            role: true,
+            assignedAt: true,
             user: {
               select: {
                 id: true,
@@ -144,14 +185,49 @@ export class EventsService {
             },
           },
         },
-        stakeholders: true,
-        budgetItems: {
-          include: {
-            vendorLink: true,
+        stakeholders: includeDetails ? {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+            email: true,
+            phone: true,
+            createdAt: true,
+            updatedAt: true,
           },
+        } : {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+            email: true,
+          },
+          take: 10, // Limit stakeholders if not full details
         },
-        expenses: true,
-        files: {
+        budgetItems: includeDetails ? {
+          select: {
+            id: true,
+            category: true,
+            description: true,
+            estimatedCost: true,
+            actualCost: true,
+            vendor: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        } : false,
+        expenses: includeDetails ? {
+          select: {
+            id: true,
+            amount: true,
+            title: true,
+            description: true,
+            status: true,
+            createdAt: true,
+          },
+          take: 20, // Limit expenses if not full details
+        } : false,
+        files: includeDetails ? {
           select: {
             id: true,
             filename: true,
@@ -159,13 +235,15 @@ export class EventsService {
             size: true,
             uploadedAt: true,
           },
-        },
+          take: 10, // Limit files
+        } : false,
         _count: {
           select: {
             budgetItems: true,
             expenses: true,
             activityLogs: true,
             files: true,
+            stakeholders: true,
           },
         },
       },
@@ -176,6 +254,7 @@ export class EventsService {
     }
 
     // Transform the response to match frontend expectations
+    // Handle conditional fields based on includeDetails
     const transformedEvent = {
       ...event,
       client: event.location || null, // Map location to client for backward compatibility

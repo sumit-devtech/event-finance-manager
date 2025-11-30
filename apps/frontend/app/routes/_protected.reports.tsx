@@ -46,10 +46,48 @@ interface ActionData {
  * Loader - fetch events for reports dashboard
  */
 export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const isDemo = url.searchParams.get('demo') === 'true';
+
+  // In demo mode, return demo data with null user
+  if (isDemo) {
+    const demoEvents: Event[] = [
+      {
+        id: '1',
+        name: 'Tech Conference 2024',
+        client: 'Tech Corp',
+        status: 'active',
+        startDate: '2024-03-15',
+        endDate: '2024-03-15',
+      },
+      {
+        id: '2',
+        name: 'Product Launch Event',
+        client: 'Product Inc',
+        status: 'planning',
+        startDate: '2024-04-20',
+        endDate: '2024-04-20',
+      },
+      {
+        id: '3',
+        name: 'Annual Gala',
+        client: 'Gala Corp',
+        status: 'active',
+        startDate: '2024-02-28',
+        endDate: '2024-02-28',
+      },
+    ];
+
+    return json<LoaderData>({
+      events: demoEvents,
+      user: { role: 'Viewer' } as any
+    });
+  }
+
+  // Otherwise, require authentication
   const user = await requireAuth(request);
   const token = await getAuthTokenFromSession(request);
 
-  const url = new URL(request.url);
   const status = url.searchParams.get("status") || undefined;
   const client = url.searchParams.get("client") || undefined;
   const startDateFrom = url.searchParams.get("startDateFrom") || undefined;

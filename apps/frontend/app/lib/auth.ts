@@ -14,6 +14,8 @@ export interface User {
   name?: string;
   role: string;
   organizationId?: string;
+  subscription?: 'free' | 'pro' | 'enterprise';
+  freeEventsRemaining?: number;
 }
 
 export interface AuthResponse {

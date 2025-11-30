@@ -24,7 +24,7 @@ export class BudgetItemsService {
     // Verify event exists
     await this.verifyEventExists(eventId);
 
-    return this.prisma.client.budgetItem.findMany({
+    const budgetItems = await this.prisma.client.budgetItem.findMany({
       where: { eventId },
       include: {
         vendorLink: true,
@@ -33,6 +33,19 @@ export class BudgetItemsService {
         createdAt: "desc",
       },
     });
+
+    // Convert Decimal fields to numbers for JSON serialization
+    return budgetItems.map((item) => ({
+      ...item,
+      estimatedCost: item.estimatedCost ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
+        ? item.estimatedCost.toNumber() 
+        : Number(item.estimatedCost)) 
+        : null,
+      actualCost: item.actualCost ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
+        ? item.actualCost.toNumber() 
+        : Number(item.actualCost)) 
+        : null,
+    }));
   }
 
   async findOne(id: string) {
@@ -54,7 +67,18 @@ export class BudgetItemsService {
       throw new NotFoundException(`Budget item with ID ${id} not found`);
     }
 
-    return budgetItem;
+    // Convert Decimal fields to numbers for JSON serialization
+    return {
+      ...budgetItem,
+      estimatedCost: budgetItem.estimatedCost ? (typeof budgetItem.estimatedCost === 'object' && 'toNumber' in budgetItem.estimatedCost 
+        ? budgetItem.estimatedCost.toNumber() 
+        : Number(budgetItem.estimatedCost)) 
+        : null,
+      actualCost: budgetItem.actualCost ? (typeof budgetItem.actualCost === 'object' && 'toNumber' in budgetItem.actualCost 
+        ? budgetItem.actualCost.toNumber() 
+        : Number(budgetItem.actualCost)) 
+        : null,
+    };
   }
 
   async create(eventId: string, createBudgetItemDto: CreateBudgetItemDto, userId: string) {
@@ -95,7 +119,18 @@ export class BudgetItemsService {
       category: budgetItem.category,
     }, eventId);
 
-    return budgetItem;
+    // Convert Decimal fields to numbers for JSON serialization
+    return {
+      ...budgetItem,
+      estimatedCost: budgetItem.estimatedCost ? (typeof budgetItem.estimatedCost === 'object' && 'toNumber' in budgetItem.estimatedCost 
+        ? budgetItem.estimatedCost.toNumber() 
+        : Number(budgetItem.estimatedCost)) 
+        : null,
+      actualCost: budgetItem.actualCost ? (typeof budgetItem.actualCost === 'object' && 'toNumber' in budgetItem.actualCost 
+        ? budgetItem.actualCost.toNumber() 
+        : Number(budgetItem.actualCost)) 
+        : null,
+    };
   }
 
   async update(id: string, updateBudgetItemDto: UpdateBudgetItemDto, userId: string) {
@@ -148,6 +183,19 @@ export class BudgetItemsService {
       },
     });
 
+    // Convert Decimal fields to numbers for JSON serialization
+    const serializedItem = {
+      ...updatedBudgetItem,
+      estimatedCost: updatedBudgetItem.estimatedCost ? (typeof updatedBudgetItem.estimatedCost === 'object' && 'toNumber' in updatedBudgetItem.estimatedCost 
+        ? updatedBudgetItem.estimatedCost.toNumber() 
+        : Number(updatedBudgetItem.estimatedCost)) 
+        : null,
+      actualCost: updatedBudgetItem.actualCost ? (typeof updatedBudgetItem.actualCost === 'object' && 'toNumber' in updatedBudgetItem.actualCost 
+        ? updatedBudgetItem.actualCost.toNumber() 
+        : Number(updatedBudgetItem.actualCost)) 
+        : null,
+    };
+
     // Check for over-budget alerts
     await this.checkOverBudgetAlerts(eventId, userId);
 
@@ -166,7 +214,7 @@ export class BudgetItemsService {
       changes: changedFields,
     }, eventId);
 
-    return updatedBudgetItem;
+    return serializedItem;
   }
 
   async remove(id: string, userId: string): Promise<void> {

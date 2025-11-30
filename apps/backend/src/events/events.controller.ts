@@ -60,6 +60,8 @@ export class EventsController {
     @Query("department") department?: string,
     @Query("startDateFrom") startDateFrom?: string,
     @Query("startDateTo") startDateTo?: string,
+    @Query("limit") limit?: string,
+    @Query("offset") offset?: string,
   ) {
     return this.eventsService.findAll({
       status,
@@ -67,6 +69,8 @@ export class EventsController {
       department,
       startDateFrom,
       startDateTo,
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
     });
   }
 

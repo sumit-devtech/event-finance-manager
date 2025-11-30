@@ -6,7 +6,7 @@ import type { User } from '~/lib/auth';
 interface EventFormProps {
   event?: any;
   onClose: () => void;
-  user: User;
+  user: User | null;
   organization?: any;
   actionData?: any;
   isDemo?: boolean;

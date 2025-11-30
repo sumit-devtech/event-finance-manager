@@ -58,9 +58,83 @@ interface User {
  * Loader - fetch event detail and users
  */
 export async function loader({ request, params }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const isDemo = url.searchParams.get('demo') === 'true';
+  const eventId = params.id!;
+
+  // In demo mode, return demo data
+  if (isDemo) {
+    // Return demo event data based on eventId
+    const demoEvent: EventDetail = {
+      id: eventId,
+      name: 'Annual Tech Conference 2024',
+      description: 'Annual technology conference featuring keynote speakers and workshops',
+      client: 'Tech Corp',
+      startDate: '2024-03-15',
+      endDate: '2024-03-17',
+      status: 'Active',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-03-10',
+      assignments: [
+        {
+          id: '1',
+          role: 'Lead Organizer',
+          user: {
+            id: '1',
+            name: 'Sarah Johnson',
+            email: 'sarah@demo.com',
+            role: 'EventManager',
+          },
+        },
+      ],
+      files: [
+        {
+          id: '1',
+          filename: 'event-plan.pdf',
+          mimeType: 'application/pdf',
+          size: 245760,
+          uploadedAt: '2024-01-20',
+        },
+      ],
+      budgetItems: [
+        {
+          id: '1',
+          category: 'Venue',
+          description: 'Conference Hall Rental',
+          estimatedCost: 45000,
+          actualCost: 45000,
+          vendor: 'Grand Convention Center',
+        },
+        {
+          id: '2',
+          category: 'Catering',
+          description: 'Lunch & Refreshments (500 pax)',
+          estimatedCost: 25000,
+          actualCost: 24000,
+          vendor: 'Premium Catering Co.',
+        },
+        {
+          id: '3',
+          category: 'Marketing',
+          description: 'Digital Marketing Campaign',
+          estimatedCost: 15000,
+          actualCost: 12000,
+          vendor: 'AdTech Solutions',
+        },
+      ],
+      _count: {
+        files: 5,
+        budgetItems: 12,
+        activityLogs: 8,
+      },
+    };
+
+    return json({ event: demoEvent, users: [], user: null as any });
+  }
+
+  // Otherwise, require authentication
   const user = await requireAuth(request);
   const token = await getAuthTokenFromSession(request);
-  const eventId = params.id!;
 
   try {
     const event = await api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined });
@@ -85,6 +159,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
  * Action - handle status update, file upload, assignment
  */
 export async function action({ request, params }: ActionFunctionArgs) {
+  const url = new URL(request.url);
+  const isDemo = url.searchParams.get('demo') === 'true';
+
+  // In demo mode, just return success
+  if (isDemo) {
+    return json({ success: true, message: "Demo mode: Changes are not saved" });
+  }
+
   const user = await requireAuth(request);
   const token = await getAuthTokenFromSession(request);
   const formData = await request.formData();

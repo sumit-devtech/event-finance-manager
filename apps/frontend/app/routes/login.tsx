@@ -1,21 +1,20 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { loginUser } from "~/lib/auth.server";
-import { getCurrentUser } from "~/lib/auth.server";
+import { getSessionFromRequest } from "~/lib/session";
 import { AuthPage } from "~/components/AuthPage";
 
 /**
  * Loader - redirect to dashboard if already logged in
  */
 export async function loader({ request }: LoaderFunctionArgs) {
-  try {
-    const user = await getCurrentUser(request);
-    if (user) {
-      return redirect("/dashboard");
-    }
-  } catch (error) {
-    // If there's an error getting user (e.g., invalid session), continue to login page
-    console.error("Error checking current user:", error);
+  // OPTIMIZE: Check session directly instead of making API call
+  const session = await getSessionFromRequest(request);
+  const userFromSession = session.get("user");
+  
+  // If user exists in session, redirect immediately (no API call needed)
+  if (userFromSession) {
+    return redirect("/dashboard");
   }
   
   const url = new URL(request.url);
@@ -32,9 +31,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
   const redirectTo = formData.get("redirectTo") || "/dashboard";
 
-  // Handle demo login - redirect to demo dashboard (no auth required)
+  // Handle demo login - redirect to dashboard with demo parameter (no auth required)
   if (intent === "demo") {
-    return redirect("/demo/dashboard");
+    return redirect("/dashboard?demo=true");
   }
 
   const email = formData.get("email");
@@ -82,12 +81,47 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // TODO: Implement registration logic
-    // For now, redirect to login after "registration"
-    return json(
-      { error: "Registration is not yet implemented. Please use login." },
-      { status: 400 },
-    );
+    if (password.length < 6) {
+      return json(
+        { error: "Password must be at least 6 characters long" },
+        { status: 400 },
+      );
+    }
+
+    // Attempt registration
+    try {
+      // Call registration API directly (server-side)
+      const { api } = await import("~/lib/api");
+      const authResponse = await api.post<any>("/auth/register", {
+        email,
+        password,
+        name,
+      });
+
+      // Registration successful - automatically log the user in
+      const loginResult = await loginUser(email, password, redirectTo || "/dashboard");
+
+      if (loginResult.error) {
+        // Registration succeeded but login failed - redirect to login page
+        return json(
+          { error: "Registration successful. Please log in." },
+          { status: 200 },
+        );
+      }
+
+      // Success - redirect with session cookie
+      return redirect(loginResult.redirectTo || "/dashboard", {
+        headers: loginResult.headers as HeadersInit,
+      });
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      // Handle specific error messages from the API
+      const errorMessage = error.response?.data?.message || error.message || "Registration failed. Please try again.";
+      return json(
+        { error: errorMessage },
+        { status: 400 },
+      );
+    }
   }
 
   // Attempt login
@@ -110,6 +144,6 @@ export default function Login() {
   const { redirectTo } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  return <AuthPage />;
+  return <AuthPage actionData={actionData} />;
 }
 

@@ -9,10 +9,11 @@ import { useState, useRef, useEffect } from "react";
 import type { User } from "~/lib/auth";
 
 interface UserProfileProps {
-  user: User;
+  user: User | null;
+  isDemo?: boolean;
 }
 
-export function UserProfile({ user }: UserProfileProps) {
+export function UserProfile({ user, isDemo = false }: UserProfileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submit = useSubmit();
@@ -81,15 +82,15 @@ export function UserProfile({ user }: UserProfileProps) {
         aria-haspopup="true"
       >
         <div className="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-full text-white text-sm font-medium flex-shrink-0">
-          {user.name
+          {isDemo ? 'D' : (user?.name
             ? user.name.charAt(0).toUpperCase()
-            : user.email.charAt(0).toUpperCase()}
+            : user?.email?.charAt(0).toUpperCase() || 'U')}
         </div>
         <div className="hidden sm:block text-left min-w-0">
           <div className="text-sm font-medium text-gray-900 truncate">
-            {user.name || user.email}
+            {isDemo ? 'Demo User' : (user?.name || user?.email || 'User')}
           </div>
-          <div className="text-xs text-gray-500">{user.role}</div>
+          <div className="text-xs text-gray-500">{isDemo ? 'Demo' : (user?.role || '')}</div>
         </div>
         <svg
           className={`w-4 h-4 text-gray-500 transition-transform flex-shrink-0 ${
@@ -120,18 +121,20 @@ export function UserProfile({ user }: UserProfileProps) {
         >
           <div className="px-4 py-3 border-b border-gray-200">
             <div className="text-sm font-medium text-gray-900">
-              {user.name || user.email}
+              {isDemo ? 'Demo User' : (user?.name || user?.email || 'User')}
             </div>
-            <div className="text-xs text-gray-500 mt-1">{user.email}</div>
-            <div className="mt-2">
-              <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(
-                  user.role
-                )}`}
-              >
-                {user.role}
-              </span>
-            </div>
+            <div className="text-xs text-gray-500 mt-1">{isDemo ? 'demo@example.com' : (user?.email || '')}</div>
+            {!isDemo && user && (
+              <div className="mt-2">
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(
+                    user.role
+                  )}`}
+                >
+                  {user.role}
+                </span>
+              </div>
+            )}
           </div>
           <div className="py-1">
             <Link

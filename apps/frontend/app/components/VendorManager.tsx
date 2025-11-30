@@ -3,7 +3,7 @@ import { Plus, Search, Star, Phone, Mail, MapPin, FileText, DollarSign } from 'l
 import type { User } from "~/lib/auth";
 
 interface VendorManagerProps {
-  user: User;
+  user: User | null;
   vendors: any[];
 }
 

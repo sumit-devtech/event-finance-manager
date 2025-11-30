@@ -109,9 +109,20 @@ export async function loginUser(
       redirectTo,
     };
   } catch (error: any) {
+    // Log error for debugging
+    console.error("Login error:", error);
+    
+    // Extract error message from ApiClientError or other error types
+    let errorMessage = "Invalid email or password";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+    
     // Return error for display
     return {
-      error: error.message || "Invalid email or password",
+      error: errorMessage,
       headers: {},
     };
   }

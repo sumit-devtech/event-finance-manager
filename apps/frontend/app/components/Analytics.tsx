@@ -3,12 +3,13 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import type { User } from "~/lib/auth";
 
 interface AnalyticsProps {
-  user: User;
+  user: User | null;
   events: any[];
   roiMetrics?: any[];
+  isDemo?: boolean;
 }
 
-export function Analytics({ user, events, roiMetrics = [] }: AnalyticsProps) {
+export function Analytics({ user, events, roiMetrics = [], isDemo = false }: AnalyticsProps) {
   // Use demo data from Figma if roiMetrics provided, otherwise calculate from events
   const roiData = roiMetrics.length > 0 ? roiMetrics : [
     { event: 'Tech Conf', roi: 245, revenue: 520000, cost: 125000 },

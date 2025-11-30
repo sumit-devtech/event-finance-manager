@@ -12,16 +12,14 @@ import type { User } from "~/lib/auth";
 import { X } from "lucide-react";
 
 interface LayoutProps {
-  user: User;
+  user: User | null;
 }
 
 export function Layout({ user }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchParams] = useSearchParams();
-  // Check if we're in demo mode by checking the route path or demo flag
-  const isDemo = typeof window !== 'undefined' 
-    ? window.location.pathname.startsWith('/demo') || searchParams.get('demo') === 'true'
-    : searchParams.get('demo') === 'true';
+  // Check if we're in demo mode by checking the demo query parameter
+  const isDemo = searchParams.get('demo') === 'true';
   const loaderData = useLoaderData<any>();
   const organization = loaderData?.organization || null;
 
@@ -101,7 +99,7 @@ export function Layout({ user }: LayoutProps) {
               
               {/* User Profile */}
               <div className="flex items-center relative">
-                <UserProfile user={user} />
+                <UserProfile user={user} isDemo={isDemo} />
               </div>
             </div>
           </div>

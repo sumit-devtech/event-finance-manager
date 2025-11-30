@@ -1,9 +1,10 @@
 import { Link, useLocation, Form } from "@remix-run/react";
 import { LayoutDashboard, Calendar, DollarSign, Receipt, Users, BarChart3, UserCog, LogOut } from 'lucide-react';
 import type { User } from "~/lib/auth";
+import logoImage from '~/assets/logo.png';
 
 interface SidebarProps {
-  user: User;
+  user: User | null;
   organization?: any;
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
@@ -13,34 +14,31 @@ interface SidebarProps {
 export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuOpen, isDemo = false }: SidebarProps) {
   const location = useLocation();
   
-  // Base menu items - prepend /demo if in demo mode
+  // Base menu items - append ?demo=true if in demo mode
   const baseMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'events', label: 'Events', icon: Calendar, href: '/events' },
     { id: 'budgets', label: 'Budgets', icon: DollarSign, href: '/budget' },
     { id: 'expenses', label: 'Expenses', icon: Receipt, href: '/expenses' },
-    { id: 'vendors', label: 'Vendors', icon: Users, href: '/vendors' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics' },
     { id: 'reports', label: 'Reports', icon: BarChart3, href: '/reports' },
-    ...(user.role === 'Admin' && !isDemo ? [{ id: 'users', label: 'Users', icon: UserCog, href: '/users' }] : []),
+    ...(user?.role === 'Admin' && !isDemo ? [{ id: 'users', label: 'Users', icon: UserCog, href: '/users' }] : []),
     ...(organization && !isDemo ? [{ id: 'team', label: 'Team', icon: UserCog, href: '/team' }] : []),
   ];
 
-  // Prepend /demo to all routes if in demo mode
+  // Append ?demo=true to all routes if in demo mode
   const menuItems = baseMenuItems.map(item => ({
     ...item,
-    href: isDemo ? `/demo${item.href}` : item.href
+    href: isDemo ? `${item.href}${item.href.includes('?') ? '&' : '?'}demo=true` : item.href
   }));
 
   const isActive = (href: string) => {
-    // Remove /demo prefix for comparison if in demo mode
-    const comparePath = isDemo && href.startsWith('/demo') ? href.replace('/demo', '') : href;
-    const currentPath = isDemo && location.pathname.startsWith('/demo') 
-      ? location.pathname.replace('/demo', '') 
-      : location.pathname;
+    // Remove query params for comparison
+    const comparePath = href.split('?')[0];
+    const currentPath = location.pathname;
     
     if (comparePath === '/dashboard') {
-      return currentPath === '/dashboard' || currentPath === '/demo/dashboard';
+      return currentPath === '/dashboard';
     }
     return currentPath.startsWith(comparePath);
   };
@@ -72,9 +70,13 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
         <div className="flex flex-col h-full">
           {/* Logo/Brand */}
           <div className="p-6 border-b border-gray-200">
-            <Link to={isDemo ? "/demo/dashboard" : "/dashboard"} onClick={handleLinkClick}>
-              <h1 className="text-blue-600 font-bold text-xl">EventBudget Pro</h1>
+            <Link to={isDemo ? "/dashboard?demo=true" : "/dashboard"} onClick={handleLinkClick} className="flex items-center gap-3">
+              <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+              <h1 className="text-blue-600 font-bold text-xl">Simplifi</h1>
             </Link>
+            {organization && (
+              <p className="text-sm text-gray-600 mt-1">{organization.name}</p>
+            )}
           </div>
 
           {/* Navigation */}
@@ -114,11 +116,11 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
             )}
             <div className="flex items-center gap-3 px-4 py-3">
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                {user.name?.[0]?.toUpperCase() || user.email[0]?.toUpperCase() || 'U'}
+                {isDemo ? 'D' : (user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U')}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-medium">{user.name || user.email.split('@')[0]}</p>
-                <p className="text-gray-500 text-xs truncate">{user.email}</p>
+                <p className="truncate text-sm font-medium">{isDemo ? 'Demo User' : (user?.name || user?.email?.split('@')[0] || 'User')}</p>
+                <p className="text-gray-500 text-xs truncate">{isDemo ? 'demo@example.com' : (user?.email || '')}</p>
               </div>
             </div>
             {isDemo ? (
