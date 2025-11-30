@@ -1,5 +1,5 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { json, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
+import { useLoaderData, useSearchParams, useFetcher } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
@@ -259,11 +259,74 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  const url = new URL(request.url);
+  const isDemo = url.searchParams.get('demo') === 'true';
+
+  if (isDemo) {
+    return json({ success: true, message: "Demo mode: Changes are not saved" });
+  }
+
+  const user = await requireAuth(request);
+  const token = await getAuthTokenFromSession(request);
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  const tokenOption = token ? { token } : {};
+
+  try {
+    if (intent === "create") {
+      const expenseData = {
+        eventId: formData.get("eventId") as string,
+        category: formData.get("category") as string,
+        title: formData.get("title") as string,
+        amount: parseFloat(formData.get("amount") as string),
+        description: formData.get("description") as string || undefined,
+        vendor: formData.get("vendor") as string || undefined,
+        budgetItemId: formData.get("budgetItemId") as string || undefined,
+      };
+
+      await api.post("/expenses", expenseData, tokenOption);
+      return redirect("/expenses");
+    }
+
+    if (intent === "approve" || intent === "reject") {
+      const expenseId = formData.get("expenseId") as string;
+      const comments = formData.get("comments") as string || undefined;
+
+      await api.post(`/expenses/${expenseId}/approve`, {
+        action: intent === "approve" ? "approve" : "reject",
+        comments,
+      }, tokenOption);
+
+      return redirect("/expenses");
+    }
+
+    return json({ error: "Invalid action" }, { status: 400 });
+  } catch (error: any) {
+    console.error("Action error:", error);
+    return json(
+      { error: error.message || "An error occurred" },
+      { status: error.statusCode || 500 }
+    );
+  }
+}
+
 export default function ExpensesRoute() {
   const { user, expenses } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
+  const fetcher = useFetcher();
 
-  return <ExpenseTracker user={user} organization={undefined} event={undefined} isDemo={isDemo} />;
+  return (
+    <ExpenseTracker
+      user={user}
+      organization={undefined}
+      event={undefined}
+      expenses={expenses}
+      isDemo={isDemo}
+      fetcher={fetcher}
+    />
+  );
 }
 

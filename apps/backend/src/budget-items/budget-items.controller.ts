@@ -100,6 +100,13 @@ export class BudgetItemsController {
     return this.budgetItemsService.getVariance(eventId);
   }
 
+  @Get("events/:eventId/budget-items/category-totals")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
+  getCategoryTotals(@Param("eventId") eventId: string) {
+    return this.budgetItemsService.getCategoryTotals(eventId);
+  }
+
   @Post("budget-items/:id/files")
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor("file", fileUploadConfig))

@@ -1,29 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Filter, Search, Download, Check, X, Clock, AlertCircle } from 'lucide-react';
+import { useFetcher } from "@remix-run/react";
 import type { User } from "~/lib/auth";
 
 interface ExpenseTrackerProps {
   user: User | null;
   organization?: any;
   event?: any;
+  expenses?: any[];
   isDemo?: boolean;
+  fetcher?: any;
 }
 
-export function ExpenseTracker({ user, organization, event, isDemo = false }: ExpenseTrackerProps) {
+export function ExpenseTracker({ user, organization, event, expenses: initialExpenses = [], isDemo = false, fetcher }: ExpenseTrackerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [formData, setFormData] = useState({
     category: '',
-    item: '',
+    title: '',
     amount: '',
     vendor: '',
-    date: '',
-    notes: '',
+    description: '',
+    eventId: event?.id || '',
   });
 
-  // Demo expenses - in real app, fetch from API
-  const [expenses, setExpenses] = useState([
+  // Transform API expenses to component format
+  const transformExpense = (exp: any) => ({
+    id: exp.id,
+    event: exp.event?.name || 'Unknown Event',
+    category: exp.category || 'Miscellaneous',
+    item: exp.title,
+    amount: exp.amount,
+    vendor: exp.vendor || exp.vendorLink?.name || 'N/A',
+    date: exp.createdAt ? new Date(exp.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    submittedBy: exp.creator?.fullName || exp.creator?.email || 'Unknown',
+    status: exp.status?.toLowerCase() || 'pending',
+    approver: exp.workflows?.find((w: any) => w.action === 'approved')?.approver?.fullName,
+    notes: exp.description,
+  });
+
+  // Transform API expenses to component format
+  const transformedExpenses = initialExpenses.map(transformExpense);
+
+  const [expenses, setExpenses] = useState(() => {
+    if (isDemo) {
+      return [
     {
       id: 1,
       event: event?.name || 'Annual Tech Conference 2024',
@@ -75,7 +97,20 @@ export function ExpenseTracker({ user, organization, event, isDemo = false }: Ex
       approver: 'Mike Davis',
       notes: 'Custom app development',
     },
-  ]);
+  ];
+    } else {
+      return transformedExpenses;
+    }
+  });
+
+  // Sync expenses from props when they change
+  useEffect(() => {
+    if (!isDemo && initialExpenses.length >= 0) {
+      const transformed = initialExpenses.map(transformExpense);
+      setExpenses(transformed);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialExpenses, isDemo]);
 
   const filteredExpenses = expenses.filter(expense => {
     const matchesSearch = expense.item.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,35 +156,57 @@ export function ExpenseTracker({ user, organization, event, isDemo = false }: Ex
         id: Date.now(),
         event: event?.name || 'Event',
         category: formData.category,
-        item: formData.item,
+        item: formData.title,
         amount: parseFloat(formData.amount) || 0,
         vendor: formData.vendor,
-        date: formData.date || new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0],
         submittedBy: user?.name || 'User',
         status: 'pending',
-        notes: formData.notes,
+        notes: formData.description,
       }]);
       setShowAddExpense(false);
-      setFormData({ category: '', item: '', amount: '', vendor: '', date: '', notes: '' });
-    } else {
-      // In real app, call API
-      alert('Expense submitted');
+      setFormData({ category: '', title: '', amount: '', vendor: '', description: '', eventId: event?.id || '' });
+    } else if (fetcher) {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("intent", "create");
+      formDataToSubmit.append("eventId", formData.eventId || event?.id || '');
+      formDataToSubmit.append("category", formData.category);
+      formDataToSubmit.append("title", formData.title);
+      formDataToSubmit.append("amount", formData.amount);
+      if (formData.vendor) formDataToSubmit.append("vendor", formData.vendor);
+      if (formData.description) formDataToSubmit.append("description", formData.description);
+
+      fetcher.submit(formDataToSubmit, { method: "post" });
+      setShowAddExpense(false);
+      setFormData({ category: '', title: '', amount: '', vendor: '', description: '', eventId: event?.id || '' });
     }
   };
 
-  const handleApprove = (id: number) => {
+  const handleApprove = (id: string | number) => {
     if (isDemo) {
       setExpenses(expenses.map(exp => 
         exp.id === id ? { ...exp, status: 'approved', approver: user?.name || 'Approver' } : exp
       ));
+    } else if (fetcher) {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("intent", "approve");
+      formDataToSubmit.append("expenseId", String(id));
+
+      fetcher.submit(formDataToSubmit, { method: "post" });
     }
   };
 
-  const handleReject = (id: number) => {
+  const handleReject = (id: string | number) => {
     if (isDemo) {
       setExpenses(expenses.map(exp => 
         exp.id === id ? { ...exp, status: 'rejected', approver: user?.name || 'Approver' } : exp
       ));
+    } else if (fetcher) {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("intent", "reject");
+      formDataToSubmit.append("expenseId", String(id));
+
+      fetcher.submit(formDataToSubmit, { method: "post" });
     }
   };
 
@@ -380,8 +437,8 @@ export function ExpenseTracker({ user, organization, event, isDemo = false }: Ex
                 <label className="block text-gray-700 mb-2 font-medium">Item Description *</label>
                 <input
                   type="text"
-                  value={formData.item}
-                  onChange={(e) => setFormData({ ...formData, item: e.target.value })}
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
                   placeholder="e.g., Conference Hall Rental"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -428,8 +485,8 @@ export function ExpenseTracker({ user, organization, event, isDemo = false }: Ex
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Notes</label>
                 <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                   placeholder="Additional information..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

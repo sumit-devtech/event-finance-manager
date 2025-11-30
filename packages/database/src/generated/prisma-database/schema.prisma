@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_EVENT_DB")
+  url      = env("DATABASE_URL")
 }
 
 // Enums
@@ -139,6 +139,12 @@ model SubscriptionHistory {
   changedAt      DateTime     @default(now())
   subscription   Subscription @relation(fields: [subscriptionId], references: [id])
   user           User?        @relation(fields: [changedBy], references: [id])
+
+  @@index([subscriptionId])
+  @@index([changedBy])
+  @@index([action])
+  @@index([changedAt])
+  @@index([subscriptionId, changedAt])
 }
 
 // Event Model (Simplified)
@@ -181,6 +187,12 @@ model Event {
   @@index([organizationId, status])
   @@index([createdBy])
   @@index([organizationId, status, startDate])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([createdAt])
+  @@index([status])
+  @@index([organizationId, startDate])
+  @@index([organizationId, createdAt])
 }
 
 // User to Event Assignment
@@ -188,7 +200,7 @@ model EventAssignment {
   id         String   @id @default(uuid())
   userId     String
   eventId    String
-  role       String? // Optional role for this assignment (e.g., "Lead", "Coordinator")
+  role       String? // Optional role for this assignment (e.g., "Manager", "Lead", "Coordinator")
   assignedAt DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
   event      Event    @relation(fields: [eventId], references: [id])
@@ -196,6 +208,7 @@ model EventAssignment {
   @@unique([userId, eventId])
   @@index([userId])
   @@index([eventId])
+  @@index([eventId, role])
 }
 
 // Event Stakeholders (External participants)
@@ -211,6 +224,8 @@ model EventStakeholder {
   event     Event    @relation(fields: [eventId], references: [id])
 
   @@index([eventId])
+  @@index([email])
+  @@index([eventId, email])
 }
 
 // Vendor Management
@@ -232,6 +247,9 @@ model Vendor {
   expenses       Expense[]     @relation("ExpenseVendor")
 
   @@index([organizationId])
+  @@index([name])
+  @@index([email])
+  @@index([organizationId, name])
 }
 
 // Vendor to Event Assignment
@@ -246,6 +264,7 @@ model VendorEvent {
   @@unique([vendorId, eventId])
   @@index([vendorId])
   @@index([eventId])
+  @@index([assignedAt])
 }
 
 // Strategic Goal Model
@@ -262,11 +281,15 @@ model StrategicGoal {
   priority     String       @default("medium") // low, medium, high
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event        Event        @relation(fields: [eventId], references: [id])
   budgetItems  BudgetItem[]
 
   @@index([eventId])
   @@index([status])
+  @@index([priority])
+  @@index([deadline])
+  @@index([eventId, status])
+  @@index([eventId, priority])
 }
 
 // Budget Item (Simplified - directly on Event)
@@ -288,11 +311,12 @@ model BudgetItem {
   lastEditedAt    DateTime? // Last edit timestamp
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
-  event           Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event           Event              @relation(fields: [eventId], references: [id])
   vendorLink      Vendor?            @relation("BudgetItemVendor", fields: [vendorId], references: [id])
   assignedUser    User?              @relation("BudgetItemAssignee", fields: [assignedUserId], references: [id])
   strategicGoal   StrategicGoal?     @relation(fields: [strategicGoalId], references: [id])
   files           File[]
+  expenses        Expense[]          @relation("ExpenseBudgetItem")
 
   @@index([eventId])
   @@index([category])
@@ -301,31 +325,47 @@ model BudgetItem {
   @@index([status])
   @@index([assignedUserId])
   @@index([strategicGoalId])
+  @@index([createdAt])
+  @@index([eventId, status])
+  @@index([eventId, category, status])
 }
 
 // Expense Tracking
 model Expense {
-  id             String             @id @default(uuid())
+  id             String              @id @default(uuid())
   organizationId String?
   eventId        String
+  category       BudgetItemCategory? // Category for the expense
+  budgetItemId   String? // Optional FK to BudgetItem for linking
   vendor         String? // Simple text field (fallback)
   vendorId       String? // Optional FK to Vendor model
   title          String
   amount         Float
   description    String?
-  status         ExpenseStatus      @default(Pending)
+  status         ExpenseStatus       @default(Pending)
   createdBy      String?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  organization   Organization?      @relation(fields: [organizationId], references: [id])
-  event          Event              @relation(fields: [eventId], references: [id])
-  vendorLink     Vendor?            @relation("ExpenseVendor", fields: [vendorId], references: [id])
-  creator        User?              @relation("ExpenseCreator", fields: [createdBy], references: [id])
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  organization   Organization?       @relation(fields: [organizationId], references: [id])
+  event          Event               @relation(fields: [eventId], references: [id])
+  budgetItem     BudgetItem?         @relation("ExpenseBudgetItem", fields: [budgetItemId], references: [id])
+  vendorLink     Vendor?             @relation("ExpenseVendor", fields: [vendorId], references: [id])
+  creator        User?               @relation("ExpenseCreator", fields: [createdBy], references: [id])
   workflows      ApprovalWorkflow[]
+  receiptFiles   File[]
 
   @@index([organizationId])
   @@index([eventId, status])
   @@index([eventId, status, createdAt])
+  @@index([category])
+  @@index([budgetItemId])
+  @@index([eventId, category])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([vendorId])
+  @@index([organizationId, status])
+  @@index([organizationId, eventId, status])
+  @@index([eventId, createdAt])
 }
 
 model ApprovalWorkflow {
@@ -337,6 +377,13 @@ model ApprovalWorkflow {
   actionAt   DateTime @default(now())
   expense    Expense  @relation(fields: [expenseId], references: [id])
   approver   User?    @relation("ApproverWorkflow", fields: [approverId], references: [id])
+
+  @@index([expenseId])
+  @@index([approverId])
+  @@index([action])
+  @@index([actionAt])
+  @@index([expenseId, actionAt])
+  @@index([approverId, actionAt])
 }
 
 // Analytics & Integration
@@ -347,7 +394,7 @@ model Insight {
   data        Json? // Flexible JSON structure for insight data
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event       Event    @relation(fields: [eventId], references: [id])
 
   @@index([eventId])
   @@index([insightType])
@@ -389,26 +436,40 @@ model Report {
   event      Event    @relation(fields: [eventId], references: [id])
   creator    User?    @relation(fields: [createdBy], references: [id])
   files      File[]
+
+  @@index([eventId])
+  @@index([createdBy])
+  @@index([reportType])
+  @@index([createdAt])
+  @@index([eventId, reportType])
+  @@index([eventId, createdAt])
 }
 
-// File Storage (Flexible - can link to Event, BudgetItem, or Report)
+// File Storage (Flexible - can link to Event, BudgetItem, Expense, or Report)
 model File {
   id           String      @id @default(uuid())
   eventId      String?
   budgetItemId String?
+  expenseId    String?
   reportId     String?
   filename     String
   path         String // Storage path
   mimeType     String?
   size         Int? // Size in bytes
   uploadedAt   DateTime    @default(now())
-  event        Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id], onDelete: Cascade)
-  report       Report?     @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  event        Event?      @relation(fields: [eventId], references: [id])
+  budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id])
+  expense      Expense?    @relation(fields: [expenseId], references: [id])
+  report       Report?     @relation(fields: [reportId], references: [id])
 
   @@index([eventId])
   @@index([budgetItemId])
+  @@index([expenseId])
   @@index([reportId])
+  @@index([uploadedAt])
+  @@index([mimeType])
+  @@index([eventId, uploadedAt])
+  @@index([expenseId, uploadedAt])
 }
 
 // Notifications (Simplified with type enum)
@@ -430,6 +491,12 @@ model Notification {
   @@index([userId])
   @@index([read])
   @@index([organizationId, read])
+  @@index([type])
+  @@index([createdAt])
+  @@index([userId, read])
+  @@index([userId, read, createdAt])
+  @@index([organizationId, read, createdAt])
+  @@index([userId, type])
 }
 
 // Activity Logging
@@ -442,14 +509,20 @@ model ActivityLog {
   details        Json? // Additional details as JSON
   createdAt      DateTime      @default(now())
   organization   Organization? @relation(fields: [organizationId], references: [id])
-  event          Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event          Event?        @relation(fields: [eventId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
 
   @@index([organizationId])
   @@index([userId])
   @@index([eventId])
   @@index([createdAt])
   @@index([organizationId, createdAt])
+  @@index([action])
+  @@index([organizationId, userId])
+  @@index([organizationId, userId, createdAt])
+  @@index([eventId, createdAt])
+  @@index([userId, createdAt])
+  @@index([organizationId, eventId, createdAt])
 }
 
 // AI Budget Suggestions
@@ -463,8 +536,12 @@ model AiBudgetSuggestion {
   confidence    Float? // Confidence score (0-1)
   accepted      Boolean            @default(false)
   createdAt     DateTime           @default(now())
-  event         Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event         Event              @relation(fields: [eventId], references: [id])
 
   @@index([eventId])
   @@index([accepted])
+  @@index([category])
+  @@index([createdAt])
+  @@index([eventId, accepted])
+  @@index([eventId, category])
 }

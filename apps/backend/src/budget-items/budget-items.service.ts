@@ -162,6 +162,11 @@ export class BudgetItemsService {
     // Verify event exists
     await this.verifyEventExists(eventId);
 
+    // Validate budget totals before creating
+    if (createBudgetItemDto.estimatedCost) {
+      await this.validateBudgetTotals(eventId, createBudgetItemDto.estimatedCost);
+    }
+
     const budgetItemData: any = {
       eventId: eventId,
       category: createBudgetItemDto.category,
@@ -203,7 +208,7 @@ export class BudgetItemsService {
     await this.checkOverBudgetAlerts(eventId, userId);
 
     // Get event details for activity log
-    const event = await this.prisma.client.event.findUnique({
+    const eventDetails = await this.prisma.client.event.findUnique({
       where: { id: eventId },
       select: { name: true },
     });
@@ -213,7 +218,7 @@ export class BudgetItemsService {
       budgetItemId: budgetItem.id,
       description: budgetItem.description,
       eventId,
-      eventName: event?.name,
+      eventName: eventDetails?.name,
       category: budgetItem.category,
     }, eventId);
 
@@ -255,6 +260,11 @@ export class BudgetItemsService {
       const newValue = updateBudgetItemDto.estimatedCost ? Number(updateBudgetItemDto.estimatedCost) : null;
       const existingValue = budgetItem.estimatedCost ? Number(budgetItem.estimatedCost) : null;
       if (newValue !== existingValue) {
+        // Validate budget totals before updating
+        const difference = (newValue || 0) - (existingValue || 0);
+        if (difference > 0) {
+          await this.validateBudgetTotals(eventId, difference, id);
+        }
         updateData.estimatedCost = newValue;
         changedFields.push('estimatedCost');
       }
@@ -476,11 +486,109 @@ export class BudgetItemsService {
   private async verifyEventExists(eventId: string) {
     const event = await this.prisma.client.event.findUnique({
       where: { id: eventId },
+      select: {
+        id: true,
+        name: true,
+        budget: true,
+      },
     });
 
     if (!event) {
       throw new NotFoundException(`Event with ID ${eventId} not found`);
     }
+
+    return event;
+  }
+
+  async validateBudgetTotals(eventId: string, additionalAmount: number = 0, excludeBudgetItemId?: string) {
+    const event = await this.verifyEventExists(eventId);
+
+    // If event has no budget set, skip validation
+    if (!event.budget) {
+      return;
+    }
+
+    // Get all budget items for the event (excluding the one being updated if provided)
+    const where: any = { eventId };
+    if (excludeBudgetItemId) {
+      where.id = { not: excludeBudgetItemId };
+    }
+
+    const budgetItems = await this.prisma.client.budgetItem.findMany({
+      where,
+      select: {
+        estimatedCost: true,
+      },
+    });
+
+    // Calculate current total
+    let currentTotal = 0;
+    budgetItems.forEach((item) => {
+      if (item.estimatedCost) {
+        const cost = typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost
+          ? item.estimatedCost.toNumber()
+          : Number(item.estimatedCost);
+        currentTotal += cost;
+      }
+    });
+
+    // Add the additional amount (for new items or updates)
+    const newTotal = currentTotal + additionalAmount;
+    const eventBudget = typeof event.budget === 'object' && 'toNumber' in event.budget
+      ? event.budget.toNumber()
+      : Number(event.budget);
+
+    // Check if total exceeds event budget
+    if (newTotal > eventBudget) {
+      throw new BadRequestException(
+        `Total budget items ($${newTotal.toFixed(2)}) exceeds event budget ($${eventBudget.toFixed(2)}) by $${(newTotal - eventBudget).toFixed(2)}`
+      );
+    }
+  }
+
+  async getCategoryTotals(eventId: string) {
+    await this.verifyEventExists(eventId);
+
+    const budgetItems = await this.prisma.client.budgetItem.findMany({
+      where: { eventId },
+      select: {
+        category: true,
+        estimatedCost: true,
+        actualCost: true,
+      },
+    });
+
+    const totalsByCategory: Record<string, { estimated: number; actual: number; remaining: number }> = {};
+
+    budgetItems.forEach((item) => {
+      const category = item.category;
+      if (!totalsByCategory[category]) {
+        totalsByCategory[category] = { estimated: 0, actual: 0, remaining: 0 };
+      }
+
+      const estimated = item.estimatedCost
+        ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost
+          ? item.estimatedCost.toNumber()
+          : Number(item.estimatedCost))
+        : 0;
+      const actual = item.actualCost
+        ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost
+          ? item.actualCost.toNumber()
+          : Number(item.actualCost))
+        : 0;
+
+      totalsByCategory[category].estimated += estimated;
+      totalsByCategory[category].actual += actual;
+      totalsByCategory[category].remaining = totalsByCategory[category].estimated - totalsByCategory[category].actual;
+    });
+
+    // Calculate utilization percentage
+    Object.keys(totalsByCategory).forEach((category) => {
+      const total = totalsByCategory[category];
+      total.remaining = total.estimated - total.actual;
+    });
+
+    return totalsByCategory;
   }
 
   private async checkOverBudgetAlerts(eventId: string, userId: string) {

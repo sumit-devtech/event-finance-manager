@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from "@nestjs/common";
+import { Injectable, NotFoundException, ConflictException, BadRequestException, Inject, forwardRef } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateEventDto, EventStatus } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
 import { NotificationsService } from "../notifications/notifications.service";
+import { UserRole } from "../auth/types/user-role.enum";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -38,6 +39,30 @@ export class EventsService {
     const event = await this.prisma.client.event.create({
       data: eventData,
     });
+
+    // If managerId is provided, assign manager
+    if (createEventDto.managerId) {
+      const manager = await this.prisma.client.user.findUnique({
+        where: { id: createEventDto.managerId },
+        select: { id: true, role: true },
+      });
+
+      if (!manager) {
+        throw new NotFoundException(`Manager with ID ${createEventDto.managerId} not found`);
+      }
+
+      if (manager.role !== UserRole.EventManager) {
+        throw new BadRequestException("Only users with EventManager role can be assigned as manager");
+      }
+
+      await this.prisma.client.eventAssignment.create({
+        data: {
+          userId: createEventDto.managerId,
+          eventId: event.id,
+          role: "Manager",
+        },
+      });
+    }
 
     // Create activity log
     await this.createActivityLog(userId, "event.created", {
@@ -512,11 +537,16 @@ export class EventsService {
     // Verify user exists
     const user = await this.prisma.client.user.findUnique({
       where: { id: assignUserDto.userId },
-      select: { fullName: true, email: true },
+      select: { fullName: true, email: true, role: true },
     });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${assignUserDto.userId} not found`);
+    }
+
+    // If assigning as Manager, validate user has EventManager role
+    if (assignUserDto.role === "Manager" && user.role !== UserRole.EventManager) {
+      throw new BadRequestException("Only users with EventManager role can be assigned as Manager");
     }
 
     // Check if assignment already exists
@@ -600,6 +630,34 @@ export class EventsService {
         ...assignment.user,
         name: assignment.user.fullName || null,
       } : null,
+    };
+  }
+
+  async getEventManager(eventId: string) {
+    const assignment = await this.prisma.client.eventAssignment.findFirst({
+      where: {
+        eventId,
+        role: "Manager",
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!assignment || !assignment.user) {
+      return null;
+    }
+
+    return {
+      ...assignment.user,
+      name: assignment.user.fullName || null,
     };
   }
 

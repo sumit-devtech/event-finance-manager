@@ -63,5 +63,9 @@ export class CreateEventDto {
   @IsOptional()
   @IsEnum(EventStatus)
   status?: EventStatus;
+
+  @IsOptional()
+  @IsString()
+  managerId?: string; // Optional manager to assign during creation
 }
 

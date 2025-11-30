@@ -79,6 +79,13 @@ export class EventsController {
     return this.eventsService.findOne(id);
   }
 
+  @Get(":id/manager")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
+  getEventManager(@Param("id") id: string) {
+    return this.eventsService.getEventManager(id);
+  }
+
   @Put(":id")
   @UseGuards(EventAssignmentGuard, RolesGuard)
   @Roles(UserRole.Admin, UserRole.EventManager)

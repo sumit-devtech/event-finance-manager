@@ -3099,10 +3099,12 @@ export namespace Prisma {
 
   export type BudgetItemCountOutputType = {
     files: number
+    expenses: number
   }
 
   export type BudgetItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     files?: boolean | BudgetItemCountOutputTypeCountFilesArgs
+    expenses?: boolean | BudgetItemCountOutputTypeCountExpensesArgs
   }
 
   // Custom InputTypes
@@ -3123,6 +3125,13 @@ export namespace Prisma {
     where?: FileWhereInput
   }
 
+  /**
+   * BudgetItemCountOutputType without action
+   */
+  export type BudgetItemCountOutputTypeCountExpensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExpenseWhereInput
+  }
+
 
   /**
    * Count Type ExpenseCountOutputType
@@ -3130,10 +3139,12 @@ export namespace Prisma {
 
   export type ExpenseCountOutputType = {
     workflows: number
+    receiptFiles: number
   }
 
   export type ExpenseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workflows?: boolean | ExpenseCountOutputTypeCountWorkflowsArgs
+    receiptFiles?: boolean | ExpenseCountOutputTypeCountReceiptFilesArgs
   }
 
   // Custom InputTypes
@@ -3152,6 +3163,13 @@ export namespace Prisma {
    */
   export type ExpenseCountOutputTypeCountWorkflowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ApprovalWorkflowWhereInput
+  }
+
+  /**
+   * ExpenseCountOutputType without action
+   */
+  export type ExpenseCountOutputTypeCountReceiptFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FileWhereInput
   }
 
 
@@ -14314,6 +14332,7 @@ export namespace Prisma {
     assignedUser?: boolean | BudgetItem$assignedUserArgs<ExtArgs>
     strategicGoal?: boolean | BudgetItem$strategicGoalArgs<ExtArgs>
     files?: boolean | BudgetItem$filesArgs<ExtArgs>
+    expenses?: boolean | BudgetItem$expensesArgs<ExtArgs>
     _count?: boolean | BudgetItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["budgetItem"]>
 
@@ -14367,6 +14386,7 @@ export namespace Prisma {
     assignedUser?: boolean | BudgetItem$assignedUserArgs<ExtArgs>
     strategicGoal?: boolean | BudgetItem$strategicGoalArgs<ExtArgs>
     files?: boolean | BudgetItem$filesArgs<ExtArgs>
+    expenses?: boolean | BudgetItem$expensesArgs<ExtArgs>
     _count?: boolean | BudgetItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BudgetItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14384,6 +14404,7 @@ export namespace Prisma {
       assignedUser: Prisma.$UserPayload<ExtArgs> | null
       strategicGoal: Prisma.$StrategicGoalPayload<ExtArgs> | null
       files: Prisma.$FilePayload<ExtArgs>[]
+      expenses: Prisma.$ExpensePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -14772,6 +14793,7 @@ export namespace Prisma {
     assignedUser<T extends BudgetItem$assignedUserArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$assignedUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     strategicGoal<T extends BudgetItem$strategicGoalArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$strategicGoalArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     files<T extends BudgetItem$filesArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$filesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilePayload<ExtArgs>, T, "findMany"> | Null>
+    expenses<T extends BudgetItem$expensesArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15201,6 +15223,26 @@ export namespace Prisma {
   }
 
   /**
+   * BudgetItem.expenses
+   */
+  export type BudgetItem$expensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Expense
+     */
+    select?: ExpenseSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExpenseInclude<ExtArgs> | null
+    where?: ExpenseWhereInput
+    orderBy?: ExpenseOrderByWithRelationInput | ExpenseOrderByWithRelationInput[]
+    cursor?: ExpenseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExpenseScalarFieldEnum | ExpenseScalarFieldEnum[]
+  }
+
+  /**
    * BudgetItem without action
    */
   export type BudgetItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15239,6 +15281,8 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     eventId: string | null
+    category: $Enums.BudgetItemCategory | null
+    budgetItemId: string | null
     vendor: string | null
     vendorId: string | null
     title: string | null
@@ -15254,6 +15298,8 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     eventId: string | null
+    category: $Enums.BudgetItemCategory | null
+    budgetItemId: string | null
     vendor: string | null
     vendorId: string | null
     title: string | null
@@ -15269,6 +15315,8 @@ export namespace Prisma {
     id: number
     organizationId: number
     eventId: number
+    category: number
+    budgetItemId: number
     vendor: number
     vendorId: number
     title: number
@@ -15294,6 +15342,8 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     eventId?: true
+    category?: true
+    budgetItemId?: true
     vendor?: true
     vendorId?: true
     title?: true
@@ -15309,6 +15359,8 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     eventId?: true
+    category?: true
+    budgetItemId?: true
     vendor?: true
     vendorId?: true
     title?: true
@@ -15324,6 +15376,8 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     eventId?: true
+    category?: true
+    budgetItemId?: true
     vendor?: true
     vendorId?: true
     title?: true
@@ -15426,6 +15480,8 @@ export namespace Prisma {
     id: string
     organizationId: string | null
     eventId: string
+    category: $Enums.BudgetItemCategory | null
+    budgetItemId: string | null
     vendor: string | null
     vendorId: string | null
     title: string
@@ -15460,6 +15516,8 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     eventId?: boolean
+    category?: boolean
+    budgetItemId?: boolean
     vendor?: boolean
     vendorId?: boolean
     title?: boolean
@@ -15471,9 +15529,11 @@ export namespace Prisma {
     updatedAt?: boolean
     organization?: boolean | Expense$organizationArgs<ExtArgs>
     event?: boolean | EventDefaultArgs<ExtArgs>
+    budgetItem?: boolean | Expense$budgetItemArgs<ExtArgs>
     vendorLink?: boolean | Expense$vendorLinkArgs<ExtArgs>
     creator?: boolean | Expense$creatorArgs<ExtArgs>
     workflows?: boolean | Expense$workflowsArgs<ExtArgs>
+    receiptFiles?: boolean | Expense$receiptFilesArgs<ExtArgs>
     _count?: boolean | ExpenseCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["expense"]>
 
@@ -15481,6 +15541,8 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     eventId?: boolean
+    category?: boolean
+    budgetItemId?: boolean
     vendor?: boolean
     vendorId?: boolean
     title?: boolean
@@ -15492,6 +15554,7 @@ export namespace Prisma {
     updatedAt?: boolean
     organization?: boolean | Expense$organizationArgs<ExtArgs>
     event?: boolean | EventDefaultArgs<ExtArgs>
+    budgetItem?: boolean | Expense$budgetItemArgs<ExtArgs>
     vendorLink?: boolean | Expense$vendorLinkArgs<ExtArgs>
     creator?: boolean | Expense$creatorArgs<ExtArgs>
   }, ExtArgs["result"]["expense"]>
@@ -15500,6 +15563,8 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     eventId?: boolean
+    category?: boolean
+    budgetItemId?: boolean
     vendor?: boolean
     vendorId?: boolean
     title?: boolean
@@ -15514,14 +15579,17 @@ export namespace Prisma {
   export type ExpenseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | Expense$organizationArgs<ExtArgs>
     event?: boolean | EventDefaultArgs<ExtArgs>
+    budgetItem?: boolean | Expense$budgetItemArgs<ExtArgs>
     vendorLink?: boolean | Expense$vendorLinkArgs<ExtArgs>
     creator?: boolean | Expense$creatorArgs<ExtArgs>
     workflows?: boolean | Expense$workflowsArgs<ExtArgs>
+    receiptFiles?: boolean | Expense$receiptFilesArgs<ExtArgs>
     _count?: boolean | ExpenseCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ExpenseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | Expense$organizationArgs<ExtArgs>
     event?: boolean | EventDefaultArgs<ExtArgs>
+    budgetItem?: boolean | Expense$budgetItemArgs<ExtArgs>
     vendorLink?: boolean | Expense$vendorLinkArgs<ExtArgs>
     creator?: boolean | Expense$creatorArgs<ExtArgs>
   }
@@ -15531,14 +15599,18 @@ export namespace Prisma {
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       event: Prisma.$EventPayload<ExtArgs>
+      budgetItem: Prisma.$BudgetItemPayload<ExtArgs> | null
       vendorLink: Prisma.$VendorPayload<ExtArgs> | null
       creator: Prisma.$UserPayload<ExtArgs> | null
       workflows: Prisma.$ApprovalWorkflowPayload<ExtArgs>[]
+      receiptFiles: Prisma.$FilePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       organizationId: string | null
       eventId: string
+      category: $Enums.BudgetItemCategory | null
+      budgetItemId: string | null
       vendor: string | null
       vendorId: string | null
       title: string
@@ -15914,9 +15986,11 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends Expense$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Expense$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     event<T extends EventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventDefaultArgs<ExtArgs>>): Prisma__EventClient<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    budgetItem<T extends Expense$budgetItemArgs<ExtArgs> = {}>(args?: Subset<T, Expense$budgetItemArgs<ExtArgs>>): Prisma__BudgetItemClient<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     vendorLink<T extends Expense$vendorLinkArgs<ExtArgs> = {}>(args?: Subset<T, Expense$vendorLinkArgs<ExtArgs>>): Prisma__VendorClient<$Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     creator<T extends Expense$creatorArgs<ExtArgs> = {}>(args?: Subset<T, Expense$creatorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     workflows<T extends Expense$workflowsArgs<ExtArgs> = {}>(args?: Subset<T, Expense$workflowsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApprovalWorkflowPayload<ExtArgs>, T, "findMany"> | Null>
+    receiptFiles<T extends Expense$receiptFilesArgs<ExtArgs> = {}>(args?: Subset<T, Expense$receiptFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15949,6 +16023,8 @@ export namespace Prisma {
     readonly id: FieldRef<"Expense", 'String'>
     readonly organizationId: FieldRef<"Expense", 'String'>
     readonly eventId: FieldRef<"Expense", 'String'>
+    readonly category: FieldRef<"Expense", 'BudgetItemCategory'>
+    readonly budgetItemId: FieldRef<"Expense", 'String'>
     readonly vendor: FieldRef<"Expense", 'String'>
     readonly vendorId: FieldRef<"Expense", 'String'>
     readonly title: FieldRef<"Expense", 'String'>
@@ -16291,6 +16367,21 @@ export namespace Prisma {
   }
 
   /**
+   * Expense.budgetItem
+   */
+  export type Expense$budgetItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BudgetItem
+     */
+    select?: BudgetItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BudgetItemInclude<ExtArgs> | null
+    where?: BudgetItemWhereInput
+  }
+
+  /**
    * Expense.vendorLink
    */
   export type Expense$vendorLinkArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16338,6 +16429,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ApprovalWorkflowScalarFieldEnum | ApprovalWorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * Expense.receiptFiles
+   */
+  export type Expense$receiptFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the File
+     */
+    select?: FileSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileInclude<ExtArgs> | null
+    where?: FileWhereInput
+    orderBy?: FileOrderByWithRelationInput | FileOrderByWithRelationInput[]
+    cursor?: FileWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FileScalarFieldEnum | FileScalarFieldEnum[]
   }
 
   /**
@@ -21278,6 +21389,7 @@ export namespace Prisma {
     id: string | null
     eventId: string | null
     budgetItemId: string | null
+    expenseId: string | null
     reportId: string | null
     filename: string | null
     path: string | null
@@ -21290,6 +21402,7 @@ export namespace Prisma {
     id: string | null
     eventId: string | null
     budgetItemId: string | null
+    expenseId: string | null
     reportId: string | null
     filename: string | null
     path: string | null
@@ -21302,6 +21415,7 @@ export namespace Prisma {
     id: number
     eventId: number
     budgetItemId: number
+    expenseId: number
     reportId: number
     filename: number
     path: number
@@ -21324,6 +21438,7 @@ export namespace Prisma {
     id?: true
     eventId?: true
     budgetItemId?: true
+    expenseId?: true
     reportId?: true
     filename?: true
     path?: true
@@ -21336,6 +21451,7 @@ export namespace Prisma {
     id?: true
     eventId?: true
     budgetItemId?: true
+    expenseId?: true
     reportId?: true
     filename?: true
     path?: true
@@ -21348,6 +21464,7 @@ export namespace Prisma {
     id?: true
     eventId?: true
     budgetItemId?: true
+    expenseId?: true
     reportId?: true
     filename?: true
     path?: true
@@ -21447,6 +21564,7 @@ export namespace Prisma {
     id: string
     eventId: string | null
     budgetItemId: string | null
+    expenseId: string | null
     reportId: string | null
     filename: string
     path: string
@@ -21478,6 +21596,7 @@ export namespace Prisma {
     id?: boolean
     eventId?: boolean
     budgetItemId?: boolean
+    expenseId?: boolean
     reportId?: boolean
     filename?: boolean
     path?: boolean
@@ -21486,6 +21605,7 @@ export namespace Prisma {
     uploadedAt?: boolean
     event?: boolean | File$eventArgs<ExtArgs>
     budgetItem?: boolean | File$budgetItemArgs<ExtArgs>
+    expense?: boolean | File$expenseArgs<ExtArgs>
     report?: boolean | File$reportArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -21493,6 +21613,7 @@ export namespace Prisma {
     id?: boolean
     eventId?: boolean
     budgetItemId?: boolean
+    expenseId?: boolean
     reportId?: boolean
     filename?: boolean
     path?: boolean
@@ -21501,6 +21622,7 @@ export namespace Prisma {
     uploadedAt?: boolean
     event?: boolean | File$eventArgs<ExtArgs>
     budgetItem?: boolean | File$budgetItemArgs<ExtArgs>
+    expense?: boolean | File$expenseArgs<ExtArgs>
     report?: boolean | File$reportArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -21508,6 +21630,7 @@ export namespace Prisma {
     id?: boolean
     eventId?: boolean
     budgetItemId?: boolean
+    expenseId?: boolean
     reportId?: boolean
     filename?: boolean
     path?: boolean
@@ -21519,11 +21642,13 @@ export namespace Prisma {
   export type FileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     event?: boolean | File$eventArgs<ExtArgs>
     budgetItem?: boolean | File$budgetItemArgs<ExtArgs>
+    expense?: boolean | File$expenseArgs<ExtArgs>
     report?: boolean | File$reportArgs<ExtArgs>
   }
   export type FileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     event?: boolean | File$eventArgs<ExtArgs>
     budgetItem?: boolean | File$budgetItemArgs<ExtArgs>
+    expense?: boolean | File$expenseArgs<ExtArgs>
     report?: boolean | File$reportArgs<ExtArgs>
   }
 
@@ -21532,12 +21657,14 @@ export namespace Prisma {
     objects: {
       event: Prisma.$EventPayload<ExtArgs> | null
       budgetItem: Prisma.$BudgetItemPayload<ExtArgs> | null
+      expense: Prisma.$ExpensePayload<ExtArgs> | null
       report: Prisma.$ReportPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       eventId: string | null
       budgetItemId: string | null
+      expenseId: string | null
       reportId: string | null
       filename: string
       path: string
@@ -21910,6 +22037,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     event<T extends File$eventArgs<ExtArgs> = {}>(args?: Subset<T, File$eventArgs<ExtArgs>>): Prisma__EventClient<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     budgetItem<T extends File$budgetItemArgs<ExtArgs> = {}>(args?: Subset<T, File$budgetItemArgs<ExtArgs>>): Prisma__BudgetItemClient<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    expense<T extends File$expenseArgs<ExtArgs> = {}>(args?: Subset<T, File$expenseArgs<ExtArgs>>): Prisma__ExpenseClient<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     report<T extends File$reportArgs<ExtArgs> = {}>(args?: Subset<T, File$reportArgs<ExtArgs>>): Prisma__ReportClient<$Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -21943,6 +22071,7 @@ export namespace Prisma {
     readonly id: FieldRef<"File", 'String'>
     readonly eventId: FieldRef<"File", 'String'>
     readonly budgetItemId: FieldRef<"File", 'String'>
+    readonly expenseId: FieldRef<"File", 'String'>
     readonly reportId: FieldRef<"File", 'String'>
     readonly filename: FieldRef<"File", 'String'>
     readonly path: FieldRef<"File", 'String'>
@@ -22294,6 +22423,21 @@ export namespace Prisma {
      */
     include?: BudgetItemInclude<ExtArgs> | null
     where?: BudgetItemWhereInput
+  }
+
+  /**
+   * File.expense
+   */
+  export type File$expenseArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Expense
+     */
+    select?: ExpenseSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExpenseInclude<ExtArgs> | null
+    where?: ExpenseWhereInput
   }
 
   /**
@@ -25540,6 +25684,8 @@ export namespace Prisma {
     id: 'id',
     organizationId: 'organizationId',
     eventId: 'eventId',
+    category: 'category',
+    budgetItemId: 'budgetItemId',
     vendor: 'vendor',
     vendorId: 'vendorId',
     title: 'title',
@@ -25623,6 +25769,7 @@ export namespace Prisma {
     id: 'id',
     eventId: 'eventId',
     budgetItemId: 'budgetItemId',
+    expenseId: 'expenseId',
     reportId: 'reportId',
     filename: 'filename',
     path: 'path',
@@ -26813,6 +26960,7 @@ export namespace Prisma {
     assignedUser?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     strategicGoal?: XOR<StrategicGoalNullableRelationFilter, StrategicGoalWhereInput> | null
     files?: FileListRelationFilter
+    expenses?: ExpenseListRelationFilter
   }
 
   export type BudgetItemOrderByWithRelationInput = {
@@ -26838,6 +26986,7 @@ export namespace Prisma {
     assignedUser?: UserOrderByWithRelationInput
     strategicGoal?: StrategicGoalOrderByWithRelationInput
     files?: FileOrderByRelationAggregateInput
+    expenses?: ExpenseOrderByRelationAggregateInput
   }
 
   export type BudgetItemWhereUniqueInput = Prisma.AtLeast<{
@@ -26866,6 +27015,7 @@ export namespace Prisma {
     assignedUser?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     strategicGoal?: XOR<StrategicGoalNullableRelationFilter, StrategicGoalWhereInput> | null
     files?: FileListRelationFilter
+    expenses?: ExpenseListRelationFilter
   }, "id">
 
   export type BudgetItemOrderByWithAggregationInput = {
@@ -26923,6 +27073,8 @@ export namespace Prisma {
     id?: StringFilter<"Expense"> | string
     organizationId?: StringNullableFilter<"Expense"> | string | null
     eventId?: StringFilter<"Expense"> | string
+    category?: EnumBudgetItemCategoryNullableFilter<"Expense"> | $Enums.BudgetItemCategory | null
+    budgetItemId?: StringNullableFilter<"Expense"> | string | null
     vendor?: StringNullableFilter<"Expense"> | string | null
     vendorId?: StringNullableFilter<"Expense"> | string | null
     title?: StringFilter<"Expense"> | string
@@ -26934,15 +27086,19 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Expense"> | Date | string
     organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
     event?: XOR<EventRelationFilter, EventWhereInput>
+    budgetItem?: XOR<BudgetItemNullableRelationFilter, BudgetItemWhereInput> | null
     vendorLink?: XOR<VendorNullableRelationFilter, VendorWhereInput> | null
     creator?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     workflows?: ApprovalWorkflowListRelationFilter
+    receiptFiles?: FileListRelationFilter
   }
 
   export type ExpenseOrderByWithRelationInput = {
     id?: SortOrder
     organizationId?: SortOrderInput | SortOrder
     eventId?: SortOrder
+    category?: SortOrderInput | SortOrder
+    budgetItemId?: SortOrderInput | SortOrder
     vendor?: SortOrderInput | SortOrder
     vendorId?: SortOrderInput | SortOrder
     title?: SortOrder
@@ -26954,9 +27110,11 @@ export namespace Prisma {
     updatedAt?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     event?: EventOrderByWithRelationInput
+    budgetItem?: BudgetItemOrderByWithRelationInput
     vendorLink?: VendorOrderByWithRelationInput
     creator?: UserOrderByWithRelationInput
     workflows?: ApprovalWorkflowOrderByRelationAggregateInput
+    receiptFiles?: FileOrderByRelationAggregateInput
   }
 
   export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
@@ -26966,6 +27124,8 @@ export namespace Prisma {
     NOT?: ExpenseWhereInput | ExpenseWhereInput[]
     organizationId?: StringNullableFilter<"Expense"> | string | null
     eventId?: StringFilter<"Expense"> | string
+    category?: EnumBudgetItemCategoryNullableFilter<"Expense"> | $Enums.BudgetItemCategory | null
+    budgetItemId?: StringNullableFilter<"Expense"> | string | null
     vendor?: StringNullableFilter<"Expense"> | string | null
     vendorId?: StringNullableFilter<"Expense"> | string | null
     title?: StringFilter<"Expense"> | string
@@ -26977,15 +27137,19 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Expense"> | Date | string
     organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
     event?: XOR<EventRelationFilter, EventWhereInput>
+    budgetItem?: XOR<BudgetItemNullableRelationFilter, BudgetItemWhereInput> | null
     vendorLink?: XOR<VendorNullableRelationFilter, VendorWhereInput> | null
     creator?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     workflows?: ApprovalWorkflowListRelationFilter
+    receiptFiles?: FileListRelationFilter
   }, "id">
 
   export type ExpenseOrderByWithAggregationInput = {
     id?: SortOrder
     organizationId?: SortOrderInput | SortOrder
     eventId?: SortOrder
+    category?: SortOrderInput | SortOrder
+    budgetItemId?: SortOrderInput | SortOrder
     vendor?: SortOrderInput | SortOrder
     vendorId?: SortOrderInput | SortOrder
     title?: SortOrder
@@ -27009,6 +27173,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Expense"> | string
     organizationId?: StringNullableWithAggregatesFilter<"Expense"> | string | null
     eventId?: StringWithAggregatesFilter<"Expense"> | string
+    category?: EnumBudgetItemCategoryNullableWithAggregatesFilter<"Expense"> | $Enums.BudgetItemCategory | null
+    budgetItemId?: StringNullableWithAggregatesFilter<"Expense"> | string | null
     vendor?: StringNullableWithAggregatesFilter<"Expense"> | string | null
     vendorId?: StringNullableWithAggregatesFilter<"Expense"> | string | null
     title?: StringWithAggregatesFilter<"Expense"> | string
@@ -27363,6 +27529,7 @@ export namespace Prisma {
     id?: StringFilter<"File"> | string
     eventId?: StringNullableFilter<"File"> | string | null
     budgetItemId?: StringNullableFilter<"File"> | string | null
+    expenseId?: StringNullableFilter<"File"> | string | null
     reportId?: StringNullableFilter<"File"> | string | null
     filename?: StringFilter<"File"> | string
     path?: StringFilter<"File"> | string
@@ -27371,6 +27538,7 @@ export namespace Prisma {
     uploadedAt?: DateTimeFilter<"File"> | Date | string
     event?: XOR<EventNullableRelationFilter, EventWhereInput> | null
     budgetItem?: XOR<BudgetItemNullableRelationFilter, BudgetItemWhereInput> | null
+    expense?: XOR<ExpenseNullableRelationFilter, ExpenseWhereInput> | null
     report?: XOR<ReportNullableRelationFilter, ReportWhereInput> | null
   }
 
@@ -27378,6 +27546,7 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrderInput | SortOrder
     budgetItemId?: SortOrderInput | SortOrder
+    expenseId?: SortOrderInput | SortOrder
     reportId?: SortOrderInput | SortOrder
     filename?: SortOrder
     path?: SortOrder
@@ -27386,6 +27555,7 @@ export namespace Prisma {
     uploadedAt?: SortOrder
     event?: EventOrderByWithRelationInput
     budgetItem?: BudgetItemOrderByWithRelationInput
+    expense?: ExpenseOrderByWithRelationInput
     report?: ReportOrderByWithRelationInput
   }
 
@@ -27396,6 +27566,7 @@ export namespace Prisma {
     NOT?: FileWhereInput | FileWhereInput[]
     eventId?: StringNullableFilter<"File"> | string | null
     budgetItemId?: StringNullableFilter<"File"> | string | null
+    expenseId?: StringNullableFilter<"File"> | string | null
     reportId?: StringNullableFilter<"File"> | string | null
     filename?: StringFilter<"File"> | string
     path?: StringFilter<"File"> | string
@@ -27404,6 +27575,7 @@ export namespace Prisma {
     uploadedAt?: DateTimeFilter<"File"> | Date | string
     event?: XOR<EventNullableRelationFilter, EventWhereInput> | null
     budgetItem?: XOR<BudgetItemNullableRelationFilter, BudgetItemWhereInput> | null
+    expense?: XOR<ExpenseNullableRelationFilter, ExpenseWhereInput> | null
     report?: XOR<ReportNullableRelationFilter, ReportWhereInput> | null
   }, "id">
 
@@ -27411,6 +27583,7 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrderInput | SortOrder
     budgetItemId?: SortOrderInput | SortOrder
+    expenseId?: SortOrderInput | SortOrder
     reportId?: SortOrderInput | SortOrder
     filename?: SortOrder
     path?: SortOrder
@@ -27431,6 +27604,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"File"> | string
     eventId?: StringNullableWithAggregatesFilter<"File"> | string | null
     budgetItemId?: StringNullableWithAggregatesFilter<"File"> | string | null
+    expenseId?: StringNullableWithAggregatesFilter<"File"> | string | null
     reportId?: StringNullableWithAggregatesFilter<"File"> | string | null
     filename?: StringWithAggregatesFilter<"File"> | string
     path?: StringWithAggregatesFilter<"File"> | string
@@ -28645,6 +28819,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
     strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateInput = {
@@ -28666,6 +28841,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUpdateInput = {
@@ -28687,6 +28863,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
     strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateInput = {
@@ -28708,6 +28885,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemCreateManyInput = {
@@ -28768,6 +28946,7 @@ export namespace Prisma {
 
   export type ExpenseCreateInput = {
     id?: string
+    category?: $Enums.BudgetItemCategory | null
     vendor?: string | null
     title: string
     amount: number
@@ -28777,15 +28956,19 @@ export namespace Prisma {
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutExpensesInput
     event: EventCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
     vendorLink?: VendorCreateNestedOneWithoutExpensesInput
     creator?: UserCreateNestedOneWithoutExpensesInput
     workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUncheckedCreateInput = {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -28796,10 +28979,12 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -28809,15 +28994,19 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutExpensesNestedInput
     event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
     vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
     creator?: UserUpdateOneWithoutExpensesNestedInput
     workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -28828,12 +29017,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseCreateManyInput = {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -28847,6 +29039,7 @@ export namespace Prisma {
 
   export type ExpenseUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -28860,6 +29053,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -29227,6 +29422,7 @@ export namespace Prisma {
     uploadedAt?: Date | string
     event?: EventCreateNestedOneWithoutFilesInput
     budgetItem?: BudgetItemCreateNestedOneWithoutFilesInput
+    expense?: ExpenseCreateNestedOneWithoutReceiptFilesInput
     report?: ReportCreateNestedOneWithoutFilesInput
   }
 
@@ -29234,6 +29430,7 @@ export namespace Prisma {
     id?: string
     eventId?: string | null
     budgetItemId?: string | null
+    expenseId?: string | null
     reportId?: string | null
     filename: string
     path: string
@@ -29251,6 +29448,7 @@ export namespace Prisma {
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneWithoutFilesNestedInput
     budgetItem?: BudgetItemUpdateOneWithoutFilesNestedInput
+    expense?: ExpenseUpdateOneWithoutReceiptFilesNestedInput
     report?: ReportUpdateOneWithoutFilesNestedInput
   }
 
@@ -29258,6 +29456,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     reportId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
@@ -29270,6 +29469,7 @@ export namespace Prisma {
     id?: string
     eventId?: string | null
     budgetItemId?: string | null
+    expenseId?: string | null
     reportId?: string | null
     filename: string
     path: string
@@ -29291,6 +29491,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     reportId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
@@ -30593,6 +30794,13 @@ export namespace Prisma {
     _max?: NestedEnumBudgetItemStatusFilter<$PrismaModel>
   }
 
+  export type EnumBudgetItemCategoryNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemCategory | EnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel> | $Enums.BudgetItemCategory | null
+  }
+
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -30611,10 +30819,17 @@ export namespace Prisma {
     not?: NestedEnumExpenseStatusFilter<$PrismaModel> | $Enums.ExpenseStatus
   }
 
+  export type BudgetItemNullableRelationFilter = {
+    is?: BudgetItemWhereInput | null
+    isNot?: BudgetItemWhereInput | null
+  }
+
   export type ExpenseCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
     eventId?: SortOrder
+    category?: SortOrder
+    budgetItemId?: SortOrder
     vendor?: SortOrder
     vendorId?: SortOrder
     title?: SortOrder
@@ -30634,6 +30849,8 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     eventId?: SortOrder
+    category?: SortOrder
+    budgetItemId?: SortOrder
     vendor?: SortOrder
     vendorId?: SortOrder
     title?: SortOrder
@@ -30649,6 +30866,8 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     eventId?: SortOrder
+    category?: SortOrder
+    budgetItemId?: SortOrder
     vendor?: SortOrder
     vendorId?: SortOrder
     title?: SortOrder
@@ -30662,6 +30881,16 @@ export namespace Prisma {
 
   export type ExpenseSumOrderByAggregateInput = {
     amount?: SortOrder
+  }
+
+  export type EnumBudgetItemCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemCategory | EnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetItemCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.BudgetItemCategory | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel>
+    _max?: NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel>
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -30864,9 +31093,9 @@ export namespace Prisma {
     isNot?: EventWhereInput | null
   }
 
-  export type BudgetItemNullableRelationFilter = {
-    is?: BudgetItemWhereInput | null
-    isNot?: BudgetItemWhereInput | null
+  export type ExpenseNullableRelationFilter = {
+    is?: ExpenseWhereInput | null
+    isNot?: ExpenseWhereInput | null
   }
 
   export type ReportNullableRelationFilter = {
@@ -30878,6 +31107,7 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     budgetItemId?: SortOrder
+    expenseId?: SortOrder
     reportId?: SortOrder
     filename?: SortOrder
     path?: SortOrder
@@ -30894,6 +31124,7 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     budgetItemId?: SortOrder
+    expenseId?: SortOrder
     reportId?: SortOrder
     filename?: SortOrder
     path?: SortOrder
@@ -30906,6 +31137,7 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     budgetItemId?: SortOrder
+    expenseId?: SortOrder
     reportId?: SortOrder
     filename?: SortOrder
     path?: SortOrder
@@ -32766,11 +32998,25 @@ export namespace Prisma {
     connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
   }
 
+  export type ExpenseCreateNestedManyWithoutBudgetItemInput = {
+    create?: XOR<ExpenseCreateWithoutBudgetItemInput, ExpenseUncheckedCreateWithoutBudgetItemInput> | ExpenseCreateWithoutBudgetItemInput[] | ExpenseUncheckedCreateWithoutBudgetItemInput[]
+    connectOrCreate?: ExpenseCreateOrConnectWithoutBudgetItemInput | ExpenseCreateOrConnectWithoutBudgetItemInput[]
+    createMany?: ExpenseCreateManyBudgetItemInputEnvelope
+    connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+  }
+
   export type FileUncheckedCreateNestedManyWithoutBudgetItemInput = {
     create?: XOR<FileCreateWithoutBudgetItemInput, FileUncheckedCreateWithoutBudgetItemInput> | FileCreateWithoutBudgetItemInput[] | FileUncheckedCreateWithoutBudgetItemInput[]
     connectOrCreate?: FileCreateOrConnectWithoutBudgetItemInput | FileCreateOrConnectWithoutBudgetItemInput[]
     createMany?: FileCreateManyBudgetItemInputEnvelope
     connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+  }
+
+  export type ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput = {
+    create?: XOR<ExpenseCreateWithoutBudgetItemInput, ExpenseUncheckedCreateWithoutBudgetItemInput> | ExpenseCreateWithoutBudgetItemInput[] | ExpenseUncheckedCreateWithoutBudgetItemInput[]
+    connectOrCreate?: ExpenseCreateOrConnectWithoutBudgetItemInput | ExpenseCreateOrConnectWithoutBudgetItemInput[]
+    createMany?: ExpenseCreateManyBudgetItemInputEnvelope
+    connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
   }
 
   export type EnumBudgetItemCategoryFieldUpdateOperationsInput = {
@@ -32833,6 +33079,20 @@ export namespace Prisma {
     deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
   }
 
+  export type ExpenseUpdateManyWithoutBudgetItemNestedInput = {
+    create?: XOR<ExpenseCreateWithoutBudgetItemInput, ExpenseUncheckedCreateWithoutBudgetItemInput> | ExpenseCreateWithoutBudgetItemInput[] | ExpenseUncheckedCreateWithoutBudgetItemInput[]
+    connectOrCreate?: ExpenseCreateOrConnectWithoutBudgetItemInput | ExpenseCreateOrConnectWithoutBudgetItemInput[]
+    upsert?: ExpenseUpsertWithWhereUniqueWithoutBudgetItemInput | ExpenseUpsertWithWhereUniqueWithoutBudgetItemInput[]
+    createMany?: ExpenseCreateManyBudgetItemInputEnvelope
+    set?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    disconnect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    delete?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    update?: ExpenseUpdateWithWhereUniqueWithoutBudgetItemInput | ExpenseUpdateWithWhereUniqueWithoutBudgetItemInput[]
+    updateMany?: ExpenseUpdateManyWithWhereWithoutBudgetItemInput | ExpenseUpdateManyWithWhereWithoutBudgetItemInput[]
+    deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
+  }
+
   export type FileUncheckedUpdateManyWithoutBudgetItemNestedInput = {
     create?: XOR<FileCreateWithoutBudgetItemInput, FileUncheckedCreateWithoutBudgetItemInput> | FileCreateWithoutBudgetItemInput[] | FileUncheckedCreateWithoutBudgetItemInput[]
     connectOrCreate?: FileCreateOrConnectWithoutBudgetItemInput | FileCreateOrConnectWithoutBudgetItemInput[]
@@ -32847,6 +33107,20 @@ export namespace Prisma {
     deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
   }
 
+  export type ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput = {
+    create?: XOR<ExpenseCreateWithoutBudgetItemInput, ExpenseUncheckedCreateWithoutBudgetItemInput> | ExpenseCreateWithoutBudgetItemInput[] | ExpenseUncheckedCreateWithoutBudgetItemInput[]
+    connectOrCreate?: ExpenseCreateOrConnectWithoutBudgetItemInput | ExpenseCreateOrConnectWithoutBudgetItemInput[]
+    upsert?: ExpenseUpsertWithWhereUniqueWithoutBudgetItemInput | ExpenseUpsertWithWhereUniqueWithoutBudgetItemInput[]
+    createMany?: ExpenseCreateManyBudgetItemInputEnvelope
+    set?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    disconnect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    delete?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+    update?: ExpenseUpdateWithWhereUniqueWithoutBudgetItemInput | ExpenseUpdateWithWhereUniqueWithoutBudgetItemInput[]
+    updateMany?: ExpenseUpdateManyWithWhereWithoutBudgetItemInput | ExpenseUpdateManyWithWhereWithoutBudgetItemInput[]
+    deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
+  }
+
   export type OrganizationCreateNestedOneWithoutExpensesInput = {
     create?: XOR<OrganizationCreateWithoutExpensesInput, OrganizationUncheckedCreateWithoutExpensesInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutExpensesInput
@@ -32857,6 +33131,12 @@ export namespace Prisma {
     create?: XOR<EventCreateWithoutExpensesInput, EventUncheckedCreateWithoutExpensesInput>
     connectOrCreate?: EventCreateOrConnectWithoutExpensesInput
     connect?: EventWhereUniqueInput
+  }
+
+  export type BudgetItemCreateNestedOneWithoutExpensesInput = {
+    create?: XOR<BudgetItemCreateWithoutExpensesInput, BudgetItemUncheckedCreateWithoutExpensesInput>
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutExpensesInput
+    connect?: BudgetItemWhereUniqueInput
   }
 
   export type VendorCreateNestedOneWithoutExpensesInput = {
@@ -32878,11 +33158,29 @@ export namespace Prisma {
     connect?: ApprovalWorkflowWhereUniqueInput | ApprovalWorkflowWhereUniqueInput[]
   }
 
+  export type FileCreateNestedManyWithoutExpenseInput = {
+    create?: XOR<FileCreateWithoutExpenseInput, FileUncheckedCreateWithoutExpenseInput> | FileCreateWithoutExpenseInput[] | FileUncheckedCreateWithoutExpenseInput[]
+    connectOrCreate?: FileCreateOrConnectWithoutExpenseInput | FileCreateOrConnectWithoutExpenseInput[]
+    createMany?: FileCreateManyExpenseInputEnvelope
+    connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+  }
+
   export type ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput = {
     create?: XOR<ApprovalWorkflowCreateWithoutExpenseInput, ApprovalWorkflowUncheckedCreateWithoutExpenseInput> | ApprovalWorkflowCreateWithoutExpenseInput[] | ApprovalWorkflowUncheckedCreateWithoutExpenseInput[]
     connectOrCreate?: ApprovalWorkflowCreateOrConnectWithoutExpenseInput | ApprovalWorkflowCreateOrConnectWithoutExpenseInput[]
     createMany?: ApprovalWorkflowCreateManyExpenseInputEnvelope
     connect?: ApprovalWorkflowWhereUniqueInput | ApprovalWorkflowWhereUniqueInput[]
+  }
+
+  export type FileUncheckedCreateNestedManyWithoutExpenseInput = {
+    create?: XOR<FileCreateWithoutExpenseInput, FileUncheckedCreateWithoutExpenseInput> | FileCreateWithoutExpenseInput[] | FileUncheckedCreateWithoutExpenseInput[]
+    connectOrCreate?: FileCreateOrConnectWithoutExpenseInput | FileCreateOrConnectWithoutExpenseInput[]
+    createMany?: FileCreateManyExpenseInputEnvelope
+    connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+  }
+
+  export type NullableEnumBudgetItemCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.BudgetItemCategory | null
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -32913,6 +33211,16 @@ export namespace Prisma {
     upsert?: EventUpsertWithoutExpensesInput
     connect?: EventWhereUniqueInput
     update?: XOR<XOR<EventUpdateToOneWithWhereWithoutExpensesInput, EventUpdateWithoutExpensesInput>, EventUncheckedUpdateWithoutExpensesInput>
+  }
+
+  export type BudgetItemUpdateOneWithoutExpensesNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutExpensesInput, BudgetItemUncheckedCreateWithoutExpensesInput>
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutExpensesInput
+    upsert?: BudgetItemUpsertWithoutExpensesInput
+    disconnect?: BudgetItemWhereInput | boolean
+    delete?: BudgetItemWhereInput | boolean
+    connect?: BudgetItemWhereUniqueInput
+    update?: XOR<XOR<BudgetItemUpdateToOneWithWhereWithoutExpensesInput, BudgetItemUpdateWithoutExpensesInput>, BudgetItemUncheckedUpdateWithoutExpensesInput>
   }
 
   export type VendorUpdateOneWithoutExpensesNestedInput = {
@@ -32949,6 +33257,20 @@ export namespace Prisma {
     deleteMany?: ApprovalWorkflowScalarWhereInput | ApprovalWorkflowScalarWhereInput[]
   }
 
+  export type FileUpdateManyWithoutExpenseNestedInput = {
+    create?: XOR<FileCreateWithoutExpenseInput, FileUncheckedCreateWithoutExpenseInput> | FileCreateWithoutExpenseInput[] | FileUncheckedCreateWithoutExpenseInput[]
+    connectOrCreate?: FileCreateOrConnectWithoutExpenseInput | FileCreateOrConnectWithoutExpenseInput[]
+    upsert?: FileUpsertWithWhereUniqueWithoutExpenseInput | FileUpsertWithWhereUniqueWithoutExpenseInput[]
+    createMany?: FileCreateManyExpenseInputEnvelope
+    set?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    disconnect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    delete?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    update?: FileUpdateWithWhereUniqueWithoutExpenseInput | FileUpdateWithWhereUniqueWithoutExpenseInput[]
+    updateMany?: FileUpdateManyWithWhereWithoutExpenseInput | FileUpdateManyWithWhereWithoutExpenseInput[]
+    deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
+  }
+
   export type ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput = {
     create?: XOR<ApprovalWorkflowCreateWithoutExpenseInput, ApprovalWorkflowUncheckedCreateWithoutExpenseInput> | ApprovalWorkflowCreateWithoutExpenseInput[] | ApprovalWorkflowUncheckedCreateWithoutExpenseInput[]
     connectOrCreate?: ApprovalWorkflowCreateOrConnectWithoutExpenseInput | ApprovalWorkflowCreateOrConnectWithoutExpenseInput[]
@@ -32961,6 +33283,20 @@ export namespace Prisma {
     update?: ApprovalWorkflowUpdateWithWhereUniqueWithoutExpenseInput | ApprovalWorkflowUpdateWithWhereUniqueWithoutExpenseInput[]
     updateMany?: ApprovalWorkflowUpdateManyWithWhereWithoutExpenseInput | ApprovalWorkflowUpdateManyWithWhereWithoutExpenseInput[]
     deleteMany?: ApprovalWorkflowScalarWhereInput | ApprovalWorkflowScalarWhereInput[]
+  }
+
+  export type FileUncheckedUpdateManyWithoutExpenseNestedInput = {
+    create?: XOR<FileCreateWithoutExpenseInput, FileUncheckedCreateWithoutExpenseInput> | FileCreateWithoutExpenseInput[] | FileUncheckedCreateWithoutExpenseInput[]
+    connectOrCreate?: FileCreateOrConnectWithoutExpenseInput | FileCreateOrConnectWithoutExpenseInput[]
+    upsert?: FileUpsertWithWhereUniqueWithoutExpenseInput | FileUpsertWithWhereUniqueWithoutExpenseInput[]
+    createMany?: FileCreateManyExpenseInputEnvelope
+    set?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    disconnect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    delete?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+    update?: FileUpdateWithWhereUniqueWithoutExpenseInput | FileUpdateWithWhereUniqueWithoutExpenseInput[]
+    updateMany?: FileUpdateManyWithWhereWithoutExpenseInput | FileUpdateManyWithWhereWithoutExpenseInput[]
+    deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
   }
 
   export type ExpenseCreateNestedOneWithoutWorkflowsInput = {
@@ -33119,6 +33455,12 @@ export namespace Prisma {
     connect?: BudgetItemWhereUniqueInput
   }
 
+  export type ExpenseCreateNestedOneWithoutReceiptFilesInput = {
+    create?: XOR<ExpenseCreateWithoutReceiptFilesInput, ExpenseUncheckedCreateWithoutReceiptFilesInput>
+    connectOrCreate?: ExpenseCreateOrConnectWithoutReceiptFilesInput
+    connect?: ExpenseWhereUniqueInput
+  }
+
   export type ReportCreateNestedOneWithoutFilesInput = {
     create?: XOR<ReportCreateWithoutFilesInput, ReportUncheckedCreateWithoutFilesInput>
     connectOrCreate?: ReportCreateOrConnectWithoutFilesInput
@@ -33143,6 +33485,16 @@ export namespace Prisma {
     delete?: BudgetItemWhereInput | boolean
     connect?: BudgetItemWhereUniqueInput
     update?: XOR<XOR<BudgetItemUpdateToOneWithWhereWithoutFilesInput, BudgetItemUpdateWithoutFilesInput>, BudgetItemUncheckedUpdateWithoutFilesInput>
+  }
+
+  export type ExpenseUpdateOneWithoutReceiptFilesNestedInput = {
+    create?: XOR<ExpenseCreateWithoutReceiptFilesInput, ExpenseUncheckedCreateWithoutReceiptFilesInput>
+    connectOrCreate?: ExpenseCreateOrConnectWithoutReceiptFilesInput
+    upsert?: ExpenseUpsertWithoutReceiptFilesInput
+    disconnect?: ExpenseWhereInput | boolean
+    delete?: ExpenseWhereInput | boolean
+    connect?: ExpenseWhereUniqueInput
+    update?: XOR<XOR<ExpenseUpdateToOneWithWhereWithoutReceiptFilesInput, ExpenseUpdateWithoutReceiptFilesInput>, ExpenseUncheckedUpdateWithoutReceiptFilesInput>
   }
 
   export type ReportUpdateOneWithoutFilesNestedInput = {
@@ -33598,6 +33950,13 @@ export namespace Prisma {
     _max?: NestedEnumBudgetItemStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemCategory | EnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel> | $Enums.BudgetItemCategory | null
+  }
+
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -33614,6 +33973,16 @@ export namespace Prisma {
     in?: $Enums.ExpenseStatus[] | ListEnumExpenseStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.ExpenseStatus[] | ListEnumExpenseStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumExpenseStatusFilter<$PrismaModel> | $Enums.ExpenseStatus
+  }
+
+  export type NestedEnumBudgetItemCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemCategory | EnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetItemCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.BudgetItemCategory | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel>
+    _max?: NestedEnumBudgetItemCategoryNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -33890,6 +34259,7 @@ export namespace Prisma {
 
   export type ExpenseCreateWithoutOrganizationInput = {
     id?: string
+    category?: $Enums.BudgetItemCategory | null
     vendor?: string | null
     title: string
     amount: number
@@ -33898,14 +34268,18 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     event: EventCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
     vendorLink?: VendorCreateNestedOneWithoutExpensesInput
     creator?: UserCreateNestedOneWithoutExpensesInput
     workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUncheckedCreateWithoutOrganizationInput = {
     id?: string
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -33916,6 +34290,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseCreateOrConnectWithoutOrganizationInput = {
@@ -34148,6 +34523,8 @@ export namespace Prisma {
     id?: StringFilter<"Expense"> | string
     organizationId?: StringNullableFilter<"Expense"> | string | null
     eventId?: StringFilter<"Expense"> | string
+    category?: EnumBudgetItemCategoryNullableFilter<"Expense"> | $Enums.BudgetItemCategory | null
+    budgetItemId?: StringNullableFilter<"Expense"> | string | null
     vendor?: StringNullableFilter<"Expense"> | string | null
     vendorId?: StringNullableFilter<"Expense"> | string | null
     title?: StringFilter<"Expense"> | string
@@ -34361,6 +34738,7 @@ export namespace Prisma {
 
   export type ExpenseCreateWithoutCreatorInput = {
     id?: string
+    category?: $Enums.BudgetItemCategory | null
     vendor?: string | null
     title: string
     amount: number
@@ -34370,14 +34748,18 @@ export namespace Prisma {
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutExpensesInput
     event: EventCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
     vendorLink?: VendorCreateNestedOneWithoutExpensesInput
     workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUncheckedCreateWithoutCreatorInput = {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -34387,6 +34769,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseCreateOrConnectWithoutCreatorInput = {
@@ -34555,6 +34938,7 @@ export namespace Prisma {
     vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
     strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutAssignedUserInput = {
@@ -34575,6 +34959,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemCreateOrConnectWithoutAssignedUserInput = {
@@ -35274,6 +35659,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
     strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutEventInput = {
@@ -35294,6 +35680,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemCreateOrConnectWithoutEventInput = {
@@ -35308,6 +35695,7 @@ export namespace Prisma {
 
   export type ExpenseCreateWithoutEventInput = {
     id?: string
+    category?: $Enums.BudgetItemCategory | null
     vendor?: string | null
     title: string
     amount: number
@@ -35316,14 +35704,18 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
     vendorLink?: VendorCreateNestedOneWithoutExpensesInput
     creator?: UserCreateNestedOneWithoutExpensesInput
     workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUncheckedCreateWithoutEventInput = {
     id?: string
     organizationId?: string | null
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -35334,6 +35726,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseCreateOrConnectWithoutEventInput = {
@@ -35376,12 +35769,14 @@ export namespace Prisma {
     size?: number | null
     uploadedAt?: Date | string
     budgetItem?: BudgetItemCreateNestedOneWithoutFilesInput
+    expense?: ExpenseCreateNestedOneWithoutReceiptFilesInput
     report?: ReportCreateNestedOneWithoutFilesInput
   }
 
   export type FileUncheckedCreateWithoutEventInput = {
     id?: string
     budgetItemId?: string | null
+    expenseId?: string | null
     reportId?: string | null
     filename: string
     path: string
@@ -35825,6 +36220,7 @@ export namespace Prisma {
     id?: StringFilter<"File"> | string
     eventId?: StringNullableFilter<"File"> | string | null
     budgetItemId?: StringNullableFilter<"File"> | string | null
+    expenseId?: StringNullableFilter<"File"> | string | null
     reportId?: StringNullableFilter<"File"> | string | null
     filename?: StringFilter<"File"> | string
     path?: StringFilter<"File"> | string
@@ -36491,6 +36887,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
     strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutVendorLinkInput = {
@@ -36511,6 +36908,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemCreateOrConnectWithoutVendorLinkInput = {
@@ -36525,6 +36923,7 @@ export namespace Prisma {
 
   export type ExpenseCreateWithoutVendorLinkInput = {
     id?: string
+    category?: $Enums.BudgetItemCategory | null
     vendor?: string | null
     title: string
     amount: number
@@ -36534,14 +36933,18 @@ export namespace Prisma {
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutExpensesInput
     event: EventCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
     creator?: UserCreateNestedOneWithoutExpensesInput
     workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUncheckedCreateWithoutVendorLinkInput = {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     title: string
     amount: number
@@ -36551,6 +36954,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseCreateOrConnectWithoutVendorLinkInput = {
@@ -36969,6 +37373,7 @@ export namespace Prisma {
     vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
     assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutStrategicGoalInput = {
@@ -36989,6 +37394,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemCreateOrConnectWithoutStrategicGoalInput = {
@@ -37290,12 +37696,14 @@ export namespace Prisma {
     size?: number | null
     uploadedAt?: Date | string
     event?: EventCreateNestedOneWithoutFilesInput
+    expense?: ExpenseCreateNestedOneWithoutReceiptFilesInput
     report?: ReportCreateNestedOneWithoutFilesInput
   }
 
   export type FileUncheckedCreateWithoutBudgetItemInput = {
     id?: string
     eventId?: string | null
+    expenseId?: string | null
     reportId?: string | null
     filename: string
     path: string
@@ -37311,6 +37719,52 @@ export namespace Prisma {
 
   export type FileCreateManyBudgetItemInputEnvelope = {
     data: FileCreateManyBudgetItemInput | FileCreateManyBudgetItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ExpenseCreateWithoutBudgetItemInput = {
+    id?: string
+    category?: $Enums.BudgetItemCategory | null
+    vendor?: string | null
+    title: string
+    amount: number
+    description?: string | null
+    status?: $Enums.ExpenseStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutExpensesInput
+    event: EventCreateNestedOneWithoutExpensesInput
+    vendorLink?: VendorCreateNestedOneWithoutExpensesInput
+    creator?: UserCreateNestedOneWithoutExpensesInput
+    workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
+  }
+
+  export type ExpenseUncheckedCreateWithoutBudgetItemInput = {
+    id?: string
+    organizationId?: string | null
+    eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    vendor?: string | null
+    vendorId?: string | null
+    title: string
+    amount: number
+    description?: string | null
+    status?: $Enums.ExpenseStatus
+    createdBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
+  }
+
+  export type ExpenseCreateOrConnectWithoutBudgetItemInput = {
+    where: ExpenseWhereUniqueInput
+    create: XOR<ExpenseCreateWithoutBudgetItemInput, ExpenseUncheckedCreateWithoutBudgetItemInput>
+  }
+
+  export type ExpenseCreateManyBudgetItemInputEnvelope = {
+    data: ExpenseCreateManyBudgetItemInput | ExpenseCreateManyBudgetItemInput[]
     skipDuplicates?: boolean
   }
 
@@ -37542,6 +37996,22 @@ export namespace Prisma {
     data: XOR<FileUpdateManyMutationInput, FileUncheckedUpdateManyWithoutBudgetItemInput>
   }
 
+  export type ExpenseUpsertWithWhereUniqueWithoutBudgetItemInput = {
+    where: ExpenseWhereUniqueInput
+    update: XOR<ExpenseUpdateWithoutBudgetItemInput, ExpenseUncheckedUpdateWithoutBudgetItemInput>
+    create: XOR<ExpenseCreateWithoutBudgetItemInput, ExpenseUncheckedCreateWithoutBudgetItemInput>
+  }
+
+  export type ExpenseUpdateWithWhereUniqueWithoutBudgetItemInput = {
+    where: ExpenseWhereUniqueInput
+    data: XOR<ExpenseUpdateWithoutBudgetItemInput, ExpenseUncheckedUpdateWithoutBudgetItemInput>
+  }
+
+  export type ExpenseUpdateManyWithWhereWithoutBudgetItemInput = {
+    where: ExpenseScalarWhereInput
+    data: XOR<ExpenseUpdateManyMutationInput, ExpenseUncheckedUpdateManyWithoutBudgetItemInput>
+  }
+
   export type OrganizationCreateWithoutExpensesInput = {
     id?: string
     name: string
@@ -37646,6 +38116,53 @@ export namespace Prisma {
   export type EventCreateOrConnectWithoutExpensesInput = {
     where: EventWhereUniqueInput
     create: XOR<EventCreateWithoutExpensesInput, EventUncheckedCreateWithoutExpensesInput>
+  }
+
+  export type BudgetItemCreateWithoutExpensesInput = {
+    id?: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    event: EventCreateNestedOneWithoutBudgetItemsInput
+    vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
+    strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
+    files?: FileCreateNestedManyWithoutBudgetItemInput
+  }
+
+  export type BudgetItemUncheckedCreateWithoutExpensesInput = {
+    id?: string
+    eventId: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    vendorId?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+  }
+
+  export type BudgetItemCreateOrConnectWithoutExpensesInput = {
+    where: BudgetItemWhereUniqueInput
+    create: XOR<BudgetItemCreateWithoutExpensesInput, BudgetItemUncheckedCreateWithoutExpensesInput>
   }
 
   export type VendorCreateWithoutExpensesInput = {
@@ -37753,6 +38270,40 @@ export namespace Prisma {
 
   export type ApprovalWorkflowCreateManyExpenseInputEnvelope = {
     data: ApprovalWorkflowCreateManyExpenseInput | ApprovalWorkflowCreateManyExpenseInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FileCreateWithoutExpenseInput = {
+    id?: string
+    filename: string
+    path: string
+    mimeType?: string | null
+    size?: number | null
+    uploadedAt?: Date | string
+    event?: EventCreateNestedOneWithoutFilesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutFilesInput
+    report?: ReportCreateNestedOneWithoutFilesInput
+  }
+
+  export type FileUncheckedCreateWithoutExpenseInput = {
+    id?: string
+    eventId?: string | null
+    budgetItemId?: string | null
+    reportId?: string | null
+    filename: string
+    path: string
+    mimeType?: string | null
+    size?: number | null
+    uploadedAt?: Date | string
+  }
+
+  export type FileCreateOrConnectWithoutExpenseInput = {
+    where: FileWhereUniqueInput
+    create: XOR<FileCreateWithoutExpenseInput, FileUncheckedCreateWithoutExpenseInput>
+  }
+
+  export type FileCreateManyExpenseInputEnvelope = {
+    data: FileCreateManyExpenseInput | FileCreateManyExpenseInput[]
     skipDuplicates?: boolean
   }
 
@@ -37874,6 +38425,59 @@ export namespace Prisma {
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
+  export type BudgetItemUpsertWithoutExpensesInput = {
+    update: XOR<BudgetItemUpdateWithoutExpensesInput, BudgetItemUncheckedUpdateWithoutExpensesInput>
+    create: XOR<BudgetItemCreateWithoutExpensesInput, BudgetItemUncheckedCreateWithoutExpensesInput>
+    where?: BudgetItemWhereInput
+  }
+
+  export type BudgetItemUpdateToOneWithWhereWithoutExpensesInput = {
+    where?: BudgetItemWhereInput
+    data: XOR<BudgetItemUpdateWithoutExpensesInput, BudgetItemUncheckedUpdateWithoutExpensesInput>
+  }
+
+  export type BudgetItemUpdateWithoutExpensesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneRequiredWithoutBudgetItemsNestedInput
+    vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
+    strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
+    files?: FileUpdateManyWithoutBudgetItemNestedInput
+  }
+
+  export type BudgetItemUncheckedUpdateWithoutExpensesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+  }
+
   export type VendorUpsertWithoutExpensesInput = {
     update: XOR<VendorUpdateWithoutExpensesInput, VendorUncheckedUpdateWithoutExpensesInput>
     create: XOR<VendorCreateWithoutExpensesInput, VendorUncheckedCreateWithoutExpensesInput>
@@ -37984,8 +38588,25 @@ export namespace Prisma {
     data: XOR<ApprovalWorkflowUpdateManyMutationInput, ApprovalWorkflowUncheckedUpdateManyWithoutExpenseInput>
   }
 
+  export type FileUpsertWithWhereUniqueWithoutExpenseInput = {
+    where: FileWhereUniqueInput
+    update: XOR<FileUpdateWithoutExpenseInput, FileUncheckedUpdateWithoutExpenseInput>
+    create: XOR<FileCreateWithoutExpenseInput, FileUncheckedCreateWithoutExpenseInput>
+  }
+
+  export type FileUpdateWithWhereUniqueWithoutExpenseInput = {
+    where: FileWhereUniqueInput
+    data: XOR<FileUpdateWithoutExpenseInput, FileUncheckedUpdateWithoutExpenseInput>
+  }
+
+  export type FileUpdateManyWithWhereWithoutExpenseInput = {
+    where: FileScalarWhereInput
+    data: XOR<FileUpdateManyMutationInput, FileUncheckedUpdateManyWithoutExpenseInput>
+  }
+
   export type ExpenseCreateWithoutWorkflowsInput = {
     id?: string
+    category?: $Enums.BudgetItemCategory | null
     vendor?: string | null
     title: string
     amount: number
@@ -37995,14 +38616,18 @@ export namespace Prisma {
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutExpensesInput
     event: EventCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
     vendorLink?: VendorCreateNestedOneWithoutExpensesInput
     creator?: UserCreateNestedOneWithoutExpensesInput
+    receiptFiles?: FileCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseUncheckedCreateWithoutWorkflowsInput = {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -38012,6 +38637,7 @@ export namespace Prisma {
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    receiptFiles?: FileUncheckedCreateNestedManyWithoutExpenseInput
   }
 
   export type ExpenseCreateOrConnectWithoutWorkflowsInput = {
@@ -38077,6 +38703,7 @@ export namespace Prisma {
 
   export type ExpenseUpdateWithoutWorkflowsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -38086,14 +38713,18 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutExpensesNestedInput
     event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
     vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
     creator?: UserUpdateOneWithoutExpensesNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateWithoutWorkflowsInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -38103,6 +38734,7 @@ export namespace Prisma {
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type UserUpsertWithoutWorkflowActionsInput = {
@@ -38725,12 +39357,14 @@ export namespace Prisma {
     uploadedAt?: Date | string
     event?: EventCreateNestedOneWithoutFilesInput
     budgetItem?: BudgetItemCreateNestedOneWithoutFilesInput
+    expense?: ExpenseCreateNestedOneWithoutReceiptFilesInput
   }
 
   export type FileUncheckedCreateWithoutReportInput = {
     id?: string
     eventId?: string | null
     budgetItemId?: string | null
+    expenseId?: string | null
     filename: string
     path: string
     mimeType?: string | null
@@ -38981,6 +39615,7 @@ export namespace Prisma {
     vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
     assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
     strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
+    expenses?: ExpenseCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutFilesInput = {
@@ -39001,11 +39636,53 @@ export namespace Prisma {
     lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemCreateOrConnectWithoutFilesInput = {
     where: BudgetItemWhereUniqueInput
     create: XOR<BudgetItemCreateWithoutFilesInput, BudgetItemUncheckedCreateWithoutFilesInput>
+  }
+
+  export type ExpenseCreateWithoutReceiptFilesInput = {
+    id?: string
+    category?: $Enums.BudgetItemCategory | null
+    vendor?: string | null
+    title: string
+    amount: number
+    description?: string | null
+    status?: $Enums.ExpenseStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutExpensesInput
+    event: EventCreateNestedOneWithoutExpensesInput
+    budgetItem?: BudgetItemCreateNestedOneWithoutExpensesInput
+    vendorLink?: VendorCreateNestedOneWithoutExpensesInput
+    creator?: UserCreateNestedOneWithoutExpensesInput
+    workflows?: ApprovalWorkflowCreateNestedManyWithoutExpenseInput
+  }
+
+  export type ExpenseUncheckedCreateWithoutReceiptFilesInput = {
+    id?: string
+    organizationId?: string | null
+    eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
+    vendor?: string | null
+    vendorId?: string | null
+    title: string
+    amount: number
+    description?: string | null
+    status?: $Enums.ExpenseStatus
+    createdBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workflows?: ApprovalWorkflowUncheckedCreateNestedManyWithoutExpenseInput
+  }
+
+  export type ExpenseCreateOrConnectWithoutReceiptFilesInput = {
+    where: ExpenseWhereUniqueInput
+    create: XOR<ExpenseCreateWithoutReceiptFilesInput, ExpenseUncheckedCreateWithoutReceiptFilesInput>
   }
 
   export type ReportCreateWithoutFilesInput = {
@@ -39135,6 +39812,7 @@ export namespace Prisma {
     vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
     strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
+    expenses?: ExpenseUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutFilesInput = {
@@ -39155,6 +39833,54 @@ export namespace Prisma {
     lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenses?: ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput
+  }
+
+  export type ExpenseUpsertWithoutReceiptFilesInput = {
+    update: XOR<ExpenseUpdateWithoutReceiptFilesInput, ExpenseUncheckedUpdateWithoutReceiptFilesInput>
+    create: XOR<ExpenseCreateWithoutReceiptFilesInput, ExpenseUncheckedCreateWithoutReceiptFilesInput>
+    where?: ExpenseWhereInput
+  }
+
+  export type ExpenseUpdateToOneWithWhereWithoutReceiptFilesInput = {
+    where?: ExpenseWhereInput
+    data: XOR<ExpenseUpdateWithoutReceiptFilesInput, ExpenseUncheckedUpdateWithoutReceiptFilesInput>
+  }
+
+  export type ExpenseUpdateWithoutReceiptFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExpenseStatusFieldUpdateOperationsInput | $Enums.ExpenseStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutExpensesNestedInput
+    event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
+    vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
+    creator?: UserUpdateOneWithoutExpensesNestedInput
+    workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+  }
+
+  export type ExpenseUncheckedUpdateWithoutReceiptFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExpenseStatusFieldUpdateOperationsInput | $Enums.ExpenseStatus
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type ReportUpsertWithoutFilesInput = {
@@ -39882,6 +40608,8 @@ export namespace Prisma {
   export type ExpenseCreateManyOrganizationInput = {
     id?: string
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -40133,6 +40861,7 @@ export namespace Prisma {
 
   export type ExpenseUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -40141,14 +40870,18 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
     vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
     creator?: UserUpdateOneWithoutExpensesNestedInput
     workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -40159,11 +40892,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateManyWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -40271,6 +41007,8 @@ export namespace Prisma {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -40458,6 +41196,7 @@ export namespace Prisma {
 
   export type ExpenseUpdateWithoutCreatorInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -40467,14 +41206,18 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutExpensesNestedInput
     event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
     vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
     workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateWithoutCreatorInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -40484,12 +41227,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateManyWithoutCreatorInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -40649,6 +41395,7 @@ export namespace Prisma {
     vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
     strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutAssignedUserInput = {
@@ -40669,6 +41416,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateManyWithoutAssignedUserInput = {
@@ -40765,6 +41513,8 @@ export namespace Prisma {
   export type ExpenseCreateManyEventInput = {
     id?: string
     organizationId?: string | null
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     vendorId?: string | null
     title: string
@@ -40785,6 +41535,7 @@ export namespace Prisma {
   export type FileCreateManyEventInput = {
     id?: string
     budgetItemId?: string | null
+    expenseId?: string | null
     reportId?: string | null
     filename: string
     path: string
@@ -40911,6 +41662,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
     strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutEventInput = {
@@ -40931,6 +41683,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateManyWithoutEventInput = {
@@ -40954,6 +41707,7 @@ export namespace Prisma {
 
   export type ExpenseUpdateWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -40962,14 +41716,18 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
     vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
     creator?: UserUpdateOneWithoutExpensesNestedInput
     workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -40980,11 +41738,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateManyWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
@@ -41022,12 +41783,14 @@ export namespace Prisma {
     size?: NullableIntFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgetItem?: BudgetItemUpdateOneWithoutFilesNestedInput
+    expense?: ExpenseUpdateOneWithoutReceiptFilesNestedInput
     report?: ReportUpdateOneWithoutFilesNestedInput
   }
 
   export type FileUncheckedUpdateWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     reportId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
@@ -41039,6 +41802,7 @@ export namespace Prisma {
   export type FileUncheckedUpdateManyWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     reportId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
@@ -41227,6 +41991,8 @@ export namespace Prisma {
     id?: string
     organizationId?: string | null
     eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    budgetItemId?: string | null
     vendor?: string | null
     title: string
     amount: number
@@ -41273,6 +42039,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
     strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutVendorLinkInput = {
@@ -41293,6 +42060,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateManyWithoutVendorLinkInput = {
@@ -41316,6 +42084,7 @@ export namespace Prisma {
 
   export type ExpenseUpdateWithoutVendorLinkInput = {
     id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -41325,14 +42094,18 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutExpensesNestedInput
     event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutExpensesNestedInput
     creator?: UserUpdateOneWithoutExpensesNestedInput
     workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateWithoutVendorLinkInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -41342,12 +42115,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
   }
 
   export type ExpenseUncheckedUpdateManyWithoutVendorLinkInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -41395,6 +42171,7 @@ export namespace Prisma {
     vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutStrategicGoalInput = {
@@ -41415,6 +42192,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateManyWithoutStrategicGoalInput = {
@@ -41439,12 +42217,29 @@ export namespace Prisma {
   export type FileCreateManyBudgetItemInput = {
     id?: string
     eventId?: string | null
+    expenseId?: string | null
     reportId?: string | null
     filename: string
     path: string
     mimeType?: string | null
     size?: number | null
     uploadedAt?: Date | string
+  }
+
+  export type ExpenseCreateManyBudgetItemInput = {
+    id?: string
+    organizationId?: string | null
+    eventId: string
+    category?: $Enums.BudgetItemCategory | null
+    vendor?: string | null
+    vendorId?: string | null
+    title: string
+    amount: number
+    description?: string | null
+    status?: $Enums.ExpenseStatus
+    createdBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type FileUpdateWithoutBudgetItemInput = {
@@ -41455,12 +42250,14 @@ export namespace Prisma {
     size?: NullableIntFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneWithoutFilesNestedInput
+    expense?: ExpenseUpdateOneWithoutReceiptFilesNestedInput
     report?: ReportUpdateOneWithoutFilesNestedInput
   }
 
   export type FileUncheckedUpdateWithoutBudgetItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     reportId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
@@ -41472,6 +42269,7 @@ export namespace Prisma {
   export type FileUncheckedUpdateManyWithoutBudgetItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     reportId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
@@ -41480,12 +42278,76 @@ export namespace Prisma {
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExpenseUpdateWithoutBudgetItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExpenseStatusFieldUpdateOperationsInput | $Enums.ExpenseStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutExpensesNestedInput
+    event?: EventUpdateOneRequiredWithoutExpensesNestedInput
+    vendorLink?: VendorUpdateOneWithoutExpensesNestedInput
+    creator?: UserUpdateOneWithoutExpensesNestedInput
+    workflows?: ApprovalWorkflowUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUpdateManyWithoutExpenseNestedInput
+  }
+
+  export type ExpenseUncheckedUpdateWithoutBudgetItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExpenseStatusFieldUpdateOperationsInput | $Enums.ExpenseStatus
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workflows?: ApprovalWorkflowUncheckedUpdateManyWithoutExpenseNestedInput
+    receiptFiles?: FileUncheckedUpdateManyWithoutExpenseNestedInput
+  }
+
+  export type ExpenseUncheckedUpdateManyWithoutBudgetItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: NullableEnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory | null
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExpenseStatusFieldUpdateOperationsInput | $Enums.ExpenseStatus
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ApprovalWorkflowCreateManyExpenseInput = {
     id?: string
     approverId?: string | null
     action: string
     comments?: string | null
     actionAt?: Date | string
+  }
+
+  export type FileCreateManyExpenseInput = {
+    id?: string
+    eventId?: string | null
+    budgetItemId?: string | null
+    reportId?: string | null
+    filename: string
+    path: string
+    mimeType?: string | null
+    size?: number | null
+    uploadedAt?: Date | string
   }
 
   export type ApprovalWorkflowUpdateWithoutExpenseInput = {
@@ -41512,10 +42374,47 @@ export namespace Prisma {
     actionAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FileUpdateWithoutExpenseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    size?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneWithoutFilesNestedInput
+    budgetItem?: BudgetItemUpdateOneWithoutFilesNestedInput
+    report?: ReportUpdateOneWithoutFilesNestedInput
+  }
+
+  export type FileUncheckedUpdateWithoutExpenseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    size?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FileUncheckedUpdateManyWithoutExpenseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
+    budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    size?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type FileCreateManyReportInput = {
     id?: string
     eventId?: string | null
     budgetItemId?: string | null
+    expenseId?: string | null
     filename: string
     path: string
     mimeType?: string | null
@@ -41532,12 +42431,14 @@ export namespace Prisma {
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneWithoutFilesNestedInput
     budgetItem?: BudgetItemUpdateOneWithoutFilesNestedInput
+    expense?: ExpenseUpdateOneWithoutReceiptFilesNestedInput
   }
 
   export type FileUncheckedUpdateWithoutReportInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     mimeType?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41549,6 +42450,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     budgetItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
     filename?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     mimeType?: NullableStringFieldUpdateOperationsInput | string | null

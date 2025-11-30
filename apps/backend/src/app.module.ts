@@ -13,6 +13,7 @@ import { ReportsModule } from "./reports/reports.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { FilesModule } from "./files/files.module";
 import { StrategicGoalsModule } from "./strategic-goals/strategic-goals.module";
+import { ExpensesModule } from "./expenses/expenses.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 
 @Module({
@@ -27,6 +28,7 @@ import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
     NotificationsModule,
     FilesModule,
     StrategicGoalsModule,
+    ExpensesModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

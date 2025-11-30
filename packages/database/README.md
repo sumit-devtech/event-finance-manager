@@ -22,7 +22,7 @@ Simplified combined database schema for Event Budget Planning System.
 
 2. **Set environment variable**:
    ```bash
-   export DATABASE_URL_EVENT_DB="your-postgresql-connection-string"
+   export DATABASE_URL="your-postgresql-connection-string"
    ```
 
 3. **Generate Prisma Client**:
@@ -87,7 +87,7 @@ import { UserRole, EventStatus, BudgetItemCategory } from "@event-finance-manage
 
 ## Database URL
 
-Set `DATABASE_URL_EVENT_DB` environment variable with your PostgreSQL connection string.
+Set `DATABASE_URL` environment variable with your PostgreSQL connection string.
 
 ## Documentation
 
