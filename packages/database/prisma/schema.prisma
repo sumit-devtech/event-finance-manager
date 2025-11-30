@@ -51,6 +51,12 @@ enum ExpenseStatus {
   Rejected
 }
 
+enum BudgetItemStatus {
+  Pending
+  Approved
+  Closed
+}
+
 enum SubscriptionStatus {
   Active
   Cancelled
@@ -64,41 +70,42 @@ enum BillingCycle {
 
 // Multi-Tenancy Root
 model Organization {
-  id          String   @id @default(uuid())
-  name        String
-  industry    String?
-  logoUrl     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users        User[]
+  id            String         @id @default(uuid())
+  name          String
+  industry      String?
+  logoUrl       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  users         User[]
   subscriptions Subscription[]
   vendors       Vendor[]
   events        Event[]
-  expenses     Expense[]
-  activityLogs ActivityLog[]
+  expenses      Expense[]
+  activityLogs  ActivityLog[]
   notifications Notification[]
 }
 
 // User Model
 model User {
-  id             String   @id @default(uuid())
-  organizationId String?
-  fullName       String
-  email          String   @unique
-  role           UserRole
-  passwordHash   String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  createdEvents Event[]      @relation("EventCreator")
+  id                  String                @id @default(uuid())
+  organizationId      String?
+  fullName            String
+  email               String                @unique
+  role                UserRole
+  passwordHash        String?
+  isActive            Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  organization        Organization?         @relation(fields: [organizationId], references: [id])
+  createdEvents       Event[]               @relation("EventCreator")
   subscriptionHistory SubscriptionHistory[]
-  expenses       Expense[]    @relation("ExpenseCreator")
-  workflowActions ApprovalWorkflow[] @relation("ApproverWorkflow")
-  activityLogs   ActivityLog[]
-  notifications  Notification[]
-  reports        Report[]
-  events         EventAssignment[]
+  expenses            Expense[]             @relation("ExpenseCreator")
+  workflowActions     ApprovalWorkflow[]    @relation("ApproverWorkflow")
+  activityLogs        ActivityLog[]
+  notifications       Notification[]
+  reports             Report[]
+  events              EventAssignment[]
+  assignedBudgetItems BudgetItem[]          @relation("BudgetItemAssignee")
 
   @@index([organizationId])
   @@index([email])
@@ -107,61 +114,68 @@ model User {
 
 // Subscription Management
 model Subscription {
-  id                   String   @id @default(uuid())
-  organizationId       String?
-  planName             String
-  billingCycle         BillingCycle
-  status               SubscriptionStatus
-  currentPeriodStart   DateTime?
-  currentPeriodEnd     DateTime?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  organization       Organization?       @relation(fields: [organizationId], references: [id])
+  id                 String                @id @default(uuid())
+  organizationId     String?
+  planName           String
+  billingCycle       BillingCycle
+  status             SubscriptionStatus
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  organization       Organization?         @relation(fields: [organizationId], references: [id])
   history            SubscriptionHistory[]
 
   @@index([organizationId, status])
 }
 
 model SubscriptionHistory {
-  id              String   @id @default(uuid())
-  subscriptionId  String
-  action          String    // upgrade, downgrade, renew, cancel
-  oldValue        Json?
-  newValue        Json?
-  changedBy       String?
-  changedAt       DateTime @default(now())
-  subscription Subscription @relation(fields: [subscriptionId], references: [id])
-  user         User?        @relation(fields: [changedBy], references: [id])
+  id             String       @id @default(uuid())
+  subscriptionId String
+  action         String // upgrade, downgrade, renew, cancel
+  oldValue       Json?
+  newValue       Json?
+  changedBy      String?
+  changedAt      DateTime     @default(now())
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  user           User?        @relation(fields: [changedBy], references: [id])
 }
 
 // Event Model (Simplified)
 model Event {
-  id             String   @id @default(uuid())
-  organizationId String?
-  name           String
-  location       String?
-  startDate      DateTime?
-  endDate        DateTime?
-  eventType      String?
-  description    String?
-  status         EventStatus @default(Planning)
-  createdBy      String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  creator       User?         @relation("EventCreator", fields: [createdBy], references: [id])
-  assignments   EventAssignment[]
-  stakeholders EventStakeholder[]
-  budgetItems   BudgetItem[]
-  expenses     Expense[]
-  vendorEvents VendorEvent[]
-  files         File[]
-  activityLogs ActivityLog[]
-  insights     Insight[]
-  roiMetrics   ROIMetrics?
-  crmSync      CRMSync?
-  reports      Report[]
+  id                  String               @id @default(uuid())
+  organizationId      String?
+  name                String
+  location            String?
+  venue               String? // Venue name
+  startDate           DateTime?
+  endDate             DateTime?
+  eventType           String? // Type of event (conference, workshop, etc.)
+  type                String? // Alias for eventType for compatibility
+  description         String?
+  status              EventStatus          @default(Planning)
+  attendees           Int? // Expected number of attendees
+  budget              Decimal?             @db.Decimal(10, 2) // Total budget for the event
+  organizer           String? // Organizer name
+  client              String? // Client name
+  createdBy           String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  organization        Organization?        @relation(fields: [organizationId], references: [id])
+  creator             User?                @relation("EventCreator", fields: [createdBy], references: [id])
+  assignments         EventAssignment[]
+  stakeholders        EventStakeholder[]
+  budgetItems         BudgetItem[]
+  expenses            Expense[]
+  vendorEvents        VendorEvent[]
+  files               File[]
+  activityLogs        ActivityLog[]
+  insights            Insight[]
+  roiMetrics          ROIMetrics?
+  crmSync             CRMSync?
+  reports             Report[]
   aiBudgetSuggestions AiBudgetSuggestion[]
+  strategicGoals      StrategicGoal[]
 
   @@index([organizationId])
   @@index([organizationId, status])
@@ -176,8 +190,8 @@ model EventAssignment {
   eventId    String
   role       String? // Optional role for this assignment (e.g., "Lead", "Coordinator")
   assignedAt DateTime @default(now())
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  event      Event    @relation(fields: [eventId], references: [id])
 
   @@unique([userId, eventId])
   @@index([userId])
@@ -186,95 +200,128 @@ model EventAssignment {
 
 // Event Stakeholders (External participants)
 model EventStakeholder {
-  id       String   @id @default(uuid())
-  eventId  String
-  name     String
-  role     String?
-  email    String?
-  phone    String?
+  id        String   @id @default(uuid())
+  eventId   String
+  name      String
+  role      String?
+  email     String?
+  phone     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  event Event @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
 
   @@index([eventId])
 }
 
 // Vendor Management
 model Vendor {
-  id            String   @id @default(uuid())
+  id             String        @id @default(uuid())
   organizationId String?
-  name          String
-  serviceType   String?
-  contactPerson String?
-  email         String?
-  phone         String?
-  gstNumber     String?
-  rating        Float?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  vendorEvents VendorEvent[]
-  budgetItems  BudgetItem[] @relation("BudgetItemVendor")
-  expenses     Expense[] @relation("ExpenseVendor")
+  name           String
+  serviceType    String?
+  contactPerson  String?
+  email          String?
+  phone          String?
+  gstNumber      String?
+  rating         Float?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  vendorEvents   VendorEvent[]
+  budgetItems    BudgetItem[]  @relation("BudgetItemVendor")
+  expenses       Expense[]     @relation("ExpenseVendor")
 
   @@index([organizationId])
 }
 
 // Vendor to Event Assignment
 model VendorEvent {
-  id        String   @id @default(uuid())
-  vendorId  String
-  eventId   String
+  id         String   @id @default(uuid())
+  vendorId   String
+  eventId    String
   assignedAt DateTime @default(now())
-  vendor Vendor @relation(fields: [vendorId], references: [id])
-  event  Event  @relation(fields: [eventId], references: [id])
+  vendor     Vendor   @relation(fields: [vendorId], references: [id])
+  event      Event    @relation(fields: [eventId], references: [id])
 
   @@unique([vendorId, eventId])
   @@index([vendorId])
   @@index([eventId])
 }
 
+// Strategic Goal Model
+model StrategicGoal {
+  id           String       @id @default(uuid())
+  eventId      String
+  title        String
+  description  String?
+  targetValue  Float? // Target value for the goal
+  currentValue Float? // Current progress value
+  unit         String? // Unit of measurement (e.g., "attendees", "dollars", "%")
+  deadline     DateTime? // Deadline for the goal
+  status       String       @default("not-started") // not-started, in-progress, completed
+  priority     String       @default("medium") // low, medium, high
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  budgetItems  BudgetItem[]
+
+  @@index([eventId])
+  @@index([status])
+}
+
 // Budget Item (Simplified - directly on Event)
 model BudgetItem {
-  id            String             @id @default(uuid())
-  eventId       String
-  category      BudgetItemCategory
-  description   String
-  vendor        String? // Simple text field (fallback)
-  vendorId      String? // Optional FK to Vendor model
-  estimatedCost Decimal?           @db.Decimal(10, 2)
-  actualCost    Decimal?           @db.Decimal(10, 2)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  vendorLink Vendor? @relation("BudgetItemVendor", fields: [vendorId], references: [id])
-  files File[]
+  id              String             @id @default(uuid())
+  eventId         String
+  category        BudgetItemCategory
+  subcategory     String? // Subcategory (e.g., Rental, Equipment, Meals)
+  description     String
+  vendor          String? // Simple text field (fallback)
+  vendorId        String? // Optional FK to Vendor model
+  estimatedCost   Decimal?           @db.Decimal(10, 2)
+  actualCost      Decimal?           @db.Decimal(10, 2)
+  status          BudgetItemStatus   @default(Pending)
+  notes           String? // Additional notes
+  assignedUserId  String? // Assigned user ID
+  strategicGoalId String? // Strategic goal mapping (FK to StrategicGoal)
+  lastEditedBy    String? // User who last edited
+  lastEditedAt    DateTime? // Last edit timestamp
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  event           Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  vendorLink      Vendor?            @relation("BudgetItemVendor", fields: [vendorId], references: [id])
+  assignedUser    User?              @relation("BudgetItemAssignee", fields: [assignedUserId], references: [id])
+  strategicGoal   StrategicGoal?     @relation(fields: [strategicGoalId], references: [id])
+  files           File[]
 
   @@index([eventId])
   @@index([category])
   @@index([vendorId])
   @@index([eventId, category])
+  @@index([status])
+  @@index([assignedUserId])
+  @@index([strategicGoalId])
 }
 
 // Expense Tracking
 model Expense {
-  id            String   @id @default(uuid())
+  id             String             @id @default(uuid())
   organizationId String?
-  eventId       String
-  vendor        String? // Simple text field (fallback)
-  vendorId      String? // Optional FK to Vendor model
-  title         String
-  amount        Float
-  description   String?
-  status        ExpenseStatus @default(Pending)
-  createdBy     String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  event         Event @relation(fields: [eventId], references: [id])
-  vendorLink    Vendor? @relation("ExpenseVendor", fields: [vendorId], references: [id])
-  creator       User?   @relation("ExpenseCreator", fields: [createdBy], references: [id])
-  workflows     ApprovalWorkflow[]
+  eventId        String
+  vendor         String? // Simple text field (fallback)
+  vendorId       String? // Optional FK to Vendor model
+  title          String
+  amount         Float
+  description    String?
+  status         ExpenseStatus      @default(Pending)
+  createdBy      String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  organization   Organization?      @relation(fields: [organizationId], references: [id])
+  event          Event              @relation(fields: [eventId], references: [id])
+  vendorLink     Vendor?            @relation("ExpenseVendor", fields: [vendorId], references: [id])
+  creator        User?              @relation("ExpenseCreator", fields: [createdBy], references: [id])
+  workflows      ApprovalWorkflow[]
 
   @@index([organizationId])
   @@index([eventId, status])
@@ -285,11 +332,11 @@ model ApprovalWorkflow {
   id         String   @id @default(uuid())
   expenseId  String
   approverId String?
-  action     String   // approved / rejected
+  action     String // approved / rejected
   comments   String?
   actionAt   DateTime @default(now())
-  expense  Expense @relation(fields: [expenseId], references: [id])
-  approver User?   @relation("ApproverWorkflow", fields: [approverId], references: [id])
+  expense    Expense  @relation(fields: [expenseId], references: [id])
+  approver   User?    @relation("ApproverWorkflow", fields: [approverId], references: [id])
 }
 
 // Analytics & Integration
@@ -300,7 +347,7 @@ model Insight {
   data        Json? // Flexible JSON structure for insight data
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
   @@index([insightType])
@@ -317,19 +364,19 @@ model ROIMetrics {
   roiPercent       Float?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  event Event @relation(fields: [eventId], references: [id])
+  event            Event    @relation(fields: [eventId], references: [id])
 }
 
 model CRMSync {
-  id            String   @id @default(uuid())
-  eventId       String   @unique
-  crmSystem     String?
-  syncStatus    String?
-  lastSyncedAt  DateTime?
-  data          Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  event Event @relation(fields: [eventId], references: [id])
+  id           String    @id @default(uuid())
+  eventId      String    @unique
+  crmSystem    String?
+  syncStatus   String?
+  lastSyncedAt DateTime?
+  data         Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  event        Event     @relation(fields: [eventId], references: [id])
 }
 
 // Reporting
@@ -339,14 +386,14 @@ model Report {
   reportType String?
   createdBy  String?
   createdAt  DateTime @default(now())
-  event  Event @relation(fields: [eventId], references: [id])
-  creator User? @relation(fields: [createdBy], references: [id])
-  files File[]
+  event      Event    @relation(fields: [eventId], references: [id])
+  creator    User?    @relation(fields: [createdBy], references: [id])
+  files      File[]
 }
 
 // File Storage (Flexible - can link to Event, BudgetItem, or Report)
 model File {
-  id           String   @id @default(uuid())
+  id           String      @id @default(uuid())
   eventId      String?
   budgetItemId String?
   reportId     String?
@@ -354,10 +401,10 @@ model File {
   path         String // Storage path
   mimeType     String?
   size         Int? // Size in bytes
-  uploadedAt   DateTime @default(now())
-  event      Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  budgetItem BudgetItem? @relation(fields: [budgetItemId], references: [id], onDelete: Cascade)
-  report     Report?     @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  uploadedAt   DateTime    @default(now())
+  event        Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id], onDelete: Cascade)
+  report       Report?     @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
   @@index([budgetItemId])
@@ -366,18 +413,18 @@ model File {
 
 // Notifications (Simplified with type enum)
 model Notification {
-  id            String           @id @default(uuid())
+  id             String           @id @default(uuid())
   organizationId String?
-  userId        String
-  type          NotificationType
-  title         String
-  message       String
-  read          Boolean          @default(false)
-  metadata      Json? // Additional data as JSON
-  createdAt     DateTime         @default(now())
-  readAt        DateTime?
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  user          User @relation(fields: [userId], references: [id])
+  userId         String
+  type           NotificationType
+  title          String
+  message        String
+  read           Boolean          @default(false)
+  metadata       Json? // Additional data as JSON
+  createdAt      DateTime         @default(now())
+  readAt         DateTime?
+  organization   Organization?    @relation(fields: [organizationId], references: [id])
+  user           User             @relation(fields: [userId], references: [id])
 
   @@index([organizationId])
   @@index([userId])
@@ -387,16 +434,16 @@ model Notification {
 
 // Activity Logging
 model ActivityLog {
-  id            String   @id @default(uuid())
+  id             String        @id @default(uuid())
   organizationId String?
-  userId        String
-  eventId       String?
-  action        String // Action performed (e.g., "created", "updated", "deleted")
-  details       Json? // Additional details as JSON
-  createdAt     DateTime @default(now())
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  event         Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  eventId        String?
+  action         String // Action performed (e.g., "created", "updated", "deleted")
+  details        Json? // Additional details as JSON
+  createdAt      DateTime      @default(now())
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  event          Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([userId])
@@ -416,9 +463,8 @@ model AiBudgetSuggestion {
   confidence    Float? // Confidence score (0-1)
   accepted      Boolean            @default(false)
   createdAt     DateTime           @default(now())
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event         Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
   @@index([accepted])
 }
-

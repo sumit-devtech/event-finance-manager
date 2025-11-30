@@ -1,6 +1,6 @@
 import { X, Calendar, MapPin, Users, DollarSign, UserCog } from 'lucide-react';
-import { Form } from '@remix-run/react';
-import { useState } from 'react';
+import { Form, useNavigation } from '@remix-run/react';
+import { useState, useEffect } from 'react';
 import type { User } from '~/lib/auth';
 
 interface EventFormProps {
@@ -14,7 +14,30 @@ interface EventFormProps {
 
 export function EventForm({ event, onClose, user, organization, actionData, isDemo = false }: EventFormProps) {
   const isEdit = !!event;
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
+
+  // Debug: Log event data when editing
+  useEffect(() => {
+    if (isEdit && event) {
+      console.log('EventForm - Full event object:', event);
+      console.log('EventForm - Client field:', event?.client);
+      console.log('EventForm - Venue field:', event?.venue);
+      console.log('EventForm - Attendees field:', event?.attendees);
+      console.log('EventForm - Budget field:', event?.budget);
+    }
+  }, [isEdit, event]);
+
+
+  // Close form on successful submission
+  useEffect(() => {
+    if (actionData?.success) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [actionData, onClose]);
 
   // Mock team members from organization
   const teamMembers = organization?.members || [
@@ -41,7 +64,14 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
         {/* Error Message */}
         {actionData && !actionData.success && actionData.error && (
           <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
-            {actionData.error}
+            <p className="font-medium">Error</p>
+            <p className="text-sm mt-1">{actionData.error}</p>
+            <button
+              onClick={onClose}
+              className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Close and try again
+            </button>
           </div>
         )}
 
@@ -60,10 +90,8 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
           onSubmit={(e) => {
             if (isDemo) {
               e.preventDefault();
-              setIsSubmitting(true);
               setTimeout(() => {
                 alert("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
-                setIsSubmitting(false);
                 onClose();
               }, 500);
             }
@@ -91,7 +119,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
               <label className="block mb-2 text-gray-700 font-medium">Event Type *</label>
               <select
                 name="type"
-                defaultValue={event?.type || 'conference'}
+                defaultValue={event?.type || event?.eventType || 'conference'}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -172,7 +200,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
               <input
                 type="text"
                 name="venue"
-                defaultValue={event?.venue || ''}
+                defaultValue={event?.venue ?? event?.venueName ?? ''}
                 placeholder="Venue name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -186,7 +214,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
                 <input
                   type="number"
                   name="attendees"
-                  defaultValue={event?.attendees || ''}
+                  defaultValue={event?.attendees != null ? event.attendees : ''}
                   placeholder="Number of attendees"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -201,7 +229,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
                 <input
                   type="number"
                   name="budget"
-                  defaultValue={event?.budget || ''}
+                  defaultValue={event?.budget != null ? event.budget : ''}
                   placeholder="0.00"
                   step="0.01"
                   required
@@ -218,6 +246,18 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
                 name="organizer"
                 defaultValue={event?.organizer || ''}
                 placeholder="Name of the organizer"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Client */}
+            <div>
+              <label className="block mb-2 text-gray-700 font-medium">Client</label>
+              <input
+                type="text"
+                name="client"
+                defaultValue={event?.client ?? ''}
+                placeholder="Client name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -269,9 +309,19 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isSubmitting ? 'Processing...' : (isEdit ? 'Update Event' : 'Create Event')}
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {isEdit ? 'Updating...' : 'Creating...'}
+                </>
+              ) : (
+                isEdit ? 'Update Event' : 'Create Event'
+              )}
             </button>
           </div>
         </Form>

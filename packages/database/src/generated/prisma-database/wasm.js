@@ -170,11 +170,17 @@ exports.Prisma.EventScalarFieldEnum = {
   organizationId: 'organizationId',
   name: 'name',
   location: 'location',
+  venue: 'venue',
   startDate: 'startDate',
   endDate: 'endDate',
   eventType: 'eventType',
+  type: 'type',
   description: 'description',
   status: 'status',
+  attendees: 'attendees',
+  budget: 'budget',
+  organizer: 'organizer',
+  client: 'client',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -220,15 +226,37 @@ exports.Prisma.VendorEventScalarFieldEnum = {
   assignedAt: 'assignedAt'
 };
 
+exports.Prisma.StrategicGoalScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  title: 'title',
+  description: 'description',
+  targetValue: 'targetValue',
+  currentValue: 'currentValue',
+  unit: 'unit',
+  deadline: 'deadline',
+  status: 'status',
+  priority: 'priority',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.BudgetItemScalarFieldEnum = {
   id: 'id',
   eventId: 'eventId',
   category: 'category',
+  subcategory: 'subcategory',
   description: 'description',
   vendor: 'vendor',
   vendorId: 'vendorId',
   estimatedCost: 'estimatedCost',
   actualCost: 'actualCost',
+  status: 'status',
+  notes: 'notes',
+  assignedUserId: 'assignedUserId',
+  strategicGoalId: 'strategicGoalId',
+  lastEditedBy: 'lastEditedBy',
+  lastEditedAt: 'lastEditedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -405,6 +433,12 @@ exports.BudgetItemCategory = exports.$Enums.BudgetItemCategory = {
   Miscellaneous: 'Miscellaneous'
 };
 
+exports.BudgetItemStatus = exports.$Enums.BudgetItemStatus = {
+  Pending: 'Pending',
+  Approved: 'Approved',
+  Closed: 'Closed'
+};
+
 exports.ExpenseStatus = exports.$Enums.ExpenseStatus = {
   Pending: 'Pending',
   Approved: 'Approved',
@@ -428,6 +462,7 @@ exports.Prisma.ModelName = {
   EventStakeholder: 'EventStakeholder',
   Vendor: 'Vendor',
   VendorEvent: 'VendorEvent',
+  StrategicGoal: 'StrategicGoal',
   BudgetItem: 'BudgetItem',
   Expense: 'Expense',
   ApprovalWorkflow: 'ApprovalWorkflow',

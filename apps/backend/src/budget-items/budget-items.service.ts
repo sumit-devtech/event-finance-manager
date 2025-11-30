@@ -28,24 +28,63 @@ export class BudgetItemsService {
       where: { eventId },
       include: {
         vendorLink: true,
+        assignedUser: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+        strategicGoal: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    // Convert Decimal fields to numbers for JSON serialization
-    return budgetItems.map((item) => ({
-      ...item,
-      estimatedCost: item.estimatedCost ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
-        ? item.estimatedCost.toNumber() 
-        : Number(item.estimatedCost)) 
-        : null,
-      actualCost: item.actualCost ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
-        ? item.actualCost.toNumber() 
-        : Number(item.actualCost)) 
-        : null,
-    }));
+    // Convert Decimal fields to numbers for JSON serialization and include user info
+    return budgetItems.map((item: any) => {
+      const result: any = {
+        ...item,
+        estimatedCost: item.estimatedCost ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
+          ? item.estimatedCost.toNumber() 
+          : Number(item.estimatedCost)) 
+          : null,
+        actualCost: item.actualCost ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
+          ? item.actualCost.toNumber() 
+          : Number(item.actualCost)) 
+          : null,
+        assignedUserId: item.assignedUserId,
+      };
+
+      // Keep assignedUser as an object (not a string) for frontend compatibility
+      if (item.assignedUser) {
+        result.assignedUser = {
+          id: item.assignedUser.id,
+          fullName: item.assignedUser.fullName,
+          email: item.assignedUser.email,
+        };
+      } else {
+        result.assignedUser = null;
+      }
+
+      // Keep strategicGoal as an object (not just title) for frontend compatibility
+      if (item.strategicGoal) {
+        result.strategicGoal = {
+          id: item.strategicGoal.id,
+          title: item.strategicGoal.title,
+        };
+      } else {
+        result.strategicGoal = null;
+      }
+
+      return result;
+    });
   }
 
   async findOne(id: string) {
@@ -60,6 +99,19 @@ export class BudgetItemsService {
           },
         },
         vendorLink: true,
+        assignedUser: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+        strategicGoal: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
       },
     });
 
@@ -67,35 +119,81 @@ export class BudgetItemsService {
       throw new NotFoundException(`Budget item with ID ${id} not found`);
     }
 
-    // Convert Decimal fields to numbers for JSON serialization
-    return {
-      ...budgetItem,
-      estimatedCost: budgetItem.estimatedCost ? (typeof budgetItem.estimatedCost === 'object' && 'toNumber' in budgetItem.estimatedCost 
-        ? budgetItem.estimatedCost.toNumber() 
-        : Number(budgetItem.estimatedCost)) 
+    // Convert Decimal fields to numbers for JSON serialization and include user info
+    const budgetItemWithRelations = budgetItem as any;
+    const result: any = {
+      ...budgetItemWithRelations,
+      estimatedCost: budgetItemWithRelations.estimatedCost ? (typeof budgetItemWithRelations.estimatedCost === 'object' && 'toNumber' in budgetItemWithRelations.estimatedCost 
+        ? budgetItemWithRelations.estimatedCost.toNumber() 
+        : Number(budgetItemWithRelations.estimatedCost)) 
         : null,
-      actualCost: budgetItem.actualCost ? (typeof budgetItem.actualCost === 'object' && 'toNumber' in budgetItem.actualCost 
-        ? budgetItem.actualCost.toNumber() 
-        : Number(budgetItem.actualCost)) 
+      actualCost: budgetItemWithRelations.actualCost ? (typeof budgetItemWithRelations.actualCost === 'object' && 'toNumber' in budgetItemWithRelations.actualCost 
+        ? budgetItemWithRelations.actualCost.toNumber() 
+        : Number(budgetItemWithRelations.actualCost)) 
         : null,
+      assignedUserId: budgetItemWithRelations.assignedUserId,
     };
+
+    // Keep assignedUser as an object (not a string) for frontend compatibility
+    if (budgetItemWithRelations.assignedUser) {
+      result.assignedUser = {
+        id: budgetItemWithRelations.assignedUser.id,
+        fullName: budgetItemWithRelations.assignedUser.fullName,
+        email: budgetItemWithRelations.assignedUser.email,
+      };
+    } else {
+      result.assignedUser = null;
+    }
+
+    // Keep strategicGoal as an object (not just title) for frontend compatibility
+    if (budgetItemWithRelations.strategicGoal) {
+      result.strategicGoal = {
+        id: budgetItemWithRelations.strategicGoal.id,
+        title: budgetItemWithRelations.strategicGoal.title,
+      };
+    } else {
+      result.strategicGoal = null;
+    }
+
+    return result;
   }
 
   async create(eventId: string, createBudgetItemDto: CreateBudgetItemDto, userId: string) {
     // Verify event exists
     await this.verifyEventExists(eventId);
 
+    const budgetItemData: any = {
+      eventId: eventId,
+      category: createBudgetItemDto.category,
+      description: createBudgetItemDto.description || createBudgetItemDto.category,
+      vendor: createBudgetItemDto.vendor || null,
+      estimatedCost: createBudgetItemDto.estimatedCost
+        ? Number(createBudgetItemDto.estimatedCost)
+        : null,
+      actualCost: createBudgetItemDto.actualCost ? Number(createBudgetItemDto.actualCost) : null,
+      status: createBudgetItemDto.status || 'Pending',
+    };
+    
+    // Add optional fields if they exist in the schema
+    if (createBudgetItemDto.subcategory !== undefined) {
+      budgetItemData.subcategory = createBudgetItemDto.subcategory || null;
+    }
+    if (createBudgetItemDto.notes !== undefined) {
+      budgetItemData.notes = createBudgetItemDto.notes || null;
+    }
+    if (createBudgetItemDto.assignedUserId !== undefined) {
+      budgetItemData.assignedUserId = createBudgetItemDto.assignedUserId || null;
+    }
+    if (createBudgetItemDto.strategicGoalId !== undefined) {
+      budgetItemData.strategicGoalId = createBudgetItemDto.strategicGoalId || null;
+    }
+    if (userId) {
+      budgetItemData.lastEditedBy = userId;
+      budgetItemData.lastEditedAt = new Date();
+    }
+    
     const budgetItem = await this.prisma.client.budgetItem.create({
-      data: {
-        eventId: eventId,
-        category: createBudgetItemDto.category,
-        description: createBudgetItemDto.description || createBudgetItemDto.category,
-        vendor: createBudgetItemDto.vendor || null,
-        estimatedCost: createBudgetItemDto.estimatedCost
-          ? Number(createBudgetItemDto.estimatedCost)
-          : null,
-        actualCost: createBudgetItemDto.actualCost ? Number(createBudgetItemDto.actualCost) : null,
-      },
+      data: budgetItemData as any,
       include: {
         vendorLink: true,
       },
@@ -145,6 +243,10 @@ export class BudgetItemsService {
       updateData.category = updateBudgetItemDto.category;
       changedFields.push('category');
     }
+    if (updateBudgetItemDto.subcategory !== undefined && updateBudgetItemDto.subcategory !== (budgetItem as any).subcategory) {
+      updateData.subcategory = updateBudgetItemDto.subcategory || null;
+      changedFields.push('subcategory');
+    }
     if (updateBudgetItemDto.description !== undefined && updateBudgetItemDto.description !== budgetItem.description) {
       updateData.description = updateBudgetItemDto.description;
       changedFields.push('description');
@@ -166,8 +268,30 @@ export class BudgetItemsService {
       }
     }
     if (updateBudgetItemDto.vendor !== undefined && updateBudgetItemDto.vendor !== budgetItem.vendor) {
-      updateData.vendor = updateBudgetItemDto.vendor;
+      updateData.vendor = updateBudgetItemDto.vendor || null;
       changedFields.push('vendor');
+    }
+    if (updateBudgetItemDto.status !== undefined && updateBudgetItemDto.status !== (budgetItem as any).status) {
+      updateData.status = updateBudgetItemDto.status;
+      changedFields.push('status');
+    }
+    if (updateBudgetItemDto.notes !== undefined && updateBudgetItemDto.notes !== (budgetItem as any).notes) {
+      updateData.notes = updateBudgetItemDto.notes || null;
+      changedFields.push('notes');
+    }
+    if (updateBudgetItemDto.assignedUserId !== undefined && updateBudgetItemDto.assignedUserId !== (budgetItem as any).assignedUserId) {
+      updateData.assignedUserId = updateBudgetItemDto.assignedUserId || null;
+      changedFields.push('assignedUserId');
+    }
+    if (updateBudgetItemDto.strategicGoalId !== undefined && updateBudgetItemDto.strategicGoalId !== (budgetItem as any).strategicGoalId) {
+      updateData.strategicGoalId = updateBudgetItemDto.strategicGoalId || null;
+      changedFields.push('strategicGoalId');
+    }
+
+    // Always update audit fields when there are changes
+    if (changedFields.length > 0) {
+      updateData.lastEditedBy = userId;
+      updateData.lastEditedAt = new Date();
     }
 
     // If no changes, return existing budget item
@@ -177,7 +301,7 @@ export class BudgetItemsService {
 
     const updatedBudgetItem = await this.prisma.client.budgetItem.update({
       where: { id },
-      data: updateData,
+      data: updateData as any,
       include: {
         vendorLink: true,
       },

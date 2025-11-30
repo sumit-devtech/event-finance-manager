@@ -51,6 +51,12 @@ enum ExpenseStatus {
   Rejected
 }
 
+enum BudgetItemStatus {
+  Pending
+  Approved
+  Closed
+}
+
 enum SubscriptionStatus {
   Active
   Cancelled
@@ -99,6 +105,7 @@ model User {
   notifications       Notification[]
   reports             Report[]
   events              EventAssignment[]
+  assignedBudgetItems BudgetItem[]          @relation("BudgetItemAssignee")
 
   @@index([organizationId])
   @@index([email])
@@ -140,11 +147,17 @@ model Event {
   organizationId      String?
   name                String
   location            String?
+  venue               String? // Venue name
   startDate           DateTime?
   endDate             DateTime?
-  eventType           String?
+  eventType           String? // Type of event (conference, workshop, etc.)
+  type                String? // Alias for eventType for compatibility
   description         String?
   status              EventStatus          @default(Planning)
+  attendees           Int? // Expected number of attendees
+  budget              Decimal?             @db.Decimal(10, 2) // Total budget for the event
+  organizer           String? // Organizer name
+  client              String? // Client name
   createdBy           String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
@@ -162,6 +175,7 @@ model Event {
   crmSync             CRMSync?
   reports             Report[]
   aiBudgetSuggestions AiBudgetSuggestion[]
+  strategicGoals      StrategicGoal[]
 
   @@index([organizationId])
   @@index([organizationId, status])
@@ -234,26 +248,59 @@ model VendorEvent {
   @@index([eventId])
 }
 
+// Strategic Goal Model
+model StrategicGoal {
+  id           String       @id @default(uuid())
+  eventId      String
+  title        String
+  description  String?
+  targetValue  Float? // Target value for the goal
+  currentValue Float? // Current progress value
+  unit         String? // Unit of measurement (e.g., "attendees", "dollars", "%")
+  deadline     DateTime? // Deadline for the goal
+  status       String       @default("not-started") // not-started, in-progress, completed
+  priority     String       @default("medium") // low, medium, high
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  budgetItems  BudgetItem[]
+
+  @@index([eventId])
+  @@index([status])
+}
+
 // Budget Item (Simplified - directly on Event)
 model BudgetItem {
-  id            String             @id @default(uuid())
-  eventId       String
-  category      BudgetItemCategory
-  description   String
-  vendor        String? // Simple text field (fallback)
-  vendorId      String? // Optional FK to Vendor model
-  estimatedCost Decimal?           @db.Decimal(10, 2)
-  actualCost    Decimal?           @db.Decimal(10, 2)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  event         Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  vendorLink    Vendor?            @relation("BudgetItemVendor", fields: [vendorId], references: [id])
-  files         File[]
+  id              String             @id @default(uuid())
+  eventId         String
+  category        BudgetItemCategory
+  subcategory     String? // Subcategory (e.g., Rental, Equipment, Meals)
+  description     String
+  vendor          String? // Simple text field (fallback)
+  vendorId        String? // Optional FK to Vendor model
+  estimatedCost   Decimal?           @db.Decimal(10, 2)
+  actualCost      Decimal?           @db.Decimal(10, 2)
+  status          BudgetItemStatus   @default(Pending)
+  notes           String? // Additional notes
+  assignedUserId  String? // Assigned user ID
+  strategicGoalId String? // Strategic goal mapping (FK to StrategicGoal)
+  lastEditedBy    String? // User who last edited
+  lastEditedAt    DateTime? // Last edit timestamp
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  event           Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  vendorLink      Vendor?            @relation("BudgetItemVendor", fields: [vendorId], references: [id])
+  assignedUser    User?              @relation("BudgetItemAssignee", fields: [assignedUserId], references: [id])
+  strategicGoal   StrategicGoal?     @relation(fields: [strategicGoalId], references: [id])
+  files           File[]
 
   @@index([eventId])
   @@index([category])
   @@index([vendorId])
   @@index([eventId, category])
+  @@index([status])
+  @@index([assignedUserId])
+  @@index([strategicGoalId])
 }
 
 // Expense Tracking

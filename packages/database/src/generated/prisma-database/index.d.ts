@@ -59,6 +59,11 @@ export type Vendor = $Result.DefaultSelection<Prisma.$VendorPayload>
  */
 export type VendorEvent = $Result.DefaultSelection<Prisma.$VendorEventPayload>
 /**
+ * Model StrategicGoal
+ * 
+ */
+export type StrategicGoal = $Result.DefaultSelection<Prisma.$StrategicGoalPayload>
+/**
  * Model BudgetItem
  * 
  */
@@ -168,6 +173,15 @@ export const BudgetItemCategory: {
 export type BudgetItemCategory = (typeof BudgetItemCategory)[keyof typeof BudgetItemCategory]
 
 
+export const BudgetItemStatus: {
+  Pending: 'Pending',
+  Approved: 'Approved',
+  Closed: 'Closed'
+};
+
+export type BudgetItemStatus = (typeof BudgetItemStatus)[keyof typeof BudgetItemStatus]
+
+
 export const ExpenseStatus: {
   Pending: 'Pending',
   Approved: 'Approved',
@@ -207,6 +221,10 @@ export const EventStatus: typeof $Enums.EventStatus
 export type BudgetItemCategory = $Enums.BudgetItemCategory
 
 export const BudgetItemCategory: typeof $Enums.BudgetItemCategory
+
+export type BudgetItemStatus = $Enums.BudgetItemStatus
+
+export const BudgetItemStatus: typeof $Enums.BudgetItemStatus
 
 export type ExpenseStatus = $Enums.ExpenseStatus
 
@@ -428,6 +446,16 @@ export class PrismaClient<
     * ```
     */
   get vendorEvent(): Prisma.VendorEventDelegate<ExtArgs>;
+
+  /**
+   * `prisma.strategicGoal`: Exposes CRUD operations for the **StrategicGoal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StrategicGoals
+    * const strategicGoals = await prisma.strategicGoal.findMany()
+    * ```
+    */
+  get strategicGoal(): Prisma.StrategicGoalDelegate<ExtArgs>;
 
   /**
    * `prisma.budgetItem`: Exposes CRUD operations for the **BudgetItem** model.
@@ -988,6 +1016,7 @@ export namespace Prisma {
     EventStakeholder: 'EventStakeholder',
     Vendor: 'Vendor',
     VendorEvent: 'VendorEvent',
+    StrategicGoal: 'StrategicGoal',
     BudgetItem: 'BudgetItem',
     Expense: 'Expense',
     ApprovalWorkflow: 'ApprovalWorkflow',
@@ -1014,7 +1043,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "subscription" | "subscriptionHistory" | "event" | "eventAssignment" | "eventStakeholder" | "vendor" | "vendorEvent" | "budgetItem" | "expense" | "approvalWorkflow" | "insight" | "rOIMetrics" | "cRMSync" | "report" | "file" | "notification" | "activityLog" | "aiBudgetSuggestion"
+      modelProps: "organization" | "user" | "subscription" | "subscriptionHistory" | "event" | "eventAssignment" | "eventStakeholder" | "vendor" | "vendorEvent" | "strategicGoal" | "budgetItem" | "expense" | "approvalWorkflow" | "insight" | "rOIMetrics" | "cRMSync" | "report" | "file" | "notification" | "activityLog" | "aiBudgetSuggestion"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1645,6 +1674,76 @@ export namespace Prisma {
           count: {
             args: Prisma.VendorEventCountArgs<ExtArgs>
             result: $Utils.Optional<VendorEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      StrategicGoal: {
+        payload: Prisma.$StrategicGoalPayload<ExtArgs>
+        fields: Prisma.StrategicGoalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StrategicGoalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StrategicGoalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>
+          }
+          findFirst: {
+            args: Prisma.StrategicGoalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StrategicGoalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>
+          }
+          findMany: {
+            args: Prisma.StrategicGoalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>[]
+          }
+          create: {
+            args: Prisma.StrategicGoalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>
+          }
+          createMany: {
+            args: Prisma.StrategicGoalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StrategicGoalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>[]
+          }
+          delete: {
+            args: Prisma.StrategicGoalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>
+          }
+          update: {
+            args: Prisma.StrategicGoalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>
+          }
+          deleteMany: {
+            args: Prisma.StrategicGoalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StrategicGoalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.StrategicGoalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategicGoalPayload>
+          }
+          aggregate: {
+            args: Prisma.StrategicGoalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStrategicGoal>
+          }
+          groupBy: {
+            args: Prisma.StrategicGoalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StrategicGoalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StrategicGoalCountArgs<ExtArgs>
+            result: $Utils.Optional<StrategicGoalCountAggregateOutputType> | number
           }
         }
       }
@@ -2672,6 +2771,7 @@ export namespace Prisma {
     notifications: number
     reports: number
     events: number
+    assignedBudgetItems: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2683,6 +2783,7 @@ export namespace Prisma {
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     reports?: boolean | UserCountOutputTypeCountReportsArgs
     events?: boolean | UserCountOutputTypeCountEventsArgs
+    assignedBudgetItems?: boolean | UserCountOutputTypeCountAssignedBudgetItemsArgs
   }
 
   // Custom InputTypes
@@ -2752,6 +2853,13 @@ export namespace Prisma {
     where?: EventAssignmentWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAssignedBudgetItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BudgetItemWhereInput
+  }
+
 
   /**
    * Count Type SubscriptionCountOutputType
@@ -2799,6 +2907,7 @@ export namespace Prisma {
     insights: number
     reports: number
     aiBudgetSuggestions: number
+    strategicGoals: number
   }
 
   export type EventCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2812,6 +2921,7 @@ export namespace Prisma {
     insights?: boolean | EventCountOutputTypeCountInsightsArgs
     reports?: boolean | EventCountOutputTypeCountReportsArgs
     aiBudgetSuggestions?: boolean | EventCountOutputTypeCountAiBudgetSuggestionsArgs
+    strategicGoals?: boolean | EventCountOutputTypeCountStrategicGoalsArgs
   }
 
   // Custom InputTypes
@@ -2895,6 +3005,13 @@ export namespace Prisma {
     where?: AiBudgetSuggestionWhereInput
   }
 
+  /**
+   * EventCountOutputType without action
+   */
+  export type EventCountOutputTypeCountStrategicGoalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StrategicGoalWhereInput
+  }
+
 
   /**
    * Count Type VendorCountOutputType
@@ -2942,6 +3059,37 @@ export namespace Prisma {
    */
   export type VendorCountOutputTypeCountExpensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ExpenseWhereInput
+  }
+
+
+  /**
+   * Count Type StrategicGoalCountOutputType
+   */
+
+  export type StrategicGoalCountOutputType = {
+    budgetItems: number
+  }
+
+  export type StrategicGoalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    budgetItems?: boolean | StrategicGoalCountOutputTypeCountBudgetItemsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * StrategicGoalCountOutputType without action
+   */
+  export type StrategicGoalCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoalCountOutputType
+     */
+    select?: StrategicGoalCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * StrategicGoalCountOutputType without action
+   */
+  export type StrategicGoalCountOutputTypeCountBudgetItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BudgetItemWhereInput
   }
 
 
@@ -4351,6 +4499,7 @@ export namespace Prisma {
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     reports?: boolean | User$reportsArgs<ExtArgs>
     events?: boolean | User$eventsArgs<ExtArgs>
+    assignedBudgetItems?: boolean | User$assignedBudgetItemsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4389,6 +4538,7 @@ export namespace Prisma {
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     reports?: boolean | User$reportsArgs<ExtArgs>
     events?: boolean | User$eventsArgs<ExtArgs>
+    assignedBudgetItems?: boolean | User$assignedBudgetItemsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4407,6 +4557,7 @@ export namespace Prisma {
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       reports: Prisma.$ReportPayload<ExtArgs>[]
       events: Prisma.$EventAssignmentPayload<ExtArgs>[]
+      assignedBudgetItems: Prisma.$BudgetItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4791,6 +4942,7 @@ export namespace Prisma {
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
     reports<T extends User$reportsArgs<ExtArgs> = {}>(args?: Subset<T, User$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany"> | Null>
     events<T extends User$eventsArgs<ExtArgs> = {}>(args?: Subset<T, User$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventAssignmentPayload<ExtArgs>, T, "findMany"> | Null>
+    assignedBudgetItems<T extends User$assignedBudgetItemsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedBudgetItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5319,6 +5471,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: EventAssignmentScalarFieldEnum | EventAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * User.assignedBudgetItems
+   */
+  export type User$assignedBudgetItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BudgetItem
+     */
+    select?: BudgetItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BudgetItemInclude<ExtArgs> | null
+    where?: BudgetItemWhereInput
+    orderBy?: BudgetItemOrderByWithRelationInput | BudgetItemOrderByWithRelationInput[]
+    cursor?: BudgetItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BudgetItemScalarFieldEnum | BudgetItemScalarFieldEnum[]
   }
 
   /**
@@ -7334,8 +7506,20 @@ export namespace Prisma {
 
   export type AggregateEvent = {
     _count: EventCountAggregateOutputType | null
+    _avg: EventAvgAggregateOutputType | null
+    _sum: EventSumAggregateOutputType | null
     _min: EventMinAggregateOutputType | null
     _max: EventMaxAggregateOutputType | null
+  }
+
+  export type EventAvgAggregateOutputType = {
+    attendees: number | null
+    budget: Decimal | null
+  }
+
+  export type EventSumAggregateOutputType = {
+    attendees: number | null
+    budget: Decimal | null
   }
 
   export type EventMinAggregateOutputType = {
@@ -7343,11 +7527,17 @@ export namespace Prisma {
     organizationId: string | null
     name: string | null
     location: string | null
+    venue: string | null
     startDate: Date | null
     endDate: Date | null
     eventType: string | null
+    type: string | null
     description: string | null
     status: $Enums.EventStatus | null
+    attendees: number | null
+    budget: Decimal | null
+    organizer: string | null
+    client: string | null
     createdBy: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -7358,11 +7548,17 @@ export namespace Prisma {
     organizationId: string | null
     name: string | null
     location: string | null
+    venue: string | null
     startDate: Date | null
     endDate: Date | null
     eventType: string | null
+    type: string | null
     description: string | null
     status: $Enums.EventStatus | null
+    attendees: number | null
+    budget: Decimal | null
+    organizer: string | null
+    client: string | null
     createdBy: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -7373,11 +7569,17 @@ export namespace Prisma {
     organizationId: number
     name: number
     location: number
+    venue: number
     startDate: number
     endDate: number
     eventType: number
+    type: number
     description: number
     status: number
+    attendees: number
+    budget: number
+    organizer: number
+    client: number
     createdBy: number
     createdAt: number
     updatedAt: number
@@ -7385,16 +7587,32 @@ export namespace Prisma {
   }
 
 
+  export type EventAvgAggregateInputType = {
+    attendees?: true
+    budget?: true
+  }
+
+  export type EventSumAggregateInputType = {
+    attendees?: true
+    budget?: true
+  }
+
   export type EventMinAggregateInputType = {
     id?: true
     organizationId?: true
     name?: true
     location?: true
+    venue?: true
     startDate?: true
     endDate?: true
     eventType?: true
+    type?: true
     description?: true
     status?: true
+    attendees?: true
+    budget?: true
+    organizer?: true
+    client?: true
     createdBy?: true
     createdAt?: true
     updatedAt?: true
@@ -7405,11 +7623,17 @@ export namespace Prisma {
     organizationId?: true
     name?: true
     location?: true
+    venue?: true
     startDate?: true
     endDate?: true
     eventType?: true
+    type?: true
     description?: true
     status?: true
+    attendees?: true
+    budget?: true
+    organizer?: true
+    client?: true
     createdBy?: true
     createdAt?: true
     updatedAt?: true
@@ -7420,11 +7644,17 @@ export namespace Prisma {
     organizationId?: true
     name?: true
     location?: true
+    venue?: true
     startDate?: true
     endDate?: true
     eventType?: true
+    type?: true
     description?: true
     status?: true
+    attendees?: true
+    budget?: true
+    organizer?: true
+    client?: true
     createdBy?: true
     createdAt?: true
     updatedAt?: true
@@ -7469,6 +7699,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: EventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: EventMinAggregateInputType
@@ -7499,6 +7741,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: EventCountAggregateInputType | true
+    _avg?: EventAvgAggregateInputType
+    _sum?: EventSumAggregateInputType
     _min?: EventMinAggregateInputType
     _max?: EventMaxAggregateInputType
   }
@@ -7508,15 +7752,23 @@ export namespace Prisma {
     organizationId: string | null
     name: string
     location: string | null
+    venue: string | null
     startDate: Date | null
     endDate: Date | null
     eventType: string | null
+    type: string | null
     description: string | null
     status: $Enums.EventStatus
+    attendees: number | null
+    budget: Decimal | null
+    organizer: string | null
+    client: string | null
     createdBy: string | null
     createdAt: Date
     updatedAt: Date
     _count: EventCountAggregateOutputType | null
+    _avg: EventAvgAggregateOutputType | null
+    _sum: EventSumAggregateOutputType | null
     _min: EventMinAggregateOutputType | null
     _max: EventMaxAggregateOutputType | null
   }
@@ -7540,11 +7792,17 @@ export namespace Prisma {
     organizationId?: boolean
     name?: boolean
     location?: boolean
+    venue?: boolean
     startDate?: boolean
     endDate?: boolean
     eventType?: boolean
+    type?: boolean
     description?: boolean
     status?: boolean
+    attendees?: boolean
+    budget?: boolean
+    organizer?: boolean
+    client?: boolean
     createdBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7562,6 +7820,7 @@ export namespace Prisma {
     crmSync?: boolean | Event$crmSyncArgs<ExtArgs>
     reports?: boolean | Event$reportsArgs<ExtArgs>
     aiBudgetSuggestions?: boolean | Event$aiBudgetSuggestionsArgs<ExtArgs>
+    strategicGoals?: boolean | Event$strategicGoalsArgs<ExtArgs>
     _count?: boolean | EventCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
 
@@ -7570,11 +7829,17 @@ export namespace Prisma {
     organizationId?: boolean
     name?: boolean
     location?: boolean
+    venue?: boolean
     startDate?: boolean
     endDate?: boolean
     eventType?: boolean
+    type?: boolean
     description?: boolean
     status?: boolean
+    attendees?: boolean
+    budget?: boolean
+    organizer?: boolean
+    client?: boolean
     createdBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7587,11 +7852,17 @@ export namespace Prisma {
     organizationId?: boolean
     name?: boolean
     location?: boolean
+    venue?: boolean
     startDate?: boolean
     endDate?: boolean
     eventType?: boolean
+    type?: boolean
     description?: boolean
     status?: boolean
+    attendees?: boolean
+    budget?: boolean
+    organizer?: boolean
+    client?: boolean
     createdBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7612,6 +7883,7 @@ export namespace Prisma {
     crmSync?: boolean | Event$crmSyncArgs<ExtArgs>
     reports?: boolean | Event$reportsArgs<ExtArgs>
     aiBudgetSuggestions?: boolean | Event$aiBudgetSuggestionsArgs<ExtArgs>
+    strategicGoals?: boolean | Event$strategicGoalsArgs<ExtArgs>
     _count?: boolean | EventCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type EventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7636,17 +7908,24 @@ export namespace Prisma {
       crmSync: Prisma.$CRMSyncPayload<ExtArgs> | null
       reports: Prisma.$ReportPayload<ExtArgs>[]
       aiBudgetSuggestions: Prisma.$AiBudgetSuggestionPayload<ExtArgs>[]
+      strategicGoals: Prisma.$StrategicGoalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       organizationId: string | null
       name: string
       location: string | null
+      venue: string | null
       startDate: Date | null
       endDate: Date | null
       eventType: string | null
+      type: string | null
       description: string | null
       status: $Enums.EventStatus
+      attendees: number | null
+      budget: Prisma.Decimal | null
+      organizer: string | null
+      client: string | null
       createdBy: string | null
       createdAt: Date
       updatedAt: Date
@@ -8028,6 +8307,7 @@ export namespace Prisma {
     crmSync<T extends Event$crmSyncArgs<ExtArgs> = {}>(args?: Subset<T, Event$crmSyncArgs<ExtArgs>>): Prisma__CRMSyncClient<$Result.GetResult<Prisma.$CRMSyncPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     reports<T extends Event$reportsArgs<ExtArgs> = {}>(args?: Subset<T, Event$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany"> | Null>
     aiBudgetSuggestions<T extends Event$aiBudgetSuggestionsArgs<ExtArgs> = {}>(args?: Subset<T, Event$aiBudgetSuggestionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiBudgetSuggestionPayload<ExtArgs>, T, "findMany"> | Null>
+    strategicGoals<T extends Event$strategicGoalsArgs<ExtArgs> = {}>(args?: Subset<T, Event$strategicGoalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8061,11 +8341,17 @@ export namespace Prisma {
     readonly organizationId: FieldRef<"Event", 'String'>
     readonly name: FieldRef<"Event", 'String'>
     readonly location: FieldRef<"Event", 'String'>
+    readonly venue: FieldRef<"Event", 'String'>
     readonly startDate: FieldRef<"Event", 'DateTime'>
     readonly endDate: FieldRef<"Event", 'DateTime'>
     readonly eventType: FieldRef<"Event", 'String'>
+    readonly type: FieldRef<"Event", 'String'>
     readonly description: FieldRef<"Event", 'String'>
     readonly status: FieldRef<"Event", 'EventStatus'>
+    readonly attendees: FieldRef<"Event", 'Int'>
+    readonly budget: FieldRef<"Event", 'Decimal'>
+    readonly organizer: FieldRef<"Event", 'String'>
+    readonly client: FieldRef<"Event", 'String'>
     readonly createdBy: FieldRef<"Event", 'String'>
     readonly createdAt: FieldRef<"Event", 'DateTime'>
     readonly updatedAt: FieldRef<"Event", 'DateTime'>
@@ -8644,6 +8930,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AiBudgetSuggestionScalarFieldEnum | AiBudgetSuggestionScalarFieldEnum[]
+  }
+
+  /**
+   * Event.strategicGoals
+   */
+  export type Event$strategicGoalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    where?: StrategicGoalWhereInput
+    orderBy?: StrategicGoalOrderByWithRelationInput | StrategicGoalOrderByWithRelationInput[]
+    cursor?: StrategicGoalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StrategicGoalScalarFieldEnum | StrategicGoalScalarFieldEnum[]
   }
 
   /**
@@ -12625,6 +12931,1087 @@ export namespace Prisma {
 
 
   /**
+   * Model StrategicGoal
+   */
+
+  export type AggregateStrategicGoal = {
+    _count: StrategicGoalCountAggregateOutputType | null
+    _avg: StrategicGoalAvgAggregateOutputType | null
+    _sum: StrategicGoalSumAggregateOutputType | null
+    _min: StrategicGoalMinAggregateOutputType | null
+    _max: StrategicGoalMaxAggregateOutputType | null
+  }
+
+  export type StrategicGoalAvgAggregateOutputType = {
+    targetValue: number | null
+    currentValue: number | null
+  }
+
+  export type StrategicGoalSumAggregateOutputType = {
+    targetValue: number | null
+    currentValue: number | null
+  }
+
+  export type StrategicGoalMinAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    title: string | null
+    description: string | null
+    targetValue: number | null
+    currentValue: number | null
+    unit: string | null
+    deadline: Date | null
+    status: string | null
+    priority: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StrategicGoalMaxAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    title: string | null
+    description: string | null
+    targetValue: number | null
+    currentValue: number | null
+    unit: string | null
+    deadline: Date | null
+    status: string | null
+    priority: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StrategicGoalCountAggregateOutputType = {
+    id: number
+    eventId: number
+    title: number
+    description: number
+    targetValue: number
+    currentValue: number
+    unit: number
+    deadline: number
+    status: number
+    priority: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type StrategicGoalAvgAggregateInputType = {
+    targetValue?: true
+    currentValue?: true
+  }
+
+  export type StrategicGoalSumAggregateInputType = {
+    targetValue?: true
+    currentValue?: true
+  }
+
+  export type StrategicGoalMinAggregateInputType = {
+    id?: true
+    eventId?: true
+    title?: true
+    description?: true
+    targetValue?: true
+    currentValue?: true
+    unit?: true
+    deadline?: true
+    status?: true
+    priority?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StrategicGoalMaxAggregateInputType = {
+    id?: true
+    eventId?: true
+    title?: true
+    description?: true
+    targetValue?: true
+    currentValue?: true
+    unit?: true
+    deadline?: true
+    status?: true
+    priority?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StrategicGoalCountAggregateInputType = {
+    id?: true
+    eventId?: true
+    title?: true
+    description?: true
+    targetValue?: true
+    currentValue?: true
+    unit?: true
+    deadline?: true
+    status?: true
+    priority?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type StrategicGoalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StrategicGoal to aggregate.
+     */
+    where?: StrategicGoalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategicGoals to fetch.
+     */
+    orderBy?: StrategicGoalOrderByWithRelationInput | StrategicGoalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StrategicGoalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategicGoals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategicGoals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StrategicGoals
+    **/
+    _count?: true | StrategicGoalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StrategicGoalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StrategicGoalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StrategicGoalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StrategicGoalMaxAggregateInputType
+  }
+
+  export type GetStrategicGoalAggregateType<T extends StrategicGoalAggregateArgs> = {
+        [P in keyof T & keyof AggregateStrategicGoal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStrategicGoal[P]>
+      : GetScalarType<T[P], AggregateStrategicGoal[P]>
+  }
+
+
+
+
+  export type StrategicGoalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StrategicGoalWhereInput
+    orderBy?: StrategicGoalOrderByWithAggregationInput | StrategicGoalOrderByWithAggregationInput[]
+    by: StrategicGoalScalarFieldEnum[] | StrategicGoalScalarFieldEnum
+    having?: StrategicGoalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StrategicGoalCountAggregateInputType | true
+    _avg?: StrategicGoalAvgAggregateInputType
+    _sum?: StrategicGoalSumAggregateInputType
+    _min?: StrategicGoalMinAggregateInputType
+    _max?: StrategicGoalMaxAggregateInputType
+  }
+
+  export type StrategicGoalGroupByOutputType = {
+    id: string
+    eventId: string
+    title: string
+    description: string | null
+    targetValue: number | null
+    currentValue: number | null
+    unit: string | null
+    deadline: Date | null
+    status: string
+    priority: string
+    createdAt: Date
+    updatedAt: Date
+    _count: StrategicGoalCountAggregateOutputType | null
+    _avg: StrategicGoalAvgAggregateOutputType | null
+    _sum: StrategicGoalSumAggregateOutputType | null
+    _min: StrategicGoalMinAggregateOutputType | null
+    _max: StrategicGoalMaxAggregateOutputType | null
+  }
+
+  type GetStrategicGoalGroupByPayload<T extends StrategicGoalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StrategicGoalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StrategicGoalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StrategicGoalGroupByOutputType[P]>
+            : GetScalarType<T[P], StrategicGoalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StrategicGoalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    title?: boolean
+    description?: boolean
+    targetValue?: boolean
+    currentValue?: boolean
+    unit?: boolean
+    deadline?: boolean
+    status?: boolean
+    priority?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    event?: boolean | EventDefaultArgs<ExtArgs>
+    budgetItems?: boolean | StrategicGoal$budgetItemsArgs<ExtArgs>
+    _count?: boolean | StrategicGoalCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["strategicGoal"]>
+
+  export type StrategicGoalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    title?: boolean
+    description?: boolean
+    targetValue?: boolean
+    currentValue?: boolean
+    unit?: boolean
+    deadline?: boolean
+    status?: boolean
+    priority?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    event?: boolean | EventDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["strategicGoal"]>
+
+  export type StrategicGoalSelectScalar = {
+    id?: boolean
+    eventId?: boolean
+    title?: boolean
+    description?: boolean
+    targetValue?: boolean
+    currentValue?: boolean
+    unit?: boolean
+    deadline?: boolean
+    status?: boolean
+    priority?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type StrategicGoalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    event?: boolean | EventDefaultArgs<ExtArgs>
+    budgetItems?: boolean | StrategicGoal$budgetItemsArgs<ExtArgs>
+    _count?: boolean | StrategicGoalCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type StrategicGoalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    event?: boolean | EventDefaultArgs<ExtArgs>
+  }
+
+  export type $StrategicGoalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StrategicGoal"
+    objects: {
+      event: Prisma.$EventPayload<ExtArgs>
+      budgetItems: Prisma.$BudgetItemPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      eventId: string
+      title: string
+      description: string | null
+      targetValue: number | null
+      currentValue: number | null
+      unit: string | null
+      deadline: Date | null
+      status: string
+      priority: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["strategicGoal"]>
+    composites: {}
+  }
+
+  type StrategicGoalGetPayload<S extends boolean | null | undefined | StrategicGoalDefaultArgs> = $Result.GetResult<Prisma.$StrategicGoalPayload, S>
+
+  type StrategicGoalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<StrategicGoalFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: StrategicGoalCountAggregateInputType | true
+    }
+
+  export interface StrategicGoalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StrategicGoal'], meta: { name: 'StrategicGoal' } }
+    /**
+     * Find zero or one StrategicGoal that matches the filter.
+     * @param {StrategicGoalFindUniqueArgs} args - Arguments to find a StrategicGoal
+     * @example
+     * // Get one StrategicGoal
+     * const strategicGoal = await prisma.strategicGoal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StrategicGoalFindUniqueArgs>(args: SelectSubset<T, StrategicGoalFindUniqueArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one StrategicGoal that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {StrategicGoalFindUniqueOrThrowArgs} args - Arguments to find a StrategicGoal
+     * @example
+     * // Get one StrategicGoal
+     * const strategicGoal = await prisma.strategicGoal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StrategicGoalFindUniqueOrThrowArgs>(args: SelectSubset<T, StrategicGoalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first StrategicGoal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalFindFirstArgs} args - Arguments to find a StrategicGoal
+     * @example
+     * // Get one StrategicGoal
+     * const strategicGoal = await prisma.strategicGoal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StrategicGoalFindFirstArgs>(args?: SelectSubset<T, StrategicGoalFindFirstArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first StrategicGoal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalFindFirstOrThrowArgs} args - Arguments to find a StrategicGoal
+     * @example
+     * // Get one StrategicGoal
+     * const strategicGoal = await prisma.strategicGoal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StrategicGoalFindFirstOrThrowArgs>(args?: SelectSubset<T, StrategicGoalFindFirstOrThrowArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more StrategicGoals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StrategicGoals
+     * const strategicGoals = await prisma.strategicGoal.findMany()
+     * 
+     * // Get first 10 StrategicGoals
+     * const strategicGoals = await prisma.strategicGoal.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const strategicGoalWithIdOnly = await prisma.strategicGoal.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StrategicGoalFindManyArgs>(args?: SelectSubset<T, StrategicGoalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a StrategicGoal.
+     * @param {StrategicGoalCreateArgs} args - Arguments to create a StrategicGoal.
+     * @example
+     * // Create one StrategicGoal
+     * const StrategicGoal = await prisma.strategicGoal.create({
+     *   data: {
+     *     // ... data to create a StrategicGoal
+     *   }
+     * })
+     * 
+     */
+    create<T extends StrategicGoalCreateArgs>(args: SelectSubset<T, StrategicGoalCreateArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many StrategicGoals.
+     * @param {StrategicGoalCreateManyArgs} args - Arguments to create many StrategicGoals.
+     * @example
+     * // Create many StrategicGoals
+     * const strategicGoal = await prisma.strategicGoal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StrategicGoalCreateManyArgs>(args?: SelectSubset<T, StrategicGoalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StrategicGoals and returns the data saved in the database.
+     * @param {StrategicGoalCreateManyAndReturnArgs} args - Arguments to create many StrategicGoals.
+     * @example
+     * // Create many StrategicGoals
+     * const strategicGoal = await prisma.strategicGoal.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StrategicGoals and only return the `id`
+     * const strategicGoalWithIdOnly = await prisma.strategicGoal.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StrategicGoalCreateManyAndReturnArgs>(args?: SelectSubset<T, StrategicGoalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a StrategicGoal.
+     * @param {StrategicGoalDeleteArgs} args - Arguments to delete one StrategicGoal.
+     * @example
+     * // Delete one StrategicGoal
+     * const StrategicGoal = await prisma.strategicGoal.delete({
+     *   where: {
+     *     // ... filter to delete one StrategicGoal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StrategicGoalDeleteArgs>(args: SelectSubset<T, StrategicGoalDeleteArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one StrategicGoal.
+     * @param {StrategicGoalUpdateArgs} args - Arguments to update one StrategicGoal.
+     * @example
+     * // Update one StrategicGoal
+     * const strategicGoal = await prisma.strategicGoal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StrategicGoalUpdateArgs>(args: SelectSubset<T, StrategicGoalUpdateArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more StrategicGoals.
+     * @param {StrategicGoalDeleteManyArgs} args - Arguments to filter StrategicGoals to delete.
+     * @example
+     * // Delete a few StrategicGoals
+     * const { count } = await prisma.strategicGoal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StrategicGoalDeleteManyArgs>(args?: SelectSubset<T, StrategicGoalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StrategicGoals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StrategicGoals
+     * const strategicGoal = await prisma.strategicGoal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StrategicGoalUpdateManyArgs>(args: SelectSubset<T, StrategicGoalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one StrategicGoal.
+     * @param {StrategicGoalUpsertArgs} args - Arguments to update or create a StrategicGoal.
+     * @example
+     * // Update or create a StrategicGoal
+     * const strategicGoal = await prisma.strategicGoal.upsert({
+     *   create: {
+     *     // ... data to create a StrategicGoal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StrategicGoal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StrategicGoalUpsertArgs>(args: SelectSubset<T, StrategicGoalUpsertArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of StrategicGoals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalCountArgs} args - Arguments to filter StrategicGoals to count.
+     * @example
+     * // Count the number of StrategicGoals
+     * const count = await prisma.strategicGoal.count({
+     *   where: {
+     *     // ... the filter for the StrategicGoals we want to count
+     *   }
+     * })
+    **/
+    count<T extends StrategicGoalCountArgs>(
+      args?: Subset<T, StrategicGoalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StrategicGoalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StrategicGoal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StrategicGoalAggregateArgs>(args: Subset<T, StrategicGoalAggregateArgs>): Prisma.PrismaPromise<GetStrategicGoalAggregateType<T>>
+
+    /**
+     * Group by StrategicGoal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategicGoalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StrategicGoalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StrategicGoalGroupByArgs['orderBy'] }
+        : { orderBy?: StrategicGoalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StrategicGoalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStrategicGoalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StrategicGoal model
+   */
+  readonly fields: StrategicGoalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StrategicGoal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StrategicGoalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    event<T extends EventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventDefaultArgs<ExtArgs>>): Prisma__EventClient<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    budgetItems<T extends StrategicGoal$budgetItemsArgs<ExtArgs> = {}>(args?: Subset<T, StrategicGoal$budgetItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StrategicGoal model
+   */ 
+  interface StrategicGoalFieldRefs {
+    readonly id: FieldRef<"StrategicGoal", 'String'>
+    readonly eventId: FieldRef<"StrategicGoal", 'String'>
+    readonly title: FieldRef<"StrategicGoal", 'String'>
+    readonly description: FieldRef<"StrategicGoal", 'String'>
+    readonly targetValue: FieldRef<"StrategicGoal", 'Float'>
+    readonly currentValue: FieldRef<"StrategicGoal", 'Float'>
+    readonly unit: FieldRef<"StrategicGoal", 'String'>
+    readonly deadline: FieldRef<"StrategicGoal", 'DateTime'>
+    readonly status: FieldRef<"StrategicGoal", 'String'>
+    readonly priority: FieldRef<"StrategicGoal", 'String'>
+    readonly createdAt: FieldRef<"StrategicGoal", 'DateTime'>
+    readonly updatedAt: FieldRef<"StrategicGoal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StrategicGoal findUnique
+   */
+  export type StrategicGoalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategicGoal to fetch.
+     */
+    where: StrategicGoalWhereUniqueInput
+  }
+
+  /**
+   * StrategicGoal findUniqueOrThrow
+   */
+  export type StrategicGoalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategicGoal to fetch.
+     */
+    where: StrategicGoalWhereUniqueInput
+  }
+
+  /**
+   * StrategicGoal findFirst
+   */
+  export type StrategicGoalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategicGoal to fetch.
+     */
+    where?: StrategicGoalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategicGoals to fetch.
+     */
+    orderBy?: StrategicGoalOrderByWithRelationInput | StrategicGoalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StrategicGoals.
+     */
+    cursor?: StrategicGoalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategicGoals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategicGoals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StrategicGoals.
+     */
+    distinct?: StrategicGoalScalarFieldEnum | StrategicGoalScalarFieldEnum[]
+  }
+
+  /**
+   * StrategicGoal findFirstOrThrow
+   */
+  export type StrategicGoalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategicGoal to fetch.
+     */
+    where?: StrategicGoalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategicGoals to fetch.
+     */
+    orderBy?: StrategicGoalOrderByWithRelationInput | StrategicGoalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StrategicGoals.
+     */
+    cursor?: StrategicGoalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategicGoals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategicGoals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StrategicGoals.
+     */
+    distinct?: StrategicGoalScalarFieldEnum | StrategicGoalScalarFieldEnum[]
+  }
+
+  /**
+   * StrategicGoal findMany
+   */
+  export type StrategicGoalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategicGoals to fetch.
+     */
+    where?: StrategicGoalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategicGoals to fetch.
+     */
+    orderBy?: StrategicGoalOrderByWithRelationInput | StrategicGoalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StrategicGoals.
+     */
+    cursor?: StrategicGoalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategicGoals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategicGoals.
+     */
+    skip?: number
+    distinct?: StrategicGoalScalarFieldEnum | StrategicGoalScalarFieldEnum[]
+  }
+
+  /**
+   * StrategicGoal create
+   */
+  export type StrategicGoalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StrategicGoal.
+     */
+    data: XOR<StrategicGoalCreateInput, StrategicGoalUncheckedCreateInput>
+  }
+
+  /**
+   * StrategicGoal createMany
+   */
+  export type StrategicGoalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StrategicGoals.
+     */
+    data: StrategicGoalCreateManyInput | StrategicGoalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StrategicGoal createManyAndReturn
+   */
+  export type StrategicGoalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many StrategicGoals.
+     */
+    data: StrategicGoalCreateManyInput | StrategicGoalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StrategicGoal update
+   */
+  export type StrategicGoalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StrategicGoal.
+     */
+    data: XOR<StrategicGoalUpdateInput, StrategicGoalUncheckedUpdateInput>
+    /**
+     * Choose, which StrategicGoal to update.
+     */
+    where: StrategicGoalWhereUniqueInput
+  }
+
+  /**
+   * StrategicGoal updateMany
+   */
+  export type StrategicGoalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StrategicGoals.
+     */
+    data: XOR<StrategicGoalUpdateManyMutationInput, StrategicGoalUncheckedUpdateManyInput>
+    /**
+     * Filter which StrategicGoals to update
+     */
+    where?: StrategicGoalWhereInput
+  }
+
+  /**
+   * StrategicGoal upsert
+   */
+  export type StrategicGoalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StrategicGoal to update in case it exists.
+     */
+    where: StrategicGoalWhereUniqueInput
+    /**
+     * In case the StrategicGoal found by the `where` argument doesn't exist, create a new StrategicGoal with this data.
+     */
+    create: XOR<StrategicGoalCreateInput, StrategicGoalUncheckedCreateInput>
+    /**
+     * In case the StrategicGoal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StrategicGoalUpdateInput, StrategicGoalUncheckedUpdateInput>
+  }
+
+  /**
+   * StrategicGoal delete
+   */
+  export type StrategicGoalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    /**
+     * Filter which StrategicGoal to delete.
+     */
+    where: StrategicGoalWhereUniqueInput
+  }
+
+  /**
+   * StrategicGoal deleteMany
+   */
+  export type StrategicGoalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StrategicGoals to delete
+     */
+    where?: StrategicGoalWhereInput
+  }
+
+  /**
+   * StrategicGoal.budgetItems
+   */
+  export type StrategicGoal$budgetItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BudgetItem
+     */
+    select?: BudgetItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BudgetItemInclude<ExtArgs> | null
+    where?: BudgetItemWhereInput
+    orderBy?: BudgetItemOrderByWithRelationInput | BudgetItemOrderByWithRelationInput[]
+    cursor?: BudgetItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BudgetItemScalarFieldEnum | BudgetItemScalarFieldEnum[]
+  }
+
+  /**
+   * StrategicGoal without action
+   */
+  export type StrategicGoalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model BudgetItem
    */
 
@@ -12650,11 +14037,18 @@ export namespace Prisma {
     id: string | null
     eventId: string | null
     category: $Enums.BudgetItemCategory | null
+    subcategory: string | null
     description: string | null
     vendor: string | null
     vendorId: string | null
     estimatedCost: Decimal | null
     actualCost: Decimal | null
+    status: $Enums.BudgetItemStatus | null
+    notes: string | null
+    assignedUserId: string | null
+    strategicGoalId: string | null
+    lastEditedBy: string | null
+    lastEditedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12663,11 +14057,18 @@ export namespace Prisma {
     id: string | null
     eventId: string | null
     category: $Enums.BudgetItemCategory | null
+    subcategory: string | null
     description: string | null
     vendor: string | null
     vendorId: string | null
     estimatedCost: Decimal | null
     actualCost: Decimal | null
+    status: $Enums.BudgetItemStatus | null
+    notes: string | null
+    assignedUserId: string | null
+    strategicGoalId: string | null
+    lastEditedBy: string | null
+    lastEditedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12676,11 +14077,18 @@ export namespace Prisma {
     id: number
     eventId: number
     category: number
+    subcategory: number
     description: number
     vendor: number
     vendorId: number
     estimatedCost: number
     actualCost: number
+    status: number
+    notes: number
+    assignedUserId: number
+    strategicGoalId: number
+    lastEditedBy: number
+    lastEditedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -12701,11 +14109,18 @@ export namespace Prisma {
     id?: true
     eventId?: true
     category?: true
+    subcategory?: true
     description?: true
     vendor?: true
     vendorId?: true
     estimatedCost?: true
     actualCost?: true
+    status?: true
+    notes?: true
+    assignedUserId?: true
+    strategicGoalId?: true
+    lastEditedBy?: true
+    lastEditedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12714,11 +14129,18 @@ export namespace Prisma {
     id?: true
     eventId?: true
     category?: true
+    subcategory?: true
     description?: true
     vendor?: true
     vendorId?: true
     estimatedCost?: true
     actualCost?: true
+    status?: true
+    notes?: true
+    assignedUserId?: true
+    strategicGoalId?: true
+    lastEditedBy?: true
+    lastEditedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12727,11 +14149,18 @@ export namespace Prisma {
     id?: true
     eventId?: true
     category?: true
+    subcategory?: true
     description?: true
     vendor?: true
     vendorId?: true
     estimatedCost?: true
     actualCost?: true
+    status?: true
+    notes?: true
+    assignedUserId?: true
+    strategicGoalId?: true
+    lastEditedBy?: true
+    lastEditedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -12827,11 +14256,18 @@ export namespace Prisma {
     id: string
     eventId: string
     category: $Enums.BudgetItemCategory
+    subcategory: string | null
     description: string
     vendor: string | null
     vendorId: string | null
     estimatedCost: Decimal | null
     actualCost: Decimal | null
+    status: $Enums.BudgetItemStatus
+    notes: string | null
+    assignedUserId: string | null
+    strategicGoalId: string | null
+    lastEditedBy: string | null
+    lastEditedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: BudgetItemCountAggregateOutputType | null
@@ -12859,15 +14295,24 @@ export namespace Prisma {
     id?: boolean
     eventId?: boolean
     category?: boolean
+    subcategory?: boolean
     description?: boolean
     vendor?: boolean
     vendorId?: boolean
     estimatedCost?: boolean
     actualCost?: boolean
+    status?: boolean
+    notes?: boolean
+    assignedUserId?: boolean
+    strategicGoalId?: boolean
+    lastEditedBy?: boolean
+    lastEditedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     event?: boolean | EventDefaultArgs<ExtArgs>
     vendorLink?: boolean | BudgetItem$vendorLinkArgs<ExtArgs>
+    assignedUser?: boolean | BudgetItem$assignedUserArgs<ExtArgs>
+    strategicGoal?: boolean | BudgetItem$strategicGoalArgs<ExtArgs>
     files?: boolean | BudgetItem$filesArgs<ExtArgs>
     _count?: boolean | BudgetItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["budgetItem"]>
@@ -12876,26 +14321,42 @@ export namespace Prisma {
     id?: boolean
     eventId?: boolean
     category?: boolean
+    subcategory?: boolean
     description?: boolean
     vendor?: boolean
     vendorId?: boolean
     estimatedCost?: boolean
     actualCost?: boolean
+    status?: boolean
+    notes?: boolean
+    assignedUserId?: boolean
+    strategicGoalId?: boolean
+    lastEditedBy?: boolean
+    lastEditedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     event?: boolean | EventDefaultArgs<ExtArgs>
     vendorLink?: boolean | BudgetItem$vendorLinkArgs<ExtArgs>
+    assignedUser?: boolean | BudgetItem$assignedUserArgs<ExtArgs>
+    strategicGoal?: boolean | BudgetItem$strategicGoalArgs<ExtArgs>
   }, ExtArgs["result"]["budgetItem"]>
 
   export type BudgetItemSelectScalar = {
     id?: boolean
     eventId?: boolean
     category?: boolean
+    subcategory?: boolean
     description?: boolean
     vendor?: boolean
     vendorId?: boolean
     estimatedCost?: boolean
     actualCost?: boolean
+    status?: boolean
+    notes?: boolean
+    assignedUserId?: boolean
+    strategicGoalId?: boolean
+    lastEditedBy?: boolean
+    lastEditedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
@@ -12903,12 +14364,16 @@ export namespace Prisma {
   export type BudgetItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     event?: boolean | EventDefaultArgs<ExtArgs>
     vendorLink?: boolean | BudgetItem$vendorLinkArgs<ExtArgs>
+    assignedUser?: boolean | BudgetItem$assignedUserArgs<ExtArgs>
+    strategicGoal?: boolean | BudgetItem$strategicGoalArgs<ExtArgs>
     files?: boolean | BudgetItem$filesArgs<ExtArgs>
     _count?: boolean | BudgetItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BudgetItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     event?: boolean | EventDefaultArgs<ExtArgs>
     vendorLink?: boolean | BudgetItem$vendorLinkArgs<ExtArgs>
+    assignedUser?: boolean | BudgetItem$assignedUserArgs<ExtArgs>
+    strategicGoal?: boolean | BudgetItem$strategicGoalArgs<ExtArgs>
   }
 
   export type $BudgetItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12916,17 +14381,26 @@ export namespace Prisma {
     objects: {
       event: Prisma.$EventPayload<ExtArgs>
       vendorLink: Prisma.$VendorPayload<ExtArgs> | null
+      assignedUser: Prisma.$UserPayload<ExtArgs> | null
+      strategicGoal: Prisma.$StrategicGoalPayload<ExtArgs> | null
       files: Prisma.$FilePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       eventId: string
       category: $Enums.BudgetItemCategory
+      subcategory: string | null
       description: string
       vendor: string | null
       vendorId: string | null
       estimatedCost: Prisma.Decimal | null
       actualCost: Prisma.Decimal | null
+      status: $Enums.BudgetItemStatus
+      notes: string | null
+      assignedUserId: string | null
+      strategicGoalId: string | null
+      lastEditedBy: string | null
+      lastEditedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["budgetItem"]>
@@ -13295,6 +14769,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     event<T extends EventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventDefaultArgs<ExtArgs>>): Prisma__EventClient<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     vendorLink<T extends BudgetItem$vendorLinkArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$vendorLinkArgs<ExtArgs>>): Prisma__VendorClient<$Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    assignedUser<T extends BudgetItem$assignedUserArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$assignedUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    strategicGoal<T extends BudgetItem$strategicGoalArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$strategicGoalArgs<ExtArgs>>): Prisma__StrategicGoalClient<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     files<T extends BudgetItem$filesArgs<ExtArgs> = {}>(args?: Subset<T, BudgetItem$filesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -13328,11 +14804,18 @@ export namespace Prisma {
     readonly id: FieldRef<"BudgetItem", 'String'>
     readonly eventId: FieldRef<"BudgetItem", 'String'>
     readonly category: FieldRef<"BudgetItem", 'BudgetItemCategory'>
+    readonly subcategory: FieldRef<"BudgetItem", 'String'>
     readonly description: FieldRef<"BudgetItem", 'String'>
     readonly vendor: FieldRef<"BudgetItem", 'String'>
     readonly vendorId: FieldRef<"BudgetItem", 'String'>
     readonly estimatedCost: FieldRef<"BudgetItem", 'Decimal'>
     readonly actualCost: FieldRef<"BudgetItem", 'Decimal'>
+    readonly status: FieldRef<"BudgetItem", 'BudgetItemStatus'>
+    readonly notes: FieldRef<"BudgetItem", 'String'>
+    readonly assignedUserId: FieldRef<"BudgetItem", 'String'>
+    readonly strategicGoalId: FieldRef<"BudgetItem", 'String'>
+    readonly lastEditedBy: FieldRef<"BudgetItem", 'String'>
+    readonly lastEditedAt: FieldRef<"BudgetItem", 'DateTime'>
     readonly createdAt: FieldRef<"BudgetItem", 'DateTime'>
     readonly updatedAt: FieldRef<"BudgetItem", 'DateTime'>
   }
@@ -13665,6 +15148,36 @@ export namespace Prisma {
      */
     include?: VendorInclude<ExtArgs> | null
     where?: VendorWhereInput
+  }
+
+  /**
+   * BudgetItem.assignedUser
+   */
+  export type BudgetItem$assignedUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * BudgetItem.strategicGoal
+   */
+  export type BudgetItem$strategicGoalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategicGoal
+     */
+    select?: StrategicGoalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategicGoalInclude<ExtArgs> | null
+    where?: StrategicGoalWhereInput
   }
 
   /**
@@ -23911,11 +25424,17 @@ export namespace Prisma {
     organizationId: 'organizationId',
     name: 'name',
     location: 'location',
+    venue: 'venue',
     startDate: 'startDate',
     endDate: 'endDate',
     eventType: 'eventType',
+    type: 'type',
     description: 'description',
     status: 'status',
+    attendees: 'attendees',
+    budget: 'budget',
+    organizer: 'organizer',
+    client: 'client',
     createdBy: 'createdBy',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -23976,15 +25495,40 @@ export namespace Prisma {
   export type VendorEventScalarFieldEnum = (typeof VendorEventScalarFieldEnum)[keyof typeof VendorEventScalarFieldEnum]
 
 
+  export const StrategicGoalScalarFieldEnum: {
+    id: 'id',
+    eventId: 'eventId',
+    title: 'title',
+    description: 'description',
+    targetValue: 'targetValue',
+    currentValue: 'currentValue',
+    unit: 'unit',
+    deadline: 'deadline',
+    status: 'status',
+    priority: 'priority',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type StrategicGoalScalarFieldEnum = (typeof StrategicGoalScalarFieldEnum)[keyof typeof StrategicGoalScalarFieldEnum]
+
+
   export const BudgetItemScalarFieldEnum: {
     id: 'id',
     eventId: 'eventId',
     category: 'category',
+    subcategory: 'subcategory',
     description: 'description',
     vendor: 'vendor',
     vendorId: 'vendorId',
     estimatedCost: 'estimatedCost',
     actualCost: 'actualCost',
+    status: 'status',
+    notes: 'notes',
+    assignedUserId: 'assignedUserId',
+    strategicGoalId: 'strategicGoalId',
+    lastEditedBy: 'lastEditedBy',
+    lastEditedAt: 'lastEditedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -24279,6 +25823,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -24307,16 +25879,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Decimal'
+   * Reference to a field of type 'BudgetItemStatus'
    */
-  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+  export type EnumBudgetItemStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetItemStatus'>
     
 
 
   /**
-   * Reference to a field of type 'Decimal[]'
+   * Reference to a field of type 'BudgetItemStatus[]'
    */
-  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+  export type ListEnumBudgetItemStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetItemStatus[]'>
     
 
 
@@ -24331,20 +25903,6 @@ export namespace Prisma {
    * Reference to a field of type 'ExpenseStatus[]'
    */
   export type ListEnumExpenseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExpenseStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -24465,6 +26023,7 @@ export namespace Prisma {
     notifications?: NotificationListRelationFilter
     reports?: ReportListRelationFilter
     events?: EventAssignmentListRelationFilter
+    assignedBudgetItems?: BudgetItemListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24486,6 +26045,7 @@ export namespace Prisma {
     notifications?: NotificationOrderByRelationAggregateInput
     reports?: ReportOrderByRelationAggregateInput
     events?: EventAssignmentOrderByRelationAggregateInput
+    assignedBudgetItems?: BudgetItemOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -24510,6 +26070,7 @@ export namespace Prisma {
     notifications?: NotificationListRelationFilter
     reports?: ReportListRelationFilter
     events?: EventAssignmentListRelationFilter
+    assignedBudgetItems?: BudgetItemListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -24696,11 +26257,17 @@ export namespace Prisma {
     organizationId?: StringNullableFilter<"Event"> | string | null
     name?: StringFilter<"Event"> | string
     location?: StringNullableFilter<"Event"> | string | null
+    venue?: StringNullableFilter<"Event"> | string | null
     startDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventType?: StringNullableFilter<"Event"> | string | null
+    type?: StringNullableFilter<"Event"> | string | null
     description?: StringNullableFilter<"Event"> | string | null
     status?: EnumEventStatusFilter<"Event"> | $Enums.EventStatus
+    attendees?: IntNullableFilter<"Event"> | number | null
+    budget?: DecimalNullableFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
+    organizer?: StringNullableFilter<"Event"> | string | null
+    client?: StringNullableFilter<"Event"> | string | null
     createdBy?: StringNullableFilter<"Event"> | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     updatedAt?: DateTimeFilter<"Event"> | Date | string
@@ -24718,6 +26285,7 @@ export namespace Prisma {
     crmSync?: XOR<CRMSyncNullableRelationFilter, CRMSyncWhereInput> | null
     reports?: ReportListRelationFilter
     aiBudgetSuggestions?: AiBudgetSuggestionListRelationFilter
+    strategicGoals?: StrategicGoalListRelationFilter
   }
 
   export type EventOrderByWithRelationInput = {
@@ -24725,11 +26293,17 @@ export namespace Prisma {
     organizationId?: SortOrderInput | SortOrder
     name?: SortOrder
     location?: SortOrderInput | SortOrder
+    venue?: SortOrderInput | SortOrder
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     eventType?: SortOrderInput | SortOrder
+    type?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     status?: SortOrder
+    attendees?: SortOrderInput | SortOrder
+    budget?: SortOrderInput | SortOrder
+    organizer?: SortOrderInput | SortOrder
+    client?: SortOrderInput | SortOrder
     createdBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24747,6 +26321,7 @@ export namespace Prisma {
     crmSync?: CRMSyncOrderByWithRelationInput
     reports?: ReportOrderByRelationAggregateInput
     aiBudgetSuggestions?: AiBudgetSuggestionOrderByRelationAggregateInput
+    strategicGoals?: StrategicGoalOrderByRelationAggregateInput
   }
 
   export type EventWhereUniqueInput = Prisma.AtLeast<{
@@ -24757,11 +26332,17 @@ export namespace Prisma {
     organizationId?: StringNullableFilter<"Event"> | string | null
     name?: StringFilter<"Event"> | string
     location?: StringNullableFilter<"Event"> | string | null
+    venue?: StringNullableFilter<"Event"> | string | null
     startDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventType?: StringNullableFilter<"Event"> | string | null
+    type?: StringNullableFilter<"Event"> | string | null
     description?: StringNullableFilter<"Event"> | string | null
     status?: EnumEventStatusFilter<"Event"> | $Enums.EventStatus
+    attendees?: IntNullableFilter<"Event"> | number | null
+    budget?: DecimalNullableFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
+    organizer?: StringNullableFilter<"Event"> | string | null
+    client?: StringNullableFilter<"Event"> | string | null
     createdBy?: StringNullableFilter<"Event"> | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     updatedAt?: DateTimeFilter<"Event"> | Date | string
@@ -24779,6 +26360,7 @@ export namespace Prisma {
     crmSync?: XOR<CRMSyncNullableRelationFilter, CRMSyncWhereInput> | null
     reports?: ReportListRelationFilter
     aiBudgetSuggestions?: AiBudgetSuggestionListRelationFilter
+    strategicGoals?: StrategicGoalListRelationFilter
   }, "id">
 
   export type EventOrderByWithAggregationInput = {
@@ -24786,17 +26368,25 @@ export namespace Prisma {
     organizationId?: SortOrderInput | SortOrder
     name?: SortOrder
     location?: SortOrderInput | SortOrder
+    venue?: SortOrderInput | SortOrder
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     eventType?: SortOrderInput | SortOrder
+    type?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     status?: SortOrder
+    attendees?: SortOrderInput | SortOrder
+    budget?: SortOrderInput | SortOrder
+    organizer?: SortOrderInput | SortOrder
+    client?: SortOrderInput | SortOrder
     createdBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: EventCountOrderByAggregateInput
+    _avg?: EventAvgOrderByAggregateInput
     _max?: EventMaxOrderByAggregateInput
     _min?: EventMinOrderByAggregateInput
+    _sum?: EventSumOrderByAggregateInput
   }
 
   export type EventScalarWhereWithAggregatesInput = {
@@ -24807,11 +26397,17 @@ export namespace Prisma {
     organizationId?: StringNullableWithAggregatesFilter<"Event"> | string | null
     name?: StringWithAggregatesFilter<"Event"> | string
     location?: StringNullableWithAggregatesFilter<"Event"> | string | null
+    venue?: StringNullableWithAggregatesFilter<"Event"> | string | null
     startDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     eventType?: StringNullableWithAggregatesFilter<"Event"> | string | null
+    type?: StringNullableWithAggregatesFilter<"Event"> | string | null
     description?: StringNullableWithAggregatesFilter<"Event"> | string | null
     status?: EnumEventStatusWithAggregatesFilter<"Event"> | $Enums.EventStatus
+    attendees?: IntNullableWithAggregatesFilter<"Event"> | number | null
+    budget?: DecimalNullableWithAggregatesFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
+    organizer?: StringNullableWithAggregatesFilter<"Event"> | string | null
+    client?: StringNullableWithAggregatesFilter<"Event"> | string | null
     createdBy?: StringNullableWithAggregatesFilter<"Event"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
@@ -25096,6 +26692,101 @@ export namespace Prisma {
     assignedAt?: DateTimeWithAggregatesFilter<"VendorEvent"> | Date | string
   }
 
+  export type StrategicGoalWhereInput = {
+    AND?: StrategicGoalWhereInput | StrategicGoalWhereInput[]
+    OR?: StrategicGoalWhereInput[]
+    NOT?: StrategicGoalWhereInput | StrategicGoalWhereInput[]
+    id?: StringFilter<"StrategicGoal"> | string
+    eventId?: StringFilter<"StrategicGoal"> | string
+    title?: StringFilter<"StrategicGoal"> | string
+    description?: StringNullableFilter<"StrategicGoal"> | string | null
+    targetValue?: FloatNullableFilter<"StrategicGoal"> | number | null
+    currentValue?: FloatNullableFilter<"StrategicGoal"> | number | null
+    unit?: StringNullableFilter<"StrategicGoal"> | string | null
+    deadline?: DateTimeNullableFilter<"StrategicGoal"> | Date | string | null
+    status?: StringFilter<"StrategicGoal"> | string
+    priority?: StringFilter<"StrategicGoal"> | string
+    createdAt?: DateTimeFilter<"StrategicGoal"> | Date | string
+    updatedAt?: DateTimeFilter<"StrategicGoal"> | Date | string
+    event?: XOR<EventRelationFilter, EventWhereInput>
+    budgetItems?: BudgetItemListRelationFilter
+  }
+
+  export type StrategicGoalOrderByWithRelationInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    targetValue?: SortOrderInput | SortOrder
+    currentValue?: SortOrderInput | SortOrder
+    unit?: SortOrderInput | SortOrder
+    deadline?: SortOrderInput | SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    event?: EventOrderByWithRelationInput
+    budgetItems?: BudgetItemOrderByRelationAggregateInput
+  }
+
+  export type StrategicGoalWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: StrategicGoalWhereInput | StrategicGoalWhereInput[]
+    OR?: StrategicGoalWhereInput[]
+    NOT?: StrategicGoalWhereInput | StrategicGoalWhereInput[]
+    eventId?: StringFilter<"StrategicGoal"> | string
+    title?: StringFilter<"StrategicGoal"> | string
+    description?: StringNullableFilter<"StrategicGoal"> | string | null
+    targetValue?: FloatNullableFilter<"StrategicGoal"> | number | null
+    currentValue?: FloatNullableFilter<"StrategicGoal"> | number | null
+    unit?: StringNullableFilter<"StrategicGoal"> | string | null
+    deadline?: DateTimeNullableFilter<"StrategicGoal"> | Date | string | null
+    status?: StringFilter<"StrategicGoal"> | string
+    priority?: StringFilter<"StrategicGoal"> | string
+    createdAt?: DateTimeFilter<"StrategicGoal"> | Date | string
+    updatedAt?: DateTimeFilter<"StrategicGoal"> | Date | string
+    event?: XOR<EventRelationFilter, EventWhereInput>
+    budgetItems?: BudgetItemListRelationFilter
+  }, "id">
+
+  export type StrategicGoalOrderByWithAggregationInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    targetValue?: SortOrderInput | SortOrder
+    currentValue?: SortOrderInput | SortOrder
+    unit?: SortOrderInput | SortOrder
+    deadline?: SortOrderInput | SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: StrategicGoalCountOrderByAggregateInput
+    _avg?: StrategicGoalAvgOrderByAggregateInput
+    _max?: StrategicGoalMaxOrderByAggregateInput
+    _min?: StrategicGoalMinOrderByAggregateInput
+    _sum?: StrategicGoalSumOrderByAggregateInput
+  }
+
+  export type StrategicGoalScalarWhereWithAggregatesInput = {
+    AND?: StrategicGoalScalarWhereWithAggregatesInput | StrategicGoalScalarWhereWithAggregatesInput[]
+    OR?: StrategicGoalScalarWhereWithAggregatesInput[]
+    NOT?: StrategicGoalScalarWhereWithAggregatesInput | StrategicGoalScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"StrategicGoal"> | string
+    eventId?: StringWithAggregatesFilter<"StrategicGoal"> | string
+    title?: StringWithAggregatesFilter<"StrategicGoal"> | string
+    description?: StringNullableWithAggregatesFilter<"StrategicGoal"> | string | null
+    targetValue?: FloatNullableWithAggregatesFilter<"StrategicGoal"> | number | null
+    currentValue?: FloatNullableWithAggregatesFilter<"StrategicGoal"> | number | null
+    unit?: StringNullableWithAggregatesFilter<"StrategicGoal"> | string | null
+    deadline?: DateTimeNullableWithAggregatesFilter<"StrategicGoal"> | Date | string | null
+    status?: StringWithAggregatesFilter<"StrategicGoal"> | string
+    priority?: StringWithAggregatesFilter<"StrategicGoal"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"StrategicGoal"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"StrategicGoal"> | Date | string
+  }
+
   export type BudgetItemWhereInput = {
     AND?: BudgetItemWhereInput | BudgetItemWhereInput[]
     OR?: BudgetItemWhereInput[]
@@ -25103,15 +26794,24 @@ export namespace Prisma {
     id?: StringFilter<"BudgetItem"> | string
     eventId?: StringFilter<"BudgetItem"> | string
     category?: EnumBudgetItemCategoryFilter<"BudgetItem"> | $Enums.BudgetItemCategory
+    subcategory?: StringNullableFilter<"BudgetItem"> | string | null
     description?: StringFilter<"BudgetItem"> | string
     vendor?: StringNullableFilter<"BudgetItem"> | string | null
     vendorId?: StringNullableFilter<"BudgetItem"> | string | null
     estimatedCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
     actualCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFilter<"BudgetItem"> | $Enums.BudgetItemStatus
+    notes?: StringNullableFilter<"BudgetItem"> | string | null
+    assignedUserId?: StringNullableFilter<"BudgetItem"> | string | null
+    strategicGoalId?: StringNullableFilter<"BudgetItem"> | string | null
+    lastEditedBy?: StringNullableFilter<"BudgetItem"> | string | null
+    lastEditedAt?: DateTimeNullableFilter<"BudgetItem"> | Date | string | null
     createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
     updatedAt?: DateTimeFilter<"BudgetItem"> | Date | string
     event?: XOR<EventRelationFilter, EventWhereInput>
     vendorLink?: XOR<VendorNullableRelationFilter, VendorWhereInput> | null
+    assignedUser?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    strategicGoal?: XOR<StrategicGoalNullableRelationFilter, StrategicGoalWhereInput> | null
     files?: FileListRelationFilter
   }
 
@@ -25119,15 +26819,24 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     category?: SortOrder
+    subcategory?: SortOrderInput | SortOrder
     description?: SortOrder
     vendor?: SortOrderInput | SortOrder
     vendorId?: SortOrderInput | SortOrder
     estimatedCost?: SortOrderInput | SortOrder
     actualCost?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    assignedUserId?: SortOrderInput | SortOrder
+    strategicGoalId?: SortOrderInput | SortOrder
+    lastEditedBy?: SortOrderInput | SortOrder
+    lastEditedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     event?: EventOrderByWithRelationInput
     vendorLink?: VendorOrderByWithRelationInput
+    assignedUser?: UserOrderByWithRelationInput
+    strategicGoal?: StrategicGoalOrderByWithRelationInput
     files?: FileOrderByRelationAggregateInput
   }
 
@@ -25138,15 +26847,24 @@ export namespace Prisma {
     NOT?: BudgetItemWhereInput | BudgetItemWhereInput[]
     eventId?: StringFilter<"BudgetItem"> | string
     category?: EnumBudgetItemCategoryFilter<"BudgetItem"> | $Enums.BudgetItemCategory
+    subcategory?: StringNullableFilter<"BudgetItem"> | string | null
     description?: StringFilter<"BudgetItem"> | string
     vendor?: StringNullableFilter<"BudgetItem"> | string | null
     vendorId?: StringNullableFilter<"BudgetItem"> | string | null
     estimatedCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
     actualCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFilter<"BudgetItem"> | $Enums.BudgetItemStatus
+    notes?: StringNullableFilter<"BudgetItem"> | string | null
+    assignedUserId?: StringNullableFilter<"BudgetItem"> | string | null
+    strategicGoalId?: StringNullableFilter<"BudgetItem"> | string | null
+    lastEditedBy?: StringNullableFilter<"BudgetItem"> | string | null
+    lastEditedAt?: DateTimeNullableFilter<"BudgetItem"> | Date | string | null
     createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
     updatedAt?: DateTimeFilter<"BudgetItem"> | Date | string
     event?: XOR<EventRelationFilter, EventWhereInput>
     vendorLink?: XOR<VendorNullableRelationFilter, VendorWhereInput> | null
+    assignedUser?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    strategicGoal?: XOR<StrategicGoalNullableRelationFilter, StrategicGoalWhereInput> | null
     files?: FileListRelationFilter
   }, "id">
 
@@ -25154,11 +26872,18 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     category?: SortOrder
+    subcategory?: SortOrderInput | SortOrder
     description?: SortOrder
     vendor?: SortOrderInput | SortOrder
     vendorId?: SortOrderInput | SortOrder
     estimatedCost?: SortOrderInput | SortOrder
     actualCost?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    assignedUserId?: SortOrderInput | SortOrder
+    strategicGoalId?: SortOrderInput | SortOrder
+    lastEditedBy?: SortOrderInput | SortOrder
+    lastEditedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: BudgetItemCountOrderByAggregateInput
@@ -25175,11 +26900,18 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"BudgetItem"> | string
     eventId?: StringWithAggregatesFilter<"BudgetItem"> | string
     category?: EnumBudgetItemCategoryWithAggregatesFilter<"BudgetItem"> | $Enums.BudgetItemCategory
+    subcategory?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
     description?: StringWithAggregatesFilter<"BudgetItem"> | string
     vendor?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
     vendorId?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
     estimatedCost?: DecimalNullableWithAggregatesFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
     actualCost?: DecimalNullableWithAggregatesFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusWithAggregatesFilter<"BudgetItem"> | $Enums.BudgetItemStatus
+    notes?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
+    assignedUserId?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
+    strategicGoalId?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
+    lastEditedBy?: StringNullableWithAggregatesFilter<"BudgetItem"> | string | null
+    lastEditedAt?: DateTimeNullableWithAggregatesFilter<"BudgetItem"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BudgetItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BudgetItem"> | Date | string
   }
@@ -26047,6 +27779,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -26067,6 +27800,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUpdateInput = {
@@ -26087,6 +27821,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -26107,6 +27842,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -26303,11 +28039,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -26324,6 +28066,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateInput = {
@@ -26331,11 +28074,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26351,17 +28100,24 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -26378,6 +28134,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateInput = {
@@ -26385,11 +28142,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26405,6 +28168,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventCreateManyInput = {
@@ -26412,11 +28176,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26426,11 +28196,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26440,11 +28216,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26736,17 +28518,132 @@ export namespace Prisma {
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type StrategicGoalCreateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    event: EventCreateNestedOneWithoutStrategicGoalsInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutStrategicGoalInput
+  }
+
+  export type StrategicGoalUncheckedCreateInput = {
+    id?: string
+    eventId: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutStrategicGoalInput
+  }
+
+  export type StrategicGoalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneRequiredWithoutStrategicGoalsNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutStrategicGoalNestedInput
+  }
+
+  export type StrategicGoalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutStrategicGoalNestedInput
+  }
+
+  export type StrategicGoalCreateManyInput = {
+    id?: string
+    eventId: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StrategicGoalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StrategicGoalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type BudgetItemCreateInput = {
     id?: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     event: EventCreateNestedOneWithoutBudgetItemsInput
     vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
+    strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
   }
 
@@ -26754,11 +28651,18 @@ export namespace Prisma {
     id?: string
     eventId: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     vendorId?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
@@ -26767,14 +28671,21 @@ export namespace Prisma {
   export type BudgetItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneRequiredWithoutBudgetItemsNestedInput
     vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
+    strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
   }
 
@@ -26782,11 +28693,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
@@ -26796,11 +28714,18 @@ export namespace Prisma {
     id?: string
     eventId: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     vendorId?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26808,10 +28733,15 @@ export namespace Prisma {
   export type BudgetItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26820,11 +28750,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27835,6 +29772,12 @@ export namespace Prisma {
     none?: EventAssignmentWhereInput
   }
 
+  export type BudgetItemListRelationFilter = {
+    every?: BudgetItemWhereInput
+    some?: BudgetItemWhereInput
+    none?: BudgetItemWhereInput
+  }
+
   export type SubscriptionHistoryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -27848,6 +29791,10 @@ export namespace Prisma {
   }
 
   export type EventAssignmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BudgetItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28090,16 +30037,32 @@ export namespace Prisma {
     not?: NestedEnumEventStatusFilter<$PrismaModel> | $Enums.EventStatus
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
   export type EventStakeholderListRelationFilter = {
     every?: EventStakeholderWhereInput
     some?: EventStakeholderWhereInput
     none?: EventStakeholderWhereInput
-  }
-
-  export type BudgetItemListRelationFilter = {
-    every?: BudgetItemWhereInput
-    some?: BudgetItemWhereInput
-    none?: BudgetItemWhereInput
   }
 
   export type VendorEventListRelationFilter = {
@@ -28136,11 +30099,13 @@ export namespace Prisma {
     none?: AiBudgetSuggestionWhereInput
   }
 
-  export type EventStakeholderOrderByRelationAggregateInput = {
-    _count?: SortOrder
+  export type StrategicGoalListRelationFilter = {
+    every?: StrategicGoalWhereInput
+    some?: StrategicGoalWhereInput
+    none?: StrategicGoalWhereInput
   }
 
-  export type BudgetItemOrderByRelationAggregateInput = {
+  export type EventStakeholderOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28160,19 +30125,34 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type StrategicGoalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type EventCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
     name?: SortOrder
     location?: SortOrder
+    venue?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     eventType?: SortOrder
+    type?: SortOrder
     description?: SortOrder
     status?: SortOrder
+    attendees?: SortOrder
+    budget?: SortOrder
+    organizer?: SortOrder
+    client?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EventAvgOrderByAggregateInput = {
+    attendees?: SortOrder
+    budget?: SortOrder
   }
 
   export type EventMaxOrderByAggregateInput = {
@@ -28180,11 +30160,17 @@ export namespace Prisma {
     organizationId?: SortOrder
     name?: SortOrder
     location?: SortOrder
+    venue?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     eventType?: SortOrder
+    type?: SortOrder
     description?: SortOrder
     status?: SortOrder
+    attendees?: SortOrder
+    budget?: SortOrder
+    organizer?: SortOrder
+    client?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28195,14 +30181,25 @@ export namespace Prisma {
     organizationId?: SortOrder
     name?: SortOrder
     location?: SortOrder
+    venue?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     eventType?: SortOrder
+    type?: SortOrder
     description?: SortOrder
     status?: SortOrder
+    attendees?: SortOrder
+    budget?: SortOrder
+    organizer?: SortOrder
+    client?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EventSumOrderByAggregateInput = {
+    attendees?: SortOrder
+    budget?: SortOrder
   }
 
   export type EnumEventStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -28213,6 +30210,38 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEventStatusFilter<$PrismaModel>
     _max?: NestedEnumEventStatusFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
   export type UserRelationFilter = {
@@ -28395,6 +30424,61 @@ export namespace Prisma {
     assignedAt?: SortOrder
   }
 
+  export type StrategicGoalCountOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    targetValue?: SortOrder
+    currentValue?: SortOrder
+    unit?: SortOrder
+    deadline?: SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StrategicGoalAvgOrderByAggregateInput = {
+    targetValue?: SortOrder
+    currentValue?: SortOrder
+  }
+
+  export type StrategicGoalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    targetValue?: SortOrder
+    currentValue?: SortOrder
+    unit?: SortOrder
+    deadline?: SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StrategicGoalMinOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    targetValue?: SortOrder
+    currentValue?: SortOrder
+    unit?: SortOrder
+    deadline?: SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StrategicGoalSumOrderByAggregateInput = {
+    targetValue?: SortOrder
+    currentValue?: SortOrder
+  }
+
   export type EnumBudgetItemCategoryFilter<$PrismaModel = never> = {
     equals?: $Enums.BudgetItemCategory | EnumBudgetItemCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.BudgetItemCategory[] | ListEnumBudgetItemCategoryFieldRefInput<$PrismaModel>
@@ -28402,15 +30486,11 @@ export namespace Prisma {
     not?: NestedEnumBudgetItemCategoryFilter<$PrismaModel> | $Enums.BudgetItemCategory
   }
 
-  export type DecimalNullableFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  export type EnumBudgetItemStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemStatus | EnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBudgetItemStatusFilter<$PrismaModel> | $Enums.BudgetItemStatus
   }
 
   export type VendorNullableRelationFilter = {
@@ -28418,15 +30498,27 @@ export namespace Prisma {
     isNot?: VendorWhereInput | null
   }
 
+  export type StrategicGoalNullableRelationFilter = {
+    is?: StrategicGoalWhereInput | null
+    isNot?: StrategicGoalWhereInput | null
+  }
+
   export type BudgetItemCountOrderByAggregateInput = {
     id?: SortOrder
     eventId?: SortOrder
     category?: SortOrder
+    subcategory?: SortOrder
     description?: SortOrder
     vendor?: SortOrder
     vendorId?: SortOrder
     estimatedCost?: SortOrder
     actualCost?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    assignedUserId?: SortOrder
+    strategicGoalId?: SortOrder
+    lastEditedBy?: SortOrder
+    lastEditedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28440,11 +30532,18 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     category?: SortOrder
+    subcategory?: SortOrder
     description?: SortOrder
     vendor?: SortOrder
     vendorId?: SortOrder
     estimatedCost?: SortOrder
     actualCost?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    assignedUserId?: SortOrder
+    strategicGoalId?: SortOrder
+    lastEditedBy?: SortOrder
+    lastEditedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28453,11 +30552,18 @@ export namespace Prisma {
     id?: SortOrder
     eventId?: SortOrder
     category?: SortOrder
+    subcategory?: SortOrder
     description?: SortOrder
     vendor?: SortOrder
     vendorId?: SortOrder
     estimatedCost?: SortOrder
     actualCost?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    assignedUserId?: SortOrder
+    strategicGoalId?: SortOrder
+    lastEditedBy?: SortOrder
+    lastEditedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28477,20 +30583,14 @@ export namespace Prisma {
     _max?: NestedEnumBudgetItemCategoryFilter<$PrismaModel>
   }
 
-  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedDecimalNullableFilter<$PrismaModel>
-    _sum?: NestedDecimalNullableFilter<$PrismaModel>
-    _min?: NestedDecimalNullableFilter<$PrismaModel>
-    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  export type EnumBudgetItemStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemStatus | EnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBudgetItemStatusWithAggregatesFilter<$PrismaModel> | $Enums.BudgetItemStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBudgetItemStatusFilter<$PrismaModel>
+    _max?: NestedEnumBudgetItemStatusFilter<$PrismaModel>
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -28647,17 +30747,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type ROIMetricsCountOrderByAggregateInput = {
     id?: SortOrder
     eventId?: SortOrder
@@ -28713,22 +30802,6 @@ export namespace Prisma {
     conversions?: SortOrder
     revenueGenerated?: SortOrder
     roiPercent?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type CRMSyncCountOrderByAggregateInput = {
@@ -29368,6 +31441,13 @@ export namespace Prisma {
     connect?: EventAssignmentWhereUniqueInput | EventAssignmentWhereUniqueInput[]
   }
 
+  export type BudgetItemCreateNestedManyWithoutAssignedUserInput = {
+    create?: XOR<BudgetItemCreateWithoutAssignedUserInput, BudgetItemUncheckedCreateWithoutAssignedUserInput> | BudgetItemCreateWithoutAssignedUserInput[] | BudgetItemUncheckedCreateWithoutAssignedUserInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutAssignedUserInput | BudgetItemCreateOrConnectWithoutAssignedUserInput[]
+    createMany?: BudgetItemCreateManyAssignedUserInputEnvelope
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+  }
+
   export type EventUncheckedCreateNestedManyWithoutCreatorInput = {
     create?: XOR<EventCreateWithoutCreatorInput, EventUncheckedCreateWithoutCreatorInput> | EventCreateWithoutCreatorInput[] | EventUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: EventCreateOrConnectWithoutCreatorInput | EventCreateOrConnectWithoutCreatorInput[]
@@ -29422,6 +31502,13 @@ export namespace Prisma {
     connectOrCreate?: EventAssignmentCreateOrConnectWithoutUserInput | EventAssignmentCreateOrConnectWithoutUserInput[]
     createMany?: EventAssignmentCreateManyUserInputEnvelope
     connect?: EventAssignmentWhereUniqueInput | EventAssignmentWhereUniqueInput[]
+  }
+
+  export type BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput = {
+    create?: XOR<BudgetItemCreateWithoutAssignedUserInput, BudgetItemUncheckedCreateWithoutAssignedUserInput> | BudgetItemCreateWithoutAssignedUserInput[] | BudgetItemUncheckedCreateWithoutAssignedUserInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutAssignedUserInput | BudgetItemCreateOrConnectWithoutAssignedUserInput[]
+    createMany?: BudgetItemCreateManyAssignedUserInputEnvelope
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
   }
 
   export type EnumUserRoleFieldUpdateOperationsInput = {
@@ -29554,6 +31641,20 @@ export namespace Prisma {
     deleteMany?: EventAssignmentScalarWhereInput | EventAssignmentScalarWhereInput[]
   }
 
+  export type BudgetItemUpdateManyWithoutAssignedUserNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutAssignedUserInput, BudgetItemUncheckedCreateWithoutAssignedUserInput> | BudgetItemCreateWithoutAssignedUserInput[] | BudgetItemUncheckedCreateWithoutAssignedUserInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutAssignedUserInput | BudgetItemCreateOrConnectWithoutAssignedUserInput[]
+    upsert?: BudgetItemUpsertWithWhereUniqueWithoutAssignedUserInput | BudgetItemUpsertWithWhereUniqueWithoutAssignedUserInput[]
+    createMany?: BudgetItemCreateManyAssignedUserInputEnvelope
+    set?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    disconnect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    delete?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    update?: BudgetItemUpdateWithWhereUniqueWithoutAssignedUserInput | BudgetItemUpdateWithWhereUniqueWithoutAssignedUserInput[]
+    updateMany?: BudgetItemUpdateManyWithWhereWithoutAssignedUserInput | BudgetItemUpdateManyWithWhereWithoutAssignedUserInput[]
+    deleteMany?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
+  }
+
   export type EventUncheckedUpdateManyWithoutCreatorNestedInput = {
     create?: XOR<EventCreateWithoutCreatorInput, EventUncheckedCreateWithoutCreatorInput> | EventCreateWithoutCreatorInput[] | EventUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: EventCreateOrConnectWithoutCreatorInput | EventCreateOrConnectWithoutCreatorInput[]
@@ -29664,6 +31765,20 @@ export namespace Prisma {
     update?: EventAssignmentUpdateWithWhereUniqueWithoutUserInput | EventAssignmentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: EventAssignmentUpdateManyWithWhereWithoutUserInput | EventAssignmentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: EventAssignmentScalarWhereInput | EventAssignmentScalarWhereInput[]
+  }
+
+  export type BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutAssignedUserInput, BudgetItemUncheckedCreateWithoutAssignedUserInput> | BudgetItemCreateWithoutAssignedUserInput[] | BudgetItemUncheckedCreateWithoutAssignedUserInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutAssignedUserInput | BudgetItemCreateOrConnectWithoutAssignedUserInput[]
+    upsert?: BudgetItemUpsertWithWhereUniqueWithoutAssignedUserInput | BudgetItemUpsertWithWhereUniqueWithoutAssignedUserInput[]
+    createMany?: BudgetItemCreateManyAssignedUserInputEnvelope
+    set?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    disconnect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    delete?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    update?: BudgetItemUpdateWithWhereUniqueWithoutAssignedUserInput | BudgetItemUpdateWithWhereUniqueWithoutAssignedUserInput[]
+    updateMany?: BudgetItemUpdateManyWithWhereWithoutAssignedUserInput | BudgetItemUpdateManyWithWhereWithoutAssignedUserInput[]
+    deleteMany?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
   }
 
   export type OrganizationCreateNestedOneWithoutSubscriptionsInput = {
@@ -29860,6 +31975,13 @@ export namespace Prisma {
     connect?: AiBudgetSuggestionWhereUniqueInput | AiBudgetSuggestionWhereUniqueInput[]
   }
 
+  export type StrategicGoalCreateNestedManyWithoutEventInput = {
+    create?: XOR<StrategicGoalCreateWithoutEventInput, StrategicGoalUncheckedCreateWithoutEventInput> | StrategicGoalCreateWithoutEventInput[] | StrategicGoalUncheckedCreateWithoutEventInput[]
+    connectOrCreate?: StrategicGoalCreateOrConnectWithoutEventInput | StrategicGoalCreateOrConnectWithoutEventInput[]
+    createMany?: StrategicGoalCreateManyEventInputEnvelope
+    connect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+  }
+
   export type EventAssignmentUncheckedCreateNestedManyWithoutEventInput = {
     create?: XOR<EventAssignmentCreateWithoutEventInput, EventAssignmentUncheckedCreateWithoutEventInput> | EventAssignmentCreateWithoutEventInput[] | EventAssignmentUncheckedCreateWithoutEventInput[]
     connectOrCreate?: EventAssignmentCreateOrConnectWithoutEventInput | EventAssignmentCreateOrConnectWithoutEventInput[]
@@ -29942,8 +32064,31 @@ export namespace Prisma {
     connect?: AiBudgetSuggestionWhereUniqueInput | AiBudgetSuggestionWhereUniqueInput[]
   }
 
+  export type StrategicGoalUncheckedCreateNestedManyWithoutEventInput = {
+    create?: XOR<StrategicGoalCreateWithoutEventInput, StrategicGoalUncheckedCreateWithoutEventInput> | StrategicGoalCreateWithoutEventInput[] | StrategicGoalUncheckedCreateWithoutEventInput[]
+    connectOrCreate?: StrategicGoalCreateOrConnectWithoutEventInput | StrategicGoalCreateOrConnectWithoutEventInput[]
+    createMany?: StrategicGoalCreateManyEventInputEnvelope
+    connect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+  }
+
   export type EnumEventStatusFieldUpdateOperationsInput = {
     set?: $Enums.EventStatus
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
   }
 
   export type OrganizationUpdateOneWithoutEventsNestedInput = {
@@ -30126,6 +32271,20 @@ export namespace Prisma {
     deleteMany?: AiBudgetSuggestionScalarWhereInput | AiBudgetSuggestionScalarWhereInput[]
   }
 
+  export type StrategicGoalUpdateManyWithoutEventNestedInput = {
+    create?: XOR<StrategicGoalCreateWithoutEventInput, StrategicGoalUncheckedCreateWithoutEventInput> | StrategicGoalCreateWithoutEventInput[] | StrategicGoalUncheckedCreateWithoutEventInput[]
+    connectOrCreate?: StrategicGoalCreateOrConnectWithoutEventInput | StrategicGoalCreateOrConnectWithoutEventInput[]
+    upsert?: StrategicGoalUpsertWithWhereUniqueWithoutEventInput | StrategicGoalUpsertWithWhereUniqueWithoutEventInput[]
+    createMany?: StrategicGoalCreateManyEventInputEnvelope
+    set?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    disconnect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    delete?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    connect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    update?: StrategicGoalUpdateWithWhereUniqueWithoutEventInput | StrategicGoalUpdateWithWhereUniqueWithoutEventInput[]
+    updateMany?: StrategicGoalUpdateManyWithWhereWithoutEventInput | StrategicGoalUpdateManyWithWhereWithoutEventInput[]
+    deleteMany?: StrategicGoalScalarWhereInput | StrategicGoalScalarWhereInput[]
+  }
+
   export type EventAssignmentUncheckedUpdateManyWithoutEventNestedInput = {
     create?: XOR<EventAssignmentCreateWithoutEventInput, EventAssignmentUncheckedCreateWithoutEventInput> | EventAssignmentCreateWithoutEventInput[] | EventAssignmentUncheckedCreateWithoutEventInput[]
     connectOrCreate?: EventAssignmentCreateOrConnectWithoutEventInput | EventAssignmentCreateOrConnectWithoutEventInput[]
@@ -30284,6 +32443,20 @@ export namespace Prisma {
     update?: AiBudgetSuggestionUpdateWithWhereUniqueWithoutEventInput | AiBudgetSuggestionUpdateWithWhereUniqueWithoutEventInput[]
     updateMany?: AiBudgetSuggestionUpdateManyWithWhereWithoutEventInput | AiBudgetSuggestionUpdateManyWithWhereWithoutEventInput[]
     deleteMany?: AiBudgetSuggestionScalarWhereInput | AiBudgetSuggestionScalarWhereInput[]
+  }
+
+  export type StrategicGoalUncheckedUpdateManyWithoutEventNestedInput = {
+    create?: XOR<StrategicGoalCreateWithoutEventInput, StrategicGoalUncheckedCreateWithoutEventInput> | StrategicGoalCreateWithoutEventInput[] | StrategicGoalUncheckedCreateWithoutEventInput[]
+    connectOrCreate?: StrategicGoalCreateOrConnectWithoutEventInput | StrategicGoalCreateOrConnectWithoutEventInput[]
+    upsert?: StrategicGoalUpsertWithWhereUniqueWithoutEventInput | StrategicGoalUpsertWithWhereUniqueWithoutEventInput[]
+    createMany?: StrategicGoalCreateManyEventInputEnvelope
+    set?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    disconnect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    delete?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    connect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+    update?: StrategicGoalUpdateWithWhereUniqueWithoutEventInput | StrategicGoalUpdateWithWhereUniqueWithoutEventInput[]
+    updateMany?: StrategicGoalUpdateManyWithWhereWithoutEventInput | StrategicGoalUpdateManyWithWhereWithoutEventInput[]
+    deleteMany?: StrategicGoalScalarWhereInput | StrategicGoalScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutEventsInput = {
@@ -30506,6 +32679,62 @@ export namespace Prisma {
     update?: XOR<XOR<EventUpdateToOneWithWhereWithoutVendorEventsInput, EventUpdateWithoutVendorEventsInput>, EventUncheckedUpdateWithoutVendorEventsInput>
   }
 
+  export type EventCreateNestedOneWithoutStrategicGoalsInput = {
+    create?: XOR<EventCreateWithoutStrategicGoalsInput, EventUncheckedCreateWithoutStrategicGoalsInput>
+    connectOrCreate?: EventCreateOrConnectWithoutStrategicGoalsInput
+    connect?: EventWhereUniqueInput
+  }
+
+  export type BudgetItemCreateNestedManyWithoutStrategicGoalInput = {
+    create?: XOR<BudgetItemCreateWithoutStrategicGoalInput, BudgetItemUncheckedCreateWithoutStrategicGoalInput> | BudgetItemCreateWithoutStrategicGoalInput[] | BudgetItemUncheckedCreateWithoutStrategicGoalInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutStrategicGoalInput | BudgetItemCreateOrConnectWithoutStrategicGoalInput[]
+    createMany?: BudgetItemCreateManyStrategicGoalInputEnvelope
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+  }
+
+  export type BudgetItemUncheckedCreateNestedManyWithoutStrategicGoalInput = {
+    create?: XOR<BudgetItemCreateWithoutStrategicGoalInput, BudgetItemUncheckedCreateWithoutStrategicGoalInput> | BudgetItemCreateWithoutStrategicGoalInput[] | BudgetItemUncheckedCreateWithoutStrategicGoalInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutStrategicGoalInput | BudgetItemCreateOrConnectWithoutStrategicGoalInput[]
+    createMany?: BudgetItemCreateManyStrategicGoalInputEnvelope
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+  }
+
+  export type EventUpdateOneRequiredWithoutStrategicGoalsNestedInput = {
+    create?: XOR<EventCreateWithoutStrategicGoalsInput, EventUncheckedCreateWithoutStrategicGoalsInput>
+    connectOrCreate?: EventCreateOrConnectWithoutStrategicGoalsInput
+    upsert?: EventUpsertWithoutStrategicGoalsInput
+    connect?: EventWhereUniqueInput
+    update?: XOR<XOR<EventUpdateToOneWithWhereWithoutStrategicGoalsInput, EventUpdateWithoutStrategicGoalsInput>, EventUncheckedUpdateWithoutStrategicGoalsInput>
+  }
+
+  export type BudgetItemUpdateManyWithoutStrategicGoalNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutStrategicGoalInput, BudgetItemUncheckedCreateWithoutStrategicGoalInput> | BudgetItemCreateWithoutStrategicGoalInput[] | BudgetItemUncheckedCreateWithoutStrategicGoalInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutStrategicGoalInput | BudgetItemCreateOrConnectWithoutStrategicGoalInput[]
+    upsert?: BudgetItemUpsertWithWhereUniqueWithoutStrategicGoalInput | BudgetItemUpsertWithWhereUniqueWithoutStrategicGoalInput[]
+    createMany?: BudgetItemCreateManyStrategicGoalInputEnvelope
+    set?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    disconnect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    delete?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    update?: BudgetItemUpdateWithWhereUniqueWithoutStrategicGoalInput | BudgetItemUpdateWithWhereUniqueWithoutStrategicGoalInput[]
+    updateMany?: BudgetItemUpdateManyWithWhereWithoutStrategicGoalInput | BudgetItemUpdateManyWithWhereWithoutStrategicGoalInput[]
+    deleteMany?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
+  }
+
+  export type BudgetItemUncheckedUpdateManyWithoutStrategicGoalNestedInput = {
+    create?: XOR<BudgetItemCreateWithoutStrategicGoalInput, BudgetItemUncheckedCreateWithoutStrategicGoalInput> | BudgetItemCreateWithoutStrategicGoalInput[] | BudgetItemUncheckedCreateWithoutStrategicGoalInput[]
+    connectOrCreate?: BudgetItemCreateOrConnectWithoutStrategicGoalInput | BudgetItemCreateOrConnectWithoutStrategicGoalInput[]
+    upsert?: BudgetItemUpsertWithWhereUniqueWithoutStrategicGoalInput | BudgetItemUpsertWithWhereUniqueWithoutStrategicGoalInput[]
+    createMany?: BudgetItemCreateManyStrategicGoalInputEnvelope
+    set?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    disconnect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    delete?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    connect?: BudgetItemWhereUniqueInput | BudgetItemWhereUniqueInput[]
+    update?: BudgetItemUpdateWithWhereUniqueWithoutStrategicGoalInput | BudgetItemUpdateWithWhereUniqueWithoutStrategicGoalInput[]
+    updateMany?: BudgetItemUpdateManyWithWhereWithoutStrategicGoalInput | BudgetItemUpdateManyWithWhereWithoutStrategicGoalInput[]
+    deleteMany?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
+  }
+
   export type EventCreateNestedOneWithoutBudgetItemsInput = {
     create?: XOR<EventCreateWithoutBudgetItemsInput, EventUncheckedCreateWithoutBudgetItemsInput>
     connectOrCreate?: EventCreateOrConnectWithoutBudgetItemsInput
@@ -30516,6 +32745,18 @@ export namespace Prisma {
     create?: XOR<VendorCreateWithoutBudgetItemsInput, VendorUncheckedCreateWithoutBudgetItemsInput>
     connectOrCreate?: VendorCreateOrConnectWithoutBudgetItemsInput
     connect?: VendorWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAssignedBudgetItemsInput = {
+    create?: XOR<UserCreateWithoutAssignedBudgetItemsInput, UserUncheckedCreateWithoutAssignedBudgetItemsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignedBudgetItemsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type StrategicGoalCreateNestedOneWithoutBudgetItemsInput = {
+    create?: XOR<StrategicGoalCreateWithoutBudgetItemsInput, StrategicGoalUncheckedCreateWithoutBudgetItemsInput>
+    connectOrCreate?: StrategicGoalCreateOrConnectWithoutBudgetItemsInput
+    connect?: StrategicGoalWhereUniqueInput
   }
 
   export type FileCreateNestedManyWithoutBudgetItemInput = {
@@ -30536,12 +32777,8 @@ export namespace Prisma {
     set?: $Enums.BudgetItemCategory
   }
 
-  export type NullableDecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string | null
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
+  export type EnumBudgetItemStatusFieldUpdateOperationsInput = {
+    set?: $Enums.BudgetItemStatus
   }
 
   export type EventUpdateOneRequiredWithoutBudgetItemsNestedInput = {
@@ -30560,6 +32797,26 @@ export namespace Prisma {
     delete?: VendorWhereInput | boolean
     connect?: VendorWhereUniqueInput
     update?: XOR<XOR<VendorUpdateToOneWithWhereWithoutBudgetItemsInput, VendorUpdateWithoutBudgetItemsInput>, VendorUncheckedUpdateWithoutBudgetItemsInput>
+  }
+
+  export type UserUpdateOneWithoutAssignedBudgetItemsNestedInput = {
+    create?: XOR<UserCreateWithoutAssignedBudgetItemsInput, UserUncheckedCreateWithoutAssignedBudgetItemsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignedBudgetItemsInput
+    upsert?: UserUpsertWithoutAssignedBudgetItemsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAssignedBudgetItemsInput, UserUpdateWithoutAssignedBudgetItemsInput>, UserUncheckedUpdateWithoutAssignedBudgetItemsInput>
+  }
+
+  export type StrategicGoalUpdateOneWithoutBudgetItemsNestedInput = {
+    create?: XOR<StrategicGoalCreateWithoutBudgetItemsInput, StrategicGoalUncheckedCreateWithoutBudgetItemsInput>
+    connectOrCreate?: StrategicGoalCreateOrConnectWithoutBudgetItemsInput
+    upsert?: StrategicGoalUpsertWithoutBudgetItemsInput
+    disconnect?: StrategicGoalWhereInput | boolean
+    delete?: StrategicGoalWhereInput | boolean
+    connect?: StrategicGoalWhereUniqueInput
+    update?: XOR<XOR<StrategicGoalUpdateToOneWithWhereWithoutBudgetItemsInput, StrategicGoalUpdateWithoutBudgetItemsInput>, StrategicGoalUncheckedUpdateWithoutBudgetItemsInput>
   }
 
   export type FileUpdateManyWithoutBudgetItemNestedInput = {
@@ -30754,14 +33011,6 @@ export namespace Prisma {
     create?: XOR<EventCreateWithoutRoiMetricsInput, EventUncheckedCreateWithoutRoiMetricsInput>
     connectOrCreate?: EventCreateOrConnectWithoutRoiMetricsInput
     connect?: EventWhereUniqueInput
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type EventUpdateOneRequiredWithoutRoiMetricsNestedInput = {
@@ -31235,6 +33484,17 @@ export namespace Prisma {
     not?: NestedEnumEventStatusFilter<$PrismaModel> | $Enums.EventStatus
   }
 
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
   export type NestedEnumEventStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.EventStatus | EnumEventStatusFieldRefInput<$PrismaModel>
     in?: $Enums.EventStatus[] | ListEnumEventStatusFieldRefInput<$PrismaModel>
@@ -31243,6 +33503,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEventStatusFilter<$PrismaModel>
     _max?: NestedEnumEventStatusFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
@@ -31254,6 +33530,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -31279,15 +33571,11 @@ export namespace Prisma {
     not?: NestedEnumBudgetItemCategoryFilter<$PrismaModel> | $Enums.BudgetItemCategory
   }
 
-  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  export type NestedEnumBudgetItemStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemStatus | EnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBudgetItemStatusFilter<$PrismaModel> | $Enums.BudgetItemStatus
   }
 
   export type NestedEnumBudgetItemCategoryWithAggregatesFilter<$PrismaModel = never> = {
@@ -31300,20 +33588,14 @@ export namespace Prisma {
     _max?: NestedEnumBudgetItemCategoryFilter<$PrismaModel>
   }
 
-  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedDecimalNullableFilter<$PrismaModel>
-    _sum?: NestedDecimalNullableFilter<$PrismaModel>
-    _min?: NestedDecimalNullableFilter<$PrismaModel>
-    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  export type NestedEnumBudgetItemStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetItemStatus | EnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BudgetItemStatus[] | ListEnumBudgetItemStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBudgetItemStatusWithAggregatesFilter<$PrismaModel> | $Enums.BudgetItemStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBudgetItemStatusFilter<$PrismaModel>
+    _max?: NestedEnumBudgetItemStatusFilter<$PrismaModel>
   }
 
   export type NestedFloatFilter<$PrismaModel = never> = {
@@ -31358,22 +33640,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumExpenseStatusFilter<$PrismaModel>
     _max?: NestedEnumExpenseStatusFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumNotificationTypeFilter<$PrismaModel = never> = {
@@ -31437,6 +33703,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -31456,6 +33723,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -31548,11 +33816,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     creator?: UserCreateNestedOneWithoutCreatedEventsInput
@@ -31568,17 +33842,24 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutOrganizationInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31594,6 +33875,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutOrganizationInput = {
@@ -31827,11 +34109,17 @@ export namespace Prisma {
     organizationId?: StringNullableFilter<"Event"> | string | null
     name?: StringFilter<"Event"> | string
     location?: StringNullableFilter<"Event"> | string | null
+    venue?: StringNullableFilter<"Event"> | string | null
     startDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventType?: StringNullableFilter<"Event"> | string | null
+    type?: StringNullableFilter<"Event"> | string | null
     description?: StringNullableFilter<"Event"> | string | null
     status?: EnumEventStatusFilter<"Event"> | $Enums.EventStatus
+    attendees?: IntNullableFilter<"Event"> | number | null
+    budget?: DecimalNullableFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
+    organizer?: StringNullableFilter<"Event"> | string | null
+    client?: StringNullableFilter<"Event"> | string | null
     createdBy?: StringNullableFilter<"Event"> | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     updatedAt?: DateTimeFilter<"Event"> | Date | string
@@ -31971,11 +34259,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -31991,6 +34285,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutCreatorInput = {
@@ -31998,11 +34293,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     assignments?: EventAssignmentUncheckedCreateNestedManyWithoutEventInput
@@ -32017,6 +34318,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutCreatorInput = {
@@ -32232,6 +34534,56 @@ export namespace Prisma {
 
   export type EventAssignmentCreateManyUserInputEnvelope = {
     data: EventAssignmentCreateManyUserInput | EventAssignmentCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BudgetItemCreateWithoutAssignedUserInput = {
+    id?: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    event: EventCreateNestedOneWithoutBudgetItemsInput
+    vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
+    strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
+    files?: FileCreateNestedManyWithoutBudgetItemInput
+  }
+
+  export type BudgetItemUncheckedCreateWithoutAssignedUserInput = {
+    id?: string
+    eventId: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    vendorId?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+  }
+
+  export type BudgetItemCreateOrConnectWithoutAssignedUserInput = {
+    where: BudgetItemWhereUniqueInput
+    create: XOR<BudgetItemCreateWithoutAssignedUserInput, BudgetItemUncheckedCreateWithoutAssignedUserInput>
+  }
+
+  export type BudgetItemCreateManyAssignedUserInputEnvelope = {
+    data: BudgetItemCreateManyAssignedUserInput | BudgetItemCreateManyAssignedUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -32451,6 +34803,45 @@ export namespace Prisma {
     assignedAt?: DateTimeFilter<"EventAssignment"> | Date | string
   }
 
+  export type BudgetItemUpsertWithWhereUniqueWithoutAssignedUserInput = {
+    where: BudgetItemWhereUniqueInput
+    update: XOR<BudgetItemUpdateWithoutAssignedUserInput, BudgetItemUncheckedUpdateWithoutAssignedUserInput>
+    create: XOR<BudgetItemCreateWithoutAssignedUserInput, BudgetItemUncheckedCreateWithoutAssignedUserInput>
+  }
+
+  export type BudgetItemUpdateWithWhereUniqueWithoutAssignedUserInput = {
+    where: BudgetItemWhereUniqueInput
+    data: XOR<BudgetItemUpdateWithoutAssignedUserInput, BudgetItemUncheckedUpdateWithoutAssignedUserInput>
+  }
+
+  export type BudgetItemUpdateManyWithWhereWithoutAssignedUserInput = {
+    where: BudgetItemScalarWhereInput
+    data: XOR<BudgetItemUpdateManyMutationInput, BudgetItemUncheckedUpdateManyWithoutAssignedUserInput>
+  }
+
+  export type BudgetItemScalarWhereInput = {
+    AND?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
+    OR?: BudgetItemScalarWhereInput[]
+    NOT?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
+    id?: StringFilter<"BudgetItem"> | string
+    eventId?: StringFilter<"BudgetItem"> | string
+    category?: EnumBudgetItemCategoryFilter<"BudgetItem"> | $Enums.BudgetItemCategory
+    subcategory?: StringNullableFilter<"BudgetItem"> | string | null
+    description?: StringFilter<"BudgetItem"> | string
+    vendor?: StringNullableFilter<"BudgetItem"> | string | null
+    vendorId?: StringNullableFilter<"BudgetItem"> | string | null
+    estimatedCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
+    actualCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFilter<"BudgetItem"> | $Enums.BudgetItemStatus
+    notes?: StringNullableFilter<"BudgetItem"> | string | null
+    assignedUserId?: StringNullableFilter<"BudgetItem"> | string | null
+    strategicGoalId?: StringNullableFilter<"BudgetItem"> | string | null
+    lastEditedBy?: StringNullableFilter<"BudgetItem"> | string | null
+    lastEditedAt?: DateTimeNullableFilter<"BudgetItem"> | Date | string | null
+    createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
+    updatedAt?: DateTimeFilter<"BudgetItem"> | Date | string
+  }
+
   export type OrganizationCreateWithoutSubscriptionsInput = {
     id?: string
     name: string
@@ -32617,6 +35008,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionHistoryInput = {
@@ -32636,6 +35028,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionHistoryInput = {
@@ -32706,6 +35099,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionHistoryInput = {
@@ -32725,6 +35119,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type OrganizationCreateWithoutEventsInput = {
@@ -32779,6 +35174,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedEventsInput = {
@@ -32798,6 +35194,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedEventsInput = {
@@ -32862,24 +35259,38 @@ export namespace Prisma {
   export type BudgetItemCreateWithoutEventInput = {
     id?: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
+    strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
   }
 
   export type BudgetItemUncheckedCreateWithoutEventInput = {
     id?: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     vendorId?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
@@ -33155,6 +35566,46 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type StrategicGoalCreateWithoutEventInput = {
+    id?: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    budgetItems?: BudgetItemCreateNestedManyWithoutStrategicGoalInput
+  }
+
+  export type StrategicGoalUncheckedCreateWithoutEventInput = {
+    id?: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutStrategicGoalInput
+  }
+
+  export type StrategicGoalCreateOrConnectWithoutEventInput = {
+    where: StrategicGoalWhereUniqueInput
+    create: XOR<StrategicGoalCreateWithoutEventInput, StrategicGoalUncheckedCreateWithoutEventInput>
+  }
+
+  export type StrategicGoalCreateManyEventInputEnvelope = {
+    data: StrategicGoalCreateManyEventInput | StrategicGoalCreateManyEventInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizationUpsertWithoutEventsInput = {
     update: XOR<OrganizationUpdateWithoutEventsInput, OrganizationUncheckedUpdateWithoutEventsInput>
     create: XOR<OrganizationCreateWithoutEventsInput, OrganizationUncheckedCreateWithoutEventsInput>
@@ -33224,6 +35675,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedEventsInput = {
@@ -33243,6 +35695,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type EventAssignmentUpsertWithWhereUniqueWithoutEventInput = {
@@ -33305,22 +35758,6 @@ export namespace Prisma {
   export type BudgetItemUpdateManyWithWhereWithoutEventInput = {
     where: BudgetItemScalarWhereInput
     data: XOR<BudgetItemUpdateManyMutationInput, BudgetItemUncheckedUpdateManyWithoutEventInput>
-  }
-
-  export type BudgetItemScalarWhereInput = {
-    AND?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
-    OR?: BudgetItemScalarWhereInput[]
-    NOT?: BudgetItemScalarWhereInput | BudgetItemScalarWhereInput[]
-    id?: StringFilter<"BudgetItem"> | string
-    eventId?: StringFilter<"BudgetItem"> | string
-    category?: EnumBudgetItemCategoryFilter<"BudgetItem"> | $Enums.BudgetItemCategory
-    description?: StringFilter<"BudgetItem"> | string
-    vendor?: StringNullableFilter<"BudgetItem"> | string | null
-    vendorId?: StringNullableFilter<"BudgetItem"> | string | null
-    estimatedCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
-    actualCost?: DecimalNullableFilter<"BudgetItem"> | Decimal | DecimalJsLike | number | string | null
-    createdAt?: DateTimeFilter<"BudgetItem"> | Date | string
-    updatedAt?: DateTimeFilter<"BudgetItem"> | Date | string
   }
 
   export type ExpenseUpsertWithWhereUniqueWithoutEventInput = {
@@ -33553,6 +35990,40 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"AiBudgetSuggestion"> | Date | string
   }
 
+  export type StrategicGoalUpsertWithWhereUniqueWithoutEventInput = {
+    where: StrategicGoalWhereUniqueInput
+    update: XOR<StrategicGoalUpdateWithoutEventInput, StrategicGoalUncheckedUpdateWithoutEventInput>
+    create: XOR<StrategicGoalCreateWithoutEventInput, StrategicGoalUncheckedCreateWithoutEventInput>
+  }
+
+  export type StrategicGoalUpdateWithWhereUniqueWithoutEventInput = {
+    where: StrategicGoalWhereUniqueInput
+    data: XOR<StrategicGoalUpdateWithoutEventInput, StrategicGoalUncheckedUpdateWithoutEventInput>
+  }
+
+  export type StrategicGoalUpdateManyWithWhereWithoutEventInput = {
+    where: StrategicGoalScalarWhereInput
+    data: XOR<StrategicGoalUpdateManyMutationInput, StrategicGoalUncheckedUpdateManyWithoutEventInput>
+  }
+
+  export type StrategicGoalScalarWhereInput = {
+    AND?: StrategicGoalScalarWhereInput | StrategicGoalScalarWhereInput[]
+    OR?: StrategicGoalScalarWhereInput[]
+    NOT?: StrategicGoalScalarWhereInput | StrategicGoalScalarWhereInput[]
+    id?: StringFilter<"StrategicGoal"> | string
+    eventId?: StringFilter<"StrategicGoal"> | string
+    title?: StringFilter<"StrategicGoal"> | string
+    description?: StringNullableFilter<"StrategicGoal"> | string | null
+    targetValue?: FloatNullableFilter<"StrategicGoal"> | number | null
+    currentValue?: FloatNullableFilter<"StrategicGoal"> | number | null
+    unit?: StringNullableFilter<"StrategicGoal"> | string | null
+    deadline?: DateTimeNullableFilter<"StrategicGoal"> | Date | string | null
+    status?: StringFilter<"StrategicGoal"> | string
+    priority?: StringFilter<"StrategicGoal"> | string
+    createdAt?: DateTimeFilter<"StrategicGoal"> | Date | string
+    updatedAt?: DateTimeFilter<"StrategicGoal"> | Date | string
+  }
+
   export type UserCreateWithoutEventsInput = {
     id?: string
     fullName: string
@@ -33570,6 +36041,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutEventsInput = {
@@ -33589,6 +36061,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutEventsInput = {
@@ -33600,11 +36073,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -33620,6 +36099,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutAssignmentsInput = {
@@ -33627,11 +36107,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33646,6 +36132,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutAssignmentsInput = {
@@ -33681,6 +36168,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEventsInput = {
@@ -33700,6 +36188,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type EventUpsertWithoutAssignmentsInput = {
@@ -33717,11 +36206,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -33737,6 +36232,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutAssignmentsInput = {
@@ -33744,11 +36240,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33763,17 +36265,24 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventCreateWithoutStakeholdersInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -33789,6 +36298,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutStakeholdersInput = {
@@ -33796,11 +36306,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33815,6 +36331,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutStakeholdersInput = {
@@ -33837,11 +36354,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -33857,6 +36380,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutStakeholdersInput = {
@@ -33864,11 +36388,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33883,6 +36413,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type OrganizationCreateWithoutVendorsInput = {
@@ -33945,13 +36476,20 @@ export namespace Prisma {
   export type BudgetItemCreateWithoutVendorLinkInput = {
     id?: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     event: EventCreateNestedOneWithoutBudgetItemsInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
+    strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
     files?: FileCreateNestedManyWithoutBudgetItemInput
   }
 
@@ -33959,10 +36497,17 @@ export namespace Prisma {
     id?: string
     eventId: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
@@ -34148,11 +36693,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -34168,6 +36719,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutVendorEventsInput = {
@@ -34175,11 +36727,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34194,6 +36752,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutVendorEventsInput = {
@@ -34259,11 +36818,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -34279,6 +36844,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutVendorEventsInput = {
@@ -34286,11 +36852,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34305,17 +36877,238 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+  }
+
+  export type EventCreateWithoutStrategicGoalsInput = {
+    id?: string
+    name: string
+    location?: string | null
+    venue?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    eventType?: string | null
+    type?: string | null
+    description?: string | null
+    status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutEventsInput
+    creator?: UserCreateNestedOneWithoutCreatedEventsInput
+    assignments?: EventAssignmentCreateNestedManyWithoutEventInput
+    stakeholders?: EventStakeholderCreateNestedManyWithoutEventInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutEventInput
+    expenses?: ExpenseCreateNestedManyWithoutEventInput
+    vendorEvents?: VendorEventCreateNestedManyWithoutEventInput
+    files?: FileCreateNestedManyWithoutEventInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutEventInput
+    insights?: InsightCreateNestedManyWithoutEventInput
+    roiMetrics?: ROIMetricsCreateNestedOneWithoutEventInput
+    crmSync?: CRMSyncCreateNestedOneWithoutEventInput
+    reports?: ReportCreateNestedManyWithoutEventInput
+    aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+  }
+
+  export type EventUncheckedCreateWithoutStrategicGoalsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    location?: string | null
+    venue?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    eventType?: string | null
+    type?: string | null
+    description?: string | null
+    status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
+    createdBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignments?: EventAssignmentUncheckedCreateNestedManyWithoutEventInput
+    stakeholders?: EventStakeholderUncheckedCreateNestedManyWithoutEventInput
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutEventInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutEventInput
+    vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutEventInput
+    files?: FileUncheckedCreateNestedManyWithoutEventInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutEventInput
+    insights?: InsightUncheckedCreateNestedManyWithoutEventInput
+    roiMetrics?: ROIMetricsUncheckedCreateNestedOneWithoutEventInput
+    crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
+    reports?: ReportUncheckedCreateNestedManyWithoutEventInput
+    aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+  }
+
+  export type EventCreateOrConnectWithoutStrategicGoalsInput = {
+    where: EventWhereUniqueInput
+    create: XOR<EventCreateWithoutStrategicGoalsInput, EventUncheckedCreateWithoutStrategicGoalsInput>
+  }
+
+  export type BudgetItemCreateWithoutStrategicGoalInput = {
+    id?: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    event: EventCreateNestedOneWithoutBudgetItemsInput
+    vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
+    files?: FileCreateNestedManyWithoutBudgetItemInput
+  }
+
+  export type BudgetItemUncheckedCreateWithoutStrategicGoalInput = {
+    id?: string
+    eventId: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    vendorId?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    files?: FileUncheckedCreateNestedManyWithoutBudgetItemInput
+  }
+
+  export type BudgetItemCreateOrConnectWithoutStrategicGoalInput = {
+    where: BudgetItemWhereUniqueInput
+    create: XOR<BudgetItemCreateWithoutStrategicGoalInput, BudgetItemUncheckedCreateWithoutStrategicGoalInput>
+  }
+
+  export type BudgetItemCreateManyStrategicGoalInputEnvelope = {
+    data: BudgetItemCreateManyStrategicGoalInput | BudgetItemCreateManyStrategicGoalInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EventUpsertWithoutStrategicGoalsInput = {
+    update: XOR<EventUpdateWithoutStrategicGoalsInput, EventUncheckedUpdateWithoutStrategicGoalsInput>
+    create: XOR<EventCreateWithoutStrategicGoalsInput, EventUncheckedCreateWithoutStrategicGoalsInput>
+    where?: EventWhereInput
+  }
+
+  export type EventUpdateToOneWithWhereWithoutStrategicGoalsInput = {
+    where?: EventWhereInput
+    data: XOR<EventUpdateWithoutStrategicGoalsInput, EventUncheckedUpdateWithoutStrategicGoalsInput>
+  }
+
+  export type EventUpdateWithoutStrategicGoalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutEventsNestedInput
+    creator?: UserUpdateOneWithoutCreatedEventsNestedInput
+    assignments?: EventAssignmentUpdateManyWithoutEventNestedInput
+    stakeholders?: EventStakeholderUpdateManyWithoutEventNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutEventNestedInput
+    expenses?: ExpenseUpdateManyWithoutEventNestedInput
+    vendorEvents?: VendorEventUpdateManyWithoutEventNestedInput
+    files?: FileUpdateManyWithoutEventNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutEventNestedInput
+    insights?: InsightUpdateManyWithoutEventNestedInput
+    roiMetrics?: ROIMetricsUpdateOneWithoutEventNestedInput
+    crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
+    reports?: ReportUpdateManyWithoutEventNestedInput
+    aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+  }
+
+  export type EventUncheckedUpdateWithoutStrategicGoalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignments?: EventAssignmentUncheckedUpdateManyWithoutEventNestedInput
+    stakeholders?: EventStakeholderUncheckedUpdateManyWithoutEventNestedInput
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutEventNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutEventNestedInput
+    vendorEvents?: VendorEventUncheckedUpdateManyWithoutEventNestedInput
+    files?: FileUncheckedUpdateManyWithoutEventNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutEventNestedInput
+    insights?: InsightUncheckedUpdateManyWithoutEventNestedInput
+    roiMetrics?: ROIMetricsUncheckedUpdateOneWithoutEventNestedInput
+    crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
+    reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
+    aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+  }
+
+  export type BudgetItemUpsertWithWhereUniqueWithoutStrategicGoalInput = {
+    where: BudgetItemWhereUniqueInput
+    update: XOR<BudgetItemUpdateWithoutStrategicGoalInput, BudgetItemUncheckedUpdateWithoutStrategicGoalInput>
+    create: XOR<BudgetItemCreateWithoutStrategicGoalInput, BudgetItemUncheckedCreateWithoutStrategicGoalInput>
+  }
+
+  export type BudgetItemUpdateWithWhereUniqueWithoutStrategicGoalInput = {
+    where: BudgetItemWhereUniqueInput
+    data: XOR<BudgetItemUpdateWithoutStrategicGoalInput, BudgetItemUncheckedUpdateWithoutStrategicGoalInput>
+  }
+
+  export type BudgetItemUpdateManyWithWhereWithoutStrategicGoalInput = {
+    where: BudgetItemScalarWhereInput
+    data: XOR<BudgetItemUpdateManyMutationInput, BudgetItemUncheckedUpdateManyWithoutStrategicGoalInput>
   }
 
   export type EventCreateWithoutBudgetItemsInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -34331,6 +37124,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutBudgetItemsInput = {
@@ -34338,11 +37132,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34357,6 +37157,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutBudgetItemsInput = {
@@ -34399,6 +37200,86 @@ export namespace Prisma {
   export type VendorCreateOrConnectWithoutBudgetItemsInput = {
     where: VendorWhereUniqueInput
     create: XOR<VendorCreateWithoutBudgetItemsInput, VendorUncheckedCreateWithoutBudgetItemsInput>
+  }
+
+  export type UserCreateWithoutAssignedBudgetItemsInput = {
+    id?: string
+    fullName: string
+    email: string
+    role: $Enums.UserRole
+    passwordHash?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdEvents?: EventCreateNestedManyWithoutCreatorInput
+    subscriptionHistory?: SubscriptionHistoryCreateNestedManyWithoutUserInput
+    expenses?: ExpenseCreateNestedManyWithoutCreatorInput
+    workflowActions?: ApprovalWorkflowCreateNestedManyWithoutApproverInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    reports?: ReportCreateNestedManyWithoutCreatorInput
+    events?: EventAssignmentCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAssignedBudgetItemsInput = {
+    id?: string
+    organizationId?: string | null
+    fullName: string
+    email: string
+    role: $Enums.UserRole
+    passwordHash?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdEvents?: EventUncheckedCreateNestedManyWithoutCreatorInput
+    subscriptionHistory?: SubscriptionHistoryUncheckedCreateNestedManyWithoutUserInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutCreatorInput
+    workflowActions?: ApprovalWorkflowUncheckedCreateNestedManyWithoutApproverInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
+    events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAssignedBudgetItemsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAssignedBudgetItemsInput, UserUncheckedCreateWithoutAssignedBudgetItemsInput>
+  }
+
+  export type StrategicGoalCreateWithoutBudgetItemsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    event: EventCreateNestedOneWithoutStrategicGoalsInput
+  }
+
+  export type StrategicGoalUncheckedCreateWithoutBudgetItemsInput = {
+    id?: string
+    eventId: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StrategicGoalCreateOrConnectWithoutBudgetItemsInput = {
+    where: StrategicGoalWhereUniqueInput
+    create: XOR<StrategicGoalCreateWithoutBudgetItemsInput, StrategicGoalUncheckedCreateWithoutBudgetItemsInput>
   }
 
   export type FileCreateWithoutBudgetItemInput = {
@@ -34448,11 +37329,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -34468,6 +37355,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutBudgetItemsInput = {
@@ -34475,11 +37363,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34494,6 +37388,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type VendorUpsertWithoutBudgetItemsInput = {
@@ -34537,6 +37432,98 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendorEvents?: VendorEventUncheckedUpdateManyWithoutVendorNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutVendorLinkNestedInput
+  }
+
+  export type UserUpsertWithoutAssignedBudgetItemsInput = {
+    update: XOR<UserUpdateWithoutAssignedBudgetItemsInput, UserUncheckedUpdateWithoutAssignedBudgetItemsInput>
+    create: XOR<UserCreateWithoutAssignedBudgetItemsInput, UserUncheckedCreateWithoutAssignedBudgetItemsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAssignedBudgetItemsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAssignedBudgetItemsInput, UserUncheckedUpdateWithoutAssignedBudgetItemsInput>
+  }
+
+  export type UserUpdateWithoutAssignedBudgetItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdEvents?: EventUpdateManyWithoutCreatorNestedInput
+    subscriptionHistory?: SubscriptionHistoryUpdateManyWithoutUserNestedInput
+    expenses?: ExpenseUpdateManyWithoutCreatorNestedInput
+    workflowActions?: ApprovalWorkflowUpdateManyWithoutApproverNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    reports?: ReportUpdateManyWithoutCreatorNestedInput
+    events?: EventAssignmentUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAssignedBudgetItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdEvents?: EventUncheckedUpdateManyWithoutCreatorNestedInput
+    subscriptionHistory?: SubscriptionHistoryUncheckedUpdateManyWithoutUserNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutCreatorNestedInput
+    workflowActions?: ApprovalWorkflowUncheckedUpdateManyWithoutApproverNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
+    events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type StrategicGoalUpsertWithoutBudgetItemsInput = {
+    update: XOR<StrategicGoalUpdateWithoutBudgetItemsInput, StrategicGoalUncheckedUpdateWithoutBudgetItemsInput>
+    create: XOR<StrategicGoalCreateWithoutBudgetItemsInput, StrategicGoalUncheckedCreateWithoutBudgetItemsInput>
+    where?: StrategicGoalWhereInput
+  }
+
+  export type StrategicGoalUpdateToOneWithWhereWithoutBudgetItemsInput = {
+    where?: StrategicGoalWhereInput
+    data: XOR<StrategicGoalUpdateWithoutBudgetItemsInput, StrategicGoalUncheckedUpdateWithoutBudgetItemsInput>
+  }
+
+  export type StrategicGoalUpdateWithoutBudgetItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneRequiredWithoutStrategicGoalsNestedInput
+  }
+
+  export type StrategicGoalUncheckedUpdateWithoutBudgetItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FileUpsertWithWhereUniqueWithoutBudgetItemInput = {
@@ -34594,11 +37581,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -34614,6 +37607,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutExpensesInput = {
@@ -34621,11 +37615,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34640,6 +37640,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutExpensesInput = {
@@ -34701,6 +37702,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutExpensesInput = {
@@ -34720,6 +37722,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutExpensesInput = {
@@ -34809,11 +37812,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -34829,6 +37838,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutExpensesInput = {
@@ -34836,11 +37846,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34855,6 +37871,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type VendorUpsertWithoutExpensesInput = {
@@ -34928,6 +37945,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutExpensesInput = {
@@ -34947,6 +37965,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type ApprovalWorkflowUpsertWithWhereUniqueWithoutExpenseInput = {
@@ -35017,6 +38036,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkflowActionsInput = {
@@ -35036,6 +38056,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkflowActionsInput = {
@@ -35112,6 +38133,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkflowActionsInput = {
@@ -35131,17 +38153,24 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type EventCreateWithoutInsightsInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -35157,6 +38186,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutInsightsInput = {
@@ -35164,11 +38194,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35183,6 +38219,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutInsightsInput = {
@@ -35205,11 +38242,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -35225,6 +38268,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutInsightsInput = {
@@ -35232,11 +38276,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35251,17 +38301,24 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventCreateWithoutRoiMetricsInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -35277,6 +38334,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutRoiMetricsInput = {
@@ -35284,11 +38342,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35303,6 +38367,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutRoiMetricsInput = {
@@ -35325,11 +38390,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -35345,6 +38416,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutRoiMetricsInput = {
@@ -35352,11 +38424,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35371,17 +38449,24 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventCreateWithoutCrmSyncInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -35397,6 +38482,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutCrmSyncInput = {
@@ -35404,11 +38490,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35423,6 +38515,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutCrmSyncInput = {
@@ -35445,11 +38538,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -35465,6 +38564,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutCrmSyncInput = {
@@ -35472,11 +38572,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35491,17 +38597,24 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventCreateWithoutReportsInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -35517,6 +38630,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsCreateNestedOneWithoutEventInput
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutReportsInput = {
@@ -35524,11 +38638,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35543,6 +38663,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUncheckedCreateNestedOneWithoutEventInput
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutReportsInput = {
@@ -35567,6 +38688,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutReportsInput = {
@@ -35586,6 +38708,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutReportsInput = {
@@ -35640,11 +38763,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -35660,6 +38789,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUpdateOneWithoutEventNestedInput
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutReportsInput = {
@@ -35667,11 +38797,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35686,6 +38822,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUncheckedUpdateOneWithoutEventNestedInput
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type UserUpsertWithoutReportsInput = {
@@ -35716,6 +38853,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReportsInput = {
@@ -35735,6 +38873,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type FileUpsertWithWhereUniqueWithoutReportInput = {
@@ -35757,11 +38896,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -35777,6 +38922,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutFilesInput = {
@@ -35784,11 +38930,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35803,6 +38955,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutFilesInput = {
@@ -35813,25 +38966,39 @@ export namespace Prisma {
   export type BudgetItemCreateWithoutFilesInput = {
     id?: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     event: EventCreateNestedOneWithoutBudgetItemsInput
     vendorLink?: VendorCreateNestedOneWithoutBudgetItemsInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedBudgetItemsInput
+    strategicGoal?: StrategicGoalCreateNestedOneWithoutBudgetItemsInput
   }
 
   export type BudgetItemUncheckedCreateWithoutFilesInput = {
     id?: string
     eventId: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     vendorId?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -35877,11 +39044,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -35897,6 +39070,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutFilesInput = {
@@ -35904,11 +39078,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35923,6 +39103,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type BudgetItemUpsertWithoutFilesInput = {
@@ -35939,25 +39120,39 @@ export namespace Prisma {
   export type BudgetItemUpdateWithoutFilesInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneRequiredWithoutBudgetItemsNestedInput
     vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
+    strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutFilesInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36041,6 +39236,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -36060,6 +39256,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -36136,6 +39333,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -36155,6 +39353,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type OrganizationCreateWithoutActivityLogsInput = {
@@ -36196,11 +39395,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -36216,6 +39421,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutActivityLogsInput = {
@@ -36223,11 +39429,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36242,6 +39454,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutActivityLogsInput = {
@@ -36266,6 +39479,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     reports?: ReportCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -36285,6 +39499,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     reports?: ReportUncheckedCreateNestedManyWithoutCreatorInput
     events?: EventAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedBudgetItems?: BudgetItemUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -36348,11 +39563,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -36368,6 +39589,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutActivityLogsInput = {
@@ -36375,11 +39597,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36394,6 +39622,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type UserUpsertWithoutActivityLogsInput = {
@@ -36424,6 +39653,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -36443,17 +39673,24 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type EventCreateWithoutAiBudgetSuggestionsInput = {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutEventsInput
@@ -36469,6 +39706,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsCreateNestedOneWithoutEventInput
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutAiBudgetSuggestionsInput = {
@@ -36476,11 +39714,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36495,6 +39739,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUncheckedCreateNestedOneWithoutEventInput
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutAiBudgetSuggestionsInput = {
@@ -36517,11 +39762,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -36537,6 +39788,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUpdateOneWithoutEventNestedInput
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutAiBudgetSuggestionsInput = {
@@ -36544,11 +39796,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36563,6 +39821,7 @@ export namespace Prisma {
     roiMetrics?: ROIMetricsUncheckedUpdateOneWithoutEventNestedInput
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type UserCreateManyOrganizationInput = {
@@ -36604,11 +39863,17 @@ export namespace Prisma {
     id?: string
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdBy?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36666,6 +39931,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     reports?: ReportUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -36685,6 +39951,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     reports?: ReportUncheckedUpdateManyWithoutCreatorNestedInput
     events?: EventAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedBudgetItems?: BudgetItemUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -36782,11 +40049,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     creator?: UserUpdateOneWithoutCreatedEventsNestedInput
@@ -36802,17 +40075,24 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36828,17 +40108,24 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateManyWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36956,11 +40243,17 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     location?: string | null
+    venue?: string | null
     startDate?: Date | string | null
     endDate?: Date | string | null
     eventType?: string | null
+    type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37031,15 +40324,40 @@ export namespace Prisma {
     assignedAt?: Date | string
   }
 
+  export type BudgetItemCreateManyAssignedUserInput = {
+    id?: string
+    eventId: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    vendorId?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type EventUpdateWithoutCreatorInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutEventsNestedInput
@@ -37055,6 +40373,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutCreatorInput = {
@@ -37062,11 +40381,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignments?: EventAssignmentUncheckedUpdateManyWithoutEventNestedInput
@@ -37081,6 +40406,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateManyWithoutCreatorInput = {
@@ -37088,11 +40414,17 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37299,6 +40631,65 @@ export namespace Prisma {
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BudgetItemUpdateWithoutAssignedUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneRequiredWithoutBudgetItemsNestedInput
+    vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
+    strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
+    files?: FileUpdateManyWithoutBudgetItemNestedInput
+  }
+
+  export type BudgetItemUncheckedUpdateWithoutAssignedUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+  }
+
+  export type BudgetItemUncheckedUpdateManyWithoutAssignedUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SubscriptionHistoryCreateManySubscriptionInput = {
     id?: string
     action: string
@@ -37355,11 +40746,18 @@ export namespace Prisma {
   export type BudgetItemCreateManyEventInput = {
     id?: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     vendorId?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37430,6 +40828,20 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type StrategicGoalCreateManyEventInput = {
+    id?: string
+    title: string
+    description?: string | null
+    targetValue?: number | null
+    currentValue?: number | null
+    unit?: string | null
+    deadline?: Date | string | null
+    status?: string
+    priority?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type EventAssignmentUpdateWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37484,24 +40896,38 @@ export namespace Prisma {
   export type BudgetItemUpdateWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
+    strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
   }
 
   export type BudgetItemUncheckedUpdateWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
@@ -37510,11 +40936,18 @@ export namespace Prisma {
   export type BudgetItemUncheckedUpdateManyWithoutEventInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     vendorId?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37721,6 +41154,50 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type StrategicGoalUpdateWithoutEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    budgetItems?: BudgetItemUpdateManyWithoutStrategicGoalNestedInput
+  }
+
+  export type StrategicGoalUncheckedUpdateWithoutEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutStrategicGoalNestedInput
+  }
+
+  export type StrategicGoalUncheckedUpdateManyWithoutEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    targetValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    currentValue?: NullableFloatFieldUpdateOperationsInput | number | null
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    deadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    priority?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type VendorEventCreateManyVendorInput = {
     id?: string
     eventId: string
@@ -37731,10 +41208,17 @@ export namespace Prisma {
     id?: string
     eventId: string
     category: $Enums.BudgetItemCategory
+    subcategory?: string | null
     description: string
     vendor?: string | null
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    strategicGoalId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37774,13 +41258,20 @@ export namespace Prisma {
   export type BudgetItemUpdateWithoutVendorLinkInput = {
     id?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     event?: EventUpdateOneRequiredWithoutBudgetItemsNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
+    strategicGoal?: StrategicGoalUpdateOneWithoutBudgetItemsNestedInput
     files?: FileUpdateManyWithoutBudgetItemNestedInput
   }
 
@@ -37788,10 +41279,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
@@ -37801,10 +41299,17 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     description?: StringFieldUpdateOperationsInput | string
     vendor?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    strategicGoalId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37849,6 +41354,84 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumExpenseStatusFieldUpdateOperationsInput | $Enums.ExpenseStatus
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BudgetItemCreateManyStrategicGoalInput = {
+    id?: string
+    eventId: string
+    category: $Enums.BudgetItemCategory
+    subcategory?: string | null
+    description: string
+    vendor?: string | null
+    vendorId?: string | null
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    actualCost?: Decimal | DecimalJsLike | number | string | null
+    status?: $Enums.BudgetItemStatus
+    notes?: string | null
+    assignedUserId?: string | null
+    lastEditedBy?: string | null
+    lastEditedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BudgetItemUpdateWithoutStrategicGoalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneRequiredWithoutBudgetItemsNestedInput
+    vendorLink?: VendorUpdateOneWithoutBudgetItemsNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedBudgetItemsNestedInput
+    files?: FileUpdateManyWithoutBudgetItemNestedInput
+  }
+
+  export type BudgetItemUncheckedUpdateWithoutStrategicGoalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    files?: FileUncheckedUpdateManyWithoutBudgetItemNestedInput
+  }
+
+  export type BudgetItemUncheckedUpdateManyWithoutStrategicGoalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    category?: EnumBudgetItemCategoryFieldUpdateOperationsInput | $Enums.BudgetItemCategory
+    subcategory?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    vendor?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    actualCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    status?: EnumBudgetItemStatusFieldUpdateOperationsInput | $Enums.BudgetItemStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37999,6 +41582,10 @@ export namespace Prisma {
      */
     export type VendorCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VendorCountOutputTypeDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use StrategicGoalCountOutputTypeDefaultArgs instead
+     */
+    export type StrategicGoalCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StrategicGoalCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use BudgetItemCountOutputTypeDefaultArgs instead
      */
     export type BudgetItemCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BudgetItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -38046,6 +41633,10 @@ export namespace Prisma {
      * @deprecated Use VendorEventDefaultArgs instead
      */
     export type VendorEventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VendorEventDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use StrategicGoalDefaultArgs instead
+     */
+    export type StrategicGoalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StrategicGoalDefaultArgs<ExtArgs>
     /**
      * @deprecated Use BudgetItemDefaultArgs instead
      */

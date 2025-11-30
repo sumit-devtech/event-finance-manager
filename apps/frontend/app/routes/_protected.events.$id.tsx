@@ -122,12 +122,36 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           vendor: 'AdTech Solutions',
         },
       ],
-      _count: {
-        files: 5,
-        budgetItems: 12,
-        activityLogs: 8,
-      },
-    };
+        strategicGoals: [
+          {
+            id: '1',
+            title: 'Achieve 500+ Attendees',
+            description: 'Target attendance for the main conference day',
+            targetValue: 500,
+            currentValue: 320,
+            unit: 'attendees',
+            deadline: '2024-03-15',
+            status: 'in-progress',
+            priority: 'high',
+          },
+          {
+            id: '2',
+            title: 'Generate 100 Qualified Leads',
+            description: 'Capture contact information from interested participants',
+            targetValue: 100,
+            currentValue: 45,
+            unit: 'leads',
+            deadline: '2024-03-17',
+            status: 'in-progress',
+            priority: 'high',
+          },
+        ],
+        _count: {
+          files: 5,
+          budgetItems: 12,
+          activityLogs: 8,
+        },
+      };
 
     return json({ event: demoEvent, users: [], user: null as any });
   }
@@ -146,7 +170,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       // Users endpoint requires Admin role, so non-admin users will get empty array
       users = [];
     }
-    return json({ event, users, user });
+    // Try to fetch strategic goals
+    let strategicGoals: any[] = [];
+    try {
+      strategicGoals = await api.get<any[]>(`/events/${eventId}/strategic-goals`, { token: token || undefined });
+    } catch {
+      // Strategic goals endpoint might fail, return empty array
+      strategicGoals = [];
+    }
+    return json({ event: { ...event, strategicGoals }, users, user });
   } catch (error: any) {
     console.error("Error loading event:", error);
     console.error("Event ID:", eventId);

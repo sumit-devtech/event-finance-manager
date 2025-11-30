@@ -1,11 +1,15 @@
 import { IsString, IsOptional, IsEnum, IsNumber, Min } from "class-validator";
 import { Type } from "class-transformer";
-import { BudgetItemCategory } from "./create-budget-item.dto";
+import { BudgetItemCategory, BudgetItemStatus } from "./create-budget-item.dto";
 
 export class UpdateBudgetItemDto {
   @IsEnum(BudgetItemCategory)
   @IsOptional()
   category?: BudgetItemCategory;
+
+  @IsString()
+  @IsOptional()
+  subcategory?: string;
 
   @IsString()
   @IsOptional()
@@ -26,5 +30,21 @@ export class UpdateBudgetItemDto {
   @IsString()
   @IsOptional()
   vendor?: string;
+
+  @IsEnum(BudgetItemStatus)
+  @IsOptional()
+  status?: BudgetItemStatus;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+
+  @IsString()
+  @IsOptional()
+  assignedUserId?: string;
+
+  @IsString()
+  @IsOptional()
+  strategicGoalId?: string;
 }
 

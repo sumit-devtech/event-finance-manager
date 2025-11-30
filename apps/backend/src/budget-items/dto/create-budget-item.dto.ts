@@ -11,10 +11,20 @@ export enum BudgetItemCategory {
   Miscellaneous = "Miscellaneous",
 }
 
+export enum BudgetItemStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Closed = "Closed",
+}
+
 export class CreateBudgetItemDto {
   @IsEnum(BudgetItemCategory)
   @IsNotEmpty()
   category: BudgetItemCategory;
+
+  @IsString()
+  @IsOptional()
+  subcategory?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -35,5 +45,21 @@ export class CreateBudgetItemDto {
   @IsString()
   @IsOptional()
   vendor?: string;
+
+  @IsEnum(BudgetItemStatus)
+  @IsOptional()
+  status?: BudgetItemStatus;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+
+  @IsString()
+  @IsOptional()
+  assignedUserId?: string;
+
+  @IsString()
+  @IsOptional()
+  strategicGoalId?: string;
 }
 

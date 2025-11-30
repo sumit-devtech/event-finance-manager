@@ -14,6 +14,13 @@ interface SidebarProps {
 export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuOpen, isDemo = false }: SidebarProps) {
   const location = useLocation();
   
+  // Debug: Log user role to help troubleshoot
+  if (typeof window !== 'undefined') {
+    console.log('[Sidebar] User:', user);
+    console.log('[Sidebar] User role:', user?.role);
+    console.log('[Sidebar] Is Admin?', user?.role === 'Admin' || user?.role === 'admin');
+  }
+  
   // Base menu items - append ?demo=true if in demo mode
   const baseMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -22,7 +29,9 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
     { id: 'expenses', label: 'Expenses', icon: Receipt, href: '/expenses' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics' },
     { id: 'reports', label: 'Reports', icon: BarChart3, href: '/reports' },
-    ...(user?.role === 'Admin' && !isDemo ? [{ id: 'users', label: 'Users', icon: UserCog, href: '/users' }] : []),
+    // Show Users menu for Admin users (check both 'Admin' and 'admin' case variations)
+    // Also show in demo mode for testing
+    ...(user && (user.role === 'Admin' || user.role === 'admin' || isDemo) ? [{ id: 'users', label: 'Users', icon: UserCog, href: '/users' }] : []),
     ...(organization && !isDemo ? [{ id: 'team', label: 'Team', icon: UserCog, href: '/team' }] : []),
   ];
 

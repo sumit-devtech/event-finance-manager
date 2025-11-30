@@ -17,16 +17,26 @@ export class EventsService {
   ) {}
 
   async create(createEventDto: CreateEventDto, userId: string) {
-    const { startDate, endDate, client, ...data } = createEventDto;
+    const { startDate, endDate, client, budget, attendees, ...data } = createEventDto;
 
+    const eventData: any = {
+      ...data,
+      location: createEventDto.location || client || null, // Map client to location for backward compatibility
+      eventType: createEventDto.eventType || createEventDto.type || null,
+      startDate: startDate ? new Date(startDate) : null,
+      endDate: endDate ? new Date(endDate) : null,
+      budget: budget !== undefined ? budget : null,
+      attendees: attendees !== undefined ? attendees : null,
+      createdBy: userId,
+    };
+    
+    // Add type alias if eventType is set (for backward compatibility)
+    if (eventData.eventType) {
+      eventData.type = eventData.eventType;
+    }
+    
     const event = await this.prisma.client.event.create({
-      data: {
-        ...data,
-        location: createEventDto.location || client || null, // Map client to location for backward compatibility
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
-        createdBy: userId,
-      },
+      data: eventData,
     });
 
     // Create activity log
@@ -98,6 +108,11 @@ export class EventsService {
         updatedAt: true,
         organizationId: true,
         createdBy: true,
+        venue: true,
+        attendees: true,
+        budget: true,
+        client: true,
+        organizer: true,
         // Only include minimal assignment data
         assignments: {
           select: {
@@ -129,27 +144,54 @@ export class EventsService {
     });
 
     // Transform the response to match frontend expectations
-    return events.map((event) => ({
-      ...event,
-      client: event.location || null, // Map location to client for backward compatibility
-      stakeholders: undefined, // Remove stakeholders from response (we only need count)
-      assignments: event.assignments.map((assignment) => {
-        if (!assignment.user) {
+    return events.map((event) => {
+      // Convert Decimal budget to number
+      const budget = event.budget 
+        ? (typeof event.budget === 'object' && 'toNumber' in event.budget 
+          ? event.budget.toNumber() 
+          : Number(event.budget))
+        : null;
+
+      // Build the response object explicitly to ensure all fields are included
+      const response: any = {
+        id: event.id,
+        name: event.name,
+        location: event.location,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        eventType: event.eventType,
+        description: event.description,
+        status: event.status,
+        createdAt: event.createdAt,
+        updatedAt: event.updatedAt,
+        organizationId: event.organizationId,
+        createdBy: event.createdBy,
+        venue: event.venue ?? null,
+        attendees: event.attendees ?? null,
+        budget: budget,
+        client: event.client ?? null, // Use actual client field, preserve null
+        organizer: event.organizer ?? null,
+        assignments: event.assignments.map((assignment) => {
+          if (!assignment.user) {
+            return {
+              ...assignment,
+              user: null,
+            };
+          }
+          const { fullName, ...userRest } = assignment.user;
           return {
             ...assignment,
-            user: null,
+            user: {
+              ...userRest,
+              name: fullName || null, // Map fullName to name, remove fullName
+            },
           };
-        }
-        const { fullName, ...userRest } = assignment.user;
-        return {
-          ...assignment,
-          user: {
-            ...userRest,
-            name: fullName || null, // Map fullName to name, remove fullName
-          },
-        };
-      }),
-    }));
+        }),
+        _count: event._count,
+      };
+      
+      return response;
+    });
   }
 
   async findOne(id: string, includeDetails: boolean = false) {
@@ -281,7 +323,7 @@ export class EventsService {
   }
 
   async update(id: string, updateEventDto: UpdateEventDto, userId: string) {
-    const { startDate, endDate, client, location, ...data } = updateEventDto;
+    const { startDate, endDate, client, location, budget, attendees, eventType, type, ...data } = updateEventDto;
 
     // Check if event exists
     const existingEvent = await this.findOne(id);
@@ -321,6 +363,48 @@ export class EventsService {
       if (normalizedLocation !== existingLocation) {
         updateData.location = locationValue;
         changedFields.push('location');
+      }
+    }
+    if (data.venue !== undefined) {
+      const normalizedVenue = normalize(data.venue);
+      const existingVenue = normalize((existingEvent as any).venue);
+      if (normalizedVenue !== existingVenue) {
+        updateData.venue = data.venue;
+        changedFields.push('venue');
+      }
+    }
+    if (data.organizer !== undefined) {
+      const normalizedOrganizer = normalize(data.organizer);
+      const existingOrganizer = normalize((existingEvent as any).organizer);
+      if (normalizedOrganizer !== existingOrganizer) {
+        updateData.organizer = data.organizer;
+        changedFields.push('organizer');
+      }
+    }
+    const eventTypeValue = eventType !== undefined ? eventType : type;
+    if (eventTypeValue !== undefined) {
+      const normalizedEventType = normalize(eventTypeValue);
+      const existingEventType = normalize((existingEvent as any).eventType || (existingEvent as any).type);
+      if (normalizedEventType !== existingEventType) {
+        updateData.eventType = eventTypeValue;
+        updateData.type = eventTypeValue;
+        changedFields.push('eventType');
+      }
+    }
+    if (attendees !== undefined) {
+      const normalizedAttendees = normalize(attendees);
+      const existingAttendees = normalize((existingEvent as any).attendees);
+      if (normalizedAttendees !== existingAttendees) {
+        updateData.attendees = attendees;
+        changedFields.push('attendees');
+      }
+    }
+    if (budget !== undefined) {
+      const normalizedBudget = normalize(budget);
+      const existingBudget = normalize((existingEvent as any).budget);
+      if (normalizedBudget !== existingBudget) {
+        updateData.budget = budget;
+        changedFields.push('budget');
       }
     }
     if (data.status !== undefined && data.status !== existingEvent.status) {

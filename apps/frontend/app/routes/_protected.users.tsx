@@ -135,6 +135,26 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ success: true, logs });
     }
 
+    if (intent === "inviteUser") {
+      const email = formData.get("email") as string;
+      const name = formData.get("name") as string;
+      const role = formData.get("role") as string;
+
+      if (!email || !role) {
+        return json({ success: false, error: 'Email and role are required' }, { status: 400 });
+      }
+
+      // Create user with invitation (password will be set on first login)
+      const newUser = await api.post<UserWithCounts>("/users", {
+        email,
+        name: name || undefined,
+        role,
+        password: Math.random().toString(36).slice(-12), // Generate temporary password
+      }, tokenOption);
+
+      return json({ success: true, user: newUser, message: `Invitation sent to ${email}` });
+    }
+
     return json({ success: false, error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
     return json({ success: false, error: error.message || "An error occurred" }, { status: 400 });
@@ -176,14 +196,21 @@ export default function UsersPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [activityFilter, setActivityFilter] = useState<string>("all"); // all, active, inactive
   const [selectedUser, setSelectedUser] = useState<UserWithCounts | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isInviteMode, setIsInviteMode] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showActivityLogs, setShowActivityLogs] = useState<string | null>(null);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [loginHistory, setLoginHistory] = useState<any[]>([]);
+  const [accessLogs, setAccessLogs] = useState<ActivityLog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'login' | 'events' | 'access'>('overview');
   const itemsPerPage = 10;
 
   const isLoading = navigation.state === "submitting";
@@ -213,13 +240,37 @@ export default function UsersPage() {
         }
     }, [actionData, revalidator]);
 
+  // Get unique departments from events (using location/client as department proxy)
+  const departments = Array.from(new Set(events.map(e => e.location || e.client).filter(Boolean)));
+
   // Filter users
   const filteredUsers = users.filter((user) => {
     const matchesSearch = 
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    return matchesSearch && matchesRole;
+
+    // Department filter: check if user has events in that department
+    let matchesDepartment = true;
+    if (departmentFilter !== "all") {
+      const userEvents = events.filter(e => user.assignedEventIds?.includes(e.id));
+      matchesDepartment = userEvents.some(e => (e.location || e.client) === departmentFilter);
+    }
+
+    // Activity filter: active = has recent activity (last 30 days), inactive = no recent activity
+    let matchesActivity = true;
+    if (activityFilter !== "all") {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const hasRecentActivity = user._count.activityLogs > 0; // Simplified: if has any activity logs
+      if (activityFilter === "active") {
+        matchesActivity = hasRecentActivity || user._count.events > 0;
+      } else if (activityFilter === "inactive") {
+        matchesActivity = !hasRecentActivity && user._count.events === 0;
+      }
+    }
+
+    return matchesSearch && matchesRole && matchesDepartment && matchesActivity;
   });
 
   // Pagination
@@ -231,7 +282,7 @@ export default function UsersPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, roleFilter]);
+  }, [searchTerm, roleFilter, departmentFilter, activityFilter]);
 
   const handleDelete = (userId: string) => {
     if (confirm("Are you sure you want to delete this user?")) {
@@ -259,24 +310,56 @@ export default function UsersPage() {
     }
   };
 
+  const handleFetchUserProfileData = async (userId: string) => {
+    try {
+      // Fetch activity logs for access logs
+      const formData = new FormData();
+      formData.append("intent", "fetchLogs");
+      formData.append("userId", userId);
+      submit(formData, { method: "post" });
+
+      // Login history can be derived from activity logs filtered by login actions
+      // For now, we'll use activity logs as a proxy
+    } catch (error) {
+      console.error("Failed to fetch user profile data:", error);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowCreateModal(true);
-          }}
-          className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors font-medium flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create User
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsInviteMode(false);
+              setShowCreateModal(true);
+            }}
+            className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer transition-colors font-medium flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create User
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsInviteMode(true);
+              setShowCreateModal(true);
+            }}
+            className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer transition-colors font-medium flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Invite User
+          </button>
+        </div>
       </div>
 
       {/* Success/Error Messages */}
@@ -293,7 +376,7 @@ export default function UsersPage() {
 
       {/* Filters */}
       <div className="mb-4 sm:mb-6 bg-white p-4 sm:p-6 rounded-lg shadow border border-gray-200">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search
@@ -314,8 +397,22 @@ export default function UsersPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               Filter by Role
+              <div className="group relative">
+                <svg className="h-4 w-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                  <div className="space-y-2">
+                    <div><strong>Admin:</strong> Full system access, manage users and events</div>
+                    <div><strong>EventManager:</strong> Create and manage events, assign users</div>
+                    <div><strong>Finance:</strong> Manage budgets, expenses, and financial data</div>
+                    <div><strong>Viewer:</strong> Read-only access to events and reports</div>
+                  </div>
+                  <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
             </label>
             <select
               value={roleFilter}
@@ -327,6 +424,35 @@ export default function UsersPage() {
               <option value="EventManager">Event Manager</option>
               <option value="Finance">Finance</option>
               <option value="Viewer">Viewer</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Filter by Department
+            </label>
+            <select
+              value={departmentFilter}
+              onChange={(e) => setDepartmentFilter(e.target.value)}
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            >
+              <option value="all">All Departments</option>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Recent Activity
+            </label>
+            <select
+              value={activityFilter}
+              onChange={(e) => setActivityFilter(e.target.value)}
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            >
+              <option value="all">All Users</option>
+              <option value="active">Active (Last 30 days)</option>
+              <option value="inactive">Inactive</option>
             </select>
           </div>
         </div>
@@ -452,14 +578,18 @@ export default function UsersPage() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleViewActivityLogs(user.id);
+                          setSelectedUser(user);
+                          setShowProfileModal(true);
+                          setActiveProfileTab('overview');
+                          // Fetch login history and access logs
+                          handleFetchUserProfileData(user.id);
                         }}
                         className="flex-1 px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-1.5"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Logs
+                        Profile
                       </button>
                       <button
                         type="button"
@@ -571,11 +701,14 @@ export default function UsersPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleViewActivityLogs(user.id);
+                              setSelectedUser(user);
+                              setShowProfileModal(true);
+                              setActiveProfileTab('overview');
+                              handleFetchUserProfileData(user.id);
                             }}
                             className="text-purple-600 hover:text-purple-900 cursor-pointer transition-colors"
                           >
-                            Logs
+                            Profile
                           </button>
                           <button
                             type="button"
@@ -653,12 +786,16 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Create User Modal */}
+      {/* Create User / Invite User Modal */}
       {showCreateModal && (
         <UserFormModal
-          onClose={() => setShowCreateModal(false)}
+          onClose={() => {
+            setShowCreateModal(false);
+            setIsInviteMode(false);
+          }}
           intent="create"
           isLoading={isLoading}
+          isInvite={isInviteMode}
         />
       )}
 
@@ -712,6 +849,25 @@ export default function UsersPage() {
           }}
         />
       )}
+
+      {/* User Profile Details Modal */}
+      {showProfileModal && selectedUser && (
+        <UserProfileModal
+          user={selectedUser}
+          events={events}
+          activityLogs={activityLogs}
+          onClose={() => {
+            setShowProfileModal(false);
+            setSelectedUser(null);
+            setActiveProfileTab('overview');
+            setActivityLogs([]);
+            setLoginHistory([]);
+            setAccessLogs([]);
+          }}
+          activeTab={activeProfileTab}
+          onTabChange={setActiveProfileTab}
+        />
+      )}
     </div>
   );
 }
@@ -722,11 +878,13 @@ function UserFormModal({
   onClose,
   intent,
   isLoading,
+  isInvite = false,
 }: {
   user?: UserWithCounts;
   onClose: () => void;
   intent: "create" | "update";
   isLoading: boolean;
+    isInvite?: boolean;
 }) {
   const submit = useSubmit();
 
@@ -760,10 +918,10 @@ function UserFormModal({
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                {intent === "create" ? "Create User" : "Edit User"}
+                {isInvite ? "Invite User" : intent === "create" ? "Create User" : "Edit User"}
               </h2>
               <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                {intent === "create" ? "Add a new user to the system" : `Update ${user?.name || user?.email || "user"} details`}
+                {isInvite ? "Send an invitation to join the system" : intent === "create" ? "Add a new user to the system" : `Update ${user?.name || user?.email || "user"} details`}
               </p>
             </div>
           </div>
@@ -790,7 +948,7 @@ function UserFormModal({
               e.preventDefault();
               e.stopPropagation();
               const formData = new FormData(e.currentTarget);
-              formData.append("intent", intent);
+              formData.append("intent", isInvite ? "inviteUser" : intent);
               if (user) {
                 formData.append("userId", user.id);
               }
@@ -815,19 +973,28 @@ function UserFormModal({
               </div>
 
               {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password {intent === "create" ? <span className="text-red-500">*</span> : <span className="text-xs text-gray-500">(leave blank to keep current)</span>}
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  required={intent === "create"}
-                  minLength={6}
-                  placeholder="Minimum 6 characters"
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-400"
-                />
-              </div>
+              {!isInvite && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password {intent === "create" ? <span className="text-red-500">*</span> : <span className="text-xs text-gray-500">(leave blank to keep current)</span>}
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    required={intent === "create"}
+                    minLength={6}
+                    placeholder="Minimum 6 characters"
+                    className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+              )}
+              {isInvite && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-800">
+                    <strong>Note:</strong> A temporary password will be generated and the user will be prompted to set a new password on first login.
+                  </p>
+                </div>
+              )}
 
               {/* Name */}
               <div>
@@ -845,8 +1012,22 @@ function UserFormModal({
 
               {/* Role */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                   Role
+                  <div className="group relative">
+                    <svg className="h-4 w-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                      <div className="space-y-2">
+                        <div><strong>Admin:</strong> Full system access, manage users and events</div>
+                        <div><strong>EventManager:</strong> Create and manage events, assign users</div>
+                        <div><strong>Finance:</strong> Manage budgets, expenses, and financial data</div>
+                        <div><strong>Viewer:</strong> Read-only access to events and reports</div>
+                      </div>
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
                 </label>
                 <select
                   name="role"
@@ -891,7 +1072,7 @@ function UserFormModal({
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={intent === "create" ? "M12 4v16m8-8H4" : "M5 13l4 4L19 7"} />
                     </svg>
-                    {intent === "create" ? "Create User" : "Save Changes"}
+                      {isInvite ? "Send Invitation" : intent === "create" ? "Create User" : "Save Changes"}
                   </>
                 )}
               </button>
@@ -1448,6 +1629,273 @@ function ActivityLogsModal({
               ))
             )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// User Profile Details Modal with Tabs
+function UserProfileModal({
+  user,
+  events,
+  activityLogs,
+  onClose,
+  activeTab,
+  onTabChange,
+}: {
+  user: UserWithCounts;
+  events: any[];
+  activityLogs: ActivityLog[];
+  onClose: () => void;
+  activeTab: 'overview' | 'login' | 'events' | 'access';
+  onTabChange: (tab: 'overview' | 'login' | 'events' | 'access') => void;
+}) {
+  // Get user's assigned events
+  const assignedEvents = events.filter(e => user.assignedEventIds?.includes(e.id));
+
+  // Filter login history from activity logs (actions containing 'login' or 'auth')
+  const loginHistoryData = activityLogs
+    .filter(log => log.action.toLowerCase().includes('login') || log.action.toLowerCase().includes('auth'))
+    .map(log => ({
+      id: log.id,
+      timestamp: log.createdAt,
+      action: log.action,
+      ipAddress: (log.details as any)?.ipAddress || 'N/A',
+      userAgent: (log.details as any)?.userAgent || 'N/A',
+    }));
+
+  // Access logs are all activity logs
+  const accessLogsData = activityLogs;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-auto relative z-[201] max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl flex items-center justify-between z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+              <span className="text-indigo-600 font-semibold text-lg">
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                {user.name || user.email}
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                {user.email} • <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                  {user.role}
+                </span>
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            aria-label="Close modal"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200 px-6">
+          <div className="flex space-x-1 overflow-x-auto">
+            {[
+              { id: 'overview', label: 'Overview', icon: '📊' },
+              { id: 'login', label: 'Login History', icon: '🔐' },
+              { id: 'events', label: 'Event Assignments', icon: '📅' },
+              { id: 'access', label: 'Access Logs', icon: '📝' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id as any)}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+              >
+                <span className="mr-2">{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">Total Events</div>
+                  <div className="text-2xl font-bold text-gray-900">{user._count.events}</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">Activity Logs</div>
+                  <div className="text-2xl font-bold text-gray-900">{user._count.activityLogs}</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">Notifications</div>
+                  <div className="text-2xl font-bold text-gray-900">{user._count.notifications}</div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">User Information</h3>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Email</dt>
+                    <dd className="mt-1 text-sm text-gray-900">{user.email}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Role</dt>
+                    <dd className="mt-1">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                        {user.role}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Created</dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {new Date(user.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {new Date(user.updatedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'login' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Login History</h3>
+              {loginHistoryData.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <p className="text-gray-500 text-lg">No login history available</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {loginHistoryData.map((login) => (
+                    <div key={login.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {formatActionName(login.action)}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(login.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <div>IP Address: {login.ipAddress}</div>
+                        <div>User Agent: {login.userAgent}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'events' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Assignments</h3>
+              {assignedEvents.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-gray-500 text-lg">No events assigned</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {assignedEvents.map((event) => (
+                    <div key={event.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-900">{event.name}</h4>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {event.location || event.client || 'No location'}
+                            {event.startDate && ` • ${new Date(event.startDate).toLocaleDateString()}`}
+                          </p>
+                        </div>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${event.status === 'Active' ? 'bg-green-100 text-green-800' :
+                          event.status === 'Planning' ? 'bg-blue-100 text-blue-800' :
+                            event.status === 'Completed' ? 'bg-gray-100 text-gray-800' :
+                              'bg-red-100 text-red-800'
+                          }`}>
+                          {event.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'access' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Access Logs</h3>
+              {accessLogsData.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p className="text-gray-500 text-lg">No access logs available</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {accessLogsData.slice(0, 50).map((log) => (
+                    <div key={log.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {formatActionName(log.action)}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(log.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      {log.event && (
+                        <div className="text-xs text-indigo-600 mb-2">
+                          Event: {log.event.name}
+                        </div>
+                      )}
+                      {log.details && (
+                        <div className="text-xs text-gray-600 mt-2">
+                          {formatActivityLogDetails(log.action, log.details, log)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {accessLogsData.length > 50 && (
+                    <p className="text-sm text-gray-500 text-center">
+                      Showing first 50 of {accessLogsData.length} access logs
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsDateString, IsEnum } from "class-validator";
+import { IsString, IsOptional, IsDateString, IsEnum, IsInt, IsNumber, Min } from "class-validator";
+import { Type } from "class-transformer";
 
 export enum EventStatus {
   Planning = "Planning",
@@ -17,11 +18,27 @@ export class CreateEventDto {
 
   @IsOptional()
   @IsString()
-  location?: string; // Note: simlifidb uses 'location' instead of 'client'
+  location?: string;
   
   @IsOptional()
   @IsString()
-  client?: string; // Deprecated: kept for backward compatibility, maps to 'location'
+  venue?: string;
+
+  @IsOptional()
+  @IsString()
+  client?: string; // Deprecated: kept for backward compatibility
+
+  @IsOptional()
+  @IsString()
+  organizer?: string;
+
+  @IsOptional()
+  @IsString()
+  eventType?: string;
+
+  @IsOptional()
+  @IsString()
+  type?: string; // Alias for eventType
 
   @IsOptional()
   @IsDateString()
@@ -30,6 +47,18 @@ export class CreateEventDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  attendees?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  budget?: number;
 
   @IsOptional()
   @IsEnum(EventStatus)

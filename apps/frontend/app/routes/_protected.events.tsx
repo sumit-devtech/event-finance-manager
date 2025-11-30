@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useSearchParams, useRevalidator } from "@remix-run/react";
-import { useCallback, useMemo } from "react";
+import { useLoaderData, useSearchParams, useRevalidator, useActionData } from "@remix-run/react";
+import { useCallback, useMemo, useEffect } from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
@@ -464,6 +464,129 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ success: false, error: 'Bulk export not yet implemented' }, { status: 501 });
     }
 
+    // Create event
+    if (intent === "create") {
+      const name = formData.get("name") as string;
+      const description = formData.get("description") as string;
+      const location = formData.get("location") as string;
+      const venue = formData.get("venue") as string;
+      const client = formData.get("client") as string;
+      const organizer = formData.get("organizer") as string;
+      const eventType = formData.get("type") as string;
+      const startDate = formData.get("startDate") as string;
+      const endDate = formData.get("endDate") as string;
+      const status = formData.get("status") as string;
+      const attendeesStr = formData.get("attendees") as string;
+      const budgetStr = formData.get("budget") as string;
+
+      if (!name) {
+        return json({ success: false, error: 'Event name is required' }, { status: 400 });
+      }
+
+      const payload: any = {
+        name,
+        description: description || null,
+        location: location || null,
+        venue: venue || null,
+        client: client || null,
+        organizer: organizer || null,
+        eventType: eventType || null,
+        type: eventType || null,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        status: status || 'Planning',
+      };
+
+      if (attendeesStr) {
+        const attendees = parseInt(attendeesStr);
+        if (!isNaN(attendees) && attendees >= 0) {
+          payload.attendees = attendees;
+        }
+      }
+
+      if (budgetStr) {
+        const budget = parseFloat(budgetStr);
+        if (!isNaN(budget) && budget >= 0) {
+          payload.budget = budget;
+        }
+      }
+
+      try {
+        await api.post("/events", payload, {
+          token: token || undefined,
+        });
+
+        return json({ success: true, message: 'Event created successfully' });
+      } catch (error: any) {
+        console.error("Error creating event:", error);
+        const errorMessage = error?.message || error?.error || 'Failed to create event. Please try again.';
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 500 });
+      }
+    }
+
+    // Update event
+    if (intent === "update") {
+      const eventId = formData.get("eventId") as string;
+      if (!eventId) {
+        return json({ success: false, error: 'Event ID is required' }, { status: 400 });
+      }
+
+      const name = formData.get("name") as string;
+      const description = formData.get("description") as string;
+      const location = formData.get("location") as string;
+      const venue = formData.get("venue") as string;
+      const client = formData.get("client") as string;
+      const organizer = formData.get("organizer") as string;
+      const eventType = formData.get("type") as string;
+      const startDate = formData.get("startDate") as string;
+      const endDate = formData.get("endDate") as string;
+      const status = formData.get("status") as string;
+      const attendeesStr = formData.get("attendees") as string;
+      const budgetStr = formData.get("budget") as string;
+
+      const payload: any = {};
+
+      if (name) payload.name = name;
+      if (description !== null) payload.description = description || null;
+      if (location !== null) payload.location = location || null;
+      if (venue !== null) payload.venue = venue || null;
+      if (client !== null) payload.client = client || null;
+      if (organizer !== null) payload.organizer = organizer || null;
+      if (eventType !== null) {
+        payload.eventType = eventType || null;
+        payload.type = eventType || null;
+      }
+      if (startDate !== null) payload.startDate = startDate || null;
+      if (endDate !== null) payload.endDate = endDate || null;
+      if (status) payload.status = status;
+
+      if (attendeesStr !== null && attendeesStr !== '') {
+        const attendees = parseInt(attendeesStr);
+        if (!isNaN(attendees) && attendees >= 0) {
+          payload.attendees = attendees;
+        }
+      }
+
+      if (budgetStr !== null && budgetStr !== '') {
+        const budget = parseFloat(budgetStr);
+        if (!isNaN(budget) && budget >= 0) {
+          payload.budget = budget;
+        }
+      }
+
+      try {
+        await api.put(`/events/${eventId}`, payload, {
+          token: token || undefined,
+        });
+
+        return json({ success: true, message: 'Event updated successfully' });
+      } catch (error: any) {
+        console.error("Error updating event:", error);
+        const errorMessage = error?.message || error?.error || 'Failed to update event. Please try again.';
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 500 });
+      }
+    }
+
     // Delete event
     if (intent === "deleteEvent") {
       const eventId = formData.get("eventId") as string;
@@ -491,11 +614,22 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function EventsPage() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const events = loaderData?.events || [];
   const user = loaderData?.user;
   const [searchParams] = useSearchParams();
   const revalidator = useRevalidator();
   const isDemo = searchParams.get('demo') === 'true';
+
+  // Reload data after successful actions
+  useEffect(() => {
+    if (actionData?.success) {
+      const timer = setTimeout(() => {
+        revalidator.revalidate();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [actionData, revalidator]);
 
   // Memoize the refresh callback to prevent infinite loops
   const handleRefresh = useCallback(() => {
@@ -525,15 +659,16 @@ export default function EventsPage() {
         endDate: event.endDate,
         location: event.location || 'TBD',
         region: region,
-        venue: event.venue || '',
-        attendees: event.attendees || 0,
-        budget: event.budget || 0,
+        venue: event.venue ?? '',
+        attendees: event.attendees ?? null,
+        budget: event.budget ?? null,
         spent: event.spent || 0,
-        organizer: event.organizer || owner,
+        organizer: event.organizer ?? owner,
         owner: owner,
         createdBy: event.createdBy,
         status: event.status?.toLowerCase() || 'planning',
-        description: event.description || '',
+        description: event.description ?? '',
+        client: event.client ?? '',
         createdAt: event.createdAt,
         updatedAt: event.updatedAt,
         roiPercent: event.roiMetrics?.roiPercent || event.roiPercent || null,
@@ -544,6 +679,17 @@ export default function EventsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Success/Error Messages */}
+      {actionData?.success && actionData.message && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+          {actionData.message}
+        </div>
+      )}
+      {actionData && !actionData.success && actionData.error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+          {actionData.error}
+        </div>
+      )}
       <EventsListNew
         user={user}
         organization={undefined}

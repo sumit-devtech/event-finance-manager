@@ -12,6 +12,7 @@ interface LoaderData {
   events: any[];
   budgetItems: any[];
   budgetVersions: any[];
+  users: any[]; // Add users for assigned user dropdown
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -63,6 +64,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       events: demoEvents,
       budgetVersions: demoBudgetVersions,
       budgetItems: demoBudgetItems,
+      users: [], // Demo mode doesn't need users
     });
   }
 
@@ -74,47 +76,66 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const url = new URL(request.url);
     const eventId = url.searchParams.get('eventId');
 
-    // OPTIMIZE: Fetch events and budget items in parallel
-    const [eventsResult, budgetItemsResult] = await Promise.allSettled([
-      api.get<any[]>("/events?limit=20", {
+    // Fetch events and users in parallel
+    const [eventsResult, usersResult] = await Promise.allSettled([
+      api.get<any[]>("/events?limit=100", {
         token: token || undefined,
       }),
-      eventId ? api.get<any[]>(`/events/${eventId}/budget-items`, {
+      api.get<any[]>("/users", {
         token: token || undefined,
-      }).catch(() => []) : Promise.resolve([]),
+      }),
     ]);
 
     const events = eventsResult.status === 'fulfilled' ? (eventsResult.value || []) : [];
+    const users = usersResult.status === 'fulfilled' ? (usersResult.value || []) : [];
     const budgetItems: any[] = [];
     const budgetVersions: any[] = [];
 
-    // If no eventId specified, use first event
-    const selectedEventId = eventId || (events && events.length > 0 ? events[0].id : null);
-    
-    if (selectedEventId && budgetItemsResult.status === 'fulfilled') {
-      const items = budgetItemsResult.value;
-      if (Array.isArray(items)) {
-        budgetItems.push(...items);
-      }
-    } else if (selectedEventId && !eventId) {
-      // If no eventId in query but we have events, fetch budget items for first event
+    // If eventId is specified, fetch only that event's budget items
+    if (eventId) {
       try {
-        const items = await api.get<any[]>(`/events/${selectedEventId}/budget-items`, {
+        const items = await api.get<any[]>(`/events/${eventId}/budget-items`, {
           token: token || undefined,
         });
         if (Array.isArray(items)) {
-          budgetItems.push(...items);
+          // Add eventId to each item for grouping
+          items.forEach(item => {
+            budgetItems.push({ ...item, eventId });
+          });
         }
-      } catch {
-        // Budget items may not exist for this event
+      } catch (error) {
+        console.warn(`Could not fetch budget items for event ${eventId}:`, error);
       }
+    } else {
+      // If no eventId specified, fetch budget items for ALL events
+      const budgetItemsResults = await Promise.allSettled(
+        events.map((event) =>
+          api.get<any[]>(`/events/${event.id}/budget-items`, {
+            token: token || undefined,
+          }).catch((err) => {
+            console.warn(`Could not fetch budget items for event ${event.id}:`, err);
+            return [];
+          })
+        )
+      );
+
+      // Combine all budget items from all events
+      budgetItemsResults.forEach((result, index) => {
+        if (result.status === 'fulfilled' && Array.isArray(result.value)) {
+          result.value.forEach((item: any) => {
+            // Add eventId to each item for grouping
+            budgetItems.push({ ...item, eventId: events[index]?.id });
+          });
+        }
+      });
     }
 
     return json<LoaderData>({ 
       user, 
       events: events || [], 
       budgetItems: budgetItems || [],
-      budgetVersions: budgetVersions || []
+      budgetVersions: budgetVersions || [],
+      users: users || []
     });
   } catch (error: any) {
     console.error("Error fetching budget data:", error);
@@ -122,7 +143,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       user, 
       events: [], 
       budgetItems: [],
-      budgetVersions: []
+      budgetVersions: [],
+      users: []
     });
   }
 }
@@ -160,6 +182,11 @@ export async function action({ request }: ActionFunctionArgs) {
       const estimatedCostStr = formData.get("estimatedCost") as string;
       const actualCostStr = formData.get("actualCost") as string;
       const vendor = formData.get("vendor") as string;
+      const subcategory = formData.get("subcategory") as string;
+      const status = formData.get("status") as string;
+      const notes = formData.get("notes") as string;
+      const assignedUser = formData.get("assignedUser") as string;
+      const strategicGoalId = formData.get("strategicGoalId") as string;
 
       const payload: any = {
         category,
@@ -182,6 +209,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (vendor && vendor.trim()) {
         payload.vendor = vendor.trim();
+      }
+
+      if (subcategory !== null && subcategory !== undefined) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+
+      if (status) {
+        payload.status = status;
+      }
+
+      if (notes !== null && notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+
+      if (assignedUser !== null && assignedUser !== undefined && assignedUser.trim()) {
+        payload.assignedUserId = assignedUser.trim();
+      }
+
+      if (strategicGoalId !== null && strategicGoalId !== undefined && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
       }
 
       await api.post(
@@ -207,8 +254,31 @@ export async function action({ request }: ActionFunctionArgs) {
       const description = formData.get("description") as string;
       if (description) payload.description = description;
 
+      const subcategory = formData.get("subcategory") as string;
+      if (subcategory !== null) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+
+      const status = formData.get("status") as string;
+      if (status) payload.status = status;
+
+      const notes = formData.get("notes") as string;
+      if (notes !== null) {
+        payload.notes = notes.trim() || null;
+      }
+
+      const assignedUser = formData.get("assignedUser") as string;
+      if (assignedUser !== null) {
+        payload.assignedUserId = assignedUser.trim() || null;
+      }
+
+      const strategicGoalId = formData.get("strategicGoalId") as string;
+      if (strategicGoalId !== null) {
+        payload.strategicGoalId = strategicGoalId.trim() || null;
+      }
+
       const estimatedCostStr = formData.get("estimatedCost") as string;
-      if (estimatedCostStr) {
+      if (estimatedCostStr !== null && estimatedCostStr !== '') {
         const estimatedCost = parseFloat(estimatedCostStr);
         if (!isNaN(estimatedCost) && estimatedCost >= 0) {
           payload.estimatedCost = estimatedCost;
@@ -216,7 +286,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       const actualCostStr = formData.get("actualCost") as string;
-      if (actualCostStr) {
+      if (actualCostStr !== null && actualCostStr !== '') {
         const actualCost = parseFloat(actualCostStr);
         if (!isNaN(actualCost) && actualCost >= 0) {
           payload.actualCost = actualCost;
@@ -262,21 +332,22 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function BudgetRoute() {
-  const { user, events, budgetItems, budgetVersions } = useLoaderData<typeof loader>();
+  const { user, events, budgetItems, budgetVersions, users } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [searchParams, setSearchParams] = useSearchParams();
   const revalidator = useRevalidator();
   const isDemo = searchParams.get('demo') === 'true';
   const eventId = searchParams.get('eventId');
 
-  // Budget items are already filtered by eventId from the API, so no need to filter again
-  // But we can still filter if eventId is in the query and items have eventId field
-  const filteredBudgetItems = budgetItems || [];
+  // Filter budget items by eventId if one is selected
+  const filteredBudgetItems = eventId 
+    ? (budgetItems || []).filter((item: any) => item.eventId === eventId)
+    : (budgetItems || []);
 
-  // Get the selected event or first event
+  // Get the selected event
   const selectedEvent = eventId 
-    ? events.find((e: any) => e.id === eventId) || events[0]
-    : events[0];
+    ? events.find((e: any) => e.id === eventId)
+    : null;
 
   // Reload data after successful actions (same pattern as events route)
   useEffect(() => {
@@ -300,53 +371,33 @@ export default function BudgetRoute() {
     // Don't call revalidator here - setSearchParams will trigger a re-render and loader will run
   };
 
-  // If no event is selected and we have events, show a message or select first
-  if (!selectedEvent && events.length > 0 && !isDemo) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Budget Manager</h2>
-          <p className="text-gray-600 mt-1">Please select an event to manage its budget</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <p className="text-gray-600">Available events:</p>
-          <ul className="mt-2 space-y-2">
-            {events.map((event: any) => (
-              <li key={event.id}>
-                <a href={`/budget?eventId=${event.id}`} className="text-blue-600 hover:underline">
-                  {event.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Event Selector */}
       {events.length > 0 && (
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Event to Manage Budget
+            Filter by Event
           </label>
           <select
-            value={eventId || (selectedEvent?.id || '')}
+            value={eventId || ''}
             onChange={(e) => handleEventChange(e.target.value)}
             className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">-- Select an event --</option>
+            <option value="">All Events</option>
             {events.map((event: any) => (
               <option key={event.id} value={event.id}>
                 {event.name}
               </option>
             ))}
           </select>
-          {selectedEvent && (
+          {selectedEvent ? (
             <p className="text-sm text-gray-600 mt-2">
-              Managing budget for: <span className="font-medium">{selectedEvent.name}</span>
+              Showing budget for: <span className="font-medium">{selectedEvent.name}</span>
+            </p>
+          ) : (
+            <p className="text-sm text-gray-600 mt-2">
+              Showing budgets for all events ({filteredBudgetItems.length} items)
             </p>
           )}
         </div>
@@ -368,7 +419,9 @@ export default function BudgetRoute() {
         user={user} 
         organization={undefined} 
         event={selectedEvent} 
+        events={events}
         budgetItems={filteredBudgetItems}
+        users={users}
         isDemo={isDemo}
       />
     </div>

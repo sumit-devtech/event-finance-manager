@@ -7,7 +7,9 @@ interface BudgetManagerProps {
   user: User | null;
   organization?: any;
   event?: any;
+  events?: any[]; // Add events array for showing event names
   budgetItems?: any[];
+  users?: any[]; // Add users for assigned user dropdown
   isDemo?: boolean;
 }
 
@@ -29,9 +31,11 @@ interface BudgetLineItem {
   lastEditedBy?: string;
   lastEditedAt?: string;
   vendor?: string;
+  eventId?: string;
+  eventName?: string;
 }
 
-export function BudgetManager({ user, organization, event, budgetItems = [], isDemo = false }: BudgetManagerProps) {
+export function BudgetManager({ user, organization, event, events = [], budgetItems = [], users = [], isDemo = false }: BudgetManagerProps) {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
   const [showAddLine, setShowAddLine] = useState(false);
@@ -97,6 +101,13 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
     },
   ]);
 
+  // Helper function to get event name from eventId
+  const getEventName = (eventId: string | undefined): string => {
+    if (!eventId) return '';
+    const foundEvent = events.find((e: any) => e.id === eventId);
+    return foundEvent?.name || '';
+  };
+
   // Use real budget items if available, otherwise use demo data
   const budgetLines: BudgetLineItem[] = isDemo 
     ? demoBudgetLines 
@@ -129,11 +140,14 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
           status: (item.status || 'Pending') as BudgetItemStatus,
           notes: item.notes || '',
           fileAttachment: item.fileAttachment || '',
-          assignedUser: item.assignedUser || item.assignedUserId || '',
+          assignedUser: typeof item.assignedUser === 'string' ? item.assignedUser : (item.assignedUser?.fullName || item.assignedUser?.name || item.assignedUser?.email || item.assignedUserId || ''),
+          assignedUserId: item.assignedUserId || (typeof item.assignedUser === 'object' && item.assignedUser?.id ? item.assignedUser.id : ''),
           strategicGoalId: item.strategicGoalId || '',
           lastEditedBy: item.lastEditedBy || item.updatedBy || user?.name || 'Unknown',
           lastEditedAt: item.updatedAt || item.lastEditedAt || new Date().toISOString(),
           vendor: item.vendor || '',
+          eventId: item.eventId || '', // Store eventId for display
+          eventName: getEventName(item.eventId), // Get event name
         };
       });
 
@@ -219,7 +233,9 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
     }
 
     setError(null);
-    if (!event?.id) {
+    // For updates, get eventId from the item being edited
+    // For creates, require event to be selected
+    if (!editingItem && !event?.id) {
       e.preventDefault();
       setError('Please select an event first');
       return;
@@ -228,15 +244,17 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
 
   const handleEdit = (item: BudgetLineItem) => {
     setEditingItem(item);
+    // Get assignedUserId from the item if available (for form submission)
+    const assignedUserId = (item as any).assignedUserId || '';
     setFormData({
-      category: item.category,
+      category: item.category || '',
       subcategory: item.subcategory || '',
       description: item.description || '',
-      estimatedCost: (item.estimatedCost || 0).toString(),
-      actualCost: (item.actualCost || 0).toString(),
-      status: item.status,
+      estimatedCost: item.estimatedCost ? item.estimatedCost.toString() : '',
+      actualCost: item.actualCost ? item.actualCost.toString() : '',
+      status: item.status || 'Pending',
       notes: item.notes || '',
-      assignedUser: item.assignedUser || '',
+      assignedUser: assignedUserId || item.assignedUser || '', // Use ID for form submission
       strategicGoalId: item.strategicGoalId || '',
       vendor: item.vendor || '',
       fileAttachment: null,
@@ -291,8 +309,8 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
     }
   };
 
-  // Get organization members for user assignment
-  const organizationMembers = organization?.members || [];
+  // Get users for user assignment (prefer users prop, fallback to organization members)
+  const availableUsers = users.length > 0 ? users : (organization?.members || []);
 
   return (
     <div className="space-y-6">
@@ -300,8 +318,10 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Budget Planner</h2>
         <p className="text-gray-600 mt-1">Manage budget line items with detailed tracking and role-based access</p>
-        {event && (
+        {event ? (
           <p className="text-sm text-gray-500 mt-1">Event: {event.name}</p>
+        ) : events.length > 0 && budgetLines.some((line: any) => line.eventId) && (
+          <p className="text-sm text-gray-500 mt-1">Showing budgets for all events</p>
         )}
         {isDemo && (
           <p className="text-yellow-700 text-sm mt-2">Demo Mode: Changes are not saved</p>
@@ -396,6 +416,9 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
+                {!event && events.length > 0 && (
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                )}
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategory</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
@@ -410,8 +433,8 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
             <tbody className="bg-white divide-y divide-gray-200">
               {budgetLines.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
-                    No budget items found. Click "Add Line Item" to create one.
+                  <td colSpan={!event && events.length > 0 ? 10 : 9} className="px-6 py-8 text-center text-gray-500">
+                    No budget items found. {event?.id ? 'Click "Add Line Item" to create one.' : 'Select an event to add budget items.'}
                   </td>
                 </tr>
               ) : (
@@ -422,6 +445,11 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => setExpandedRow(expandedRow === line.id ? null : line.id)}
                     >
+                      {!event && events.length > 0 && (
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
+                          {line.eventName || 'Unknown Event'}
+                        </td>
+                      )}
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{line.category}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{line.subcategory || '-'}</td>
                       <td className="px-4 py-4 text-sm text-gray-900">{line.description}</td>
@@ -469,7 +497,7 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
                     </tr>
                     {expandedRow === line.id && (
                       <tr>
-                        <td colSpan={9} className="px-6 py-4 bg-gray-50">
+                        <td colSpan={!event && events.length > 0 ? 10 : 9} className="px-6 py-4 bg-gray-50">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
                               <p className="font-medium text-gray-700 mb-2">Notes</p>
@@ -558,7 +586,8 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
 
               <input type="hidden" name="intent" value={editingItem ? "updateBudgetItem" : "createBudgetItem"} />
               {editingItem && <input type="hidden" name="budgetItemId" value={editingItem.id.toString()} />}
-              {event?.id && <input type="hidden" name="eventId" value={event.id} />}
+              {editingItem?.eventId && <input type="hidden" name="eventId" value={editingItem.eventId} />}
+              {!editingItem && event?.id && <input type="hidden" name="eventId" value={event.id} />}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -674,11 +703,15 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select user</option>
-                    {organizationMembers.map((member: any) => (
-                      <option key={member.id} value={member.name || member.email}>
-                        {member.name || member.email}
-                      </option>
-                    ))}
+                    {availableUsers.map((member: any) => {
+                      const userId = member.id;
+                      const displayName = member.fullName || member.name || member.email || 'Unknown';
+                      return (
+                        <option key={userId} value={userId}>
+                          {displayName}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
@@ -740,7 +773,17 @@ export function BudgetManager({ user, organization, event, budgetItems = [], isD
                   disabled={isSubmitting}
                   className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? 'Saving...' : editingItem ? 'Update' : 'Add'} Line Item
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {editingItem ? 'Updating...' : 'Adding...'}
+                    </>
+                  ) : (
+                    editingItem ? 'Update' : 'Add'
+                  )} Line Item
                 </button>
                 <button
                   type="button"

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Calendar, MapPin, Users, DollarSign, X, FileText, Grid, List, Archive, Copy, Download, ChevronDown, ChevronUp, Filter, Edit, Trash, MoreVertical, Crown, AlertCircle, TrendingUp, Info } from './Icons';
 import { EventForm } from './EventForm';
 import { EventDetailsExpanded } from './EventDetailsExpanded';
-import { Form, useFetcher } from '@remix-run/react';
+import { Form, useFetcher, useActionData } from '@remix-run/react';
 import type { User } from "~/lib/auth";
 
 interface EventsListNewProps {
@@ -24,7 +24,8 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const [filterBudgetHealth, setFilterBudgetHealth] = useState('all');
   const [filterRegion, setFilterRegion] = useState('all');
   const [filterTimeRange, setFilterTimeRange] = useState('all');
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [isMobile, setIsMobile] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table, will be updated on mount
   const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [events, setEvents] = useState<any[]>(initialEvents || []);
@@ -32,7 +33,59 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const [expandedMetadata, setExpandedMetadata] = useState<Set<string>>(new Set());
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
   const fetcher = useFetcher();
+  const actionData = useActionData();
   const lastProcessedFetcherData = useRef<any>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize view mode based on screen size and saved preference (runs only on client)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const initializeViewMode = () => {
+      // Check if user has a saved preference first
+      const savedViewMode = localStorage.getItem('eventsViewMode') as ViewMode | null;
+      if (savedViewMode && (savedViewMode === 'card' || savedViewMode === 'table')) {
+        setViewMode(savedViewMode);
+      } else {
+        // Default: card for mobile (< 768px), table for desktop
+        const mobile = window.innerWidth < 768;
+        setIsMobile(mobile);
+        setViewMode(mobile ? 'card' : 'table');
+      }
+      setIsInitialized(true);
+    };
+
+    initializeViewMode();
+  }, []);
+
+  // Detect mobile viewport and update isMobile state on resize
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+
+      // Only auto-switch view mode if user hasn't manually changed it
+      // (i.e., if there's no saved preference)
+      if (!isInitialized) return;
+
+      const savedViewMode = localStorage.getItem('eventsViewMode');
+      if (!savedViewMode) {
+        // No saved preference, auto-switch based on screen size
+        setViewMode(mobile ? 'card' : 'table');
+      }
+    };
+
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isInitialized]);
+
+  // Save view mode preference when user manually changes it (but not on initial load)
+  useEffect(() => {
+    if (!isInitialized) return;
+    localStorage.setItem('eventsViewMode', viewMode);
+  }, [viewMode, isInitialized]);
 
   useEffect(() => {
     setEvents(initialEvents || []);
@@ -57,6 +110,20 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
       return () => clearTimeout(timer);
     }
   }, [fetcher.data, onRefresh]);
+
+  // Handle actionData from route action (for create/update events)
+  useEffect(() => {
+    if (actionData?.success) {
+      const timer = setTimeout(() => {
+        if (onRefresh) {
+          onRefresh();
+        }
+        setShowForm(false);
+        setSelectedEvent(null);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [actionData, onRefresh]);
 
   const getBudgetHealth = (event: any) => {
     const percentage = ((event.spent || 0) / (event.budget || 1)) * 100;
@@ -264,6 +331,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
           role: 'EventManager',
         } as User}
         organization={organization}
+        actionData={actionData}
         isDemo={isDemo}
       />
     );
