@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Form, Link, useSearchParams } from '@remix-run/react';
 import { ArrowLeft, Mail, Lock, User, Building2 } from 'lucide-react';
-import logoImage from '~/assets/logo-white.png';
+import logoWhite from '~/assets/logo-white.png';
+import logoImage from '~/assets/owl-logo.png';
 import illustrationImage from '~/assets/illustration.png';
 
 interface AuthPageProps {
@@ -45,7 +46,7 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
             <div className="grid lg:grid-cols-2">
               <div className="hidden lg:block bg-gradient-to-br from-purple-600 to-blue-600 p-12 relative">
                 <div className="flex items-center gap-3 mb-8">
-                  <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+                  <img src={logoWhite} alt="Simplifi Logo" className="w-10 h-10" />
                   <h2 className="text-white text-2xl">Simplifi</h2>
                 </div>
                 <h3 className="text-white text-3xl mb-4">Welcome to simplifi</h3>
@@ -62,7 +63,7 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
                 <div className="lg:hidden text-center mb-6">
                   <div className="flex items-center justify-center gap-3 mb-4">
                     <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
-                    <h2 className="text-blue-600 text-2xl">Simplifi</h2>
+                    <h2 className="text-blue-600 text-2xl" style={{ color: '#002640' }}>Simplifi</h2>
                   </div>
                 </div>
                 <div className="text-center mb-6 md:mb-8">
@@ -108,7 +109,7 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
             {/* Left Side - Illustration */}
             <div className="hidden lg:block bg-gradient-to-br from-purple-600 to-blue-600 p-12 relative">
               <div className="flex items-center gap-3 mb-8">
-                <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+                <img src={logoWhite} alt="Simplifi Logo" className="w-10 h-10" />
                 <h2 className="text-white text-2xl">Simplifi</h2>
               </div>
               <h3 className="text-white text-3xl mb-4">Welcome to simplifi</h3>
@@ -127,7 +128,7 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
               <div className="lg:hidden text-center mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
-                  <h2 className="text-blue-600 text-2xl">Simplifi</h2>
+                  <h2 className="text-blue-600 text-2xl" style={{ color: '#002640' }}>Simplifi</h2>
                 </div>
               </div>
               <div className="text-center mb-6 md:mb-8">
