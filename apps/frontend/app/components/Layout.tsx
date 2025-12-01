@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { Outlet, useLoaderData, useSearchParams, Link } from "@remix-run/react";
+import { Toaster } from "react-hot-toast";
 import { Sidebar } from "./Sidebar";
 import { UserProfile } from "./UserProfile";
 import type { User } from "~/lib/auth";
@@ -24,7 +25,44 @@ export function Layout({ user }: LayoutProps) {
   const organization = loaderData?.organization || null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--card-foreground))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '0.5rem',
+            padding: '16px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          },
+          success: {
+            iconTheme: {
+              primary: 'hsl(142, 76%, 36%)',
+              secondary: 'white',
+            },
+            style: {
+              background: 'hsl(var(--card))',
+              color: 'hsl(var(--card-foreground))',
+              border: '1px solid hsl(142, 76%, 36%)',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'hsl(var(--destructive))',
+              secondary: 'white',
+            },
+            style: {
+              background: 'hsl(var(--card))',
+              color: 'hsl(var(--card-foreground))',
+              border: '1px solid hsl(var(--destructive))',
+            },
+          },
+        }}
+      />
+      <div className="min-h-screen bg-gray-50 flex">
       {/* Navigation Sidebar */}
       <Sidebar
         user={user}
@@ -112,7 +150,8 @@ export function Layout({ user }: LayoutProps) {
           </div>
         </main>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

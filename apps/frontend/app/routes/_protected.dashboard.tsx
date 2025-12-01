@@ -5,6 +5,7 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { Dashboard } from "~/components/Dashboard";
+import { demoDashboardEvents, demoDashboardBudgetData, demoDashboardExpenseCategories, demoDashboardAlerts } from "~/lib/demoData";
 
 interface Event {
   id: string;
@@ -55,143 +56,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // In demo mode, return demo data with null user (components handle null user)
   if (isDemo) {
-    const demoEvents: Event[] = [
-      {
-        id: '1',
-        name: 'Annual Tech Conference 2024',
-        description: 'Annual technology conference featuring keynote speakers and workshops',
-        client: 'Tech Corp',
-        status: 'Active',
-        startDate: '2024-03-15',
-        endDate: '2024-03-17',
-        createdAt: '2024-01-15',
-        _count: { files: 5, budgetItems: 12, activityLogs: 8 },
-      },
-      {
-        id: '2',
-        name: 'Product Launch Event',
-        description: 'Launching our new product line with media and influencers',
-        client: 'Product Inc',
-        status: 'Planning',
-        startDate: '2024-03-20',
-        endDate: null,
-        createdAt: '2024-02-01',
-        _count: { files: 2, budgetItems: 8, activityLogs: 3 },
-      },
-      {
-        id: '3',
-        name: 'Annual Gala',
-        description: 'Annual company gala with dinner and entertainment',
-        client: 'Gala Corp',
-        status: 'Active',
-        startDate: '2024-02-28',
-        endDate: '2024-02-28',
-        createdAt: '2024-01-10',
-        _count: { files: 8, budgetItems: 15, activityLogs: 12 },
-      },
-      {
-        id: '4',
-        name: 'Workshop Series',
-        description: 'Educational workshop series for team development',
-        client: 'Workshop Co',
-        status: 'Completed',
-        startDate: '2024-01-20',
-        endDate: '2024-01-22',
-        createdAt: '2023-12-15',
-        _count: { files: 4, budgetItems: 10, activityLogs: 6 },
-      },
-      {
-        id: '5',
-        name: 'Summer Networking Mixer',
-        description: 'Networking event for industry professionals',
-        client: 'Network Pro',
-        status: 'Planning',
-        startDate: '2024-06-15',
-        endDate: null,
-        createdAt: '2024-02-20',
-        _count: { files: 1, budgetItems: 5, activityLogs: 2 },
-      },
-      {
-        id: '6',
-        name: 'Holiday Party 2023',
-        description: 'Annual holiday celebration for employees',
-        client: 'Holiday Events',
-        status: 'Completed',
-        startDate: '2023-12-15',
-        endDate: '2023-12-15',
-        createdAt: '2023-11-01',
-        _count: { files: 6, budgetItems: 9, activityLogs: 7 },
-      },
-      {
-        id: '7',
-        name: 'Client Appreciation Dinner',
-        description: 'Exclusive dinner for top clients',
-        client: 'Client Relations',
-        status: 'Active',
-        startDate: '2024-04-10',
-        endDate: '2024-04-10',
-        createdAt: '2024-02-15',
-        _count: { files: 3, budgetItems: 7, activityLogs: 4 },
-      },
-      {
-        id: '8',
-        name: 'Training Seminar',
-        description: 'Professional development training session',
-        client: 'Training Solutions',
-        status: 'Active',
-        startDate: '2024-03-25',
-        endDate: '2024-03-25',
-        createdAt: '2024-02-05',
-        _count: { files: 2, budgetItems: 6, activityLogs: 3 },
-      },
-      {
-        id: '9',
-        name: 'Charity Fundraiser',
-        description: 'Annual charity fundraising event',
-        client: 'Charity Foundation',
-        status: 'Planning',
-        startDate: '2024-05-20',
-        endDate: '2024-05-20',
-        createdAt: '2024-03-01',
-        _count: { files: 4, budgetItems: 11, activityLogs: 5 },
-      },
-      {
-        id: '10',
-        name: 'Industry Summit',
-        description: 'Multi-day industry summit with panels and networking',
-        client: 'Summit Organizers',
-        status: 'Active',
-        startDate: '2024-04-05',
-        endDate: '2024-04-07',
-        createdAt: '2024-01-20',
-        _count: { files: 7, budgetItems: 18, activityLogs: 10 },
-      },
-      {
-        id: '11',
-        name: 'Team Offsite',
-        description: 'Quarterly team offsite meeting',
-        client: 'Internal',
-        status: 'Completed',
-        startDate: '2024-01-10',
-        endDate: '2024-01-12',
-        createdAt: '2023-12-01',
-        _count: { files: 3, budgetItems: 8, activityLogs: 4 },
-      },
-      {
-        id: '12',
-        name: 'Marketing Campaign Launch',
-        description: 'Launch event for new marketing campaign',
-        client: 'Marketing Dept',
-        status: 'Active',
-        startDate: '2024-03-30',
-        endDate: null,
-        createdAt: '2024-02-10',
-        _count: { files: 5, budgetItems: 9, activityLogs: 6 },
-      },
-    ];
-
     const now = new Date();
-    const upcomingEvents = demoEvents
+    const upcomingEvents = demoDashboardEvents
       .filter((e) => e.startDate && new Date(e.startDate) > now)
       .sort((a, b) => {
         if (!a.startDate || !b.startDate) return 0;
@@ -199,7 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       })
       .slice(0, 5);
 
-    const recentEvents = demoEvents
+    const recentEvents = demoDashboardEvents
       .sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       })
@@ -207,7 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     return json<LoaderData>({
       user: null as any, // null user in demo mode
-      events: demoEvents,
+      events: demoDashboardEvents,
       stats: {
         totalEvents: 12,
         activeEvents: 6,
@@ -218,26 +84,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
         upcomingEvents,
         recentEvents,
       },
-      budgetData: [
-        { month: 'Jan', budget: 45000, spent: 42000 },
-        { month: 'Feb', budget: 52000, spent: 48000 },
-        { month: 'Mar', budget: 48000, spent: 51000 },
-        { month: 'Apr', budget: 61000, spent: 58000 },
-        { month: 'May', budget: 55000, spent: 52000 },
-        { month: 'Jun', budget: 67000, spent: 63000 },
-      ],
-      expenseCategories: [
-        { name: 'Venue', value: 35, color: '#3b82f6' },
-        { name: 'Catering', value: 28, color: '#10b981' },
-        { name: 'Marketing', value: 18, color: '#f59e0b' },
-        { name: 'Entertainment', value: 12, color: '#8b5cf6' },
-        { name: 'Other', value: 7, color: '#6b7280' },
-      ],
-      alerts: [
-        { id: '1', type: 'approval', message: '3 expense approvals pending', count: 3, urgent: true },
-        { id: '2', type: 'overspending', message: 'Annual Gala is 92% over budget', count: 1, urgent: true },
-        { id: '3', type: 'document', message: '2 events missing required documents', count: 2, urgent: false },
-      ],
+      budgetData: demoDashboardBudgetData,
+      expenseCategories: demoDashboardExpenseCategories,
+      alerts: demoDashboardAlerts,
     });
   }
 

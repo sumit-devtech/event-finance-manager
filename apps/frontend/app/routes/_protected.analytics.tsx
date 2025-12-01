@@ -5,6 +5,7 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { Analytics } from "~/components/Analytics";
+import { demoAnalyticsEvents, demoROIMetrics } from "~/lib/demoData";
 
 interface LoaderData {
   user: User | null;
@@ -18,46 +19,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // In demo mode, return demo data with null user
   if (isDemo) {
-    const demoEvents = [
-      {
-        id: '1',
-        name: 'Tech Conference 2024',
-        status: 'active',
-        createdAt: '2024-01-15',
-        _count: { budgetItems: 12 },
-      },
-      {
-        id: '2',
-        name: 'Product Launch Event',
-        status: 'planning',
-        createdAt: '2024-02-01',
-        _count: { budgetItems: 8 },
-      },
-      {
-        id: '3',
-        name: 'Annual Gala',
-        status: 'active',
-        createdAt: '2024-01-10',
-        _count: { budgetItems: 15 },
-      },
-      {
-        id: '4',
-        name: 'Workshop Series',
-        status: 'completed',
-        createdAt: '2023-12-01',
-        _count: { budgetItems: 6 },
-      },
-    ];
-
-    const demoROIMetrics = [
-      { event: 'Tech Conf', roi: 245, revenue: 520000, cost: 125000 },
-      { event: 'Product Launch', roi: 180, revenue: 238000, cost: 85000 },
-      { event: 'Annual Gala', roi: 210, revenue: 290000, cost: 95000 },
-      { event: 'Workshop', roi: 195, revenue: 88000, cost: 45000 },
-      { event: 'Trade Show', roi: 225, revenue: 337500, cost: 150000 },
-    ];
-
-    return json<LoaderData>({ user: null as any, events: demoEvents, roiMetrics: demoROIMetrics });
+    return json<LoaderData>({ user: null as any, events: demoAnalyticsEvents, roiMetrics: demoROIMetrics });
   }
 
   // Otherwise, require authentication

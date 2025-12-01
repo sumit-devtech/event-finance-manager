@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Calendar, DollarSign, TrendingUp, Clock, AlertCircle, CheckCircle, FileText, Plus, Crown } from './Icons';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from 'recharts';
 import type { User } from "~/lib/auth";
+import { demoDashboardStats, demoDashboardBudgetData, demoDashboardExpenseCategories, demoDashboardRecentEvents, demoDashboardAlerts } from "~/lib/demoData";
 
 interface DashboardProps {
   user: User | null;
@@ -44,37 +45,14 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
   // View Reports: Admin, EventManager, and Finance (Viewer cannot access reports)
   const canViewReports = (isAdmin || isEventManager || isFinance || isDemo);
 
-  // Demo data matching Figma design
-  const demoStats = [
-    { label: 'Active Events', value: '12', change: '+2 this month', icon: Calendar, color: 'blue', href: '/events?status=Active' },
-    { label: 'Total Budget', value: '$485K', change: '+12% from last month', icon: DollarSign, color: 'green', href: '/budget' },
-    { label: 'Pending Approvals', value: '8', change: '3 urgent', icon: Clock, color: 'yellow', href: '/expenses' },
-    { label: 'ROI Average', value: '245%', change: '+18% improvement', icon: TrendingUp, color: 'purple', href: '/analytics' },
-  ];
-
-  const demoBudgetData = [
-    { month: 'Jan', budget: 45000, spent: 42000 },
-    { month: 'Feb', budget: 52000, spent: 48000 },
-    { month: 'Mar', budget: 48000, spent: 51000 },
-    { month: 'Apr', budget: 61000, spent: 58000 },
-    { month: 'May', budget: 55000, spent: 52000 },
-    { month: 'Jun', budget: 67000, spent: 63000 },
-  ];
-
-  const demoExpenseCategories = [
-    { name: 'Venue', value: 35, color: '#3b82f6' },
-    { name: 'Catering', value: 28, color: '#10b981' },
-    { name: 'Marketing', value: 18, color: '#f59e0b' },
-    { name: 'Entertainment', value: 12, color: '#8b5cf6' },
-    { name: 'Other', value: 7, color: '#6b7280' },
-  ];
-
-  const demoRecentEvents = [
-    { id: 'demo-1', name: 'Tech Conference 2024', status: 'active', budget: 125000, spent: 98000, progress: 78 },
-    { id: 'demo-2', name: 'Product Launch Event', status: 'planning', budget: 85000, spent: 12000, progress: 14 },
-    { id: 'demo-3', name: 'Annual Gala', status: 'active', budget: 95000, spent: 87000, progress: 92 },
-    { id: 'demo-4', name: 'Workshop Series', status: 'completed', budget: 45000, spent: 44500, progress: 100 },
-  ];
+  // Use demo data from centralized file - map icons
+  const demoStats = demoDashboardStats.map(stat => {
+    let icon = Calendar;
+    if (stat.label === 'Total Budget') icon = DollarSign;
+    else if (stat.label === 'Pending Approvals') icon = Clock;
+    else if (stat.label === 'ROI Average') icon = TrendingUp;
+    return { ...stat, icon };
+  });
 
   // Use demo data if in demo mode, otherwise use real stats
   const dashboardStats = isDemo ? demoStats : [
@@ -123,7 +101,7 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
   };
 
   // Use demo data if in demo mode, otherwise calculate from real events
-  const recentEventsWithBudget = isDemo ? demoRecentEvents : stats.recentEvents.slice(0, 5).map(event => {
+  const recentEventsWithBudget = isDemo ? demoDashboardRecentEvents : stats.recentEvents.slice(0, 5).map(event => {
     // Find the full event data with budget/spent from the events array
     const fullEvent = events.find((e: any) => e.id === event.id) || event;
     const budget = fullEvent.budget || 0;
@@ -140,8 +118,8 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
     };
   });
 
-  const budgetData = isDemo ? demoBudgetData : (budgetDataProp || []);
-  const expenseCategories = isDemo ? demoExpenseCategories : (expenseCategoriesProp || []);
+  const budgetData = isDemo ? demoDashboardBudgetData : (budgetDataProp || []);
+  const expenseCategories = isDemo ? demoDashboardExpenseCategories : (expenseCategoriesProp || []);
 
   const isFreeUser = user?.subscription === 'free';
   const freeEventsRemaining = user?.freeEventsRemaining || 0;
@@ -166,14 +144,7 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
   const budgetStatus = getBudgetStatusColor(utilizationPercentage);
   const budgetStatusLabel = utilizationPercentage > 90 ? 'Over Budget' : utilizationPercentage > 75 ? 'At Risk' : 'On Track';
 
-  // Demo alerts data
-  const demoAlerts = [
-    { id: '1', type: 'approval', message: '3 expense approvals pending', count: 3, urgent: true },
-    { id: '2', type: 'overspending', message: 'Annual Gala is 92% over budget', count: 1, urgent: true },
-    { id: '3', type: 'document', message: '2 events missing required documents', count: 2, urgent: false },
-  ];
-
-  const alerts = isDemo ? demoAlerts : (alertsProp || []);
+  const alerts = isDemo ? demoDashboardAlerts : (alertsProp || []);
 
   // Filter chart data based on selected filters
   const filteredChartData = budgetData.filter((item, index) => {

@@ -5,6 +5,7 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { env } from "~/lib/env";
 import { useState, useEffect } from "react";
+import { demoReportsEvents } from "~/lib/demoData";
 import {
   PieChart,
   Pie,
@@ -51,35 +52,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // In demo mode, return demo data with null user
   if (isDemo) {
-    const demoEvents: Event[] = [
-      {
-        id: '1',
-        name: 'Tech Conference 2024',
-        client: 'Tech Corp',
-        status: 'active',
-        startDate: '2024-03-15',
-        endDate: '2024-03-15',
-      },
-      {
-        id: '2',
-        name: 'Product Launch Event',
-        client: 'Product Inc',
-        status: 'planning',
-        startDate: '2024-04-20',
-        endDate: '2024-04-20',
-      },
-      {
-        id: '3',
-        name: 'Annual Gala',
-        client: 'Gala Corp',
-        status: 'active',
-        startDate: '2024-02-28',
-        endDate: '2024-02-28',
-      },
-    ];
-
     return json<LoaderData>({
-      events: demoEvents,
+      events: demoReportsEvents,
       user: { role: 'Viewer' } as any
     });
   }

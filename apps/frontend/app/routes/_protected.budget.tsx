@@ -6,6 +6,7 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { BudgetManager } from "~/components/BudgetManager";
+import { demoBudgetEvents, demoBudgetVersions, demoBudgetItems } from "~/lib/demoData";
 
 interface LoaderData {
   user: User | null;
@@ -23,47 +24,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // In demo mode, return demo data with null user
   if (isDemo) {
-    const demoEvents = [
-      { id: '1', name: 'Annual Tech Conference 2024' },
-      { id: '2', name: 'Product Launch Event' },
-      { id: '3', name: 'Annual Gala' },
-      { id: '4', name: 'Workshop Series' },
-      { id: '5', name: 'Summer Networking Mixer' },
-      { id: '6', name: 'Client Appreciation Dinner' },
-      { id: '7', name: 'Training Seminar' },
-      { id: '8', name: 'Charity Fundraiser' },
-      { id: '9', name: 'Industry Summit' },
-    ];
-
-    const demoBudgetVersions = [
-      { id: 'v1', name: 'Initial Budget', date: '2024-01-15', status: 'draft' },
-      { id: 'v2', name: 'Revised Budget', date: '2024-02-01', status: 'final' },
-      { id: 'v3', name: 'Current Working', date: '2024-02-15', status: 'draft' },
-      { id: 'v4', name: 'Q2 Budget Update', date: '2024-03-01', status: 'draft' },
-      { id: 'v5', name: 'Final Approved Budget', date: '2024-03-10', status: 'final' },
-    ];
-
-    const demoBudgetItems = [
-      { id: 1, category: 'Venue', description: 'Conference Hall Rental', vendor: 'Grand Convention Center', estimatedCost: 45000, actualCost: 45000, status: 'confirmed' },
-      { id: 2, category: 'Catering', description: 'Lunch & Refreshments (500 pax)', vendor: 'Premium Catering Co.', estimatedCost: 25000, actualCost: 24000, status: 'confirmed' },
-      { id: 3, category: 'Marketing', description: 'Digital Marketing Campaign', vendor: 'AdTech Solutions', estimatedCost: 15000, actualCost: 12000, status: 'partial' },
-      { id: 4, category: 'Entertainment', description: 'Keynote Speaker Fee', vendor: 'Speaker Bureau Inc.', estimatedCost: 20000, actualCost: 20000, status: 'confirmed' },
-      { id: 5, category: 'Technology', description: 'AV Equipment & Setup', vendor: 'Tech Events Pro', estimatedCost: 12000, actualCost: 10500, status: 'confirmed' },
-      { id: 6, category: 'Staffing', description: 'Event Staff (20 people)', vendor: 'EventStaff Plus', estimatedCost: 8000, actualCost: 7200, status: 'confirmed' },
-      { id: 7, category: 'Transportation', description: 'Shuttle Service', vendor: 'Transport Co', estimatedCost: 5000, actualCost: 4800, status: 'confirmed' },
-      { id: 8, category: 'Decorations', description: 'Event Decor & Signage', vendor: 'Design Studio', estimatedCost: 8000, actualCost: 0, status: 'pending' },
-      { id: 9, category: 'Photography', description: 'Event Photography & Videography', vendor: 'Photo Pro', estimatedCost: 6000, actualCost: 6000, status: 'confirmed' },
-      { id: 10, category: 'Security', description: 'Security Services', vendor: 'Secure Events', estimatedCost: 4000, actualCost: 4000, status: 'confirmed' },
-      { id: 11, category: 'Insurance', description: 'Event Insurance', vendor: 'Insurance Co', estimatedCost: 3000, actualCost: 3000, status: 'confirmed' },
-      { id: 12, category: 'Printing', description: 'Name Tags & Programs', vendor: 'Print Shop', estimatedCost: 2000, actualCost: 1800, status: 'confirmed' },
-      { id: 13, category: 'Entertainment', description: 'Live Band Performance', vendor: 'Entertainment Plus', estimatedCost: 8000, actualCost: 0, status: 'pending' },
-      { id: 14, category: 'Marketing', description: 'Social Media Influencer Campaign', vendor: 'Influencer Agency', estimatedCost: 10000, actualCost: 0, status: 'pending' },
-      { id: 15, category: 'Technology', description: 'Event App Development', vendor: 'App Developers', estimatedCost: 15000, actualCost: 12000, status: 'partial' },
-    ];
-
     return json<LoaderData>({
       user: null as any,
-      events: demoEvents,
+      events: demoBudgetEvents,
       budgetVersions: demoBudgetVersions,
       budgetItems: demoBudgetItems,
       users: [], // Demo mode doesn't need users

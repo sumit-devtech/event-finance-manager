@@ -1,1 +1,95 @@
 @import "tailwindcss";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-input-foreground: hsl(var(--input-foreground));
+  --color-ring: hsl(var(--ring));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+}
+
+@layer base {
+  :root {
+    /* White theme (current) - using HSL values for Tailwind */
+    --background: 0 0% 100%; /* white */
+    --foreground: 221 39% 11%; /* gray-900 */
+    --primary: 217 91% 60%; /* blue-600 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --secondary: 220 14% 96%; /* gray-100 */
+    --secondary-foreground: 221 39% 11%; /* gray-900 */
+    --accent: 220 14% 96%; /* gray-100 */
+    --accent-foreground: 221 39% 11%; /* gray-900 */
+    --muted: 220 14% 96%; /* gray-100 */
+    --muted-foreground: 215 16% 47%; /* gray-600 - exact Tailwind gray-600 */
+    --card: 0 0% 100%; /* white */
+    --card-foreground: 221 39% 11%; /* gray-900 */
+    --border: 220 13% 91%; /* gray-200 */
+    --input: 220 13% 91%; /* gray-200 */
+    --input-foreground: 221 39% 11%; /* gray-900 */
+    --ring: 217 91% 60%; /* blue-600 for focus rings */
+    --destructive: 0 84% 60%; /* red-500 */
+    --destructive-foreground: 0 0% 100%; /* white */
+    /* Gray scale for compatibility */
+    --gray-300: 220 13% 91%; /* gray-300 */
+    --gray-400: 218 11% 65%; /* gray-400 */
+    --gray-500: 107 11% 65%; /* gray-500 */
+    --gray-600: 215 16% 47%; /* gray-600 */
+    --gray-700: 215 20% 35%; /* gray-700 */
+    --gray-900: 221 39% 11%; /* gray-900 */
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Dark theme example (can be activated with class) */
+  .dark {
+    --background: 221 39% 11%; /* gray-900 */
+    --foreground: 220 13% 91%; /* gray-200 */
+    --primary: 217 91% 60%; /* blue-600 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --card: 215 28% 17%; /* gray-800 */
+    --card-foreground: 220 14% 96%; /* gray-100 */
+    --border: 217 19% 27%; /* gray-700 */
+    --input: 217 19% 27%; /* gray-700 */
+    --input-foreground: 220 13% 91%; /* gray-200 */
+    --muted: 215 28% 17%; /* gray-800 */
+    --muted-foreground: 107 11% 65%; /* gray-500 */
+  }
+
+  /* Brand theme with logo colors (can be activated with class) */
+  .brand-theme {
+    --primary: 217 91% 60%; /* blue-600 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --background: 0 0% 100%; /* white */
+    --foreground: 221 39% 11%; /* gray-900 - logo dark blue #002640 */
+    /* Keep other colors same as default */
+  }
+}
+
+@layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
