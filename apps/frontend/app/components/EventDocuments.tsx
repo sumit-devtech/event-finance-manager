@@ -50,26 +50,39 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
 
       setDocuments([...documents, newDocument]);
       setShowUploadForm(false);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert('Failed to upload file. Please try again.');
+      toast.success('Document uploaded successfully');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error('Error uploading file:', errorMessage);
+      toast.error('Failed to upload file. Please try again.');
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDelete = async (documentId: string) => {
-    if (window.confirm('Are you sure you want to delete this document?')) {
-      try {
-        if (onDelete) {
-          await onDelete(documentId);
-        }
-        setDocuments(documents.filter(doc => doc.id !== documentId));
-      } catch (error) {
-        console.error('Error deleting document:', error);
-        alert('Failed to delete document. Please try again.');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; documentId: string | null }>({
+    isOpen: false,
+    documentId: null,
+  });
+
+  const handleDelete = (documentId: string) => {
+    setDeleteConfirm({ isOpen: true, documentId });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.documentId) return;
+    try {
+      if (onDelete) {
+        await onDelete(deleteConfirm.documentId);
       }
+      setDocuments(documents.filter(doc => doc.id !== deleteConfirm.documentId));
+      toast.success('Document deleted successfully');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error('Error deleting document:', errorMessage);
+      toast.error('Failed to delete document. Please try again.');
     }
+    setDeleteConfirm({ isOpen: false, documentId: null });
   };
 
   const formatFileSize = (bytes?: number) => {
@@ -192,7 +205,7 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
                     if (doc.url) {
                       window.open(doc.url, '_blank');
                     } else {
-                      alert('Download functionality will be implemented');
+                      toast.info('Download functionality will be implemented');
                     }
                   }}
                   className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -261,6 +274,18 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, documentId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

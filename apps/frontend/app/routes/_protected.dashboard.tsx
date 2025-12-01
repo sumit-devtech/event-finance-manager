@@ -138,7 +138,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       // Fetch budget items for ALL events in parallel to calculate totals
       const budgetItemsResults = await Promise.allSettled(
         events.map((event) =>
-          api.get<any[]>(`/events/${event.id}/budget-items`, {
+          api.get<Array<{ estimatedCost: number | string; actualCost: number | string; category?: string; eventId?: string; createdAt?: string }>>(`/events/${event.id}/budget-items`, {
             token: token || undefined,
           }).catch((err) => {
             console.warn(`Could not fetch budget items for event ${event.id}:`, err);
@@ -153,7 +153,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         let eventSpent = 0;
         
         if (budgetItemsResults[index]?.status === 'fulfilled' && Array.isArray(budgetItemsResults[index].value)) {
-          budgetItemsResults[index].value.forEach((item: any) => {
+          budgetItemsResults[index].value.forEach((item: { estimatedCost: number | string; actualCost: number | string }) => {
             // Handle Decimal type conversion
             const estimated = typeof item.estimatedCost === 'number' ? item.estimatedCost : 
                              (typeof item.estimatedCost === 'string' ? parseFloat(item.estimatedCost) : 0);
@@ -173,7 +173,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       });
 
       // Extract budget items for chart data (from ALL events - we already fetched them)
-      const allBudgetItems: any[] = [];
+      const allBudgetItems: Array<{ estimatedCost: number | string; actualCost: number | string; category?: string; eventId?: string; createdAt?: string }> = [];
       budgetItemsResults.forEach((result) => {
         if (result.status === 'fulfilled' && Array.isArray(result.value)) {
           allBudgetItems.push(...result.value);
@@ -196,7 +196,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       );
 
       // Extract expenses
-      const allExpenses: any[] = [];
+      const allExpenses: Array<{ amount: number | string; createdAt?: string }> = [];
       expenseResults.forEach((result) => {
         if (result.status === 'fulfilled' && result.value?.expenses && Array.isArray(result.value.expenses)) {
           allExpenses.push(...result.value.expenses);
@@ -217,7 +217,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       // Aggregate budget items by month (use event startDate if available, otherwise createdAt)
       allBudgetItems.forEach((item) => {
         // Find the event this budget item belongs to
-        const event = events.find((e: any) => {
+        const event = events.find((e) => {
           // Check if item has eventId or if we can match by event detail
           return item.eventId === e.id;
         });
@@ -335,7 +335,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // 1. Pending expense approvals
     try {
       // Fetch expenses for all events to check for pending approvals
-      const allExpensesForAlerts: any[] = [];
+      const allExpensesForAlerts: Array<{ status: string; amount: number | string }> = [];
       const expenseResultsForAlerts = await Promise.allSettled(
         events.slice(0, 10).map((event) =>
           api.get<any>(`/events/${event.id}?includeDetails=true`, {
@@ -350,7 +350,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         }
       });
 
-      const pendingExpenses = allExpensesForAlerts.filter((expense: any) => expense.status === 'Pending');
+      const pendingExpenses = allExpensesForAlerts.filter((expense) => expense.status === 'Pending');
       if (pendingExpenses.length > 0) {
         alerts.push({
           id: 'pending-expenses',
@@ -365,7 +365,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     // 2. Events over budget (spent > budget)
-    eventsWithBudget.forEach((event: any) => {
+    eventsWithBudget.forEach((event) => {
       const budget = event.budget || 0;
       const spent = event.spent || 0;
       if (budget > 0 && spent > budget) {
@@ -382,14 +382,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     // 3. Fetch notifications from API
     try {
-      const notifications = await api.get<any[]>("/notifications?read=false", {
+      const notifications = await api.get<Array<{ type: string }>>("/notifications?read=false", {
         token: token || undefined,
       });
       
       if (Array.isArray(notifications) && notifications.length > 0) {
         // Group notifications by type
-        const errorNotifications = notifications.filter((n: any) => n.type === 'Error');
-        const warningNotifications = notifications.filter((n: any) => n.type === 'Warning');
+        const errorNotifications = notifications.filter((n) => n.type === 'Error');
+        const warningNotifications = notifications.filter((n) => n.type === 'Warning');
         
         if (errorNotifications.length > 0) {
           alerts.push({
@@ -424,8 +424,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       expenseCategories,
       alerts,
     });
-  } catch (error: any) {
-    console.error("Error fetching dashboard data:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching dashboard data:", errorMessage);
     return json<LoaderData>({
       user,
       events: [],

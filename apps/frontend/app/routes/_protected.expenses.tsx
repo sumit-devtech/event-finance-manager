@@ -6,10 +6,11 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { ExpenseTracker } from "~/components/ExpenseTracker";
 import { demoExpenses } from "~/lib/demoData";
+import type { ExpenseWithVendor } from "~/types";
 
 interface LoaderData {
   user: User | null;
-  expenses: any[];
+  expenses: ExpenseWithVendor[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -26,12 +27,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getAuthTokenFromSession(request);
 
   try {
-    const expenses = await api.get<any[]>("/expenses", {
+    const expenses = await api.get<ExpenseWithVendor[]>("/expenses", {
       token: token || undefined,
     });
     return json<LoaderData>({ user, expenses: expenses || [] });
-  } catch (error: any) {
-    console.error("Error fetching expenses:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching expenses:", errorMessage);
     return json<LoaderData>({ user, expenses: [] });
   }
 }
@@ -80,11 +82,13 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return json({ error: "Invalid action" }, { status: 400 });
-  } catch (error: any) {
-    console.error("Action error:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    const statusCode = (error as { statusCode?: number })?.statusCode || 500;
+    console.error("Action error:", errorMessage);
     return json(
-      { error: error.message || "An error occurred" },
-      { status: error.statusCode || 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 }

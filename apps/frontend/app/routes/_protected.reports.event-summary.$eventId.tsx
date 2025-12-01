@@ -168,9 +168,10 @@ export default function EventSummaryReportPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Export failed:", error);
-      alert("Failed to export report. Please try again.");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Export failed:", errorMessage);
+      toast.error("Failed to export report. Please try again.");
     }
   };
 

@@ -7,15 +7,28 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { BudgetManager } from "~/components/BudgetManager";
 import { demoBudgetEvents, demoBudgetVersions, demoBudgetItems } from "~/lib/demoData";
+import type { EventWithDetails, BudgetItemWithRelations, StrategicGoalType, VendorWithStats, UserWithCounts } from "~/types";
+
+interface BudgetEvent {
+  id: string;
+  name: string;
+}
+
+interface BudgetVersion {
+  id: string;
+  name: string;
+  date: string;
+  status: string;
+}
 
 interface LoaderData {
   user: User | null;
-  events: any[];
-  budgetItems: any[];
-  budgetVersions: any[];
-  users: any[]; // Add users for assigned user dropdown
-  strategicGoals?: any[]; // Add strategic goals for mapping dropdown
-  vendors?: any[]; // Add vendors for vendor dropdown
+  events: BudgetEvent[];
+  budgetItems: BudgetItemWithRelations[];
+  budgetVersions: BudgetVersion[];
+  users: UserWithCounts[];
+  strategicGoals?: StrategicGoalType[];
+  vendors?: VendorWithStats[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -43,13 +56,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     // Fetch events, users, and vendors in parallel
     const [eventsResult, usersResult, vendorsResult] = await Promise.allSettled([
-      api.get<any[]>("/events?limit=100", {
+      api.get<BudgetEvent[]>("/events?limit=100", {
         token: token || undefined,
       }),
-      api.get<any[]>("/users", {
+      api.get<UserWithCounts[]>("/users", {
         token: token || undefined,
       }),
-      api.get<any[]>("/vendors", {
+      api.get<VendorWithStats[]>("/vendors", {
         token: token || undefined,
       }),
     ]);
@@ -57,18 +70,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const events = eventsResult.status === 'fulfilled' ? (eventsResult.value || []) : [];
     const users = usersResult.status === 'fulfilled' ? (usersResult.value || []) : [];
     const vendors = vendorsResult.status === 'fulfilled' ? (vendorsResult.value || []) : [];
-    const budgetItems: any[] = [];
-    const budgetVersions: any[] = [];
+    const budgetItems: BudgetItemWithRelations[] = [];
+    const budgetVersions: BudgetVersion[] = [];
 
     // Fetch strategic goals if eventId is specified
-    let strategicGoals: any[] = [];
+    let strategicGoals: StrategicGoalType[] = [];
     if (eventId) {
       try {
-        strategicGoals = await api.get<any[]>(`/events/${eventId}/strategic-goals`, {
+        strategicGoals = await api.get<StrategicGoalType[]>(`/events/${eventId}/strategic-goals`, {
           token: token || undefined,
         });
-      } catch (error) {
-        console.warn(`Could not fetch strategic goals for event ${eventId}:`, error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.warn(`Could not fetch strategic goals for event ${eventId}:`, errorMessage);
         strategicGoals = [];
       }
     }
@@ -76,7 +90,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // If eventId is specified, fetch only that event's budget items
     if (eventId) {
       try {
-        const items = await api.get<any[]>(`/events/${eventId}/budget-items`, {
+        const items = await api.get<BudgetItemWithRelations[]>(`/events/${eventId}/budget-items`, {
           token: token || undefined,
         });
         if (Array.isArray(items)) {
@@ -85,17 +99,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
             budgetItems.push({ ...item, eventId });
           });
         }
-      } catch (error) {
-        console.warn(`Could not fetch budget items for event ${eventId}:`, error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.warn(`Could not fetch budget items for event ${eventId}:`, errorMessage);
       }
     } else {
       // If no eventId specified, fetch budget items for ALL events
       const budgetItemsResults = await Promise.allSettled(
         events.map((event) =>
-          api.get<any[]>(`/events/${event.id}/budget-items`, {
+          api.get<BudgetItemWithRelations[]>(`/events/${event.id}/budget-items`, {
             token: token || undefined,
-          }).catch((err) => {
-            console.warn(`Could not fetch budget items for event ${event.id}:`, err);
+          }).catch((err: unknown) => {
+            const errorMessage = err instanceof Error ? err.message : "Unknown error";
+            console.warn(`Could not fetch budget items for event ${event.id}:`, errorMessage);
             return [];
           })
         )
@@ -104,7 +120,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       // Combine all budget items from all events
       budgetItemsResults.forEach((result, index) => {
         if (result.status === 'fulfilled' && Array.isArray(result.value)) {
-          result.value.forEach((item: any) => {
+          result.value.forEach((item) => {
             // Add eventId to each item for grouping
             budgetItems.push({ ...item, eventId: events[index]?.id });
           });
@@ -233,7 +249,18 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ success: false, error: 'Budget item ID is required' }, { status: 400 });
       }
 
-      const payload: any = {};
+      const payload: {
+        category?: string;
+        description?: string;
+        subcategory?: string | null;
+        status?: string;
+        notes?: string | null;
+        assignedUserId?: string | null;
+        strategicGoalId?: string | null;
+        estimatedCost?: number;
+        actualCost?: number;
+        vendor?: string | null;
+      } = {};
 
       const category = formData.get("category") as string;
       if (category) payload.category = category;
@@ -308,12 +335,13 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return json({ success: false, error: 'Invalid intent' }, { status: 400 });
-  } catch (error: any) {
-    console.error("Budget action error:", error);
-    const errorMessage = error?.message || error?.error || 'An error occurred';
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (error as { error?: string })?.error || 'An error occurred';
+    const statusCode = (error as { statusCode?: number })?.statusCode || 500;
+    console.error("Budget action error:", errorMessage);
     return json(
       { success: false, error: errorMessage },
-      { status: error?.statusCode || 500 }
+      { status: statusCode }
     );
   }
 }

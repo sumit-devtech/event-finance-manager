@@ -4,13 +4,19 @@ import { EventForm } from './EventForm';
 import { EventDetailsExpanded } from './EventDetailsExpanded';
 import { Form, useFetcher, useActionData } from '@remix-run/react';
 import type { User } from "~/lib/auth";
+import type { EventWithDetails, VendorWithStats } from "~/types";
+import { ConfirmDialog, ProgressBar, FilterBar, EmptyState, DataTable } from "./shared";
+import toast from "react-hot-toast";
+import { useRoleAccess } from "~/hooks/useRoleAccess";
+import { getEventStatusColor, formatDate } from "~/lib/utils";
+import type { FilterConfig, TableColumn } from "~/types";
 
 interface EventsListNewProps {
   user: User | null;
-  organization?: any;
+  organization?: { name?: string; industry?: string } | null;
   isDemo: boolean;
-  events: any[];
-  vendors?: any[];
+  events: EventWithDetails[];
+  vendors?: VendorWithStats[];
   onRefresh?: () => void;
 }
 
@@ -19,7 +25,7 @@ type ViewMode = 'card' | 'table';
 export function EventsListNew({ user, organization, isDemo, events: initialEvents, vendors = [], onRefresh }: EventsListNewProps) {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventWithDetails | null>(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [filterBudgetHealth, setFilterBudgetHealth] = useState('all');
@@ -29,42 +35,28 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table, will be updated on mount
   const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
-  const [events, setEvents] = useState<any[]>(initialEvents || []);
+  const [events, setEvents] = useState<EventWithDetails[]>(initialEvents || []);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [expandedMetadata, setExpandedMetadata] = useState<Set<string>>(new Set());
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; eventId: string | null }>({
+    isOpen: false,
+    eventId: null,
+  });
   const fetcher = useFetcher();
   const actionData = useActionData();
-  const lastProcessedFetcherData = useRef<any>(null);
+  const lastProcessedFetcherData = useRef<unknown>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Role-based access control helpers
-  const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
-  const isEventManager = user?.role === 'EventManager';
-  const isFinance = user?.role === 'Finance';
-  const isViewer = user?.role === 'Viewer';
-
-  // Check if user can create events
-  const canCreateEvent = isAdmin || isEventManager || isDemo;
-
-  // Check if user can edit an event (Admin or EventManager who created/is assigned to the event)
-  const canEditEvent = (event: any) => {
-    if (isDemo) return true;
-    if (isAdmin) return true;
-    if (isEventManager) {
-      // EventManager can edit if they created it or are assigned to it
-      const isCreator = event.createdBy === user?.id;
-      const isAssigned = event.assignments?.some((a: any) => a.userId === user?.id);
-      return isCreator || isAssigned;
-    }
-    return false;
-  };
-
-  // Check if user can delete an event (Only Admin)
-  const canDeleteEvent = isAdmin || isDemo;
-
-  // Check if user can perform bulk actions (Admin and EventManager only, not Finance or Viewer)
-  const canPerformBulkActions = (isAdmin || isEventManager || isDemo);
+  // Role-based access control using centralized hook
+  const {
+    isAdmin,
+    isEventManager,
+    canCreateEvent,
+    canEditEvent,
+    canDeleteEvent,
+    canPerformBulkActions,
+  } = useRoleAccess(user, isDemo);
 
   // Initialize view mode based on screen size and saved preference (runs only on client)
   useEffect(() => {
@@ -251,7 +243,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
     const freeEventsRemaining = user?.freeEventsRemaining || 0;
 
     if (isFreeUser && freeEventsRemaining <= 0 && !isDemo) {
-      alert('You have reached your free event limit. Please upgrade to create more events.');
+      toast.error('You have reached your free event limit. Please upgrade to create more events.');
       return;
     }
 
@@ -279,12 +271,13 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const handleBulkArchive = () => {
     if (selectedEvents.size === 0) return;
     if (isDemo) {
-      alert(`Archiving ${selectedEvents.size} event(s)`);
+      toast.success(`Archiving ${selectedEvents.size} event(s)`);
     } else {
       const formData = new FormData();
       formData.append('intent', 'bulkArchive');
       formData.append('eventIds', JSON.stringify(Array.from(selectedEvents)));
       fetcher.submit(formData, { method: 'post' });
+      toast.success(`Archiving ${selectedEvents.size} event(s)`);
     }
     setSelectedEvents(new Set());
   };
@@ -292,12 +285,13 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const handleBulkDuplicate = () => {
     if (selectedEvents.size === 0) return;
     if (isDemo) {
-      alert(`Duplicating ${selectedEvents.size} event(s)`);
+      toast.success(`Duplicating ${selectedEvents.size} event(s)`);
     } else {
       const formData = new FormData();
       formData.append('intent', 'bulkDuplicate');
       formData.append('eventIds', JSON.stringify(Array.from(selectedEvents)));
       fetcher.submit(formData, { method: 'post' });
+      toast.success(`Duplicating ${selectedEvents.size} event(s)`);
     }
     setSelectedEvents(new Set());
   };
@@ -322,20 +316,25 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
     setSelectedEvents(new Set());
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteEvent = (eventId: string) => {
+    setDeleteConfirm({ isOpen: true, eventId });
+    setDropdownOpen(null);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm.eventId) return;
     
     if (!isDemo) {
       const formData = new FormData();
       formData.append('intent', 'deleteEvent');
-      formData.append('eventId', eventId);
+      formData.append('eventId', deleteConfirm.eventId);
       fetcher.submit(formData, { method: 'post' });
+      toast.success('Event deleted successfully');
     } else {
-      setEvents(events.filter(e => e.id !== eventId));
+      setEvents(events.filter(e => e.id !== deleteConfirm.eventId));
+      toast.success('Event deleted successfully');
     }
-    setDropdownOpen(null);
+    setDeleteConfirm({ isOpen: false, eventId: null });
   };
 
   const toggleMetadata = (eventId: string) => {
@@ -369,14 +368,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const isFreeUser = user?.subscription === 'free';
   const freeEventsRemaining = user?.freeEventsRemaining || 0;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-700';
-      case 'planning': return 'bg-blue-100 text-blue-700';
-      case 'completed': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
+  const getStatusColor = getEventStatusColor;
 
   const getBudgetHealthColor = (health: string) => {
     switch (health) {
@@ -813,12 +805,11 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                       ${(event.spent || 0).toLocaleString()} / ${(event.budget || 0).toLocaleString()}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all ${getBudgetHealthColor(budgetHealth)}`}
-                      style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
-                    ></div>
-                  </div>
+                  <ProgressBar
+                    value={budgetPercentage}
+                    variant={budgetHealth === 'critical' ? 'danger' : budgetHealth === 'caution' ? 'warning' : budgetHealth === 'warning' ? 'warning' : 'safe'}
+                    height="sm"
+                  />
                   <p className="text-xs text-gray-500 mt-1">{budgetPercentage.toFixed(0)}% spent</p>
                 </div>
 
@@ -904,11 +895,12 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-gray-200 rounded-full h-2">
-                            <div
-                              className={`h-2 rounded-full ${getBudgetHealthColor(budgetHealth)}`}
-                              style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
-                            ></div>
+                          <div className="w-16">
+                            <ProgressBar
+                              value={budgetPercentage}
+                              variant={budgetHealth === 'critical' ? 'danger' : budgetHealth === 'caution' ? 'warning' : budgetHealth === 'warning' ? 'warning' : 'safe'}
+                              height="sm"
+                            />
                           </div>
                           <span className="text-sm text-gray-700">{budgetPercentage.toFixed(0)}%</span>
                         </div>
@@ -990,25 +982,31 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
         />
       )}
 
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, eventId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Event"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
+
       {/* Empty State */}
       {filteredEvents.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
-          <h3 className="mb-2">No events found</h3>
-          <p className="text-gray-600 mb-4">
-            {searchQuery || filterStatus !== 'all' || filterType !== 'all' || filterBudgetHealth !== 'all' || filterRegion !== 'all'
+        <EmptyState
+          icon={<Calendar size={48} className="text-gray-400" />}
+          title="No events found"
+          description={
+            searchQuery || filterStatus !== 'all' || filterType !== 'all' || filterBudgetHealth !== 'all' || filterRegion !== 'all'
               ? 'Try adjusting your filters or search'
-              : 'Get started by creating your first event'}
-          </p>
-          {canCreateEvent && (
-            <button
-              onClick={handleCreateEvent}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Create Event
-            </button>
-          )}
-        </div>
+              : 'Get started by creating your first event'
+          }
+          actionLabel={canCreateEvent ? "Create Event" : undefined}
+          onAction={canCreateEvent ? handleCreateEvent : undefined}
+        />
       )}
     </div>
   );

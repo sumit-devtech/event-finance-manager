@@ -79,8 +79,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       params,
     });
     return json<LoaderData>({ events: events || [], user });
-  } catch (error: any) {
-    console.error("Error fetching events:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching events:", errorMessage);
     return json<LoaderData>({ events: [], user });
   }
 }
@@ -148,11 +149,11 @@ export default function ReportsPage() {
 
   const handleExport = async (format: "csv" | "excel" | "pdf") => {
     if (reportType === "summary" && !selectedEventId) {
-      alert("Please select an event for the summary report");
+      toast.error("Please select an event for the summary report");
       return;
     }
     if (reportType === "comparison" && selectedEventIds.length < 2) {
-      alert("Please select at least 2 events for the comparison report");
+      toast.error("Please select at least 2 events for the comparison report");
       return;
     }
 
@@ -190,9 +191,10 @@ export default function ReportsPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Export failed:", error);
-      alert("Failed to export report. Please try again.");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Export failed:", errorMessage);
+      toast.error("Failed to export report. Please try again.");
     }
   };
 
@@ -357,8 +359,8 @@ export default function ReportsPage() {
         <div className="mb-4 sm:mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-3">Report Type</label>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
-            <label className="flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50"
-              style={{ borderColor: reportType === "summary" ? "#4f46e5" : "#e5e7eb" }}
+            <label className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${reportType === "summary" ? "border-indigo-600" : "border-gray-200"
+              }`}
             >
               <input
                 type="radio"
@@ -370,8 +372,8 @@ export default function ReportsPage() {
               />
               <span className="font-medium text-gray-900">Event Summary Report</span>
             </label>
-            <label className="flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50"
-              style={{ borderColor: reportType === "comparison" ? "#4f46e5" : "#e5e7eb" }}
+            <label className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${reportType === "comparison" ? "border-indigo-600" : "border-gray-200"
+              }`}
             >
               <input
                 type="radio"

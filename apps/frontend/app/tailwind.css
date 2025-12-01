@@ -92,4 +92,38 @@
     -webkit-appearance: none;
     margin: 0;
   }
+
+  /* Progress bar utilities */
+  .progress-bar {
+    @apply h-2 rounded-full transition-all duration-300;
+  }
+
+  .progress-bar-bg {
+    @apply bg-gray-200 rounded-full;
+  }
+
+  .progress-bar-fill {
+    @apply h-2 rounded-full transition-all duration-300;
+  }
+
+  .progress-bar-fill-safe {
+    @apply bg-green-500;
+  }
+
+  .progress-bar-fill-warning {
+    @apply bg-yellow-500;
+  }
+
+  .progress-bar-fill-danger {
+    @apply bg-red-500;
+  }
+
+  .progress-bar-fill-primary {
+    @apply bg-blue-500;
+  }
+
+  /* Color swatch utilities */
+  .color-swatch {
+    @apply w-4 h-4 rounded;
+  }
 }

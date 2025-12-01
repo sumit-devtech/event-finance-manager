@@ -5,6 +5,9 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect } from "react";
 import type { SubmitFunction } from "@remix-run/react";
+import { BudgetItemCategory } from "@event-finance-manager/database";
+import { ConfirmDialog } from "~/components/shared/ConfirmDialog";
+import toast from "react-hot-toast";
 
 interface Event {
   id: string;
@@ -31,16 +34,6 @@ interface Event {
     budgetItems: number;
     activityLogs: number;
   };
-}
-
-export enum BudgetItemCategory {
-  Venue = "Venue",
-  Catering = "Catering",
-  Marketing = "Marketing",
-  Logistics = "Logistics",
-  Entertainment = "Entertainment",
-  StaffTravel = "StaffTravel",
-  Miscellaneous = "Miscellaneous",
 }
 
 interface BudgetItemFile {
@@ -361,15 +354,41 @@ export default function BudgetPage() {
     submit(formData, { method: "post", encType: "multipart/form-data" });
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    type: 'file' | 'budgetItem' | null;
+    budgetItemId: string | null;
+    fileId: string | null;
+  }>({
+    isOpen: false,
+    type: null,
+    budgetItemId: null,
+    fileId: null,
+  });
+
   // Handle file delete
   const handleDeleteFile = (budgetItemId: string, fileId: string) => {
-    if (confirm("Are you sure you want to delete this receipt?")) {
+    setDeleteConfirm({ isOpen: true, type: 'file', budgetItemId, fileId });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm.budgetItemId || !deleteConfirm.type) return;
+
+    if (deleteConfirm.type === 'file' && deleteConfirm.fileId) {
       const formData = new FormData();
       formData.append("intent", "deleteFile");
-      formData.append("budgetItemId", budgetItemId);
-      formData.append("fileId", fileId);
+      formData.append("budgetItemId", deleteConfirm.budgetItemId);
+      formData.append("fileId", deleteConfirm.fileId);
       submit(formData, { method: "post" });
+      toast.success('Receipt deleted successfully');
+    } else if (deleteConfirm.type === 'budgetItem' && deleteConfirm.budgetItemId) {
+      const formData = new FormData();
+      formData.append("intent", "delete");
+      formData.append("budgetItemId", deleteConfirm.budgetItemId);
+      submit(formData, { method: "post" });
+      toast.success('Budget item deleted successfully');
     }
+    setDeleteConfirm({ isOpen: false, type: null, budgetItemId: null, fileId: null });
   };
 
   // Revalidate after successful actions
@@ -614,12 +633,7 @@ export default function BudgetPage() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    if (confirm("Are you sure you want to delete this budget item?")) {
-                                      const formData = new FormData();
-                                      formData.append("intent", "delete");
-                                      formData.append("budgetItemId", item.id);
-                                      submit(formData, { method: "post" });
-                                    }
+                                    setDeleteConfirm({ isOpen: true, type: 'budgetItem', budgetItemId: item.id, fileId: null });
                                   }}
                                   className="text-red-600 hover:text-red-900"
                                   disabled={isSubmitting}

@@ -13,9 +13,16 @@ interface TeamMember {
   };
 }
 
+interface OrganizationMember {
+  id: string;
+  name: string | null;
+  email: string;
+  role?: string;
+}
+
 interface TeamAssignmentsProps {
   eventId: string;
-  organizationMembers: any[];
+  organizationMembers: OrganizationMember[];
   onAssign: (userId: string, role: string) => Promise<void>;
   onRemove: (assignmentId: string) => Promise<void>;
   user: AuthUser | null;

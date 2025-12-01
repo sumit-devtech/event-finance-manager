@@ -284,13 +284,23 @@ export default function UsersPage() {
     setCurrentPage(1);
   }, [searchTerm, roleFilter, departmentFilter, activityFilter]);
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; userId: string | null }>({
+    isOpen: false,
+    userId: null,
+  });
+
   const handleDelete = (userId: string) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      const formData = new FormData();
-      formData.append("intent", "delete");
-      formData.append("userId", userId);
-      submit(formData, { method: "post" });
-    }
+    setDeleteConfirm({ isOpen: true, userId });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm.userId) return;
+    const formData = new FormData();
+    formData.append("intent", "delete");
+    formData.append("userId", deleteConfirm.userId);
+    submit(formData, { method: "post" });
+    toast.success('User deleted successfully');
+    setDeleteConfirm({ isOpen: false, userId: null });
   };
 
   const handleViewActivityLogs = async (userId: string) => {
@@ -1898,6 +1908,18 @@ function UserProfileModal({
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, userId: null })}
+        onConfirm={confirmDelete}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

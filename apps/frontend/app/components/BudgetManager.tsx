@@ -2,16 +2,25 @@ import { useState, useEffect } from 'react';
 import { Form, useNavigation } from '@remix-run/react';
 import { Plus, Edit, Trash, X, FileText, User as UserIcon, Clock, Download, Upload } from './Icons';
 import type { User } from "~/lib/auth";
+import type { EventWithDetails, BudgetItemWithRelations, StrategicGoalType, VendorWithStats, UserWithCounts } from "~/types";
+import { ConfirmDialog } from "./shared/ConfirmDialog";
+import toast from "react-hot-toast";
+import { getBudgetStatusColor, formatDateTime } from "~/lib/utils";
+
+interface BudgetEvent {
+  id: string;
+  name: string;
+}
 
 interface BudgetManagerProps {
   user: User | null;
-  organization?: any;
-  event?: any;
-  events?: any[]; // Add events array for showing event names
-  budgetItems?: any[];
-  users?: any[]; // Add users for assigned user dropdown
-  strategicGoals?: any[]; // Add strategic goals for mapping dropdown
-  vendors?: any[]; // Add vendors for vendor dropdown
+  organization?: { name?: string; members?: Array<{ id: string; name: string }> } | null;
+  event?: BudgetEvent | null;
+  events?: BudgetEvent[];
+  budgetItems?: BudgetItemWithRelations[];
+  users?: UserWithCounts[];
+  strategicGoals?: StrategicGoalType[];
+  vendors?: VendorWithStats[];
   isDemo?: boolean;
 }
 
@@ -270,13 +279,22 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
     setError(null);
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; itemId: string | number | null }>({
+    isOpen: false,
+    itemId: null,
+  });
+
   const handleDelete = (id: string | number) => {
+    setDeleteConfirm({ isOpen: true, itemId: id });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm.itemId) return;
+
     if (isDemo) {
-      setDemoBudgetLines(demoBudgetLines.filter(item => item.id !== id));
+      setDemoBudgetLines(demoBudgetLines.filter(item => item.id !== deleteConfirm.itemId));
+      toast.success('Budget item deleted successfully');
     } else {
-      if (!confirm('Are you sure you want to delete this budget item?')) {
-        return;
-      }
       const form = document.createElement('form');
       form.method = 'post';
       form.action = window.location.pathname;
@@ -290,31 +308,19 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
       const idInput = document.createElement('input');
       idInput.type = 'hidden';
       idInput.name = 'budgetItemId';
-      idInput.value = id.toString();
+      idInput.value = deleteConfirm.itemId.toString();
       form.appendChild(idInput);
       
       document.body.appendChild(form);
       form.submit();
+      toast.success('Budget item deleted successfully');
     }
+    setDeleteConfirm({ isOpen: false, itemId: null });
   };
 
-  const getStatusColor = (status: BudgetItemStatus) => {
-    switch (status) {
-      case 'Approved': return 'bg-green-100 text-green-700 border-green-200';
-      case 'Pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'Closed': return 'bg-gray-100 text-gray-700 border-gray-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleString();
-    } catch {
-      return dateString;
-    }
-  };
+  // Import utility functions
+  const getStatusColor = getBudgetStatusColor;
+  const formatDate = formatDateTime;
 
   // Get users for user assignment (prefer users prop, fallback to organization members)
   const availableUsers = users.length > 0 ? users : (organization?.members || []);
@@ -327,7 +333,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
         <p className="text-gray-600 mt-1">Manage budget line items with detailed tracking and role-based access</p>
         {event ? (
           <p className="text-sm text-gray-500 mt-1">Event: {event.name}</p>
-        ) : events.length > 0 && budgetLines.some((line: any) => line.eventId) && (
+        ) : events.length > 0 && budgetLines.some((line) => line.eventId) && (
           <p className="text-sm text-gray-500 mt-1">Showing budgets for all events</p>
         )}
         {isDemo && (
@@ -373,7 +379,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Category Breakdown</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(categoryTotals).map(([category, totals]: [string, any]) => (
+            {Object.entries(categoryTotals).map(([category, totals]: [string, { allocated: number; spent: number }]) => (
               <div key={category} className="p-4 bg-gray-50 rounded-lg">
                 <div className="font-medium text-gray-900">{category}</div>
                 <div className="text-sm text-gray-600 mt-1">
@@ -839,6 +845,18 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, itemId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Budget Item"
+        message="Are you sure you want to delete this budget item? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -150,7 +150,7 @@ export default function ComparisonReportPage() {
   const handleExport = async (format: "csv" | "excel" | "pdf") => {
     const eventIds = searchParams.get("eventIds");
     if (!eventIds) {
-      alert("Event IDs are required");
+      toast.error("Event IDs are required");
       return;
     }
 
@@ -180,9 +180,10 @@ export default function ComparisonReportPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Export failed:", error);
-      alert("Failed to export report. Please try again.");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Export failed:", errorMessage);
+      toast.error("Failed to export report. Please try again.");
     }
   };
 

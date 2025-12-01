@@ -23,9 +23,16 @@ import { useFormSubmission } from "~/hooks/useFormSubmission";
 import toast from "react-hot-toast";
 import type { CardMetadata, CardStat, SummaryStat, ModalSection, FilterConfig, ActionButtonConfig } from "~/types";
 
+// Type that accepts both Date and string for Remix serialization
+type VendorWithStatsFlexible = Omit<VendorWithStats, 'createdAt' | 'updatedAt' | 'lastContract'> & {
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  lastContract?: Date | string | null;
+};
+
 interface VendorManagerProps {
   user: User | null;
-  vendors: VendorWithStats[];
+  vendors: VendorWithStatsFlexible[];
   isDemo?: boolean;
 }
 
@@ -33,8 +40,8 @@ export function VendorManager({ user, vendors = [], isDemo = false }: VendorMana
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [showAddVendor, setShowAddVendor] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState<VendorWithStats | null>(null);
-  const [editingVendor, setEditingVendor] = useState<VendorWithStats | null>(null);
+  const [selectedVendor, setSelectedVendor] = useState<VendorWithStatsFlexible | null>(null);
+  const [editingVendor, setEditingVendor] = useState<VendorWithStatsFlexible | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; vendorId: string | null }>({
     isOpen: false,
     vendorId: null,
@@ -324,7 +331,7 @@ export function VendorManager({ user, vendors = [], isDemo = false }: VendorMana
 
 // Vendor Form Modal Component
 interface VendorFormModalProps {
-  vendor?: VendorWithStats | null;
+  vendor?: VendorWithStatsFlexible | null;
   onClose: () => void;
   fetcher: ReturnType<typeof useFetcher>;
   isDemo?: boolean;
@@ -466,7 +473,7 @@ function VendorFormModal({ vendor, onClose, fetcher, isDemo }: VendorFormModalPr
 
 // Vendor Details Modal Component
 interface VendorDetailsModalProps {
-  vendor: VendorWithStats;
+  vendor: VendorWithStatsFlexible;
   onClose: () => void;
   onEdit: () => void;
   canEdit: boolean;

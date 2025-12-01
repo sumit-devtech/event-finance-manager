@@ -2,15 +2,20 @@ import { useState, useEffect } from 'react';
 import { Plus, Filter, Search, Download, Check, X, Clock, AlertCircle } from 'lucide-react';
 import { useFetcher } from "@remix-run/react";
 import type { User } from "~/lib/auth";
+import type { ExpenseWithVendor, VendorWithStats, EventWithDetails } from "~/types";
+import { FilterBar, DataTable, SummaryStats, EmptyState } from "./shared";
+import toast from "react-hot-toast";
+import type { FilterConfig, TableColumn, SummaryStat } from "~/types";
+import { getExpenseStatusColor } from "~/lib/utils";
 
 interface ExpenseTrackerProps {
   user: User | null;
-  organization?: any;
-  event?: any;
-  expenses?: any[];
-  vendors?: any[];
+  organization?: { name?: string } | null;
+  event?: EventWithDetails | null;
+  expenses?: ExpenseWithVendor[];
+  vendors?: VendorWithStats[];
   isDemo?: boolean;
-  fetcher?: any;
+  fetcher?: ReturnType<typeof useFetcher>;
 }
 
 export function ExpenseTracker({ user, organization, event, expenses: initialExpenses = [], vendors = [], isDemo = false, fetcher }: ExpenseTrackerProps) {
@@ -162,14 +167,7 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
   const approvedTotal = expenses.filter(e => e.status === 'approved').reduce((sum, e) => sum + e.amount, 0);
   const pendingTotal = expenses.filter(e => e.status === 'pending').reduce((sum, e) => sum + e.amount, 0);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
+  const getStatusColor = getExpenseStatusColor;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -284,65 +282,49 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <p className="text-gray-600 mb-2">Total Expenses</p>
-          <p className="text-3xl font-bold mb-2">${totalExpenses.toLocaleString()}</p>
-          <p className="text-sm text-gray-500">{expenses.length} submissions</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <p className="text-gray-600 mb-2">Approved</p>
-          <p className="text-3xl text-green-600 font-bold mb-2">${approvedTotal.toLocaleString()}</p>
-          <p className="text-sm text-gray-500">{statusCounts.approved} expenses</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <p className="text-gray-600 mb-2">Pending Approval</p>
-          <p className="text-3xl text-yellow-600 font-bold mb-2">${pendingTotal.toLocaleString()}</p>
-          <p className="text-sm text-gray-500">{statusCounts.pending} expenses</p>
-        </div>
-      </div>
+      <SummaryStats
+        stats={[
+          {
+            label: "Total Expenses",
+            value: `$${totalExpenses.toLocaleString()}`,
+            description: `${expenses.length} submissions`,
+          },
+          {
+            label: "Approved",
+            value: `$${approvedTotal.toLocaleString()}`,
+            description: `${statusCounts.approved} expenses`,
+            color: "text-green-600",
+          },
+          {
+            label: "Pending Approval",
+            value: `$${pendingTotal.toLocaleString()}`,
+            description: `${statusCounts.pending} expenses`,
+            color: "text-yellow-600",
+          },
+        ]}
+      />
 
       {/* Filters and Search */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search expenses..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filterStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              All ({statusCounts.all})
-            </button>
-            <button
-              onClick={() => setFilterStatus('pending')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filterStatus === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Pending ({statusCounts.pending})
-            </button>
-            <button
-              onClick={() => setFilterStatus('approved')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filterStatus === 'approved' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Approved ({statusCounts.approved})
-            </button>
-          </div>
-        </div>
-      </div>
+      <FilterBar
+        searchPlaceholder="Search expenses..."
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        filters={[
+          {
+            key: "status",
+            label: "Status",
+            type: "select",
+            value: filterStatus,
+            onChange: setFilterStatus,
+            options: [
+              { value: "all", label: `All (${statusCounts.all})` },
+              { value: "pending", label: `Pending (${statusCounts.pending})` },
+              { value: "approved", label: `Approved (${statusCounts.approved})` },
+              { value: "rejected", label: `Rejected (${statusCounts.rejected})` },
+            ],
+          },
+        ]}
+      />
 
       {/* Pending Approvals Alert */}
       {statusCounts.pending > 0 && (
@@ -360,87 +342,98 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
       )}
 
       {/* Expenses Table */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Expense Submissions</h3>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download size={16} />
-            <span>Export</span>
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Date</th>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Event</th>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Item</th>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Vendor</th>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Amount</th>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Submitted By</th>
-                <th className="px-6 py-3 text-left text-gray-600 font-medium">Status</th>
-                <th className="px-6 py-3 text-center text-gray-600 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredExpenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-600">
-                    {new Date(expense.date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-gray-700">{expense.event}</td>
-                  <td className="px-6 py-4">
-                    <p className="text-gray-900 font-medium">{expense.item}</p>
-                    <p className="text-sm text-gray-500">{expense.category}</p>
-                  </td>
-                  <td className="px-6 py-4 text-gray-700">{expense.vendor}</td>
-                  <td className="px-6 py-4 text-gray-900 font-semibold">${expense.amount.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-gray-700">{expense.submittedBy}</td>
-                  <td className="px-6 py-4">
+      {filteredExpenses.length === 0 ? (
+        <EmptyState
+          icon={<AlertCircle size={48} className="text-gray-400" />}
+          title="No expenses found"
+          description={searchQuery ? 'Try adjusting your search' : 'No expenses submitted yet'}
+        />
+      ) : (
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Expense Submissions</h3>
+              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <Download size={16} />
+                <span>Export</span>
+              </button>
+            </div>
+            <div className="p-6">
+              <DataTable
+                columns={[
+                  {
+                    key: "date",
+                    label: "Date",
+                    render: (expense) => new Date(expense.date).toLocaleDateString(),
+                  },
+                  {
+                    key: "event",
+                    label: "Event",
+                  },
+                  {
+                    key: "item",
+                    label: "Item",
+                    render: (expense) => (
+                      <div>
+                        <p className="text-gray-900 font-medium">{expense.item}</p>
+                        <p className="text-sm text-gray-500">{expense.category}</p>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "vendor",
+                    label: "Vendor",
+                  },
+                  {
+                    key: "amount",
+                    label: "Amount",
+                    align: "right",
+                    render: (expense) => (
+                      <span className="font-semibold">${expense.amount.toLocaleString()}</span>
+                    ),
+                  },
+                  {
+                    key: "submittedBy",
+                    label: "Submitted By",
+                  },
+                  {
+                    key: "status",
+                    label: "Status",
+                    render: (expense) => (
                     <span className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 w-fit ${getStatusColor(expense.status)}`}>
                       {getStatusIcon(expense.status)}
                       {expense.status}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      {expense.status === 'pending' && canApproveExpense && (
-                        <>
-                          <button 
-                            onClick={() => handleApprove(expense.id)}
-                            className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
-                            title="Approve"
-                          >
-                            <Check size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleReject(expense.id)}
-                            className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
-                            title="Reject"
-                          >
-                            <X size={16} />
-                          </button>
-                        </>
-                      )}
-                      <button className="text-blue-600 hover:text-blue-700 text-sm">
-                        View
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {filteredExpenses.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
-          <h3 className="mb-2 font-semibold text-lg">No expenses found</h3>
-          <p className="text-gray-600">
-            {searchQuery ? 'Try adjusting your search' : 'No expenses submitted yet'}
-          </p>
+                    ),
+                  },
+                ]}
+                data={filteredExpenses}
+                actions={(expense) => (
+                  <div className="flex items-center justify-center gap-2">
+                    {expense.status === 'pending' && canApproveExpense && (
+                      <>
+                        <button
+                          onClick={() => handleApprove(expense.id)}
+                          className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
+                          title="Approve"
+                        >
+                          <Check size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleReject(expense.id)}
+                          className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                          title="Reject"
+                        >
+                          <X size={16} />
+                        </button>
+                      </>
+                    )}
+                    <button className="text-blue-600 hover:text-blue-700 text-sm">
+                      View
+                    </button>
+                  </div>
+                )}
+              />
+            </div>
         </div>
       )}
 
@@ -570,7 +563,7 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
                       const file = e.target.files?.[0];
                       if (file) {
                         if (file.size > 10 * 1024 * 1024) {
-                          alert('File size must be less than 10MB');
+                          toast.error('File size must be less than 10MB');
                           e.target.value = '';
                           return;
                         }

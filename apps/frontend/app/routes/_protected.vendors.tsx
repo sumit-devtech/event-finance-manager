@@ -6,10 +6,19 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { VendorManager } from "~/components/VendorManager";
 import { demoVendors } from "~/lib/demoData";
+import type { CreateVendorDto, UpdateVendorDto, VendorWithStats } from "~/types";
+import type { SerializeFrom } from "@remix-run/node";
+
+// Vendor type that accounts for Remix serialization (Dates become strings)
+type SerializedVendorWithStats = Omit<VendorWithStats, 'createdAt' | 'updatedAt' | 'lastContract'> & {
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  lastContract?: string | Date | null;
+};
 
 interface LoaderData {
   user: User | null;
-  vendors: any[];
+  vendors: SerializedVendorWithStats[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -26,12 +35,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getAuthTokenFromSession(request);
 
   try {
-    const vendors = await api.get<any[]>("/vendors", {
+    const vendors = await api.get<VendorWithStats[]>("/vendors", {
       token: token || undefined,
     });
     return json<LoaderData>({ user, vendors: vendors || [] });
-  } catch (error: any) {
-    console.error("Error fetching vendors:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching vendors:", errorMessage);
     return json<LoaderData>({ user, vendors: [] });
   }
 }
@@ -48,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     if (intent === "createVendor") {
-      const vendorData = {
+      const vendorData: CreateVendorDto = {
         name: formData.get("name") as string,
         serviceType: formData.get("serviceType") as string || undefined,
         contactPerson: formData.get("contactPerson") as string || undefined,
@@ -68,7 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ error: "Vendor ID is required" }, { status: 400 });
       }
 
-      const vendorData: any = {};
+      const vendorData: UpdateVendorDto = {};
       if (formData.get("name")) vendorData.name = formData.get("name") as string;
       if (formData.get("serviceType")) vendorData.serviceType = formData.get("serviceType") as string;
       if (formData.get("contactPerson")) vendorData.contactPerson = formData.get("contactPerson") as string;
@@ -92,11 +102,13 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return json({ error: "Invalid action" }, { status: 400 });
-  } catch (error: any) {
-    console.error("Error in vendor action:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An error occurred";
+    const statusCode = (error as { status?: number })?.status || 500;
+    console.error("Error in vendor action:", errorMessage);
     return json(
-      { error: error.message || "An error occurred" },
-      { status: error.status || 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 }

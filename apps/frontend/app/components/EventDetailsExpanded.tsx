@@ -10,15 +10,17 @@ import { StrategicGoals } from './StrategicGoals';
 import { EventDocuments } from './EventDocuments';
 import { EventNotes } from './EventNotes';
 import { api } from '~/lib/api';
+import type { EventWithDetails, VendorWithStats } from "~/types";
+import type { User } from "~/lib/auth";
 
 interface EventDetailsExpandedProps {
-  event: any;
-  organization: any;
+  event: EventWithDetails;
+  organization?: { name?: string; members?: Array<{ id: string; name: string }> } | null;
   onClose: () => void;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: Partial<EventWithDetails>) => Promise<void>;
   isDemo?: boolean;
-  user?: any;
-  vendors?: any[];
+  user?: User | null;
+  vendors?: VendorWithStats[];
 }
 
 export function EventDetailsExpanded({
@@ -32,7 +34,7 @@ export function EventDetailsExpanded({
 }: EventDetailsExpandedProps) {
   const [activeSection, setActiveSection] = useState('overview');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [fullEvent, setFullEvent] = useState<any>(event);
+  const [fullEvent, setFullEvent] = useState<EventWithDetails>(event);
   const [loadingEvent, setLoadingEvent] = useState(false);
   const fetcher = useFetcher();
 

@@ -6,11 +6,19 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
 import { Analytics } from "~/components/Analytics";
 import { demoAnalyticsEvents, demoROIMetrics } from "~/lib/demoData";
+import type { EventWithDetails } from "~/types";
+
+interface ROIMetric {
+  event: string;
+  roi: number;
+  revenue: number;
+  cost: number;
+}
 
 interface LoaderData {
   user: User | null;
-  events: any[];
-  roiMetrics: any[];
+  events: EventWithDetails[];
+  roiMetrics: ROIMetric[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -27,26 +35,29 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getAuthTokenFromSession(request);
 
   try {
-    const events = await api.get<any[]>("/events", {
+    const events = await api.get<EventWithDetails[]>("/events", {
       token: token || undefined,
     });
     
     // Fetch ROI metrics for events that have them
-    const roiMetrics: any[] = [];
+    const roiMetrics: ROIMetric[] = [];
     for (const event of events || []) {
       try {
-        const roi = await api.get<any>(`/events/${event.id}/roi-metrics`, {
+        const roi = await api.get<ROIMetric>(`/events/${event.id}/roi-metrics`, {
           token: token || undefined,
         });
         if (roi) roiMetrics.push(roi);
-      } catch {
+      } catch (error: unknown) {
         // ROI metrics may not exist for all events
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.warn(`Could not fetch ROI metrics for event ${event.id}:`, errorMessage);
       }
     }
 
     return json<LoaderData>({ user, events: events || [], roiMetrics });
-  } catch (error: any) {
-    console.error("Error fetching analytics data:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching analytics data:", errorMessage);
     return json<LoaderData>({ user, events: [], roiMetrics: [] });
   }
 }

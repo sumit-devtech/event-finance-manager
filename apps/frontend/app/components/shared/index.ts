@@ -17,5 +17,5 @@ export { FormField, FormInput, FormSelect, FormTextarea } from "./FormField";
 export { RatingInput } from "./RatingInput";
 export { Dropdown } from "./Dropdown";
 export { ConfirmDialog } from "./ConfirmDialog";
-
+export { ProgressBar } from "./ProgressBar";
 

@@ -4,6 +4,8 @@ import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect, useRef } from "react";
+import { ConfirmDialog } from "~/components/shared/ConfirmDialog";
+import toast from "react-hot-toast";
 
 interface EventDetail {
   id: string;
@@ -466,31 +468,49 @@ export default function EventDetailPage() {
     setShowAssignModal(false);
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    type: 'unassign' | 'file' | 'budgetItem' | null;
+    id: string | null;
+  }>({
+    isOpen: false,
+    type: null,
+    id: null,
+  });
+
   const handleUnassignUser = (userId: string) => {
-    if (confirm("Are you sure you want to remove this user from the event?")) {
-      const formData = new FormData();
-      formData.append("intent", "unassignUser");
-      formData.append("userId", userId);
-      submit(formData, { method: "post" });
-    }
+    setDeleteConfirm({ isOpen: true, type: 'unassign', id: userId });
   };
 
   const handleDeleteFile = (fileId: string) => {
-    if (confirm("Are you sure you want to delete this file?")) {
-      const formData = new FormData();
-      formData.append("intent", "deleteFile");
-      formData.append("fileId", fileId);
-      submit(formData, { method: "post" });
-    }
+    setDeleteConfirm({ isOpen: true, type: 'file', id: fileId });
   };
 
   const handleDeleteBudgetItem = (budgetItemId: string) => {
-    if (confirm("Are you sure you want to delete this budget item?")) {
-      const formData = new FormData();
+    setDeleteConfirm({ isOpen: true, type: 'budgetItem', id: budgetItemId });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm.id || !deleteConfirm.type) return;
+
+    const formData = new FormData();
+    if (deleteConfirm.type === 'unassign') {
+      formData.append("intent", "unassignUser");
+      formData.append("userId", deleteConfirm.id);
+    } else if (deleteConfirm.type === 'file') {
+      formData.append("intent", "deleteFile");
+      formData.append("fileId", deleteConfirm.id);
+    } else if (deleteConfirm.type === 'budgetItem') {
       formData.append("intent", "deleteBudgetItem");
-      formData.append("budgetItemId", budgetItemId);
-      submit(formData, { method: "post" });
+      formData.append("budgetItemId", deleteConfirm.id);
     }
+    submit(formData, { method: "post" });
+    toast.success(
+      deleteConfirm.type === 'unassign' ? 'User removed successfully' :
+        deleteConfirm.type === 'file' ? 'File deleted successfully' :
+          'Budget item deleted successfully'
+    );
+    setDeleteConfirm({ isOpen: false, type: null, id: null });
   };
 
   const handleEditBudgetItem = (item: EventDetail["budgetItems"][0]) => {
@@ -936,6 +956,26 @@ export default function EventDetailPage() {
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, type: null, id: null })}
+        onConfirm={confirmDelete}
+        title={
+          deleteConfirm.type === 'unassign' ? 'Remove User' :
+            deleteConfirm.type === 'file' ? 'Delete File' :
+              'Delete Budget Item'
+        }
+        message={
+          deleteConfirm.type === 'unassign' ? 'Are you sure you want to remove this user from the event?' :
+            deleteConfirm.type === 'file' ? 'Are you sure you want to delete this file? This action cannot be undone.' :
+              'Are you sure you want to delete this budget item? This action cannot be undone.'
+        }
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

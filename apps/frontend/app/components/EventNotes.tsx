@@ -72,14 +72,24 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
     setShowForm(true);
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; noteId: string | null }>({
+    isOpen: false,
+    noteId: null,
+  });
+
   const handleDelete = (noteId: string) => {
-    if (window.confirm('Are you sure you want to delete this note?')) {
-      const updatedNotes = notes.filter(n => n.id !== noteId);
-      setNotes(updatedNotes);
-      if (onSave) {
-        onSave(updatedNotes);
-      }
+    setDeleteConfirm({ isOpen: true, noteId });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm.noteId) return;
+    const updatedNotes = notes.filter(n => n.id !== deleteConfirm.noteId);
+    setNotes(updatedNotes);
+    if (onSave) {
+      onSave(updatedNotes);
     }
+    toast.success('Note deleted successfully');
+    setDeleteConfirm({ isOpen: false, noteId: null });
   };
 
   // Demo data
@@ -297,6 +307,18 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, noteId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Note"
+        message="Are you sure you want to delete this note? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

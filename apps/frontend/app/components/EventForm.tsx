@@ -91,7 +91,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
             if (isDemo) {
               e.preventDefault();
               setTimeout(() => {
-                alert("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
+                toast.info("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
                 onClose();
               }, 500);
             }

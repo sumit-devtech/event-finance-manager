@@ -4,24 +4,56 @@ import { Calendar, DollarSign, TrendingUp, Clock, AlertCircle, CheckCircle, File
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from 'recharts';
 import type { User } from "~/lib/auth";
 import { demoDashboardStats, demoDashboardBudgetData, demoDashboardExpenseCategories, demoDashboardRecentEvents, demoDashboardAlerts } from "~/lib/demoData";
+import { ProgressBar } from "./shared/ProgressBar";
+
+interface DashboardEvent {
+  id?: string;
+  name: string;
+  status: string;
+  budget: number;
+  spent: number;
+  progress: number;
+}
+
+interface DashboardStats {
+  totalEvents: number;
+  activeEvents: number;
+  completedEvents: number;
+  planningEvents: number;
+  cancelledEvents: number;
+  totalBudgetItems: number;
+  upcomingEvents: DashboardEvent[];
+  recentEvents: DashboardEvent[];
+}
+
+interface BudgetDataPoint {
+  month: string;
+  budget: number;
+  spent: number;
+}
+
+interface ExpenseCategory {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface DashboardAlert {
+  id: string;
+  type: string;
+  message: string;
+  count?: number;
+  urgent: boolean;
+}
 
 interface DashboardProps {
   user: User | null;
-  organization?: any;
-  events: any[];
-  stats: {
-    totalEvents: number;
-    activeEvents: number;
-    completedEvents: number;
-    planningEvents: number;
-    cancelledEvents: number;
-    totalBudgetItems: number;
-    upcomingEvents: any[];
-    recentEvents: any[];
-  };
-  budgetData?: Array<{ month: string; budget: number; spent: number }>;
-  expenseCategories?: Array<{ name: string; value: number; color: string }>;
-  alerts?: Array<{ id: string; type: string; message: string; count?: number; urgent: boolean }>;
+  organization?: { name?: string; industry?: string } | null;
+  events: DashboardEvent[];
+  stats: DashboardStats;
+  budgetData?: BudgetDataPoint[];
+  expenseCategories?: ExpenseCategory[];
+  alerts?: DashboardAlert[];
   isDemo?: boolean;
 }
 
@@ -103,7 +135,7 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
   // Use demo data if in demo mode, otherwise calculate from real events
   const recentEventsWithBudget = isDemo ? demoDashboardRecentEvents : stats.recentEvents.slice(0, 5).map(event => {
     // Find the full event data with budget/spent from the events array
-    const fullEvent = events.find((e: any) => e.id === event.id) || event;
+    const fullEvent = events.find((e) => e.id === event.id) || event;
     const budget = fullEvent.budget || 0;
     const spent = fullEvent.spent || 0;
     const progress = budget > 0 ? Math.round((spent / budget) * 100) : 0;
@@ -323,13 +355,11 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
                       {category.value}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${percentage > 90 ? 'bg-red-500' : percentage > 75 ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}
-                      style={{ width: `${Math.min(percentage, 100)}%` }}
-                    ></div>
-                  </div>
+                  <ProgressBar
+                    value={percentage}
+                    variant={percentage > 90 ? "danger" : percentage > 75 ? "warning" : "safe"}
+                    height="md"
+                  />
                 </div>
               );
             })}
@@ -453,7 +483,7 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
             <div className="space-y-2">
               {expenseCategories.map((category, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: category.color }} />
+                  <div className="w-4 h-4 rounded color-swatch" style={{ backgroundColor: category.color }} />
                   <span className="text-sm">{category.name}: {category.value}%</span>
                 </div>
               ))}
@@ -503,13 +533,11 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
                     <span className="text-gray-600">Progress:</span>
                     <span className="font-medium">{event.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${event.progress > 90 ? 'bg-red-500' : event.progress > 75 ? 'bg-yellow-500' : 'bg-blue-500'
-                        }`}
-                      style={{ width: `${Math.min(event.progress, 100)}%` }}
-                    ></div>
-                  </div>
+                  <ProgressBar
+                    value={event.progress}
+                    variant={event.progress > 90 ? "danger" : event.progress > 75 ? "warning" : "primary"}
+                    height="md"
+                  />
                 </div>
               </div>
             ))}
@@ -555,12 +583,12 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[100px]">
-                          <div
-                            className={`h-2 rounded-full ${event.progress > 90 ? 'bg-red-500' : event.progress > 75 ? 'bg-yellow-500' : 'bg-blue-500'
-                              }`}
-                            style={{ width: `${Math.min(event.progress, 100)}%` }}
-                          ></div>
+                        <div className="flex-1 max-w-[100px]">
+                          <ProgressBar
+                            value={event.progress}
+                            variant={event.progress > 90 ? "danger" : event.progress > 75 ? "warning" : "primary"}
+                            height="sm"
+                          />
                         </div>
                         <span className="text-sm text-gray-600">{event.progress}%</span>
                       </div>
