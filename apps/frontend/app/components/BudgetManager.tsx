@@ -10,6 +10,8 @@ interface BudgetManagerProps {
   events?: any[]; // Add events array for showing event names
   budgetItems?: any[];
   users?: any[]; // Add users for assigned user dropdown
+  strategicGoals?: any[]; // Add strategic goals for mapping dropdown
+  vendors?: any[]; // Add vendors for vendor dropdown
   isDemo?: boolean;
 }
 
@@ -35,10 +37,14 @@ interface BudgetLineItem {
   eventName?: string;
 }
 
-export function BudgetManager({ user, organization, event, events = [], budgetItems = [], users = [], isDemo = false }: BudgetManagerProps) {
+export function BudgetManager({ user, organization, event, events = [], budgetItems = [], users = [], strategicGoals = [], vendors = [], isDemo = false }: BudgetManagerProps) {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
   const [showAddLine, setShowAddLine] = useState(false);
+
+  // Role-based access control
+  const isViewer = user?.role === 'Viewer';
+  const canEditBudget = !isViewer || isDemo;
   const [editingItem, setEditingItem] = useState<BudgetLineItem | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | number | null>(null);
   const [formData, setFormData] = useState({
@@ -52,6 +58,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
     assignedUser: '',
     strategicGoalId: '',
     vendor: '',
+    vendorId: '',
     fileAttachment: null as File | null,
   });
   const [error, setError] = useState<string | null>(null);
@@ -385,7 +392,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Budget Line Items</h3>
-          {!isDemo && event?.id && (
+          {canEditBudget && !isDemo && event?.id && (
             <button
               onClick={() => {
                 setShowAddLine(true);
@@ -474,7 +481,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
-                          {!isDemo && (
+                          {canEditBudget && !isDemo && (
                             <>
                               <button
                                 onClick={() => handleEdit(line)}
@@ -718,26 +725,45 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
-                <input
-                  type="text"
-                  name="vendor"
-                  value={formData.vendor}
-                  onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                <select
+                  name="vendorId"
+                  value={formData.vendor || ''}
+                  onChange={(e) => {
+                    const selectedVendor = vendors.find(v => v.id === e.target.value);
+                    setFormData({ ...formData, vendor: selectedVendor?.name || '', vendorId: e.target.value || '' });
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter vendor name (optional)"
-                />
+                >
+                  <option value="">No vendor selected</option>
+                  {vendors.map((vendor) => (
+                    <option key={vendor.id} value={vendor.id}>
+                      {vendor.name} {vendor.serviceType ? `(${vendor.serviceType})` : ''}
+                    </option>
+                  ))}
+                </select>
+                {vendors.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1">No vendors available. <a href="/vendors" className="text-blue-600 hover:underline">Add vendors</a></p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Strategic Goal Mapping</label>
-                <input
-                  type="text"
+                <select
                   name="strategicGoalId"
                   value={formData.strategicGoalId}
                   onChange={(e) => setFormData({ ...formData, strategicGoalId: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter strategic goal ID or name"
-                />
+                >
+                  <option value="">No strategic goal</option>
+                  {strategicGoals.map((goal: any) => (
+                    <option key={goal.id} value={goal.id}>
+                      {goal.title}
+                    </option>
+                  ))}
+                </select>
+                {strategicGoals.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1">No strategic goals available. Create goals in the Strategic Goals section.</p>
+                )}
               </div>
 
               <div>

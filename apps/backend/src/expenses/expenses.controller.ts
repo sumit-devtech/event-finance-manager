@@ -70,14 +70,16 @@ export class ExpensesController {
       status,
       category,
       organizationId: req?.user?.organizationId,
+      userId: req?.user?.id,
+      userRole: req?.user?.role,
     });
   }
 
   @Get(":id")
   @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
   @UseGuards(RolesGuard)
-  findOne(@Param("id") id: string) {
-    return this.expensesService.findOne(id);
+  findOne(@Param("id") id: string, @Request() req) {
+    return this.expensesService.findOne(id, req.user.id, req.user.role);
   }
 
   @Put(":id")
@@ -89,7 +91,7 @@ export class ExpensesController {
 
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance)
+  @Roles(UserRole.Admin, UserRole.EventManager) // Finance cannot delete expenses
   @UseGuards(RolesGuard)
   async remove(@Param("id") id: string, @Request() req) {
     await this.expensesService.remove(id, req.user.id);
@@ -148,8 +150,8 @@ export class EventExpensesController {
   @Get(":eventId/expenses")
   @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
   @UseGuards(RolesGuard)
-  findByEvent(@Param("eventId") eventId: string) {
-    return this.expensesService.findByEvent(eventId);
+  findByEvent(@Param("eventId") eventId: string, @Request() req) {
+    return this.expensesService.findByEvent(eventId, req.user.id, req.user.role);
   }
 }
 

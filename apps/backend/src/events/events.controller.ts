@@ -62,6 +62,7 @@ export class EventsController {
     @Query("startDateTo") startDateTo?: string,
     @Query("limit") limit?: string,
     @Query("offset") offset?: string,
+    @Request() req?: any,
   ) {
     return this.eventsService.findAll({
       status,
@@ -71,12 +72,17 @@ export class EventsController {
       startDateTo,
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
+      userId: req?.user?.id,
+      userRole: req?.user?.role,
     });
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.eventsService.findOne(id);
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
+  findOne(@Param("id") id: string, @Request() req) {
+    // Service will filter based on user access in the service layer
+    return this.eventsService.findOne(id, false, req.user?.id, req.user?.role);
   }
 
   @Get(":id/manager")
@@ -96,7 +102,7 @@ export class EventsController {
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(EventAssignmentGuard, RolesGuard)
-  @Roles(UserRole.Admin, UserRole.EventManager)
+  @Roles(UserRole.Admin) // Only Admin can delete events, not EventManager
   async remove(@Param("id") id: string, @Request() req) {
     await this.eventsService.remove(id, req.user.id);
   }

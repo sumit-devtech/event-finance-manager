@@ -44,15 +44,15 @@ export class BudgetItemsController {
   @Get("events/:eventId/budget-items")
   @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
   @UseGuards(RolesGuard)
-  findAllByEvent(@Param("eventId") eventId: string) {
-    return this.budgetItemsService.findAllByEvent(eventId);
+  findAllByEvent(@Param("eventId") eventId: string, @Request() req) {
+    return this.budgetItemsService.findAllByEvent(eventId, req.user.id, req.user.role);
   }
 
   @Get("budget-items/:id")
   @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
   @UseGuards(RolesGuard)
-  findOne(@Param("id") id: string) {
-    return this.budgetItemsService.findOne(id);
+  findOne(@Param("id") id: string, @Request() req) {
+    return this.budgetItemsService.findOne(id, req.user.id, req.user.role);
   }
 
   @Post("events/:eventId/budget-items")
@@ -75,7 +75,7 @@ export class BudgetItemsController {
     @Body() updateBudgetItemDto: UpdateBudgetItemDto,
     @Request() req,
   ) {
-    return this.budgetItemsService.update(id, updateBudgetItemDto, req.user.id);
+    return this.budgetItemsService.update(id, updateBudgetItemDto, req.user.id, req.user.role);
   }
 
   @Delete("budget-items/:id")
@@ -83,7 +83,7 @@ export class BudgetItemsController {
   @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance)
   @UseGuards(RolesGuard)
   async remove(@Param("id") id: string, @Request() req) {
-    await this.budgetItemsService.remove(id, req.user.id);
+    await this.budgetItemsService.remove(id, req.user.id, req.user.role);
   }
 
   @Get("events/:eventId/budget-items/totals")

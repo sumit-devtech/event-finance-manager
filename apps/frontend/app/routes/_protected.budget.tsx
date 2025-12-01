@@ -13,6 +13,8 @@ interface LoaderData {
   budgetItems: any[];
   budgetVersions: any[];
   users: any[]; // Add users for assigned user dropdown
+  strategicGoals?: any[]; // Add strategic goals for mapping dropdown
+  vendors?: any[]; // Add vendors for vendor dropdown
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -76,20 +78,37 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const url = new URL(request.url);
     const eventId = url.searchParams.get('eventId');
 
-    // Fetch events and users in parallel
-    const [eventsResult, usersResult] = await Promise.allSettled([
+    // Fetch events, users, and vendors in parallel
+    const [eventsResult, usersResult, vendorsResult] = await Promise.allSettled([
       api.get<any[]>("/events?limit=100", {
         token: token || undefined,
       }),
       api.get<any[]>("/users", {
         token: token || undefined,
       }),
+      api.get<any[]>("/vendors", {
+        token: token || undefined,
+      }),
     ]);
 
     const events = eventsResult.status === 'fulfilled' ? (eventsResult.value || []) : [];
     const users = usersResult.status === 'fulfilled' ? (usersResult.value || []) : [];
+    const vendors = vendorsResult.status === 'fulfilled' ? (vendorsResult.value || []) : [];
     const budgetItems: any[] = [];
     const budgetVersions: any[] = [];
+
+    // Fetch strategic goals if eventId is specified
+    let strategicGoals: any[] = [];
+    if (eventId) {
+      try {
+        strategicGoals = await api.get<any[]>(`/events/${eventId}/strategic-goals`, {
+          token: token || undefined,
+        });
+      } catch (error) {
+        console.warn(`Could not fetch strategic goals for event ${eventId}:`, error);
+        strategicGoals = [];
+      }
+    }
 
     // If eventId is specified, fetch only that event's budget items
     if (eventId) {
@@ -135,7 +154,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       events: events || [], 
       budgetItems: budgetItems || [],
       budgetVersions: budgetVersions || [],
-      users: users || []
+      users: users || [],
+      strategicGoals: strategicGoals || [],
+      vendors: vendors || []
     });
   } catch (error: any) {
     console.error("Error fetching budget data:", error);
@@ -144,7 +165,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       events: [], 
       budgetItems: [],
       budgetVersions: [],
-      users: []
+      users: [],
+      strategicGoals: [],
+      vendors: []
     });
   }
 }
@@ -207,8 +230,9 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }
 
-      if (vendor && vendor.trim()) {
-        payload.vendor = vendor.trim();
+      const vendorId = formData.get("vendorId") as string;
+      if (vendorId && vendorId.trim()) {
+        payload.vendorId = vendorId.trim();
       }
 
       if (subcategory !== null && subcategory !== undefined) {
@@ -332,7 +356,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function BudgetRoute() {
-  const { user, events, budgetItems, budgetVersions, users } = useLoaderData<typeof loader>();
+  const { user, events, budgetItems, budgetVersions, users, strategicGoals, vendors = [] } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [searchParams, setSearchParams] = useSearchParams();
   const revalidator = useRevalidator();
@@ -422,6 +446,8 @@ export default function BudgetRoute() {
         events={events}
         budgetItems={filteredBudgetItems}
         users={users}
+        strategicGoals={strategicGoals || []}
+        vendors={vendors}
         isDemo={isDemo}
       />
     </div>

@@ -5,11 +5,26 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 
 /**
- * Loader - ensure user has permission to create events
+ * Loader - ensure user has permission to create events and fetch EventManager users
  */
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireRole(request, ["Admin", "EventManager"]);
-  return json({ user, success: true });
+  const token = await getAuthTokenFromSession(request);
+  
+  // Fetch users to populate manager dropdown (only if Admin, otherwise skip)
+  let managers: any[] = [];
+  try {
+    if (user.role === "Admin") {
+      const allUsers = await api.get<any[]>("/users", { token: token || undefined });
+      // Filter to only EventManager role
+      managers = allUsers.filter((u: any) => u.role === "EventManager");
+    }
+  } catch (error) {
+    // If user is not Admin, they can't fetch users - that's okay, we'll skip the dropdown
+    console.log("Could not fetch users for manager assignment:", error);
+  }
+  
+  return json({ user, managers, success: true });
 }
 
 /**
@@ -49,6 +64,19 @@ export async function action({ request }: ActionFunctionArgs) {
     eventData.endDate = endDate;
   }
 
+  const budget = formData.get("budget") as string;
+  if (budget && budget.trim()) {
+    const budgetNum = parseFloat(budget);
+    if (!isNaN(budgetNum) && budgetNum >= 0) {
+      eventData.budget = budgetNum;
+    }
+  }
+
+  const managerId = formData.get("managerId") as string;
+  if (managerId && managerId.trim()) {
+    eventData.managerId = managerId.trim();
+  }
+
   const status = formData.get("status") as string;
   if (status) {
     eventData.status = status;
@@ -68,6 +96,7 @@ export default function NewEventPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+  const managers = loaderData.managers || [];
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -145,22 +174,61 @@ export default function NewEventPage() {
             </div>
           </div>
 
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              defaultValue="Planning"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="Planning">Planning</option>
-              <option value="Active">Active</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+              <select
+                id="status"
+                name="status"
+                defaultValue="Planning"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="Planning">Planning</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
+                Budget
+              </label>
+              <input
+                type="number"
+                id="budget"
+                name="budget"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
           </div>
+
+          {managers.length > 0 && (
+            <div>
+              <label htmlFor="managerId" className="block text-sm font-medium text-gray-700 mb-1">
+                Assign Manager (Optional)
+              </label>
+              <select
+                id="managerId"
+                name="managerId"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">-- No manager assigned --</option>
+                {managers.map((manager) => (
+                  <option key={manager.id} value={manager.id}>
+                    {manager.fullName || manager.name || manager.email} ({manager.email})
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                Select an Event Manager to assign to this event
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <Link

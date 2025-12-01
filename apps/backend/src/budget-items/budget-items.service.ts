@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Inject,
   forwardRef,
 } from "@nestjs/common";
@@ -9,6 +10,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateBudgetItemDto, BudgetItemCategory } from "./dto/create-budget-item.dto";
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
 import { NotificationsService } from "../notifications/notifications.service";
+import { UserRole } from "../auth/types/user-role.enum";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -20,9 +22,9 @@ export class BudgetItemsService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async findAllByEvent(eventId: string) {
-    // Verify event exists
-    await this.verifyEventExists(eventId);
+  async findAllByEvent(eventId: string, userId?: string, userRole?: any) {
+    // Verify event exists and user has access
+    await this.verifyEventExistsAndAccess(eventId, userId, userRole);
 
     const budgetItems = await this.prisma.client.budgetItem.findMany({
       where: { eventId },
@@ -87,7 +89,7 @@ export class BudgetItemsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId?: string, userRole?: any) {
     const budgetItem = await this.prisma.client.budgetItem.findUnique({
       where: { id },
       include: {
@@ -96,6 +98,11 @@ export class BudgetItemsService {
             id: true,
             name: true,
             status: true,
+            createdBy: true,
+            assignments: {
+              where: userId ? { userId: userId } : undefined,
+              select: { userId: true },
+            },
           },
         },
         vendorLink: true,
@@ -117,6 +124,21 @@ export class BudgetItemsService {
 
     if (!budgetItem) {
       throw new NotFoundException(`Budget item with ID ${id} not found`);
+    }
+
+    // Check access to the event
+    if (userId && userRole) {
+      const event = budgetItem.event as any;
+      if (userRole === UserRole.Admin || userRole === 'Admin') {
+        // Admin has full access
+      } else {
+        const isCreator = event.createdBy === userId;
+        const isAssigned = event.assignments && event.assignments.length > 0;
+        
+        if (!isCreator && !isAssigned) {
+          throw new NotFoundException(`Budget item with ID ${id} not found`); // Return 404 to hide existence
+        }
+      }
     }
 
     // Convert Decimal fields to numbers for JSON serialization and include user info
@@ -172,6 +194,7 @@ export class BudgetItemsService {
       category: createBudgetItemDto.category,
       description: createBudgetItemDto.description || createBudgetItemDto.category,
       vendor: createBudgetItemDto.vendor || null,
+      vendorId: createBudgetItemDto.vendorId || null,
       estimatedCost: createBudgetItemDto.estimatedCost
         ? Number(createBudgetItemDto.estimatedCost)
         : null,
@@ -236,8 +259,9 @@ export class BudgetItemsService {
     };
   }
 
-  async update(id: string, updateBudgetItemDto: UpdateBudgetItemDto, userId: string) {
-    const budgetItem = await this.findOne(id);
+  async update(id: string, updateBudgetItemDto: UpdateBudgetItemDto, userId: string, userRole?: any) {
+    // Verify access before allowing update
+    const budgetItem = await this.findOne(id, userId, userRole);
     const eventId = budgetItem.eventId;
 
     const updateData: any = {};
@@ -280,6 +304,10 @@ export class BudgetItemsService {
     if (updateBudgetItemDto.vendor !== undefined && updateBudgetItemDto.vendor !== budgetItem.vendor) {
       updateData.vendor = updateBudgetItemDto.vendor || null;
       changedFields.push('vendor');
+    }
+    if (updateBudgetItemDto.vendorId !== undefined && updateBudgetItemDto.vendorId !== (budgetItem as any).vendorId) {
+      updateData.vendorId = updateBudgetItemDto.vendorId || null;
+      changedFields.push('vendorId');
     }
     if (updateBudgetItemDto.status !== undefined && updateBudgetItemDto.status !== (budgetItem as any).status) {
       updateData.status = updateBudgetItemDto.status;
@@ -351,8 +379,9 @@ export class BudgetItemsService {
     return serializedItem;
   }
 
-  async remove(id: string, userId: string): Promise<void> {
-    const budgetItem = await this.findOne(id);
+  async remove(id: string, userId: string, userRole?: any): Promise<void> {
+    // Verify access before allowing deletion
+    const budgetItem = await this.findOne(id, userId, userRole);
     const eventId = budgetItem.eventId;
 
     await this.prisma.client.budgetItem.delete({
@@ -498,6 +527,39 @@ export class BudgetItemsService {
     }
 
     return event;
+  }
+
+  private async verifyEventExistsAndAccess(eventId: string, userId?: string, userRole?: any) {
+    const event = await this.prisma.client.event.findUnique({
+      where: { id: eventId },
+      select: {
+        id: true,
+        name: true,
+        budget: true,
+        createdBy: true,
+        assignments: userId ? {
+          where: { userId: userId },
+          select: { userId: true },
+        } : undefined,
+      },
+    });
+
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${eventId} not found`);
+    }
+
+    if (userId && userRole) {
+      if (userRole === UserRole.Admin || userRole === 'Admin') {
+        return; // Admin has full access
+      }
+
+      const isCreator = event.createdBy === userId;
+      const isAssigned = event.assignments && (event.assignments as any[]).length > 0;
+
+      if (!isCreator && !isAssigned) {
+        throw new NotFoundException(`Event with ID ${eventId} not found`); // Return 404 to hide existence
+      }
+    }
   }
 
   async validateBudgetTotals(eventId: string, additionalAmount: number = 0, excludeBudgetItemId?: string) {

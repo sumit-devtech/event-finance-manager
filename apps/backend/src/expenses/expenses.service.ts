@@ -115,6 +115,8 @@ export class ExpensesService {
     status?: ExpenseStatus;
     category?: string;
     organizationId?: string;
+    userId?: string;
+    userRole?: UserRole;
   }) {
     const where: any = {};
 
@@ -132,6 +134,58 @@ export class ExpensesService {
 
     if (filters?.organizationId) {
       where.organizationId = filters.organizationId;
+    }
+
+    // Role-based filtering: Filter expenses by events user has access to
+    if (filters?.userId && filters?.userRole) {
+      if (filters.userRole === UserRole.Admin) {
+        // Admin can see all expenses
+        // No additional filtering needed
+      } else if (filters.userRole === UserRole.EventManager) {
+        // EventManager can see expenses for events they created OR are assigned to
+        // First, get event IDs the user has access to
+        const accessibleEvents = await this.prisma.client.event.findMany({
+          where: {
+            OR: [
+              { createdBy: filters.userId },
+              {
+                assignments: {
+                  some: {
+                    userId: filters.userId,
+                  },
+                },
+              },
+            ],
+          },
+          select: { id: true },
+        });
+        const eventIds = accessibleEvents.map(e => e.id);
+        if (eventIds.length > 0) {
+          where.eventId = { in: eventIds };
+        } else {
+          // User has no accessible events, return empty result
+          where.eventId = { in: [] };
+        }
+      } else if ([UserRole.Finance, UserRole.Viewer].includes(filters.userRole)) {
+        // Finance and Viewer can only see expenses for events they are assigned to
+        const accessibleEvents = await this.prisma.client.event.findMany({
+          where: {
+            assignments: {
+              some: {
+                userId: filters.userId,
+              },
+            },
+          },
+          select: { id: true },
+        });
+        const eventIds = accessibleEvents.map(e => e.id);
+        if (eventIds.length > 0) {
+          where.eventId = { in: eventIds };
+        } else {
+          // User has no accessible events, return empty result
+          where.eventId = { in: [] };
+        }
+      }
     }
 
     const expenses = await this.prisma.client.expense.findMany({
@@ -186,7 +240,7 @@ export class ExpensesService {
     return expenses;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId?: string, userRole?: UserRole) {
     const expense = await this.prisma.client.expense.findUnique({
       where: { id },
       include: {
@@ -195,6 +249,11 @@ export class ExpensesService {
             id: true,
             name: true,
             budget: true,
+            createdBy: true,
+            assignments: userId ? {
+              where: { userId: userId },
+              select: { userId: true },
+            } : undefined,
           },
         },
         creator: {
@@ -252,11 +311,40 @@ export class ExpensesService {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
 
+    // Check access: Admin can see all, others can only see expenses for assigned events
+    if (userId && userRole) {
+      const event = expense.event as any;
+      if (userRole === UserRole.Admin) {
+        // Admin has full access
+      } else if (userRole === UserRole.EventManager) {
+        // EventManager can see expenses for events they created OR are assigned to
+        const isCreator = event.createdBy === userId;
+        const isAssigned = event.assignments && (event.assignments as any[]).length > 0;
+        
+        if (!isCreator && !isAssigned) {
+          throw new NotFoundException(`Expense with ID ${id} not found`); // Return 404 to hide existence
+        }
+      } else if ([UserRole.Finance, UserRole.Viewer].includes(userRole)) {
+        // Finance and Viewer can only see expenses for events they are assigned to
+        const isAssigned = event.assignments && (event.assignments as any[]).length > 0;
+        
+        if (!isAssigned) {
+          throw new NotFoundException(`Expense with ID ${id} not found`); // Return 404 to hide existence
+        }
+      }
+    }
+
     return expense;
   }
 
   async update(id: string, updateExpenseDto: UpdateExpenseDto, userId: string) {
-    const expense = await this.findOne(id);
+    // Get user role for access check
+    const user = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    const expense = await this.findOne(id, userId, user?.role as UserRole);
 
     // Only allow updates if expense is pending
     if (expense.status !== ExpenseStatus.Pending) {
@@ -324,7 +412,13 @@ export class ExpensesService {
   }
 
   async remove(id: string, userId: string) {
-    const expense = await this.findOne(id);
+    // Get user role for access check
+    const user = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    const expense = await this.findOne(id, userId, user?.role as UserRole);
 
     // Only allow deletion if expense is pending
     if (expense.status !== ExpenseStatus.Pending) {
@@ -332,11 +426,6 @@ export class ExpensesService {
     }
 
     // Only creator or admin can delete
-    const user = await this.prisma.client.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
-
     if (expense.createdBy !== userId && user?.role !== UserRole.Admin) {
       throw new ForbiddenException("You can only delete your own expenses or must be an admin");
     }
@@ -570,8 +659,8 @@ export class ExpensesService {
     });
   }
 
-  async findByEvent(eventId: string) {
-    return this.findAll({ eventId });
+  async findByEvent(eventId: string, userId?: string, userRole?: UserRole) {
+    return this.findAll({ eventId, userId, userRole });
   }
 
   private async updateBudgetItemActualCost(expense: any) {

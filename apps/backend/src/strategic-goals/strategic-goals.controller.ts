@@ -24,6 +24,8 @@ export class StrategicGoalsController {
   constructor(private readonly strategicGoalsService: StrategicGoalsService) {}
 
   @Get()
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
   findAll(@Param("eventId") eventId: string) {
     return this.strategicGoalsService.findAllByEvent(eventId);
   }
@@ -40,6 +42,8 @@ export class StrategicGoalsController {
   }
 
   @Get(":id")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
   findOne(@Param("id") id: string) {
     return this.strategicGoalsService.findOne(id);
   }

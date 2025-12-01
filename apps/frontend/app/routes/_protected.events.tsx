@@ -270,11 +270,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const events = await api.get<Event[]>("/events", {
       token: token || undefined,
     });
-    return json({ events: events || [], user });
+    // Fetch vendors for dropdowns
+    let vendors: any[] = [];
+    try {
+      vendors = await api.get<any[]>("/vendors", { token: token || undefined });
+    } catch {
+      // Vendors endpoint might fail, return empty array
+      vendors = [];
+    }
+    return json({ events: events || [], vendors, user });
   } catch (error: any) {
     console.error("Error fetching events:", error);
     // Return empty array on error instead of failing
-    return json({ events: [], user });
+    return json({ events: [], vendors: [], user });
   }
 }
 
@@ -601,6 +609,77 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ success: true, message: 'Event deleted successfully' });
     }
 
+    // Expense operations
+    if (intent === "createExpense") {
+      const category = formData.get("category") as string;
+      const title = formData.get("title") as string;
+      const amountStr = formData.get("amount") as string;
+      const eventId = formData.get("eventId") as string;
+
+      // Validate required fields
+      if (!category) {
+        return json({ success: false, error: "Category is required" }, { status: 400 });
+      }
+      if (!title || !title.trim()) {
+        return json({ success: false, error: "Title is required" }, { status: 400 });
+      }
+      if (!amountStr || isNaN(parseFloat(amountStr)) || parseFloat(amountStr) < 0) {
+        return json({ success: false, error: "Valid amount is required" }, { status: 400 });
+      }
+      if (!eventId) {
+        return json({ success: false, error: "Event ID is required" }, { status: 400 });
+      }
+
+      const expenseData: any = {
+        eventId: eventId,
+        category: category,
+        title: title.trim(),
+        amount: parseFloat(amountStr),
+      };
+
+      const description = formData.get("description") as string;
+      if (description && description.trim()) {
+        expenseData.description = description.trim();
+      }
+
+      const vendor = formData.get("vendor") as string;
+      if (vendor && vendor.trim()) {
+        expenseData.vendor = vendor.trim();
+      }
+
+      // Create the expense first
+      const newExpense = await api.post("/expenses", expenseData, { token: token || undefined }) as { id: string };
+
+      // Upload file if provided
+      const file = formData.get("file") as File | null;
+      if (file && newExpense.id) {
+        try {
+          await api.upload(`/expenses/${newExpense.id}/files`, file, {}, { token: token || undefined });
+        } catch (fileError: any) {
+          console.error("Error uploading expense file:", fileError);
+          // Don't fail the entire request if file upload fails
+        }
+      }
+
+      return json({ success: true, message: "Expense created successfully" });
+    }
+
+    if (intent === "approveExpense" || intent === "rejectExpense") {
+      const expenseId = formData.get("expenseId") as string;
+      const comments = formData.get("comments") as string || undefined;
+
+      if (!expenseId) {
+        return json({ success: false, error: "Expense ID is required" }, { status: 400 });
+      }
+
+      await api.post(`/expenses/${expenseId}/approve`, {
+        action: intent === "approveExpense" ? "approve" : "reject",
+        comments,
+      }, { token: token || undefined });
+
+      return json({ success: true, message: `Expense ${intent === "approveExpense" ? "approved" : "rejected"} successfully` });
+    }
+
     return json({ success: false, error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
     console.error("Error in events action:", error);
@@ -614,6 +693,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function EventsPage() {
   const loaderData = useLoaderData<typeof loader>();
+  const vendors = loaderData.vendors || [];
   const actionData = useActionData<typeof action>();
   const events = loaderData?.events || [];
   const user = loaderData?.user;
@@ -695,6 +775,7 @@ export default function EventsPage() {
         organization={undefined}
         isDemo={isDemo}
         events={transformedEvents}
+        vendors={vendors}
         onRefresh={handleRefresh}
       />
     </div>

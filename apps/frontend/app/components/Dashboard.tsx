@@ -31,6 +31,19 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
   // Check if we're in demo mode by checking the demo query parameter
   const isDemo = isDemoProp ?? searchParams.get('demo') === 'true';
 
+  // Role-based access control
+  const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+  const isEventManager = user?.role === 'EventManager';
+  const isFinance = user?.role === 'Finance';
+  const isViewer = user?.role === 'Viewer';
+  
+  // Create Event: Admin and EventManager only (Finance cannot create events)
+  const canCreateEvent = (isAdmin || isEventManager || isDemo);
+  // Manage Budget: Admin, EventManager, and Finance can manage budgets
+  const canManageBudget = !isViewer || isDemo;
+  // View Reports: Admin, EventManager, and Finance (Viewer cannot access reports)
+  const canViewReports = (isAdmin || isEventManager || isFinance || isDemo);
+
   // Demo data matching Figma design
   const demoStats = [
     { label: 'Active Events', value: '12', change: '+2 this month', icon: Calendar, color: 'blue', href: '/events?status=Active' },
@@ -595,12 +608,14 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
           <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
           <h3 className="text-xl font-semibold mb-2">No Events Yet</h3>
           <p className="text-gray-600 mb-6">Get started by creating your first event</p>
-          <Link
-            to={isDemo ? "/events/new?demo=true" : "/events/new"}
-            className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Create Event
-          </Link>
+          {canCreateEvent && (
+            <Link
+              to={isDemo ? "/events/new?demo=true" : "/events/new"}
+              className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Create Event
+            </Link>
+          )}
         </div>
       )}
 
@@ -615,13 +630,20 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
             <h4 className="text-lg md:text-xl font-semibold text-gray-900">New Event</h4>
           </div>
           <p className="text-gray-700 text-sm mb-5">Start planning your next event with our easy-to-use tools</p>
-          <Link
-            to={isDemo ? "/events?demo=true" : "/events"}
-            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-md hover:shadow-lg"
-          >
-            <Plus size={18} />
-            <span>Create Event</span>
-          </Link>
+          {canCreateEvent ? (
+            <Link
+              to={isDemo ? "/events/new?demo=true" : "/events/new"}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-md hover:shadow-lg"
+            >
+              <Plus size={18} />
+              <span>Create Event</span>
+            </Link>
+          ) : (
+            <div className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed">
+              <Plus size={18} />
+              <span>Create Event</span>
+            </div>
+          )}
         </div>
 
         {/* Budget Line */}
@@ -633,13 +655,20 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
             <h4 className="text-lg md:text-xl font-semibold text-gray-900">Budget Line</h4>
           </div>
           <p className="text-gray-700 text-sm mb-5">Add budget line items and track expenses across events</p>
-          <Link
-            to={isDemo ? "/budget?demo=true" : "/budget"}
-            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors shadow-md hover:shadow-lg"
-          >
-            <DollarSign size={18} />
-            <span>Manage Budget</span>
-          </Link>
+          {canManageBudget ? (
+            <Link
+              to={isDemo ? "/budget?demo=true" : "/budget"}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors shadow-md hover:shadow-lg"
+            >
+              <DollarSign size={18} />
+              <span>Manage Budget</span>
+            </Link>
+          ) : (
+            <div className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed">
+              <DollarSign size={18} />
+              <span>Manage Budget</span>
+            </div>
+          )}
         </div>
 
         {/* Generate Report */}
@@ -651,13 +680,20 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
             <h4 className="text-lg md:text-xl font-semibold text-gray-900">Generate Report</h4>
           </div>
           <p className="text-gray-700 text-sm mb-5">Create comprehensive reports and export your data</p>
-          <Link
-            to={isDemo ? "/reports?demo=true" : "/reports"}
-            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors shadow-md hover:shadow-lg"
-          >
-            <FileText size={18} />
-            <span>View Reports</span>
-          </Link>
+          {canViewReports ? (
+            <Link
+              to={isDemo ? "/reports?demo=true" : "/reports"}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors shadow-md hover:shadow-lg"
+            >
+              <FileText size={18} />
+              <span>View Reports</span>
+            </Link>
+          ) : (
+            <div className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed">
+              <FileText size={18} />
+              <span>View Reports</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

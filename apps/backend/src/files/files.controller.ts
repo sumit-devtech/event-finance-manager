@@ -84,6 +84,8 @@ export class FilesController {
   }
 
   @Get(":id")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
   async downloadFile(@Param("id") id: string, @Res() res: Response) {
     const result = await this.filesService.downloadFile(id);
 
@@ -100,6 +102,8 @@ export class FilesController {
   }
 
   @Get("list")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
   listFiles(
     @Query("eventId") eventId?: string,
     @Query("budgetItemId") budgetItemId?: string,
@@ -108,6 +112,8 @@ export class FilesController {
   }
 
   @Get(":id/metadata")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
   async getFileMetadata(@Param("id") id: string) {
     return this.filesService.getFileMetadata(id);
   }

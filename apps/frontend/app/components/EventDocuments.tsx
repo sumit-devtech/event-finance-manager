@@ -17,12 +17,17 @@ interface EventDocumentsProps {
   isDemo?: boolean;
   onUpload?: (file: File) => Promise<void>;
   onDelete?: (documentId: string) => Promise<void>;
+  user?: any;
 }
 
-export function EventDocuments({ eventId, documents: initialDocuments = [], isDemo = false, onUpload, onDelete }: EventDocumentsProps) {
+export function EventDocuments({ eventId, documents: initialDocuments = [], isDemo = false, onUpload, onDelete, user }: EventDocumentsProps) {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Role-based access control
+  const isViewer = user?.role === 'Viewer';
+  const canEditDocuments = !isViewer || isDemo;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -130,13 +135,15 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
           </h2>
           <p className="text-gray-600 mt-1">Manage all event-related documents and files</p>
         </div>
-        <button
-          onClick={() => setShowUploadForm(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          <Plus size={18} />
-          Upload Document
-        </button>
+        {canEditDocuments && (
+          <button
+            onClick={() => setShowUploadForm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <Plus size={18} />
+            Upload Document
+          </button>
+        )}
       </div>
 
       {displayDocuments.length === 0 ? (
@@ -144,13 +151,15 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
           <Folder size={48} className="text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents uploaded</h3>
           <p className="text-gray-600 mb-4">Upload contracts, plans, and other event documents</p>
-          <button
-            onClick={() => setShowUploadForm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <Plus size={18} />
-            Upload Your First Document
-          </button>
+          {canEditDocuments && (
+            <button
+              onClick={() => setShowUploadForm(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              <Plus size={18} />
+              Upload Your First Document
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -191,12 +200,14 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
                   <Download size={16} />
                   Download
                 </button>
-                <button
-                  onClick={() => handleDelete(doc.id)}
-                  className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <X size={16} />
-                </button>
+                {canEditDocuments && (
+                  <button
+                    onClick={() => handleDelete(doc.id)}
+                    className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -204,7 +215,7 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       )}
 
       {/* Upload Form Modal */}
-      {showUploadForm && (
+      {showUploadForm && canEditDocuments && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">

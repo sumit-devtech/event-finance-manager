@@ -15,14 +15,23 @@ interface EventNotesProps {
   notes?: Note[];
   isDemo?: boolean;
   onSave?: (notes: Note[]) => Promise<void>;
+  user?: any;
 }
 
-export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, onSave }: EventNotesProps) {
+export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, onSave, user }: EventNotesProps) {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [showForm, setShowForm] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [noteContent, setNoteContent] = useState('');
   const [noteTags, setNoteTags] = useState('');
+
+  // Role-based access control
+  const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+  const isEventManager = user?.role === 'EventManager';
+  const isViewer = user?.role === 'Viewer';
+
+  // Event Notes: Admin and EventManager only (Finance cannot edit notes, similar to events)
+  const canEditNotes = (isAdmin || isEventManager || isDemo);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,18 +130,20 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
           </h2>
           <p className="text-gray-600 mt-1">Keep track of important information and reminders</p>
         </div>
-        <button
-          onClick={() => {
-            setShowForm(true);
-            setEditingNote(null);
-            setNoteContent('');
-            setNoteTags('');
-          }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          <Plus size={18} />
-          Add Note
-        </button>
+        {canEditNotes && (
+          <button
+            onClick={() => {
+              setShowForm(true);
+              setEditingNote(null);
+              setNoteContent('');
+              setNoteTags('');
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <Plus size={18} />
+            Add Note
+          </button>
+        )}
       </div>
 
       {displayNotes.length === 0 ? (
@@ -140,13 +151,15 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
           <Edit size={48} className="text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No notes yet</h3>
           <p className="text-gray-600 mb-4">Add notes to track important information about this event</p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <Plus size={18} />
-            Add Your First Note
-          </button>
+          {canEditNotes && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              <Plus size={18} />
+              Add Your First Note
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
@@ -159,22 +172,24 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
                 <div className="flex-1">
                   <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{note.content}</p>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
-                  <button
-                    onClick={() => handleEdit(note)}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Edit note"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(note.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete note"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
+                {canEditNotes && (
+                  <div className="flex items-center gap-2 ml-4">
+                    <button
+                      onClick={() => handleEdit(note)}
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Edit note"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(note.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete note"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {note.tags && note.tags.length > 0 && (
@@ -214,7 +229,7 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
       )}
 
       {/* Add/Edit Form Modal */}
-      {showForm && (
+      {showForm && canEditNotes && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">

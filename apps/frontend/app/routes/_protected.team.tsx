@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { requireAuth } from "~/lib/auth.server";
+import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
@@ -13,7 +13,7 @@ interface LoaderData {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireAuth(request);
+  const user = await requireRole(request, ["Admin"]);
   const token = await getAuthTokenFromSession(request);
 
   try {

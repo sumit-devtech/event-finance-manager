@@ -10,12 +10,13 @@ interface EventsListNewProps {
   organization?: any;
   isDemo: boolean;
   events: any[];
+  vendors?: any[];
   onRefresh?: () => void;
 }
 
 type ViewMode = 'card' | 'table';
 
-export function EventsListNew({ user, organization, isDemo, events: initialEvents, onRefresh }: EventsListNewProps) {
+export function EventsListNew({ user, organization, isDemo, events: initialEvents, vendors = [], onRefresh }: EventsListNewProps) {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -36,6 +37,34 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   const actionData = useActionData();
   const lastProcessedFetcherData = useRef<any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Role-based access control helpers
+  const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+  const isEventManager = user?.role === 'EventManager';
+  const isFinance = user?.role === 'Finance';
+  const isViewer = user?.role === 'Viewer';
+
+  // Check if user can create events
+  const canCreateEvent = isAdmin || isEventManager || isDemo;
+
+  // Check if user can edit an event (Admin or EventManager who created/is assigned to the event)
+  const canEditEvent = (event: any) => {
+    if (isDemo) return true;
+    if (isAdmin) return true;
+    if (isEventManager) {
+      // EventManager can edit if they created it or are assigned to it
+      const isCreator = event.createdBy === user?.id;
+      const isAssigned = event.assignments?.some((a: any) => a.userId === user?.id);
+      return isCreator || isAssigned;
+    }
+    return false;
+  };
+
+  // Check if user can delete an event (Only Admin)
+  const canDeleteEvent = isAdmin || isDemo;
+
+  // Check if user can perform bulk actions (Admin and EventManager only, not Finance or Viewer)
+  const canPerformBulkActions = (isAdmin || isEventManager || isDemo);
 
   // Initialize view mode based on screen size and saved preference (runs only on client)
   useEffect(() => {
@@ -384,13 +413,15 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
               </p>
             )}
           </div>
-          <button
-            onClick={handleCreateEvent}
-            className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 justify-center whitespace-nowrap"
-          >
-            <Plus size={20} />
-            <span>Create Event</span>
-          </button>
+          {canCreateEvent && (
+            <button
+              onClick={handleCreateEvent}
+              className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 justify-center whitespace-nowrap"
+            >
+              <Plus size={20} />
+              <span>Create Event</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -575,7 +606,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
       </div>
 
       {/* Bulk Actions Bar */}
-      {selectedEvents.size > 0 && (
+      {selectedEvents.size > 0 && canPerformBulkActions && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-blue-900 text-sm">
             {selectedEvents.size} event(s) selected
@@ -631,14 +662,16 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                 onMouseLeave={() => setHoveredEvent(null)}
               >
                 {/* Selection Checkbox */}
-                <div className="absolute top-4 left-4 z-10">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleEventSelection(event.id)}
-                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                  />
-                </div>
+                {canPerformBulkActions && (
+                  <div className="absolute top-4 left-4 z-10">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleEventSelection(event.id)}
+                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                  </div>
+                )}
 
                 <div className="flex items-start justify-between mb-4 pl-8">
                   <div className="flex-1 min-w-0">
@@ -652,35 +685,41 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                       </span>
                     </div>
                   </div>
-                  <div className="relative flex-shrink-0 ml-2">
-                    <button
-                      onClick={() => setDropdownOpen(dropdownOpen === event.id ? null : event.id)}
-                      className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
-                      <MoreVertical size={20} className="text-gray-400" />
-                    </button>
-                    {dropdownOpen === event.id && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-                        <button
-                          onClick={() => {
-                            handleEditEvent(event);
-                            setDropdownOpen(null);
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
-                        >
-                          <Edit size={16} />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteEvent(event.id)}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg"
-                        >
-                          <Trash size={16} />
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  {(canEditEvent(event) || canDeleteEvent) && (
+                    <div className="relative flex-shrink-0 ml-2">
+                      <button
+                        onClick={() => setDropdownOpen(dropdownOpen === event.id ? null : event.id)}
+                        className="p-2 hover:bg-gray-100 rounded-lg"
+                      >
+                        <MoreVertical size={20} className="text-gray-400" />
+                      </button>
+                      {dropdownOpen === event.id && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                          {canEditEvent(event) && (
+                            <button
+                              onClick={() => {
+                                handleEditEvent(event);
+                                setDropdownOpen(null);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
+                            >
+                              <Edit size={16} />
+                              <span>Edit</span>
+                            </button>
+                          )}
+                          {canDeleteEvent && (
+                            <button
+                              onClick={() => handleDeleteEvent(event.id)}
+                              className={`w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 ${canEditEvent(event) ? '' : 'rounded-t-lg'} rounded-b-lg`}
+                            >
+                              <Trash size={16} />
+                              <span>Delete</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* KPIs Row */}
@@ -805,14 +844,16 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedEvents.size === filteredEvents.length && filteredEvents.length > 0}
-                      onChange={selectAllEvents}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                  </th>
+                  {canPerformBulkActions && (
+                    <th className="px-4 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={selectedEvents.size === filteredEvents.length && filteredEvents.length > 0}
+                        onChange={selectAllEvents}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                    </th>
+                  )}
                   <th className="px-4 py-3 text-left text-sm text-gray-700">Event Name</th>
                   <th className="px-4 py-3 text-left text-sm text-gray-700">Type</th>
                   <th className="px-4 py-3 text-left text-sm text-gray-700">Owner</th>
@@ -837,14 +878,16 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                         isSelected ? 'bg-blue-50' : ''
                       }`}
                     >
-                      <td className="px-4 py-3">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleEventSelection(event.id)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                        />
-                      </td>
+                      {canPerformBulkActions && (
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleEventSelection(event.id)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                          />
+                        </td>
+                      )}
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setSelectedEvent(event)}
@@ -882,35 +925,43 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="relative">
-                          <button
-                            onClick={() => setDropdownOpen(dropdownOpen === event.id ? null : event.id)}
-                            className="p-1 hover:bg-gray-100 rounded"
-                          >
-                            <MoreVertical size={16} className="text-gray-400" />
-                          </button>
-                          {dropdownOpen === event.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-                              <button
-                                onClick={() => {
-                                  handleEditEvent(event);
-                                  setDropdownOpen(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
-                              >
-                                <Edit size={16} />
-                                <span>Edit</span>
-                              </button>
-                              <button
-                                onClick={() => handleDeleteEvent(event.id)}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg"
-                              >
-                                <Trash size={16} />
-                                <span>Delete</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        {(canEditEvent(event) || canDeleteEvent) ? (
+                          <div className="relative">
+                            <button
+                              onClick={() => setDropdownOpen(dropdownOpen === event.id ? null : event.id)}
+                              className="p-1 hover:bg-gray-100 rounded"
+                            >
+                              <MoreVertical size={16} className="text-gray-400" />
+                            </button>
+                            {dropdownOpen === event.id && (
+                              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                                {canEditEvent(event) && (
+                                  <button
+                                    onClick={() => {
+                                      handleEditEvent(event);
+                                      setDropdownOpen(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
+                                  >
+                                    <Edit size={16} />
+                                    <span>Edit</span>
+                                  </button>
+                                )}
+                                {canDeleteEvent && (
+                                  <button
+                                    onClick={() => handleDeleteEvent(event.id)}
+                                    className={`w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 ${canEditEvent(event) ? '' : 'rounded-t-lg'} rounded-b-lg`}
+                                  >
+                                    <Trash size={16} />
+                                    <span>Delete</span>
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-sm">-</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -935,6 +986,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
           }}
           isDemo={isDemo}
           user={user}
+          vendors={vendors}
         />
       )}
 
@@ -948,12 +1000,14 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
               ? 'Try adjusting your filters or search'
               : 'Get started by creating your first event'}
           </p>
-          <button
-            onClick={handleCreateEvent}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Create Event
-          </button>
+          {canCreateEvent && (
+            <button
+              onClick={handleCreateEvent}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Create Event
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -36,6 +36,10 @@ export function TeamAssignments({
   const [assignmentRole, setAssignmentRole] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Role-based access control - Only Admin can assign team members
+  const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+  const canAssignTeam = isAdmin || isDemo;
+
   // Mock data for demo
   useEffect(() => {
     if (isDemo) {
@@ -127,17 +131,19 @@ export function TeamAssignments({
             )}
           </div>
         </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
-        >
-          <Plus size={20} />
-          <span>Assign Member</span>
-        </button>
+        {canAssignTeam && (
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+          >
+            <Plus size={20} />
+            <span>Assign Member</span>
+          </button>
+        )}
       </div>
 
       {/* Add Form */}
-      {showAddForm && (
+      {showAddForm && canAssignTeam && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h4 className="mb-4 font-semibold text-gray-900">Assign Team Member</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -207,12 +213,14 @@ export function TeamAssignments({
           <p className="text-gray-600 mb-6">
             Assign team members to collaborate on this event
           </p>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Assign First Member
-          </button>
+          {canAssignTeam && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Assign First Member
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -231,13 +239,15 @@ export function TeamAssignments({
                     <p className="text-gray-600 text-sm">{assignment.user?.email}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleRemove(assignment.id)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Remove from event"
-                >
-                  <X size={20} />
-                </button>
+                {canAssignTeam && (
+                  <button
+                    onClick={() => handleRemove(assignment.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Remove from event"
+                  >
+                    <X size={20} />
+                  </button>
+                )}
               </div>
               <div className="bg-blue-50 px-3 py-2 rounded-lg">
                 <p className="text-blue-600 text-sm font-medium">Role</p>

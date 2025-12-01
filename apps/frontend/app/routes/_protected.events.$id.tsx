@@ -162,13 +162,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   try {
     const event = await api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined });
-    // Try to fetch users, but don't fail if user doesn't have permission (non-admin)
+    // Fetch users only if user is Admin (for assign user dropdown)
     let users: User[] = [];
-    try {
-      users = await api.get<User[]>("/users", { token: token || undefined });
-    } catch {
-      // Users endpoint requires Admin role, so non-admin users will get empty array
-      users = [];
+    if (user.role === "Admin") {
+      try {
+        users = await api.get<User[]>("/users", { token: token || undefined });
+      } catch (error: any) {
+        console.error("Error fetching users:", error);
+        // If Admin can't fetch users, log the error but continue
+        users = [];
+      }
     }
     // Try to fetch strategic goals
     let strategicGoals: any[] = [];
@@ -178,7 +181,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       // Strategic goals endpoint might fail, return empty array
       strategicGoals = [];
     }
-    return json({ event: { ...event, strategicGoals }, users, user });
+    // Fetch vendors for dropdowns
+    let vendors: any[] = [];
+    try {
+      vendors = await api.get<any[]>("/vendors", { token: token || undefined });
+    } catch {
+      // Vendors endpoint might fail, return empty array
+      vendors = [];
+    }
+    return json({ event: { ...event, strategicGoals }, users, vendors, user });
   } catch (error: any) {
     console.error("Error loading event:", error);
     console.error("Event ID:", eventId);
@@ -250,15 +261,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const description = formData.get("description") as string;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : undefined;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : undefined;
-      const vendor = formData.get("vendor") as string || undefined;
+      const vendorId = formData.get("vendorId") as string || undefined;
+      const assignedUserId = formData.get("assignedUserId") as string || undefined;
 
-      await api.post(`/events/${eventId}/budget-items`, {
+      const payload: any = {
         category,
         description,
         estimatedCost,
         actualCost,
-        vendor,
-      }, tokenOption);
+      };
+
+      if (vendorId && vendorId.trim()) {
+        payload.vendorId = vendorId.trim();
+      }
+
+      if (assignedUserId && assignedUserId.trim()) {
+        payload.assignedUserId = assignedUserId.trim();
+      }
+
+      await api.post(`/events/${eventId}/budget-items`, payload, tokenOption);
       return redirect(`/events/${eventId}`);
     }
 
@@ -268,21 +289,93 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const description = formData.get("description") as string;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : null;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : null;
-      const vendor = formData.get("vendor") as string || undefined;
+      const vendorId = formData.get("vendorId") as string || undefined;
+      const assignedUserId = formData.get("assignedUserId") as string || undefined;
 
-      await api.put(`/budget-items/${budgetItemId}`, {
+      const payload: any = {
         category,
         description,
         estimatedCost,
         actualCost,
-        vendor,
-      }, tokenOption);
+      };
+
+      if (vendorId !== null && vendorId !== undefined) {
+        payload.vendorId = vendorId.trim() || null;
+      }
+
+      if (assignedUserId !== null && assignedUserId !== undefined) {
+        payload.assignedUserId = assignedUserId.trim() || null;
+      }
+
+      await api.put(`/budget-items/${budgetItemId}`, payload, tokenOption);
       return redirect(`/events/${eventId}`);
     }
 
     if (intent === "deleteBudgetItem") {
       const budgetItemId = formData.get("budgetItemId") as string;
       await api.delete(`/budget-items/${budgetItemId}`, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "createExpense") {
+      const category = formData.get("category") as string;
+      const title = formData.get("title") as string;
+      const amountStr = formData.get("amount") as string;
+
+      // Validate required fields
+      if (!category) {
+        return json({ error: "Category is required" }, { status: 400 });
+      }
+      if (!title || !title.trim()) {
+        return json({ error: "Title is required" }, { status: 400 });
+      }
+      if (!amountStr || isNaN(parseFloat(amountStr)) || parseFloat(amountStr) < 0) {
+        return json({ error: "Valid amount is required" }, { status: 400 });
+      }
+
+      const expenseData: any = {
+        eventId: formData.get("eventId") as string || eventId,
+        category: category,
+        title: title.trim(),
+        amount: parseFloat(amountStr),
+      };
+
+      const description = formData.get("description") as string;
+      if (description && description.trim()) {
+        expenseData.description = description.trim();
+      }
+
+      const vendorId = formData.get("vendorId") as string;
+      if (vendorId && vendorId.trim()) {
+        expenseData.vendorId = vendorId.trim();
+      }
+
+      // Create the expense first
+      const newExpense = await api.post("/expenses", expenseData, tokenOption) as { id: string };
+
+      // Upload file if provided
+      const file = formData.get("file") as File | null;
+      if (file && newExpense.id) {
+        try {
+          await api.upload(`/expenses/${newExpense.id}/files`, file, {}, tokenOption);
+        } catch (fileError: any) {
+          console.error("Error uploading expense file:", fileError);
+          // Don't fail the entire request if file upload fails
+        }
+      }
+
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "approveExpense" || intent === "rejectExpense") {
+      const expenseId = formData.get("expenseId") as string;
+      const comments = formData.get("comments") as string || undefined;
+
+      await api.post(`/expenses/${expenseId}/approve`, {
+        action: intent === "approveExpense" ? "approve" : "reject",
+        comments,
+      }, tokenOption);
+
       return redirect(`/events/${eventId}`);
     }
 
@@ -313,7 +406,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EventDetailPage() {
-  const { event, users, user } = useLoaderData<typeof loader>();
+  const { event, users, vendors = [], user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
@@ -832,6 +925,8 @@ export default function EventDetailPage() {
         <BudgetItemModal
           eventId={event.id}
           item={selectedBudgetItem}
+          users={users}
+          vendors={vendors}
           onClose={() => {
             setShowBudgetItemModal(false);
             setSelectedBudgetItem(null);
@@ -925,11 +1020,15 @@ function BudgetItemModal({
   item,
   onClose,
   onSubmit,
+  users = [],
+  vendors = [],
 }: {
   eventId: string;
   item: EventDetail["budgetItems"][0] | null;
   onClose: () => void;
   onSubmit: () => void;
+  users?: User[];
+  vendors?: any[];
 }) {
   const submit = useSubmit();
   const isEdit = !!item;
@@ -1000,12 +1099,21 @@ function BudgetItemModal({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Vendor
               </label>
-              <input
-                type="text"
-                name="vendor"
-                defaultValue={item?.vendor || ""}
+              <select
+                name="vendorId"
+                defaultValue={item?.vendorId || (item?.vendorLink?.id) || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
+              >
+                <option value="">No vendor selected</option>
+                {vendors.map((vendor) => (
+                  <option key={vendor.id} value={vendor.id}>
+                    {vendor.name} {vendor.serviceType ? `(${vendor.serviceType})` : ''}
+                  </option>
+                ))}
+              </select>
+              {vendors.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">No vendors available. <Link to="/vendors" className="text-blue-600 hover:underline">Add vendors</Link></p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -1035,6 +1143,27 @@ function BudgetItemModal({
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Assigned User
+              </label>
+              <select
+                name="assignedUserId"
+                defaultValue={item?.assignedUserId || (item?.assignedUser?.id) || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">No user assigned</option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name || user.fullName || user.email}
+                  </option>
+                ))}
+              </select>
+              {users.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">No users available. Only Admin can see users list.</p>
+              )}
             </div>
 
             <div className="flex justify-end space-x-3 pt-4">

@@ -8,22 +8,38 @@ interface ExpenseTrackerProps {
   organization?: any;
   event?: any;
   expenses?: any[];
+  vendors?: any[];
   isDemo?: boolean;
   fetcher?: any;
 }
 
-export function ExpenseTracker({ user, organization, event, expenses: initialExpenses = [], isDemo = false, fetcher }: ExpenseTrackerProps) {
+export function ExpenseTracker({ user, organization, event, expenses: initialExpenses = [], vendors = [], isDemo = false, fetcher }: ExpenseTrackerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Role-based access control
+  const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+  const isEventManager = user?.role === 'EventManager';
+  const isFinance = user?.role === 'Finance';
+  const isViewer = user?.role === 'Viewer';
+
+  // Check if user can create expenses
+  const canCreateExpense = isAdmin || isEventManager || isFinance || isDemo;
+
+  // Check if user can approve/reject expenses (Admin and EventManager only)
+  const canApproveExpense = isAdmin || isEventManager || isDemo;
   const [formData, setFormData] = useState({
     category: '',
     title: '',
     amount: '',
-    vendor: '',
+    vendorId: '',
     description: '',
     eventId: event?.id || '',
+    date: new Date().toISOString().split('T')[0], // Default to today
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Transform API expenses to component format
   const transformExpense = (exp: any) => ({
@@ -87,7 +103,7 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
     {
       id: 4,
       event: event?.name || 'Annual Tech Conference 2024',
-      category: 'Technology',
+      category: 'Logistics',
       item: 'Event Mobile App',
       amount: 12000,
       vendor: 'TechSolutions Inc',
@@ -111,6 +127,21 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialExpenses, isDemo]);
+
+  // Handle fetcher state changes
+  useEffect(() => {
+    if (fetcher?.data?.error) {
+      setSubmitError(fetcher.data.error);
+      setShowAddExpense(true); // Keep form open on error
+    } else if (fetcher?.state === "idle" && fetcher?.data && !fetcher.data.error) {
+      // Success - close form and clear error
+      setShowAddExpense(false);
+      setSubmitError(null);
+      setFormData({ category: '', title: '', amount: '', vendorId: '', description: '', eventId: event?.id || '', date: new Date().toISOString().split('T')[0] });
+      setSelectedFile(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher?.data, fetcher?.state]);
 
   const filteredExpenses = expenses.filter(expense => {
     const matchesSearch = expense.item.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -165,20 +196,40 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
         notes: formData.description,
       }]);
       setShowAddExpense(false);
-      setFormData({ category: '', title: '', amount: '', vendor: '', description: '', eventId: event?.id || '' });
+      setFormData({ category: '', title: '', amount: '', vendorId: '', description: '', eventId: event?.id || '', date: new Date().toISOString().split('T')[0] });
+      setSelectedFile(null);
     } else if (fetcher) {
+      // Clear previous errors
+      setSubmitError(null);
+
+      // Validate required fields
+      if (!formData.category) {
+        setSubmitError("Category is required");
+        return;
+      }
+      if (!formData.title || !formData.title.trim()) {
+        setSubmitError("Title is required");
+        return;
+      }
+      if (!formData.amount || isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) < 0) {
+        setSubmitError("Valid amount is required");
+        return;
+      }
+
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("intent", "create");
+      formDataToSubmit.append("intent", "createExpense");
       formDataToSubmit.append("eventId", formData.eventId || event?.id || '');
       formDataToSubmit.append("category", formData.category);
       formDataToSubmit.append("title", formData.title);
       formDataToSubmit.append("amount", formData.amount);
-      if (formData.vendor) formDataToSubmit.append("vendor", formData.vendor);
+      if (formData.vendorId) formDataToSubmit.append("vendorId", formData.vendorId);
       if (formData.description) formDataToSubmit.append("description", formData.description);
+      if (selectedFile) {
+        formDataToSubmit.append("file", selectedFile);
+      }
 
       fetcher.submit(formDataToSubmit, { method: "post" });
-      setShowAddExpense(false);
-      setFormData({ category: '', title: '', amount: '', vendor: '', description: '', eventId: event?.id || '' });
+      // Don't close form immediately - let useEffect handle it based on success/error
     }
   };
 
@@ -189,7 +240,7 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
       ));
     } else if (fetcher) {
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("intent", "approve");
+      formDataToSubmit.append("intent", "approveExpense");
       formDataToSubmit.append("expenseId", String(id));
 
       fetcher.submit(formDataToSubmit, { method: "post" });
@@ -203,7 +254,7 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
       ));
     } else if (fetcher) {
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("intent", "reject");
+      formDataToSubmit.append("intent", "rejectExpense");
       formDataToSubmit.append("expenseId", String(id));
 
       fetcher.submit(formDataToSubmit, { method: "post" });
@@ -221,13 +272,15 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
             <p className="text-yellow-700 text-sm mt-2">Demo Mode: Changes are not saved</p>
           )}
         </div>
-        <button
-          onClick={() => setShowAddExpense(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 justify-center transition-colors"
-        >
-          <Plus size={20} />
-          <span>Submit Expense</span>
-        </button>
+        {canCreateExpense && (
+          <button
+            onClick={() => setShowAddExpense(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 justify-center transition-colors"
+          >
+            <Plus size={20} />
+            <span>Submit Expense</span>
+          </button>
+        )}
       </div>
 
       {/* Summary Stats */}
@@ -351,7 +404,7 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
-                      {expense.status === 'pending' && (
+                      {expense.status === 'pending' && canApproveExpense && (
                         <>
                           <button 
                             onClick={() => handleApprove(expense.id)}
@@ -400,7 +453,8 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
               <button 
                 onClick={() => {
                   setShowAddExpense(false);
-                  setFormData({ category: '', item: '', amount: '', vendor: '', date: '', notes: '' });
+                  setFormData({ category: '', title: '', amount: '', vendorId: '', description: '', eventId: event?.id || '', date: new Date().toISOString().split('T')[0] });
+                  setSelectedFile(null);
                 }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -412,6 +466,12 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
                   <p className="font-medium">Demo Mode</p>
                   <p className="text-sm mt-1">This expense won't be saved in demo mode.</p>
+                </div>
+              )}
+              {submitError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+                  <p className="font-medium">Error</p>
+                  <p className="text-sm mt-1">{submitError}</p>
                 </div>
               )}
               <div>
@@ -426,11 +486,10 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
                   <option value="Venue">Venue</option>
                   <option value="Catering">Catering</option>
                   <option value="Marketing">Marketing</option>
-                  <option value="Technology">Technology</option>
+                  <option value="Logistics">Logistics</option>
                   <option value="Entertainment">Entertainment</option>
-                  <option value="Staffing">Staffing</option>
-                  <option value="Transportation">Transportation</option>
-                  <option value="Other">Other</option>
+                  <option value="StaffTravel">Staff Travel</option>
+                  <option value="Miscellaneous">Miscellaneous</option>
                 </select>
               </div>
               <div>
@@ -474,13 +533,21 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Vendor</label>
-                <input
-                  type="text"
-                  value={formData.vendor}
-                  onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
-                  placeholder="Vendor name"
+                <select
+                  value={formData.vendorId}
+                  onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                >
+                  <option value="">No vendor selected</option>
+                  {vendors.map((vendor) => (
+                    <option key={vendor.id} value={vendor.id}>
+                      {vendor.name} {vendor.serviceType ? `(${vendor.serviceType})` : ''}
+                    </option>
+                  ))}
+                </select>
+                {vendors.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1">No vendors available. <a href="/vendors" className="text-blue-600 hover:underline">Add vendors</a></p>
+                )}
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Notes</label>
@@ -495,8 +562,52 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Receipt (Optional)</label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <p className="text-gray-500">Click to upload or drag and drop</p>
-                  <p className="text-gray-400 text-sm mt-1">PDF, PNG, JPG up to 10MB</p>
+                  <input
+                    type="file"
+                    id="expense-file-upload"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert('File size must be less than 10MB');
+                          e.target.value = '';
+                          return;
+                        }
+                        setSelectedFile(file);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="expense-file-upload"
+                    className="cursor-pointer block"
+                  >
+                    {selectedFile ? (
+                      <div>
+                        <p className="text-green-600 font-medium">{selectedFile.name}</p>
+                        <p className="text-gray-400 text-sm mt-1">Click to change file</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-gray-500">Click to upload or drag and drop</p>
+                        <p className="text-gray-400 text-sm mt-1">PDF, PNG, JPG up to 10MB</p>
+                      </div>
+                    )}
+                  </label>
+                  {selectedFile && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedFile(null);
+                        const input = document.getElementById('expense-file-upload') as HTMLInputElement;
+                        if (input) input.value = '';
+                      }}
+                      className="mt-2 text-sm text-red-600 hover:text-red-700"
+                    >
+                      Remove file
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="flex gap-4 pt-4">

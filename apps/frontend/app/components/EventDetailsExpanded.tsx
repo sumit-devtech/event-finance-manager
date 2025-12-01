@@ -18,6 +18,7 @@ interface EventDetailsExpandedProps {
   onUpdate: (data: any) => Promise<void>;
   isDemo?: boolean;
   user?: any;
+  vendors?: any[];
 }
 
 export function EventDetailsExpanded({
@@ -27,6 +28,7 @@ export function EventDetailsExpanded({
   onUpdate,
   isDemo = false,
   user,
+  vendors = [],
 }: EventDetailsExpandedProps) {
   const [activeSection, setActiveSection] = useState('overview');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -216,16 +218,23 @@ export function EventDetailsExpanded({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-4">
-              <select
-                value={event.status || 'planning'}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              >
-                <option value="planning">Planning</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+              {user?.role !== 'Viewer' && (
+                <select
+                  value={event.status || 'planning'}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <option value="planning">Planning</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              )}
+              {user?.role === 'Viewer' && (
+                <span className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium bg-gray-50 text-gray-600 capitalize">
+                  {event.status || 'planning'}
+                </span>
+              )}
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:flex"
@@ -401,6 +410,7 @@ export function EventDetailsExpanded({
                 organization={organization}
                 event={currentEvent}
                 budgetItems={currentEvent?.budgetItems || []}
+                strategicGoals={currentEvent?.strategicGoals || []}
                 isDemo={isDemo} 
               />
             )}
@@ -410,7 +420,9 @@ export function EventDetailsExpanded({
                 user={user}
                 organization={organization}
                 event={event}
-                isDemo={isDemo} 
+                vendors={vendors}
+                isDemo={isDemo}
+                fetcher={fetcher}
               />
             )}
 
@@ -419,6 +431,7 @@ export function EventDetailsExpanded({
                 eventId={currentEvent.id}
                 goals={currentEvent?.strategicGoals}
                 isDemo={isDemo}
+                user={user}
                 onSave={async (goals) => {
                   if (!isDemo) {
                     // TODO: Save goals to backend
@@ -433,6 +446,7 @@ export function EventDetailsExpanded({
                 eventId={currentEvent.id}
                 documents={currentEvent?.files}
                 isDemo={isDemo}
+                user={user}
                 onUpload={async (file) => {
                   if (!isDemo) {
                     // TODO: Upload file to backend
@@ -453,6 +467,7 @@ export function EventDetailsExpanded({
                 eventId={currentEvent.id}
                 notes={currentEvent?.notes}
                 isDemo={isDemo}
+                user={user}
                 onSave={async (notes) => {
                   if (!isDemo) {
                     // TODO: Save notes to backend

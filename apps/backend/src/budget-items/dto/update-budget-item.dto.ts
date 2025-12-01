@@ -31,6 +31,10 @@ export class UpdateBudgetItemDto {
   @IsOptional()
   vendor?: string;
 
+  @IsString()
+  @IsOptional()
+  vendorId?: string;
+
   @IsEnum(BudgetItemStatus)
   @IsOptional()
   status?: BudgetItemStatus;

@@ -6,6 +6,7 @@ import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import { UserRole } from "../auth/types/user-role.enum";
+import { ExpenseStatus } from "@event-finance-manager/database";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -81,9 +82,12 @@ export class EventsService {
     startDateTo?: string;
     limit?: number;
     offset?: number;
+    userId?: string;
+    userRole?: UserRole;
   }) {
     const where: any = {};
 
+    // Build base filters first (status, location, dates)
     if (filters?.status) {
       where.status = filters.status;
     }
@@ -109,6 +113,57 @@ export class EventsService {
       }
       if (filters.startDateTo) {
         where.startDate.lte = new Date(filters.startDateTo);
+      }
+    }
+
+    // Role-based filtering - apply AFTER base filters
+    if (filters?.userId && filters?.userRole) {
+      if (filters.userRole === UserRole.Admin) {
+        // Admin can see all events in their organization
+        // No additional filtering needed - show all events
+      } else if (filters.userRole === UserRole.EventManager) {
+        // EventManager can see events they created OR are assigned to
+        const roleFilter = {
+          OR: [
+            { createdBy: filters.userId },
+            {
+              assignments: {
+                some: {
+                  userId: filters.userId,
+                },
+              },
+            },
+          ],
+        };
+        // Combine role filter with existing filters using AND
+        const baseFilters = { ...where };
+        where.AND = [
+          roleFilter,
+          ...(Object.keys(baseFilters).length > 0 ? [baseFilters] : []),
+        ];
+        // Remove individual filter keys since they're now in AND
+        Object.keys(baseFilters).forEach(key => {
+          if (key !== 'AND') delete where[key];
+        });
+      } else if ([UserRole.Finance, UserRole.Viewer].includes(filters.userRole)) {
+        // Finance and Viewer can only see events they are assigned to
+        const roleFilter = {
+          assignments: {
+            some: {
+              userId: filters.userId,
+            },
+          },
+        };
+        // Combine role filter with existing filters using AND
+        const baseFilters = { ...where };
+        where.AND = [
+          roleFilter,
+          ...(Object.keys(baseFilters).length > 0 ? [baseFilters] : []),
+        ];
+        // Remove individual filter keys since they're now in AND
+        Object.keys(baseFilters).forEach(key => {
+          if (key !== 'AND') delete where[key];
+        });
       }
     }
 
@@ -168,6 +223,44 @@ export class EventsService {
       },
     });
 
+    // Get event IDs for batch queries
+    const eventIds = events.map(e => e.id);
+
+    // Calculate spent (sum of approved expenses) for all events in one query
+    const expensesByEvent = await this.prisma.client.expense.groupBy({
+      by: ['eventId'],
+      where: {
+        eventId: { in: eventIds },
+        status: ExpenseStatus.Approved, // Only count approved expenses
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    // Create a map for quick lookup
+    const spentMap = new Map<string, number>();
+    expensesByEvent.forEach((item) => {
+      spentMap.set(item.eventId, item._sum.amount || 0);
+    });
+
+    // Fetch ROI metrics for all events in one query
+    const roiMetrics = await this.prisma.client.rOIMetrics.findMany({
+      where: {
+        eventId: { in: eventIds },
+      },
+      select: {
+        eventId: true,
+        roiPercent: true,
+      },
+    });
+
+    // Create a map for quick lookup
+    const roiMap = new Map<string, number | null>();
+    roiMetrics.forEach((metric) => {
+      roiMap.set(metric.eventId, metric.roiPercent);
+    });
+
     // Transform the response to match frontend expectations
     return events.map((event) => {
       // Convert Decimal budget to number
@@ -176,6 +269,12 @@ export class EventsService {
           ? event.budget.toNumber() 
           : Number(event.budget))
         : null;
+
+      // Get spent amount for this event
+      const spent = spentMap.get(event.id) || 0;
+
+      // Get ROI percent for this event
+      const roiPercent = roiMap.get(event.id) ?? null;
 
       // Build the response object explicitly to ensure all fields are included
       const response: any = {
@@ -194,8 +293,10 @@ export class EventsService {
         venue: event.venue ?? null,
         attendees: event.attendees ?? null,
         budget: budget,
+        spent: spent, // Add calculated spent amount
         client: event.client ?? null, // Use actual client field, preserve null
         organizer: event.organizer ?? null,
+        roiPercent: roiPercent, // Add ROI percent from ROIMetrics
         assignments: event.assignments.map((assignment) => {
           if (!assignment.user) {
             return {
@@ -219,7 +320,7 @@ export class EventsService {
     });
   }
 
-  async findOne(id: string, includeDetails: boolean = false) {
+  async findOne(id: string, includeDetails: boolean = false, userId?: string, userRole?: UserRole) {
     // Optimize: Only fetch full details when needed
     const event = await this.prisma.client.event.findUnique({
       where: { id },
@@ -318,6 +419,20 @@ export class EventsService {
 
     if (!event) {
       throw new NotFoundException(`Event with ID ${id} not found`);
+    }
+
+    // Check access: Admin can see all, others can only see assigned events
+    if (userId && userRole) {
+      if (userRole === UserRole.Admin) {
+        // Admin has full access
+      } else {
+        const isCreator = event.createdBy === userId;
+        const isAssigned = event.assignments?.some((a: any) => a.userId === userId);
+        
+        if (!isCreator && !isAssigned) {
+          throw new NotFoundException(`Event with ID ${id} not found`); // Return 404 to hide existence
+        }
+      }
     }
 
     // Transform the response to match frontend expectations
@@ -477,14 +592,18 @@ export class EventsService {
     const event = await this.findOne(id);
     const eventName = event.name;
 
+    // Create activity log before deletion (since eventId will be invalid after)
+    await this.createActivityLog(userId, "event.deleted", {
+      eventName,
+    }, id);
+
+    // Delete event - cascade will automatically delete:
+    // - EventAssignment
+    // - BudgetItem
+    // - Expense (linked to BudgetItems)
+    // - File (linked to Expenses via expenseId)
     await this.prisma.client.event.delete({
       where: { id },
-    });
-
-    // Create activity log
-    await this.createActivityLog(userId, "event.deleted", {
-      eventId: id,
-      eventName,
     });
   }
 
@@ -498,11 +617,18 @@ export class EventsService {
   }
 
   async updateStatus(id: string, updateStatusDto: UpdateStatusDto, userId: string) {
-    const event = await this.findOne(id);
+    // Get user role for access check
+    const user = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    // Verify access before allowing status change
+    const event = await this.findOne(id, false, userId, user?.role as UserRole);
     const oldStatus = event.status;
 
     if (oldStatus === updateStatusDto.status) {
-      return this.findOne(id);
+      return this.findOne(id, false, userId, user?.role as UserRole);
     }
 
     await this.prisma.client.event.update({
@@ -528,7 +654,7 @@ export class EventsService {
       newStatus: updateStatusDto.status,
     }, id);
 
-    return this.findOne(id);
+    return this.findOne(id, false, userId, user?.role as UserRole);
   }
 
   async assignUser(eventId: string, assignUserDto: AssignUserDto, userId: string) {

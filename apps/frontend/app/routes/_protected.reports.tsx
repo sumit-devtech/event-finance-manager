@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { useLoaderData, Form, Link, useSubmit, useNavigation, Outlet, useLocation } from "@remix-run/react";
-import { requireAuth } from "~/lib/auth.server";
+import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { env } from "~/lib/env";
@@ -84,8 +84,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
-  // Otherwise, require authentication
-  const user = await requireAuth(request);
+  // Otherwise, require authentication with role check
+  const user = await requireRole(request, ["Admin", "EventManager", "Finance"]);
   const token = await getAuthTokenFromSession(request);
 
   const status = url.searchParams.get("status") || undefined;
@@ -116,7 +116,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
  * Note: Export downloads are handled client-side due to file download requirements
  */
 export async function action({ request }: ActionFunctionArgs) {
-  await requireAuth(request);
+  await requireRole(request, ["Admin", "EventManager", "Finance"]);
   
   // Export is handled client-side, this action just validates authentication
   return json<ActionData>({ success: true });

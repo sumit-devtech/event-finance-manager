@@ -203,7 +203,7 @@ model EventAssignment {
   role       String? // Optional role for this assignment (e.g., "Manager", "Lead", "Coordinator")
   assignedAt DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
-  event      Event    @relation(fields: [eventId], references: [id])
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventId])
   @@index([userId])
@@ -221,7 +221,7 @@ model EventStakeholder {
   phone     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  event     Event    @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
   @@index([email])
@@ -259,7 +259,7 @@ model VendorEvent {
   eventId    String
   assignedAt DateTime @default(now())
   vendor     Vendor   @relation(fields: [vendorId], references: [id])
-  event      Event    @relation(fields: [eventId], references: [id])
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([vendorId, eventId])
   @@index([vendorId])
@@ -311,7 +311,7 @@ model BudgetItem {
   lastEditedAt    DateTime? // Last edit timestamp
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
-  event           Event              @relation(fields: [eventId], references: [id])
+  event           Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   vendorLink      Vendor?            @relation("BudgetItemVendor", fields: [vendorId], references: [id])
   assignedUser    User?              @relation("BudgetItemAssignee", fields: [assignedUserId], references: [id])
   strategicGoal   StrategicGoal?     @relation(fields: [strategicGoalId], references: [id])
@@ -347,8 +347,8 @@ model Expense {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   organization   Organization?       @relation(fields: [organizationId], references: [id])
-  event          Event               @relation(fields: [eventId], references: [id])
-  budgetItem     BudgetItem?         @relation("ExpenseBudgetItem", fields: [budgetItemId], references: [id])
+  event          Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  budgetItem     BudgetItem?         @relation("ExpenseBudgetItem", fields: [budgetItemId], references: [id], onDelete: Cascade)
   vendorLink     Vendor?             @relation("ExpenseVendor", fields: [vendorId], references: [id])
   creator        User?               @relation("ExpenseCreator", fields: [createdBy], references: [id])
   workflows      ApprovalWorkflow[]
@@ -375,7 +375,7 @@ model ApprovalWorkflow {
   action     String // approved / rejected
   comments   String?
   actionAt   DateTime @default(now())
-  expense    Expense  @relation(fields: [expenseId], references: [id])
+  expense    Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   approver   User?    @relation("ApproverWorkflow", fields: [approverId], references: [id])
 
   @@index([expenseId])
@@ -459,7 +459,7 @@ model File {
   uploadedAt   DateTime    @default(now())
   event        Event?      @relation(fields: [eventId], references: [id])
   budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id])
-  expense      Expense?    @relation(fields: [expenseId], references: [id])
+  expense      Expense?    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   report       Report?     @relation(fields: [reportId], references: [id])
 
   @@index([eventId])
