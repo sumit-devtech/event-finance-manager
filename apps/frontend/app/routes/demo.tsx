@@ -87,14 +87,14 @@ export default function DemoLayout() {
               {/* Desktop title */}
               <div className="hidden lg:flex items-center">
                 <h1 className="text-xl font-semibold text-gray-900">
-                  EventBudget Pro
+                  Simplifi
                 </h1>
               </div>
               
               {/* Mobile title */}
               <div className="lg:hidden flex items-center flex-1 justify-center">
                 <h1 className="text-lg font-semibold text-gray-900">
-                  EventBudget Pro
+                  Simplifi
                 </h1>
               </div>
               

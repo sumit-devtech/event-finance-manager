@@ -1,6 +1,7 @@
 import { Link } from '@remix-run/react';
 import { ArrowRight, CheckCircle, BarChart3, Users, DollarSign, Zap, Shield, Globe } from 'lucide-react';
 import logoImage from '~/assets/logo.png';
+import logoOwl from '~/assets/owl-logo.png';
 
 export function LandingPage() {
   const features = [
@@ -16,7 +17,7 @@ export function LandingPage() {
     {
       name: 'Free Trial',
       price: '$0',
-      description: 'Try EventBudget Pro',
+      description: 'Try Simplifi',
       features: ['1 Event', 'Basic budgeting', 'Email support', '7-day access'],
       cta: 'Start Free Trial',
       highlighted: false,
@@ -46,8 +47,8 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logoImage} alt="EventBudget Pro Logo" className="w-8 h-8 md:w-10 md:h-10" />
-              <h1 className="text-blue-600 text-lg md:text-2xl font-bold">EventBudget Pro</h1>
+              <img src={logoOwl} alt="Simplifi Logo" className="w-8 h-8 md:w-10 md:h-10" />
+              <h1 className="text-blue-600 text-lg md:text-2xl font-bold" style={{ color: '#002640' }}>Simplifi</h1>
             </Link>
             <div className="flex items-center gap-2 md:gap-4">
               <Link
@@ -101,7 +102,7 @@ export function LandingPage() {
           <div className="flex justify-center">
             <img 
               src={logoImage} 
-              alt="EventBudget Pro - Your Event Budget OS" 
+              alt="Simplifi - Your Event Budget OS" 
               className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-contain" 
             />
           </div>
@@ -185,7 +186,7 @@ export function LandingPage() {
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl md:rounded-2xl p-6 md:p-12 text-center text-white">
           <h3 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Ready to get started?</h3>
           <p className="text-base md:text-xl mb-6 md:mb-8 opacity-90 px-4">
-            Join thousands of event planners who trust EventBudget Pro
+            Join thousands of event planners who trust Simplifi
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
             <Link
@@ -208,7 +209,7 @@ export function LandingPage() {
       <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600">
-            <p>© 2024 EventBudget Pro. All rights reserved.</p>
+            <p>© 2024 Simplifi. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -1,7 +1,7 @@
 import { Link, useLocation, Form } from "@remix-run/react";
 import { LayoutDashboard, Calendar, DollarSign, Receipt, Users, BarChart3, UserCog, LogOut, Store } from 'lucide-react';
 import type { User } from "~/lib/auth";
-import logoImage from '~/assets/logo.png';
+import logoImage from '~/assets/owl-logo.png';
 
 interface SidebarProps {
   user: User | null;
@@ -82,7 +82,7 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
           <div className="p-6 border-b border-gray-200">
             <Link to={isDemo ? "/dashboard?demo=true" : "/dashboard"} onClick={handleLinkClick} className="flex items-center gap-3">
               <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
-              <h1 className="text-blue-600 font-bold text-xl">Simplifi</h1>
+              <h1 className="text-blue-600 font-bold text-xl" style={{ color: '#002640' }}>Simplifi</h1>
             </Link>
             {organization && (
               <p className="text-sm text-gray-600 mt-1">{organization.name}</p>

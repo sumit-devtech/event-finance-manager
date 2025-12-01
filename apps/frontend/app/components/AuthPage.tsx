@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Link, useSearchParams } from '@remix-run/react';
 import { ArrowLeft, Mail, Lock, User, Building2 } from 'lucide-react';
-import logoImage from '~/assets/logo.png';
+import logoImage from '~/assets/logo-white.png';
 import illustrationImage from '~/assets/illustration.png';
 
 interface AuthPageProps {
@@ -45,15 +45,15 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
             <div className="grid lg:grid-cols-2">
               <div className="hidden lg:block bg-gradient-to-br from-purple-600 to-blue-600 p-12 relative">
                 <div className="flex items-center gap-3 mb-8">
-                  <img src={logoImage} alt="EventBudget Pro Logo" className="w-12 h-12" />
-                  <h2 className="text-white text-2xl">EventBudget Pro</h2>
+                  <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+                  <h2 className="text-white text-2xl">Simplifi</h2>
                 </div>
-                <h3 className="text-white text-3xl mb-4">Welcome to EventBudget Pro</h3>
+                <h3 className="text-white text-3xl mb-4">Welcome to simplifi</h3>
                 <p className="text-white/90 text-lg mb-8">Built for the teams behind great events.</p>
                 <div className="flex justify-center items-center h-64">
                   <img
                     src={illustrationImage}
-                    alt="EventBudget Pro Illustration"
+                    alt="Simplifi Illustration"
                     className="w-64 h-auto object-contain"
                   />
                 </div>
@@ -61,13 +61,13 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
               <div className="p-6 md:p-8 lg:p-12">
                 <div className="lg:hidden text-center mb-6">
                   <div className="flex items-center justify-center gap-3 mb-4">
-                    <img src={logoImage} alt="EventBudget Pro Logo" className="w-10 h-10" />
-                    <h2 className="text-blue-600 text-2xl">EventBudget Pro</h2>
+                    <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+                    <h2 className="text-blue-600 text-2xl">Simplifi</h2>
                   </div>
                 </div>
                 <div className="text-center mb-6 md:mb-8">
                   <h3 className="mb-2 text-lg md:text-xl font-semibold">Demo Mode</h3>
-                  <p className="text-gray-600 text-sm md:text-base">Experience EventBudget Pro with sample data</p>
+                  <p className="text-gray-600 text-sm md:text-base">Experience Simplifi with sample data</p>
                 </div>
                 <Link
                   to="/dashboard?demo=true"
@@ -108,15 +108,15 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
             {/* Left Side - Illustration */}
             <div className="hidden lg:block bg-gradient-to-br from-purple-600 to-blue-600 p-12 relative">
               <div className="flex items-center gap-3 mb-8">
-                <img src={logoImage} alt="EventBudget Pro Logo" className="w-12 h-12" />
-                <h2 className="text-white text-2xl">EventBudget Pro</h2>
+                <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+                <h2 className="text-white text-2xl">Simplifi</h2>
               </div>
-              <h3 className="text-white text-3xl mb-4">Welcome to EventBudget Pro</h3>
+              <h3 className="text-white text-3xl mb-4">Welcome to simplifi</h3>
               <p className="text-white/90 text-lg mb-8">Built for the teams behind great events.</p>
               <div className="flex justify-center items-center h-64">
                 <img
                   src={illustrationImage}
-                  alt="EventBudget Pro Illustration"
+                  alt="Simplifi Illustration"
                   className="w-64 h-auto object-contain"
                 />
               </div>
@@ -126,8 +126,8 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
             <div className="p-6 md:p-8 lg:p-12">
               <div className="lg:hidden text-center mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <img src={logoImage} alt="EventBudget Pro Logo" className="w-10 h-10" />
-                  <h2 className="text-blue-600 text-2xl">EventBudget Pro</h2>
+                  <img src={logoImage} alt="Simplifi Logo" className="w-10 h-10" />
+                  <h2 className="text-blue-600 text-2xl">Simplifi</h2>
                 </div>
               </div>
               <div className="text-center mb-6 md:mb-8">
