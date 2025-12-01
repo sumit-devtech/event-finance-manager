@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Users, Plus, X, CheckCircle } from 'lucide-react';
 import type { User as AuthUser } from "~/lib/auth";
+import { Dropdown } from './shared';
 
 interface TeamMember {
   id: string;
@@ -156,18 +157,18 @@ export function TeamAssignments({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 mb-2 font-medium">Team Member</label>
-              <select
+              <Dropdown
                 value={selectedUserId}
-                onChange={(e) => setSelectedUserId(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select a member</option>
-                {availableMembers.map((member) => (
-                  <option key={member.id || member.userId} value={member.id || member.userId}>
-                    {member.user?.name || member.name || member.user?.email || member.email}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedUserId}
+                options={[
+                  { value: '', label: 'Select a member' },
+                  ...availableMembers.map((member) => ({
+                    value: member.id || member.userId || '',
+                    label: member.user?.name || member.name || member.user?.email || member.email || 'Unknown',
+                  })),
+                ]}
+                placeholder="Select a member"
+              />
             </div>
             <div>
               <label className="block text-gray-700 mb-2 font-medium">Role</label>

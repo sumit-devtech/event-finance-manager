@@ -159,7 +159,7 @@ export function Dropdown({
 
       {isOpen && (
         <div
-          className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto"
+          className="absolute z-[10000] w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto"
           role="listbox"
         >
           {options.length === 0 ? (

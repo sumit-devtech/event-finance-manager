@@ -3,6 +3,8 @@ import { Form, useActionData, useNavigation, Link, useLoaderData, useRouteError 
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
+import { Dropdown } from "~/components/shared";
+import { useState } from "react";
 
 /**
  * Loader - ensure user has permission to create events and fetch EventManager users
@@ -97,6 +99,8 @@ export default function NewEventPage() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const managers = loaderData.managers || [];
+  const [status, setStatus] = useState("Planning");
+  const [managerId, setManagerId] = useState("");
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -179,17 +183,18 @@ export default function NewEventPage() {
               <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
                 Status
               </label>
-              <select
-                id="status"
-                name="status"
-                defaultValue="Planning"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="Planning">Planning</option>
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
+              <input type="hidden" name="status" value={status} />
+              <Dropdown
+                value={status}
+                onChange={setStatus}
+                options={[
+                  { value: 'Planning', label: 'Planning' },
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Completed', label: 'Completed' },
+                  { value: 'Cancelled', label: 'Cancelled' },
+                ]}
+                placeholder="Select status"
+              />
             </div>
             <div>
               <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
@@ -212,18 +217,19 @@ export default function NewEventPage() {
               <label htmlFor="managerId" className="block text-sm font-medium text-gray-700 mb-1">
                 Assign Manager (Optional)
               </label>
-              <select
-                id="managerId"
-                name="managerId"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">-- No manager assigned --</option>
-                {managers.map((manager) => (
-                  <option key={manager.id} value={manager.id}>
-                    {manager.fullName || manager.name || manager.email} ({manager.email})
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="managerId" value={managerId} />
+              <Dropdown
+                value={managerId}
+                onChange={setManagerId}
+                options={[
+                  { value: '', label: '-- No manager assigned --' },
+                  ...managers.map((manager) => ({
+                    value: manager.id,
+                    label: `${manager.fullName || manager.name || manager.email} (${manager.email})`,
+                  })),
+                ]}
+                placeholder="-- No manager assigned --"
+              />
               <p className="mt-1 text-xs text-gray-500">
                 Select an Event Manager to assign to this event
               </p>

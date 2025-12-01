@@ -3,7 +3,7 @@ import { Form, useNavigation } from '@remix-run/react';
 import { Plus, Edit, Trash, X, FileText, User as UserIcon, Clock, Download, Upload } from './Icons';
 import type { User } from "~/lib/auth";
 import type { EventWithDetails, BudgetItemWithRelations, StrategicGoalType, VendorWithStats, UserWithCounts } from "~/types";
-import { ConfirmDialog } from "./shared/ConfirmDialog";
+import { ConfirmDialog, Dropdown } from "./shared";
 import toast from "react-hot-toast";
 import { getBudgetStatusColor, formatDateTime } from "~/lib/utils";
 
@@ -605,23 +605,22 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                  <select
-                    name="category"
+                  <Dropdown
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select a category</option>
-                    <option value="Venue">Venue</option>
-                    <option value="Catering">Catering</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Logistics">Logistics</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="StaffTravel">Staff Travel</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Miscellaneous">Miscellaneous</option>
-                  </select>
+                    onChange={(value) => setFormData({ ...formData, category: value })}
+                    options={[
+                      { value: '', label: 'Select a category' },
+                      { value: 'Venue', label: 'Venue' },
+                      { value: 'Catering', label: 'Catering' },
+                      { value: 'Marketing', label: 'Marketing' },
+                      { value: 'Logistics', label: 'Logistics' },
+                      { value: 'Entertainment', label: 'Entertainment' },
+                      { value: 'StaffTravel', label: 'Staff Travel' },
+                      { value: 'Technology', label: 'Technology' },
+                      { value: 'Miscellaneous', label: 'Miscellaneous' },
+                    ]}
+                    placeholder="Select a category"
+                  />
                 </div>
 
                 <div>
@@ -694,59 +693,53 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
-                  <select
-                    name="status"
+                  <Dropdown
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as BudgetItemStatus })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Closed">Closed</option>
-                  </select>
+                    onChange={(value) => setFormData({ ...formData, status: value as BudgetItemStatus })}
+                    options={[
+                      { value: 'Pending', label: 'Pending' },
+                      { value: 'Approved', label: 'Approved' },
+                      { value: 'Closed', label: 'Closed' },
+                    ]}
+                    placeholder="Select status"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Assigned User</label>
-                  <select
-                    name="assignedUser"
+                  <Dropdown
                     value={formData.assignedUser}
-                    onChange={(e) => setFormData({ ...formData, assignedUser: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select user</option>
-                    {availableUsers.map((member: any) => {
-                      const userId = member.id;
-                      const displayName = member.fullName || member.name || member.email || 'Unknown';
-                      return (
-                        <option key={userId} value={userId}>
-                          {displayName}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    onChange={(value) => setFormData({ ...formData, assignedUser: value })}
+                    options={[
+                      { value: '', label: 'Select user' },
+                      ...availableUsers.map((member: any) => {
+                        const userId = member.id;
+                        const displayName = member.fullName || member.name || member.email || 'Unknown';
+                        return { value: userId, label: displayName };
+                      }),
+                    ]}
+                    placeholder="Select user"
+                  />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
-                <select
-                  name="vendorId"
-                  value={formData.vendor || ''}
-                  onChange={(e) => {
-                    const selectedVendor = vendors.find(v => v.id === e.target.value);
-                    setFormData({ ...formData, vendor: selectedVendor?.name || '', vendorId: e.target.value || '' });
+                <Dropdown
+                  value={formData.vendorId || ''}
+                  onChange={(value) => {
+                    const selectedVendor = vendors.find(v => v.id === value);
+                    setFormData({ ...formData, vendor: selectedVendor?.name || '', vendorId: value || '' });
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">No vendor selected</option>
-                  {vendors.map((vendor) => (
-                    <option key={vendor.id} value={vendor.id}>
-                      {vendor.name} {vendor.serviceType ? `(${vendor.serviceType})` : ''}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: '', label: 'No vendor selected' },
+                    ...vendors.map((vendor) => ({
+                      value: vendor.id,
+                      label: `${vendor.name}${vendor.serviceType ? ` (${vendor.serviceType})` : ''}`,
+                    })),
+                  ]}
+                  placeholder="No vendor selected"
+                />
                 {vendors.length === 0 && (
                   <p className="text-xs text-gray-500 mt-1">No vendors available. <a href="/vendors" className="text-blue-600 hover:underline">Add vendors</a></p>
                 )}
@@ -754,19 +747,18 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Strategic Goal Mapping</label>
-                <select
-                  name="strategicGoalId"
+                <Dropdown
                   value={formData.strategicGoalId}
-                  onChange={(e) => setFormData({ ...formData, strategicGoalId: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">No strategic goal</option>
-                  {strategicGoals.map((goal: any) => (
-                    <option key={goal.id} value={goal.id}>
-                      {goal.title}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => setFormData({ ...formData, strategicGoalId: value })}
+                  options={[
+                    { value: '', label: 'No strategic goal' },
+                    ...strategicGoals.map((goal: any) => ({
+                      value: goal.id,
+                      label: goal.title,
+                    })),
+                  ]}
+                  placeholder="No strategic goal"
+                />
                 {strategicGoals.length === 0 && (
                   <p className="text-xs text-gray-500 mt-1">No strategic goals available. Create goals in the Strategic Goals section.</p>
                 )}

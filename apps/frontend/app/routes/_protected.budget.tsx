@@ -8,6 +8,7 @@ import type { User } from "~/lib/auth";
 import { BudgetManager } from "~/components/BudgetManager";
 import { demoBudgetEvents, demoBudgetVersions, demoBudgetItems } from "~/lib/demoData";
 import type { EventWithDetails, BudgetItemWithRelations, StrategicGoalType, VendorWithStats, UserWithCounts } from "~/types";
+import { Dropdown } from "~/components/shared";
 
 interface BudgetEvent {
   id: string;
@@ -394,18 +395,19 @@ export default function BudgetRoute() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Filter by Event
           </label>
-          <select
+          <Dropdown
             value={eventId || ''}
-            onChange={(e) => handleEventChange(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Events</option>
-            {events.map((event: any) => (
-              <option key={event.id} value={event.id}>
-                {event.name}
-              </option>
-            ))}
-          </select>
+            onChange={handleEventChange}
+            options={[
+              { value: '', label: 'All Events' },
+              ...events.map((event: BudgetEvent) => ({
+                value: event.id,
+                label: event.name,
+              })),
+            ]}
+            placeholder="Select event"
+            className="w-full sm:w-auto min-w-[200px]"
+          />
           {selectedEvent ? (
             <p className="text-sm text-gray-600 mt-2">
               Showing budget for: <span className="font-medium">{selectedEvent.name}</span>

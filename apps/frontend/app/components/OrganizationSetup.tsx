@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Form, useNavigate } from '@remix-run/react';
 import { Building2, MapPin, Globe, ArrowRight } from 'lucide-react';
 import type { User } from '~/lib/auth';
+import { Dropdown } from '~/components/shared';
 
 interface OrganizationSetupProps {
   user: User;
@@ -78,40 +79,42 @@ export function OrganizationSetup({ user }: OrganizationSetupProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-700 mb-2 font-medium">Industry *</label>
-                    <select
-                      name="industry"
+                    <input type="hidden" name="industry" value={formData.industry} />
+                    <Dropdown
                       value={formData.industry}
-                      onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, industry: value })}
+                      options={[
+                        { value: '', label: 'Select industry' },
+                        { value: 'technology', label: 'Technology' },
+                        { value: 'events', label: 'Events & Hospitality' },
+                        { value: 'marketing', label: 'Marketing & Advertising' },
+                        { value: 'nonprofit', label: 'Non-Profit' },
+                        { value: 'education', label: 'Education' },
+                        { value: 'healthcare', label: 'Healthcare' },
+                        { value: 'other', label: 'Other' },
+                      ]}
+                      placeholder="Select industry"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select industry</option>
-                      <option value="technology">Technology</option>
-                      <option value="events">Events & Hospitality</option>
-                      <option value="marketing">Marketing & Advertising</option>
-                      <option value="nonprofit">Non-Profit</option>
-                      <option value="education">Education</option>
-                      <option value="healthcare">Healthcare</option>
-                      <option value="other">Other</option>
-                    </select>
+                    />
                   </div>
 
                   <div>
                     <label className="block text-gray-700 mb-2 font-medium">Organization Size *</label>
-                    <select
-                      name="size"
+                    <input type="hidden" name="size" value={formData.size} />
+                    <Dropdown
                       value={formData.size}
-                      onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, size: value })}
+                      options={[
+                        { value: '', label: 'Select size' },
+                        { value: '1-10', label: '1-10 employees' },
+                        { value: '11-50', label: '11-50 employees' },
+                        { value: '51-200', label: '51-200 employees' },
+                        { value: '201-500', label: '201-500 employees' },
+                        { value: '500+', label: '500+ employees' },
+                      ]}
+                      placeholder="Select size"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select size</option>
-                      <option value="1-10">1-10 employees</option>
-                      <option value="11-50">11-50 employees</option>
-                      <option value="51-200">51-200 employees</option>
-                      <option value="201-500">201-500 employees</option>
-                      <option value="500+">500+ employees</option>
-                    </select>
+                    />
                   </div>
                 </div>
 

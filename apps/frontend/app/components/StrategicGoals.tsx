@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Target, Plus, X, CheckCircle, Clock } from './Icons';
+import { Dropdown, EditButton, DeleteButton, ConfirmDialog } from './shared';
+import { toast } from 'react-hot-toast';
 
 interface StrategicGoal {
   id: string;
@@ -25,6 +27,10 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
   const [goals, setGoals] = useState<StrategicGoal[]>(initialGoals);
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<StrategicGoal | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; goalId: string | null }>({
+    isOpen: false,
+    goalId: null,
+  });
 
   // Role-based access control
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
@@ -98,10 +104,18 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
   };
 
   const handleDelete = (goalId: string) => {
-    const updatedGoals = goals.filter(g => g.id !== goalId);
-    setGoals(updatedGoals);
-    if (onSave) {
-      onSave(updatedGoals);
+    setDeleteConfirm({ isOpen: true, goalId });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm.goalId) {
+      const updatedGoals = goals.filter(g => g.id !== deleteConfirm.goalId);
+      setGoals(updatedGoals);
+      if (onSave) {
+        onSave(updatedGoals);
+      }
+      toast.success('Strategic goal deleted successfully');
+      setDeleteConfirm({ isOpen: false, goalId: null });
     }
   };
 
@@ -282,20 +296,17 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => handleEdit(goal)}
-                    className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(goal.id)}
-                    className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {canEditGoals && (
+                  <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-200">
+                    <EditButton
+                      onClick={() => handleEdit(goal)}
+                    />
+                    <DeleteButton
+                      onClick={() => handleDelete(goal.id)}
+                      requireConfirm={false}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -392,27 +403,29 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
+                  <Dropdown
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as StrategicGoal['status'] })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="not-started">Not Started</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
+                    onChange={(value) => setFormData({ ...formData, status: value as StrategicGoal['status'] })}
+                    options={[
+                      { value: 'not-started', label: 'Not Started' },
+                      { value: 'in-progress', label: 'In Progress' },
+                      { value: 'completed', label: 'Completed' },
+                    ]}
+                    placeholder="Select status"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-                  <select
+                  <Dropdown
                     value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as StrategicGoal['priority'] })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
+                    onChange={(value) => setFormData({ ...formData, priority: value as StrategicGoal['priority'] })}
+                    options={[
+                      { value: 'low', label: 'Low' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'high', label: 'High' },
+                    ]}
+                    placeholder="Select priority"
+                  />
                 </div>
               </div>
 
@@ -438,6 +451,18 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, goalId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Strategic Goal"
+        message="Are you sure you want to delete this strategic goal? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import type { User } from "~/lib/auth";
 import { demoDashboardStats, demoDashboardBudgetData, demoDashboardExpenseCategories, demoDashboardRecentEvents, demoDashboardAlerts } from "~/lib/demoData";
 import { ProgressBar } from "./shared/ProgressBar";
+import { Dropdown } from "./shared";
 
 interface DashboardEvent {
   id?: string;
@@ -375,29 +376,34 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
           {/* Chart Filters */}
           <div className="flex flex-wrap gap-3">
             {/* Event Filter */}
-            <select
+            <Dropdown
               value={selectedEventFilter}
-              onChange={(e) => setSelectedEventFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="all">All Events</option>
-              {events.slice(0, 5).map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name}
-                </option>
-              ))}
-            </select>
+              onChange={setSelectedEventFilter}
+              options={[
+                { value: 'all', label: 'All Events' },
+                ...events.slice(0, 5).map((event) => ({
+                  value: event.id || '',
+                  label: event.name,
+                })),
+              ]}
+              placeholder="Select event"
+              size="sm"
+              className="min-w-[150px]"
+            />
 
             {/* Date Range Filter */}
-            <select
+            <Dropdown
               value={dateRangeFilter}
-              onChange={(e) => setDateRangeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="3months">Last 3 Months</option>
-              <option value="6months">Last 6 Months</option>
-              <option value="12months">Last 12 Months</option>
-            </select>
+              onChange={setDateRangeFilter}
+              options={[
+                { value: '3months', label: 'Last 3 Months' },
+                { value: '6months', label: 'Last 6 Months' },
+                { value: '12months', label: 'Last 12 Months' },
+              ]}
+              placeholder="Select date range"
+              size="sm"
+              className="min-w-[150px]"
+            />
           </div>
         </div>
 

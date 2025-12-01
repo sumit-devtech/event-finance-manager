@@ -12,6 +12,7 @@ import { EventNotes } from './EventNotes';
 import { api } from '~/lib/api';
 import type { EventWithDetails, VendorWithStats } from "~/types";
 import type { User } from "~/lib/auth";
+import { Dropdown } from './shared';
 
 interface EventDetailsExpandedProps {
   event: EventWithDetails;
@@ -36,6 +37,7 @@ export function EventDetailsExpanded({
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [fullEvent, setFullEvent] = useState<EventWithDetails>(event);
   const [loadingEvent, setLoadingEvent] = useState(false);
+  const [status, setStatus] = useState(event.status || 'planning');
   const fetcher = useFetcher();
 
   // Fetch full event details (including budgetItems) when component mounts or event changes
@@ -80,6 +82,7 @@ export function EventDetailsExpanded({
   ];
 
   const handleStatusChange = async (newStatus: string) => {
+    setStatus(newStatus);
     if (isDemo) {
       await onUpdate({ status: newStatus });
       setFullEvent({ ...currentEvent, status: newStatus });
@@ -221,16 +224,21 @@ export function EventDetailsExpanded({
             </div>
             <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-4">
               {user?.role !== 'Viewer' && (
-                <select
-                  value={event.status || 'planning'}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                >
-                  <option value="planning">Planning</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+                <div className="min-w-[120px]">
+                  <Dropdown
+                    value={status}
+                    onChange={handleStatusChange}
+                    options={[
+                      { value: 'planning', label: 'Planning' },
+                      { value: 'active', label: 'Active' },
+                      { value: 'completed', label: 'Completed' },
+                      { value: 'cancelled', label: 'Cancelled' },
+                    ]}
+                    placeholder="Select status"
+                    size="sm"
+                    className="text-xs sm:text-sm"
+                  />
+                </div>
               )}
               {user?.role === 'Viewer' && (
                 <span className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium bg-gray-50 text-gray-600 capitalize">

@@ -3,7 +3,7 @@ import { Plus, Filter, Search, Download, Check, X, Clock, AlertCircle } from 'lu
 import { useFetcher } from "@remix-run/react";
 import type { User } from "~/lib/auth";
 import type { ExpenseWithVendor, VendorWithStats, EventWithDetails } from "~/types";
-import { FilterBar, DataTable, SummaryStats, EmptyState } from "./shared";
+import { FilterBar, DataTable, SummaryStats, EmptyState, Dropdown } from "./shared";
 import toast from "react-hot-toast";
 import type { FilterConfig, TableColumn, SummaryStat } from "~/types";
 import { getExpenseStatusColor } from "~/lib/utils";
@@ -469,21 +469,21 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
               )}
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Category *</label>
-                <select
+                <Dropdown
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select category</option>
-                  <option value="Venue">Venue</option>
-                  <option value="Catering">Catering</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Logistics">Logistics</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="StaffTravel">Staff Travel</option>
-                  <option value="Miscellaneous">Miscellaneous</option>
-                </select>
+                  onChange={(value) => setFormData({ ...formData, category: value })}
+                  options={[
+                    { value: '', label: 'Select category' },
+                    { value: 'Venue', label: 'Venue' },
+                    { value: 'Catering', label: 'Catering' },
+                    { value: 'Marketing', label: 'Marketing' },
+                    { value: 'Logistics', label: 'Logistics' },
+                    { value: 'Entertainment', label: 'Entertainment' },
+                    { value: 'StaffTravel', label: 'Staff Travel' },
+                    { value: 'Miscellaneous', label: 'Miscellaneous' },
+                  ]}
+                  placeholder="Select category"
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Item Description *</label>
@@ -526,18 +526,18 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">Vendor</label>
-                <select
+                <Dropdown
                   value={formData.vendorId}
-                  onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">No vendor selected</option>
-                  {vendors.map((vendor) => (
-                    <option key={vendor.id} value={vendor.id}>
-                      {vendor.name} {vendor.serviceType ? `(${vendor.serviceType})` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => setFormData({ ...formData, vendorId: value })}
+                  options={[
+                    { value: '', label: 'No vendor selected' },
+                    ...vendors.map((vendor) => ({
+                      value: vendor.id,
+                      label: `${vendor.name}${vendor.serviceType ? ` (${vendor.serviceType})` : ''}`,
+                    })),
+                  ]}
+                  placeholder="No vendor selected"
+                />
                 {vendors.length === 0 && (
                   <p className="text-xs text-gray-500 mt-1">No vendors available. <a href="/vendors" className="text-blue-600 hover:underline">Add vendors</a></p>
                 )}

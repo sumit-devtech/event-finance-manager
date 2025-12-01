@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Edit, Plus, X, Calendar, User } from './Icons';
+import { EditButton, DeleteButton } from './shared';
+import { toast } from 'react-hot-toast';
 
 interface Note {
   id: string;
@@ -72,24 +74,13 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
     setShowForm(true);
   };
 
-  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; noteId: string | null }>({
-    isOpen: false,
-    noteId: null,
-  });
-
   const handleDelete = (noteId: string) => {
-    setDeleteConfirm({ isOpen: true, noteId });
-  };
-
-  const confirmDelete = () => {
-    if (!deleteConfirm.noteId) return;
-    const updatedNotes = notes.filter(n => n.id !== deleteConfirm.noteId);
+    const updatedNotes = notes.filter(n => n.id !== noteId);
     setNotes(updatedNotes);
     if (onSave) {
       onSave(updatedNotes);
     }
     toast.success('Note deleted successfully');
-    setDeleteConfirm({ isOpen: false, noteId: null });
   };
 
   // Demo data
@@ -184,20 +175,14 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
                 </div>
                 {canEditNotes && (
                   <div className="flex items-center gap-2 ml-4">
-                    <button
+                    <EditButton
                       onClick={() => handleEdit(note)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Edit note"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
+                    />
+                    <DeleteButton
                       onClick={() => handleDelete(note.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete note"
-                    >
-                      <X size={16} />
-                    </button>
+                      requireConfirm={true}
+                      confirmMessage="Are you sure you want to delete this note? This action cannot be undone."
+                    />
                   </div>
                 )}
               </div>
@@ -307,18 +292,6 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
           </div>
         </div>
       )}
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={deleteConfirm.isOpen}
-        onClose={() => setDeleteConfirm({ isOpen: false, noteId: null })}
-        onConfirm={confirmDelete}
-        title="Delete Note"
-        message="Are you sure you want to delete this note? This action cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        variant="danger"
-      />
     </div>
   );
 }

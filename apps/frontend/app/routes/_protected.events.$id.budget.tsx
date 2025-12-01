@@ -6,7 +6,7 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect } from "react";
 import type { SubmitFunction } from "@remix-run/react";
 import { BudgetItemCategory } from "@event-finance-manager/database";
-import { ConfirmDialog } from "~/components/shared/ConfirmDialog";
+import { ConfirmDialog, Dropdown } from "~/components/shared";
 import toast from "react-hot-toast";
 
 interface Event {
@@ -699,6 +699,7 @@ function BudgetItemFormModal({
   actionData: ActionData | undefined;
 }) {
   const submit = useSubmit();
+  const [category, setCategory] = useState(item?.category || "");
 
   return (
     <div
@@ -734,21 +735,20 @@ function BudgetItemFormModal({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category <span className="text-red-500">*</span>
               </label>
-              <select
-                name="category"
-                required
-                defaultValue={item?.category || ""}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                  actionData?.fieldErrors?.category ? "border-red-300" : "border-gray-300"
-                }`}
-              >
-                <option value="">Select category</option>
-                {Object.values(BudgetItemCategory).map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="category" value={category} />
+              <Dropdown
+                value={category}
+                onChange={setCategory}
+                options={[
+                  { value: '', label: 'Select category' },
+                  ...Object.values(BudgetItemCategory).map((cat) => ({
+                    value: cat,
+                    label: cat,
+                  })),
+                ]}
+                placeholder="Select category"
+                error={actionData?.fieldErrors?.category}
+              />
               {actionData?.fieldErrors?.category && (
                 <p className="mt-1 text-sm text-red-600">{actionData.fieldErrors.category}</p>
               )}

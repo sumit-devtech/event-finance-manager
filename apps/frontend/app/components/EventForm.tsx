@@ -2,6 +2,7 @@ import { X, Calendar, MapPin, Users, DollarSign, UserCog } from 'lucide-react';
 import { Form, useNavigation } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import type { User } from '~/lib/auth';
+import { Dropdown } from './shared';
 
 interface EventFormProps {
   event?: any;
@@ -16,6 +17,9 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
   const isEdit = !!event;
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
+  const [eventType, setEventType] = useState(event?.type || event?.eventType || 'conference');
+  const [status, setStatus] = useState(event?.status || 'Planning');
+  const [assignedTo, setAssignedTo] = useState(event?.assignedTo || user?.id || '');
 
   // Debug: Log event data when editing
   useEffect(() => {
@@ -117,36 +121,38 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
             {/* Event Type */}
             <div>
               <label className="block mb-2 text-gray-700 font-medium">Event Type *</label>
-              <select
-                name="type"
-                defaultValue={event?.type || event?.eventType || 'conference'}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="conference">Conference</option>
-                <option value="workshop">Workshop</option>
-                <option value="gala">Gala</option>
-                <option value="product_launch">Product Launch</option>
-                <option value="corporate">Corporate Event</option>
-                <option value="trade_show">Trade Show</option>
-                <option value="other">Other</option>
-              </select>
+              <input type="hidden" name="type" value={eventType} />
+              <Dropdown
+                value={eventType}
+                onChange={setEventType}
+                options={[
+                  { value: 'conference', label: 'Conference' },
+                  { value: 'workshop', label: 'Workshop' },
+                  { value: 'gala', label: 'Gala' },
+                  { value: 'product_launch', label: 'Product Launch' },
+                  { value: 'corporate', label: 'Corporate Event' },
+                  { value: 'trade_show', label: 'Trade Show' },
+                  { value: 'other', label: 'Other' },
+                ]}
+                placeholder="Select event type"
+              />
             </div>
 
             {/* Status */}
             <div>
               <label className="block mb-2 text-gray-700 font-medium">Status *</label>
-              <select
-                name="status"
-                defaultValue={event?.status || 'Planning'}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Planning">Planning</option>
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
+              <input type="hidden" name="status" value={status} />
+              <Dropdown
+                value={status}
+                onChange={setStatus}
+                options={[
+                  { value: 'Planning', label: 'Planning' },
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Completed', label: 'Completed' },
+                  { value: 'Cancelled', label: 'Cancelled' },
+                ]}
+                placeholder="Select status"
+              />
             </div>
 
             {/* Start Date */}
@@ -266,21 +272,19 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
             {organization && (
               <div>
                 <label className="block mb-2 text-gray-700 font-medium">Assign To Team Member</label>
-                <div className="relative">
-                  <UserCog className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <select
-                    name="assignedTo"
-                    defaultValue={event?.assignedTo || user?.id || ''}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select team member</option>
-                    {teamMembers.map((member: any) => (
-                      <option key={member.id} value={member.id}>
-                        {member.name || member.email} ({member.email})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <input type="hidden" name="assignedTo" value={assignedTo} />
+                <Dropdown
+                  value={assignedTo}
+                  onChange={setAssignedTo}
+                  options={[
+                    { value: '', label: 'Select team member' },
+                    ...teamMembers.map((member: any) => ({
+                      value: member.id,
+                      label: `${member.name || member.email} (${member.email})`,
+                    })),
+                  ]}
+                  placeholder="Select team member"
+                />
               </div>
             )}
 

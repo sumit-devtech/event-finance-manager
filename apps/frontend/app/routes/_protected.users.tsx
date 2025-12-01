@@ -6,6 +6,7 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect } from "react";
 import React from "react";
 import type { User } from "~/lib/auth";
+import { Dropdown } from "~/components/shared";
 
 interface UserWithCounts {
   id: string;
@@ -424,46 +425,50 @@ export default function UsersPage() {
                 </div>
               </div>
             </label>
-            <select
+            <Dropdown
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-            >
-              <option value="all">All Roles</option>
-              <option value="Admin">Admin</option>
-              <option value="EventManager">Event Manager</option>
-              <option value="Finance">Finance</option>
-              <option value="Viewer">Viewer</option>
-            </select>
+              onChange={setRoleFilter}
+              options={[
+                { value: 'all', label: 'All Roles' },
+                { value: 'Admin', label: 'Admin' },
+                { value: 'EventManager', label: 'Event Manager' },
+                { value: 'Finance', label: 'Finance' },
+                { value: 'Viewer', label: 'Viewer' },
+              ]}
+              placeholder="Select role"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Filter by Department
             </label>
-            <select
+            <Dropdown
               value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-            >
-              <option value="all">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
+              onChange={setDepartmentFilter}
+              options={[
+                { value: 'all', label: 'All Departments' },
+                ...departments.map((dept) => ({
+                  value: dept,
+                  label: dept,
+                })),
+              ]}
+              placeholder="Select department"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Recent Activity
             </label>
-            <select
+            <Dropdown
               value={activityFilter}
-              onChange={(e) => setActivityFilter(e.target.value)}
-              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-            >
-              <option value="all">All Users</option>
-              <option value="active">Active (Last 30 days)</option>
-              <option value="inactive">Inactive</option>
-            </select>
+              onChange={setActivityFilter}
+              options={[
+                { value: 'all', label: 'All Users' },
+                { value: 'active', label: 'Active (Last 30 days)' },
+                { value: 'inactive', label: 'Inactive' },
+              ]}
+              placeholder="Select activity"
+            />
           </div>
         </div>
       </div>
@@ -897,6 +902,7 @@ function UserFormModal({
     isInvite?: boolean;
 }) {
   const submit = useSubmit();
+  const [role, setRole] = useState(user?.role || "Viewer");
 
   // Debug: Log user object to see what fields it has
   if (user && intent === "update") {
@@ -1039,16 +1045,18 @@ function UserFormModal({
                     </div>
                   </div>
                 </label>
-                <select
-                  name="role"
-                  defaultValue={user?.role || "Viewer"}
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900"
-                >
-                  <option value="Admin">Admin</option>
-                  <option value="EventManager">Event Manager</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Viewer">Viewer</option>
-                </select>
+                <input type="hidden" name="role" value={role} />
+                <Dropdown
+                  value={role}
+                  onChange={setRole}
+                  options={[
+                    { value: 'Admin', label: 'Admin' },
+                    { value: 'EventManager', label: 'Event Manager' },
+                    { value: 'Finance', label: 'Finance' },
+                    { value: 'Viewer', label: 'Viewer' },
+                  ]}
+                  placeholder="Select role"
+                />
               </div>
             </div>
 
@@ -1105,6 +1113,7 @@ function RoleAssignmentModal({
   isLoading: boolean;
 }) {
   const submit = useSubmit();
+  const [role, setRole] = useState(user.role);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
@@ -1149,16 +1158,18 @@ function RoleAssignmentModal({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   New Role <span className="text-red-500">*</span>
                 </label>
-                <select
-                  name="role"
-                  defaultValue={user.role}
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900"
-                >
-                  <option value="Admin">Admin</option>
-                  <option value="EventManager">Event Manager</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Viewer">Viewer</option>
-                </select>
+                <input type="hidden" name="role" value={role} />
+                <Dropdown
+                  value={role}
+                  onChange={setRole}
+                  options={[
+                    { value: 'Admin', label: 'Admin' },
+                    { value: 'EventManager', label: 'Event Manager' },
+                    { value: 'Finance', label: 'Finance' },
+                    { value: 'Viewer', label: 'Viewer' },
+                  ]}
+                  placeholder="Select role"
+                />
               </div>
             </div>
 
@@ -1304,18 +1315,21 @@ function EventAssignmentModal({
                     </p>
                   </div>
                 ) : (
-                  <select
-                    name="eventId"
-                    required
-                    className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900"
-                  >
-                    <option value="">-- Select an event --</option>
-                      {availableEvents.map((event) => (
-                      <option key={event.id} value={event.id}>
-                        {event.name} ({event.status})
-                      </option>
-                    ))}
-                  </select>
+                  <>
+                    <input type="hidden" name="eventId" value={selectedEventId || ""} />
+                    <Dropdown
+                      value={selectedEventId || ""}
+                      onChange={setSelectedEventId}
+                      options={[
+                        { value: '', label: '-- Select an event --' },
+                        ...availableEvents.map((event) => ({
+                          value: event.id,
+                          label: `${event.name} (${event.status})`,
+                        })),
+                      ]}
+                      placeholder="-- Select an event --"
+                    />
+                  </>
                 )}
               </div>
               <div>

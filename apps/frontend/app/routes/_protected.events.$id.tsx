@@ -4,7 +4,7 @@ import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect, useRef } from "react";
-import { ConfirmDialog } from "~/components/shared/ConfirmDialog";
+import { ConfirmDialog, Dropdown } from "~/components/shared";
 import toast from "react-hot-toast";
 
 interface EventDetail {
@@ -883,16 +883,17 @@ export default function EventDetailPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   New Status
                 </label>
-                <select
+                <Dropdown
                   value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  <option value="Planning">Planning</option>
-                  <option value="Active">Active</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+                  onChange={setSelectedStatus}
+                  options={[
+                    { value: 'Planning', label: 'Planning' },
+                    { value: 'Active', label: 'Active' },
+                    { value: 'Completed', label: 'Completed' },
+                    { value: 'Cancelled', label: 'Cancelled' },
+                  ]}
+                  placeholder="Select status"
+                />
               </div>
               <div className="flex justify-end space-x-3">
                 <button
@@ -1009,19 +1010,18 @@ function AssignUserForm({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Select User
         </label>
-        <select
+        <Dropdown
           value={selectedUserId}
-          onChange={(e) => setSelectedUserId(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        >
-          <option value="">-- Select a user --</option>
-          {availableUsers.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name ? `${user.name} (${user.email})` : user.email}
-            </option>
-          ))}
-        </select>
+          onChange={setSelectedUserId}
+          options={[
+            { value: '', label: '-- Select a user --' },
+            ...availableUsers.map((user) => ({
+              value: user.id,
+              label: user.name ? `${user.name} (${user.email})` : user.email,
+            })),
+          ]}
+          placeholder="-- Select a user --"
+        />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1072,6 +1072,9 @@ function BudgetItemModal({
 }) {
   const submit = useSubmit();
   const isEdit = !!item;
+  const [category, setCategory] = useState(item?.category || "");
+  const [vendorId, setVendorId] = useState(item?.vendorId || (item?.vendorLink?.id) || "");
+  const [assignedUserId, setAssignedUserId] = useState(item?.assignedUserId || (item?.assignedUser?.id) || "");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1105,21 +1108,22 @@ function BudgetItemModal({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category *
               </label>
-              <select
-                name="category"
-                required
-                defaultValue={item?.category || ""}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Select category</option>
-                <option value="Venue">Venue</option>
-                <option value="Catering">Catering</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Logistics">Logistics</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="StaffTravel">Staff Travel</option>
-                <option value="Miscellaneous">Miscellaneous</option>
-              </select>
+              <input type="hidden" name="category" value={category} />
+              <Dropdown
+                value={category}
+                onChange={setCategory}
+                options={[
+                  { value: '', label: 'Select category' },
+                  { value: 'Venue', label: 'Venue' },
+                  { value: 'Catering', label: 'Catering' },
+                  { value: 'Marketing', label: 'Marketing' },
+                  { value: 'Logistics', label: 'Logistics' },
+                  { value: 'Entertainment', label: 'Entertainment' },
+                  { value: 'StaffTravel', label: 'Staff Travel' },
+                  { value: 'Miscellaneous', label: 'Miscellaneous' },
+                ]}
+                placeholder="Select category"
+              />
             </div>
 
             <div>
@@ -1139,18 +1143,19 @@ function BudgetItemModal({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Vendor
               </label>
-              <select
-                name="vendorId"
-                defaultValue={item?.vendorId || (item?.vendorLink?.id) || ""}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">No vendor selected</option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.name} {vendor.serviceType ? `(${vendor.serviceType})` : ''}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="vendorId" value={vendorId} />
+              <Dropdown
+                value={vendorId}
+                onChange={setVendorId}
+                options={[
+                  { value: '', label: 'No vendor selected' },
+                  ...vendors.map((vendor) => ({
+                    value: vendor.id,
+                    label: `${vendor.name}${vendor.serviceType ? ` (${vendor.serviceType})` : ''}`,
+                  })),
+                ]}
+                placeholder="No vendor selected"
+              />
               {vendors.length === 0 && (
                 <p className="text-xs text-gray-500 mt-1">No vendors available. <Link to="/vendors" className="text-blue-600 hover:underline">Add vendors</Link></p>
               )}
@@ -1189,18 +1194,19 @@ function BudgetItemModal({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Assigned User
               </label>
-              <select
-                name="assignedUserId"
-                defaultValue={item?.assignedUserId || (item?.assignedUser?.id) || ""}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">No user assigned</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name || user.fullName || user.email}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="assignedUserId" value={assignedUserId} />
+              <Dropdown
+                value={assignedUserId}
+                onChange={setAssignedUserId}
+                options={[
+                  { value: '', label: 'No user assigned' },
+                  ...users.map((user) => ({
+                    value: user.id,
+                    label: user.name || user.fullName || user.email,
+                  })),
+                ]}
+                placeholder="No user assigned"
+              />
               {users.length === 0 && (
                 <p className="text-xs text-gray-500 mt-1">No users available. Only Admin can see users list.</p>
               )}

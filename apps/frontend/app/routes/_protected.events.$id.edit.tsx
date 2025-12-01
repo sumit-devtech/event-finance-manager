@@ -3,6 +3,8 @@ import { Form, useLoaderData, useActionData, useNavigation } from "@remix-run/re
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
+import { Dropdown } from "~/components/shared";
+import { useState } from "react";
 
 interface Event {
   id: string;
@@ -68,6 +70,7 @@ export default function EditEventPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+  const [status, setStatus] = useState(event.status);
 
   // Format dates for input fields
   const startDate = event.startDate ? new Date(event.startDate).toISOString().split("T")[0] : "";
@@ -158,17 +161,18 @@ export default function EditEventPage() {
             <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
               Status
             </label>
-            <select
-              id="status"
-              name="status"
-              defaultValue={event.status}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="Planning">Planning</option>
-              <option value="Active">Active</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
+            <input type="hidden" name="status" value={status} />
+            <Dropdown
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: 'Planning', label: 'Planning' },
+                { value: 'Active', label: 'Active' },
+                { value: 'Completed', label: 'Completed' },
+                { value: 'Cancelled', label: 'Cancelled' },
+              ]}
+              placeholder="Select status"
+            />
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t">

@@ -108,6 +108,7 @@ export default function ReportsPage() {
   const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
   const [reportType, setReportType] = useState<"summary" | "comparison">("summary");
   const [isMobile, setIsMobile] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
   // Check if we're on a child route (like /reports/comparison)
   const isChildRoute = location.pathname !== "/reports";
@@ -222,16 +223,19 @@ export default function ReportsPage() {
         <Form method="get" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select
-              name="status"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">All Statuses</option>
-              <option value="Planning">Planning</option>
-              <option value="Active">Active</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
+            <input type="hidden" name="status" value={statusFilter} />
+            <Dropdown
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: '', label: 'All Statuses' },
+                { value: 'Planning', label: 'Planning' },
+                { value: 'Active', label: 'Active' },
+                { value: 'Completed', label: 'Completed' },
+                { value: 'Cancelled', label: 'Cancelled' },
+              ]}
+              placeholder="Select status"
+            />
           </div>
 
           <div>
@@ -394,18 +398,18 @@ export default function ReportsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Select Event for Summary Report
             </label>
-            <select
+            <Dropdown
               value={selectedEventId}
-              onChange={(e) => setSelectedEventId(e.target.value)}
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900"
-            >
-              <option value="">-- Select an event --</option>
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name} ({event.status})
-                </option>
-              ))}
-            </select>
+              onChange={setSelectedEventId}
+              options={[
+                { value: '', label: '-- Select an event --' },
+                ...events.map((event) => ({
+                  value: event.id,
+                  label: `${event.name} (${event.status})`,
+                })),
+              ]}
+              placeholder="-- Select an event --"
+            />
             {selectedEventId && (
               <Link
                 to={`/reports/event-summary/${selectedEventId}`}
