@@ -23,6 +23,11 @@ export class UsersService {
         role: true,
         createdAt: true,
         updatedAt: true,
+        events: {
+          select: {
+            eventId: true,
+          },
+        },
         _count: {
           select: {
             createdEvents: true,
@@ -36,14 +41,15 @@ export class UsersService {
         createdAt: "desc",
       },
     });
-console.log("users", users);
+    
     // Transform fullName to name for frontend compatibility
-    // Also transform _count.createdEvents + _count.assignments to _count.events
+    // Also include assignedEventIds to avoid N+1 queries in frontend
     const transformed = users.map((user) => {
-      const { fullName, _count, ...rest } = user;
+      const { fullName, _count, events, ...rest } = user;
       return {
         ...rest,
         name: fullName || null, // Map fullName to name, remove fullName from response
+        assignedEventIds: events.map((e) => e.eventId), // Extract event IDs for filtering
         _count: {
           events: (_count.events || 0), // Count assigned events (EventAssignment relation)
           activityLogs: _count.activityLogs || 0,
@@ -51,12 +57,6 @@ console.log("users", users);
         },
       };
     });
-    
-    // Debug logging
-    if (transformed.length > 0) {
-      // console.log("findAll - First user transformed:", JSON.stringify(transformed[0], null, 2));
-      // console.log("findAll - Original fullName:", users[0]?.fullName);
-    }
     
     return transformed;
   }

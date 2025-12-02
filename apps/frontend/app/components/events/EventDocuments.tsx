@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Folder, Plus, X, Download, FileText, Calendar } from './Icons';
-import { DeleteButton } from './shared';
+import { Folder, Plus, X, Download, FileText, Calendar } from '../Icons';
+import { DeleteButton } from '../shared';
 import { toast } from 'react-hot-toast';
 import { demoEventDocuments } from "~/lib/demoData";
 
@@ -233,5 +233,4 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
     </div>
   );
 }
-
 

@@ -46,31 +46,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getAuthTokenFromSession(request);
 
   try {
-    // Fetch user details with counts
-    const userDetails = await api.get<UserWithCounts>(`/users/${user.id}`, {
-      token: token || undefined,
-    });
+    // Fetch all data in parallel for better performance
+    const [userDetailsResult, eventsResult, activityLogsResult] = await Promise.allSettled([
+      api.get<UserWithCounts>(`/users/${user.id}`, { token: token || undefined }),
+      api.get<any[]>("/events", { token: token || undefined }),
+      api.get<ActivityLog[]>(`/users/${user.id}/activity-logs`, { token: token || undefined }),
+    ]);
 
-    // Fetch events for event assignments
-    const events = await api.get<any[]>("/events", {
-      token: token || undefined,
-    });
-
-    // Fetch activity logs for login history and access logs
-    let activityLogs: ActivityLog[] = [];
-    try {
-      activityLogs = await api.get<ActivityLog[]>(`/users/${user.id}/activity-logs`, {
-        token: token || undefined,
-      });
-    } catch (error) {
-      console.error("Failed to fetch activity logs:", error);
-      activityLogs = [];
-    }
+    const userDetails = userDetailsResult.status === "fulfilled" ? userDetailsResult.value : null;
+    const events = eventsResult.status === "fulfilled" ? (eventsResult.value || []) : [];
+    const activityLogs = activityLogsResult.status === "fulfilled" ? (activityLogsResult.value || []) : [];
 
     return json({
       user: userDetails,
-      events: events || [],
-      activityLogs: activityLogs || [],
+      events,
+      activityLogs,
       currentUser: user,
     });
   } catch (error: any) {

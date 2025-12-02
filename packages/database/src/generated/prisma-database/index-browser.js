@@ -177,7 +177,6 @@ exports.Prisma.EventScalarFieldEnum = {
   type: 'type',
   description: 'description',
   status: 'status',
-  budgetStatus: 'budgetStatus',
   attendees: 'attendees',
   budget: 'budget',
   organizer: 'organizer',
@@ -425,12 +424,6 @@ exports.EventStatus = exports.$Enums.EventStatus = {
   Active: 'Active',
   Completed: 'Completed',
   Cancelled: 'Cancelled'
-};
-
-exports.BudgetStatus = exports.$Enums.BudgetStatus = {
-  Draft: 'Draft',
-  Review: 'Review',
-  Approved: 'Approved'
 };
 
 exports.BudgetItemCategory = exports.$Enums.BudgetItemCategory = {

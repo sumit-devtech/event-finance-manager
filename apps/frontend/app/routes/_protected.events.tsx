@@ -4,7 +4,7 @@ import { useCallback, useMemo, useEffect } from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
-import { EventsListNew } from "~/components/EventsListNew";
+import { EventsList } from "~/components/events";
 import { demoEvents } from "~/lib/demoData";
 import type { EventWithDetails, VendorWithStats } from "~/types";
 
@@ -66,18 +66,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getAuthTokenFromSession(request);
 
   try {
-    const events = await api.get<Event[]>("/events", {
-      token: token || undefined,
-    });
-    // Fetch vendors for dropdowns
-    let vendors: any[] = [];
-    try {
-      vendors = await api.get<any[]>("/vendors", { token: token || undefined });
-    } catch {
-      // Vendors endpoint might fail, return empty array
-      vendors = [];
-    }
-    return json({ events: events || [], vendors, user });
+    // Fetch events and vendors in parallel for better performance
+    const [eventsResult, vendorsResult] = await Promise.allSettled([
+      api.get<Event[]>("/events", { token: token || undefined }),
+      api.get<any[]>("/vendors", { token: token || undefined }),
+    ]);
+
+    const events = eventsResult.status === "fulfilled" ? (eventsResult.value || []) : [];
+    const vendors = vendorsResult.status === "fulfilled" ? (vendorsResult.value || []) : [];
+
+    return json({ events, vendors, user });
   } catch (error: any) {
     console.error("Error fetching events:", error);
     // Return empty array on error instead of failing
@@ -570,7 +568,7 @@ export default function EventsPage() {
           {actionData.error}
         </div>
       )}
-      <EventsListNew
+      <EventsList
         user={user}
         organization={undefined}
         isDemo={isDemo}

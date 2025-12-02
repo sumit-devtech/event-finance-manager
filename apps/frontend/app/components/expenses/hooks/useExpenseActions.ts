@@ -123,7 +123,7 @@ export function useExpenseActions({
       }
 
       fetcher.submit(formDataToSubmit, { method: "post" });
-      toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS);
+      // Note: Wizard will close when fetcher completes successfully (handled in ExpenseTracker useEffect)
     } catch (error) {
       console.error("Error submitting expense:", error);
       toast.error(EXPENSE_MESSAGES.FAILED_TO_SUBMIT);

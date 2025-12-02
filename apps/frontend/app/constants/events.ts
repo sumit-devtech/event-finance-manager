@@ -5,10 +5,16 @@
 import { DEFAULT_STRINGS } from "./common";
 
 export const EVENT_STATUS = {
+  ALL: 'all',
   PLANNING: 'Planning',
   ACTIVE: 'Active',
   COMPLETED: 'Completed',
   CANCELLED: 'Cancelled',
+  // Lowercase versions for filtering
+  planning: 'planning',
+  active: 'active',
+  completed: 'completed',
+  cancelled: 'cancelled',
 } as const;
 
 export type EventStatus = typeof EVENT_STATUS[keyof typeof EVENT_STATUS];
@@ -21,6 +27,7 @@ export const EVENT_STATUS_OPTIONS = [
 ] as const;
 
 export const EVENT_TYPES = {
+  ALL: 'all',
   CONFERENCE: 'conference',
   WORKSHOP: 'workshop',
   GALA: 'gala',
@@ -67,6 +74,9 @@ export const TIME_RANGE_OPTIONS = [
 export const BUDGET_HEALTH_FILTERS = {
   ALL: 'all',
   HEALTHY: 'healthy',
+  WARNING: 'warning',
+  CAUTION: 'caution',
+  CRITICAL: 'critical',
   AT_RISK: 'atRisk',
   OVER_BUDGET: 'overBudget',
 } as const;
@@ -76,5 +86,7 @@ export type BudgetHealthFilter = typeof BUDGET_HEALTH_FILTERS[keyof typeof BUDGE
 export const DEFAULT_EVENT_VALUES = {
   ROI: DEFAULT_STRINGS.NA,
 } as const;
+
+export const FREE_EVENT_LIMIT_MESSAGE = 'You have reached your free event limit. Please upgrade to create more events.';
 
 

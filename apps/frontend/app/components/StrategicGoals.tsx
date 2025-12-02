@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFetcher } from '@remix-run/react';
 import { Target, Plus, X, CheckCircle, Clock } from './Icons';
 import { Dropdown, EditButton, DeleteButton, ConfirmDialog } from './shared';
 import { toast } from 'react-hot-toast';
@@ -32,6 +33,61 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
     isOpen: false,
     goalId: null,
   });
+  const fetcher = useFetcher();
+
+  // Update goals when initialGoals change (after refresh)
+  useEffect(() => {
+    setGoals(initialGoals);
+  }, [initialGoals]);
+
+  // Handle fetcher response - close form and refresh data after successful save
+  useEffect(() => {
+    if (fetcher.state === 'idle') {
+      if (fetcher.data) {
+        const data = fetcher.data as any;
+        if (data.error) {
+          toast.error(data.error || 'Failed to save goal');
+          // Don't close form on error - let user retry
+        } else {
+          // Success - close form and show success message
+          if (!editingGoal) {
+            toast.success('Strategic goal created successfully');
+          } else {
+            toast.success('Strategic goal updated successfully');
+          }
+          // Close form and reset state
+          setShowForm(false);
+          setEditingGoal(null);
+          setFormData({
+            title: '',
+            description: '',
+            targetValue: '',
+            currentValue: '',
+            unit: '',
+            deadline: '',
+            status: 'not-started',
+            priority: 'medium',
+          });
+          // Data will refresh via route revalidation after redirect
+        }
+      } else if (showForm && !editingGoal) {
+        // Handle redirect case (no data but state is idle) - close form
+        // This happens when the action redirects
+        setShowForm(false);
+        setEditingGoal(null);
+        setFormData({
+          title: '',
+          description: '',
+          targetValue: '',
+          currentValue: '',
+          unit: '',
+          deadline: '',
+          status: 'not-started',
+          priority: 'medium',
+        });
+      }
+    }
+  }, [fetcher.state, fetcher.data, editingGoal, showForm]);
 
   // Role-based access control
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
@@ -54,39 +110,74 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newGoal: StrategicGoal = {
-      id: editingGoal?.id || `goal-${Date.now()}`,
-      title: formData.title,
-      description: formData.description,
-      targetValue: formData.targetValue ? parseFloat(formData.targetValue) : undefined,
-      currentValue: formData.currentValue ? parseFloat(formData.currentValue) : undefined,
-      unit: formData.unit || undefined,
-      deadline: formData.deadline || undefined,
-      status: formData.status,
-      priority: formData.priority,
-    };
+    if (isDemo) {
+      // Demo mode - just update local state
+      const newGoal: StrategicGoal = {
+        id: editingGoal?.id || `goal-${Date.now()}`,
+        title: formData.title,
+        description: formData.description,
+        targetValue: formData.targetValue ? parseFloat(formData.targetValue) : undefined,
+        currentValue: formData.currentValue ? parseFloat(formData.currentValue) : undefined,
+        unit: formData.unit || undefined,
+        deadline: formData.deadline || undefined,
+        status: formData.status,
+        priority: formData.priority,
+      };
 
-    const updatedGoals = editingGoal
-      ? goals.map(g => g.id === editingGoal.id ? newGoal : g)
-      : [...goals, newGoal];
+      const updatedGoals = editingGoal
+        ? goals.map(g => g.id === editingGoal.id ? newGoal : g)
+        : [...goals, newGoal];
 
-    setGoals(updatedGoals);
-    if (onSave) {
-      onSave(updatedGoals);
+      setGoals(updatedGoals);
+      if (onSave) {
+        onSave(updatedGoals);
+      }
+      
+      setFormData({
+        title: '',
+        description: '',
+        targetValue: '',
+        currentValue: '',
+        unit: '',
+        deadline: '',
+        status: 'not-started',
+        priority: 'medium',
+      });
+      setShowForm(false);
+      setEditingGoal(null);
+      return;
     }
-    
-    setFormData({
-      title: '',
-      description: '',
-      targetValue: '',
-      currentValue: '',
-      unit: '',
-      deadline: '',
-      status: 'not-started',
-      priority: 'medium',
+
+    // Real mode - submit to backend
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append('intent', editingGoal ? 'updateStrategicGoal' : 'createStrategicGoal');
+    if (editingGoal) {
+      formDataToSubmit.append('goalId', editingGoal.id);
+    }
+    formDataToSubmit.append('title', formData.title);
+    formDataToSubmit.append('description', formData.description || '');
+    if (formData.targetValue) {
+      formDataToSubmit.append('targetValue', formData.targetValue);
+    }
+    if (formData.currentValue) {
+      formDataToSubmit.append('currentValue', formData.currentValue);
+    }
+    if (formData.unit) {
+      formDataToSubmit.append('unit', formData.unit);
+    }
+    if (formData.deadline) {
+      formDataToSubmit.append('deadline', formData.deadline);
+    }
+    formDataToSubmit.append('status', formData.status);
+    formDataToSubmit.append('priority', formData.priority);
+
+    fetcher.submit(formDataToSubmit, {
+      method: 'post',
+      action: `/events/${eventId}`,
     });
-    setShowForm(false);
-    setEditingGoal(null);
+
+    // Don't close form here - let useEffect handle it after fetcher completes
+    // This ensures the form only closes on successful save
   };
 
   const handleEdit = (goal: StrategicGoal) => {
@@ -110,13 +201,29 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
 
   const confirmDelete = () => {
     if (deleteConfirm.goalId) {
-      const updatedGoals = goals.filter(g => g.id !== deleteConfirm.goalId);
-      setGoals(updatedGoals);
-      if (onSave) {
-        onSave(updatedGoals);
+      if (isDemo) {
+        // Demo mode - just update local state
+        const updatedGoals = goals.filter(g => g.id !== deleteConfirm.goalId);
+        setGoals(updatedGoals);
+        if (onSave) {
+          onSave(updatedGoals);
+        }
+        toast.success('Strategic goal deleted successfully');
+        setDeleteConfirm({ isOpen: false, goalId: null });
+      } else {
+        // Real mode - submit to backend
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append('intent', 'deleteStrategicGoal');
+        formDataToSubmit.append('goalId', deleteConfirm.goalId);
+
+        fetcher.submit(formDataToSubmit, {
+          method: 'post',
+          action: `/events/${eventId}`,
+        });
+
+        setDeleteConfirm({ isOpen: false, goalId: null });
+        toast.success('Strategic goal deleted successfully');
       }
-      toast.success('Strategic goal deleted successfully');
-      setDeleteConfirm({ isOpen: false, goalId: null });
     }
   };
 
@@ -254,12 +361,18 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
                   </div>
                 )}
 
-                {goal.deadline && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                    <Clock size={16} />
-                    <span>Deadline: {new Date(goal.deadline).toLocaleDateString()}</span>
-                  </div>
-                )}
+                {goal.deadline && (() => {
+                  const deadlineDate = new Date(goal.deadline);
+                  if (!isNaN(deadlineDate.getTime())) {
+                    return (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                        <Clock size={16} />
+                        <span>Deadline: {deadlineDate.toLocaleDateString()}</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 {canEditGoals && (
                   <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-200">

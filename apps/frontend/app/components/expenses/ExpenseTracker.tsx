@@ -94,35 +94,32 @@ export function ExpenseTracker({
 
   // Handle fetcher state changes
   useEffect(() => {
-    // Only process when fetcher is idle
-    if (fetcher?.state !== "idle") {
+    // Only process when fetcher transitions from submitting to idle
+    if (!fetcher || fetcher.state !== "idle") {
       return;
     }
 
-    // Handle redirect responses (approve/reject actions return redirects)
-    // When fetcher completes after a redirect, the route will revalidate
-    // and initialExpenses will update, which will sync via useExpenseTransform
-    if (fetcher?.data) {
+    // When fetcher completes, check for errors or success
+    if (fetcher.data) {
       const fetcherData = fetcher.data as any;
 
       // Check for error
       if (typeof fetcherData === 'object' && 'error' in fetcherData) {
         toast.error(fetcherData.error);
-        // Revert optimistic update on error by syncing with initialExpenses
+        // Don't close wizard on error - let user retry
         return;
       }
-
-      // Check for success (explicit success flag or no error)
-      if (
-        typeof fetcherData === 'object' &&
-        !('error' in fetcherData) &&
-        fetcherData.success !== false
-      ) {
-        setShowAddExpense(false);
-        toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS);
-      }
     }
-  }, [fetcher?.state, fetcher?.data]);
+
+    // Success case - close wizard and refresh data
+    // For redirects, fetcher.data will be undefined but state will be idle
+    // The route will revalidate and initialExpenses will update via useExpenseTransform
+    if (showAddExpense) {
+      setShowAddExpense(false);
+      // Reset wizard form state by triggering a re-render
+      // The ExpenseWizard will reset when isOpen becomes false
+    }
+  }, [fetcher?.state, fetcher?.data, showAddExpense]);
 
   // Calculate statistics
   const { statusCounts, totalExpenses, approvedTotal, pendingTotal } =

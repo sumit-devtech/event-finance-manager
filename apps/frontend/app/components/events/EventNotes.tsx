@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Edit, Plus, X, Calendar, User } from './Icons';
-import { EditButton, DeleteButton } from './shared';
+import { Edit, Plus, X, Calendar, User } from '../Icons';
+import { EditButton, DeleteButton } from '../shared';
 import { toast } from 'react-hot-toast';
 import { demoEventNotes } from "~/lib/demoData";
 
@@ -261,5 +261,4 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
     </div>
   );
 }
-
 

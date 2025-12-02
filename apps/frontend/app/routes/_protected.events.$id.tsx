@@ -85,34 +85,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const token = await getAuthTokenFromSession(request);
 
   try {
-    const event = await api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined });
-    // Fetch users only if user is Admin (for assign user dropdown)
-    let users: User[] = [];
-    if (user.role === "Admin") {
-      try {
-        users = await api.get<User[]>("/users", { token: token || undefined });
-      } catch (error: any) {
-        console.error("Error fetching users:", error);
-        // If Admin can't fetch users, log the error but continue
-        users = [];
-      }
+    // Fetch all data in parallel for better performance
+    const [eventResult, usersResult, strategicGoalsResult, vendorsResult] = await Promise.allSettled([
+      api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined }),
+      user.role === "Admin"
+        ? api.get<User[]>("/users", { token: token || undefined })
+        : Promise.resolve([]),
+      api.get<any[]>(`/events/${eventId}/strategic-goals`, { token: token || undefined }),
+      api.get<any[]>("/vendors", { token: token || undefined }),
+    ]);
+
+    const event = eventResult.status === "fulfilled" ? eventResult.value : null;
+    if (!event) {
+      throw new Response("Event not found", { status: 404 });
     }
-    // Try to fetch strategic goals
-    let strategicGoals: any[] = [];
-    try {
-      strategicGoals = await api.get<any[]>(`/events/${eventId}/strategic-goals`, { token: token || undefined });
-    } catch {
-      // Strategic goals endpoint might fail, return empty array
-      strategicGoals = [];
-    }
-    // Fetch vendors for dropdowns
-    let vendors: any[] = [];
-    try {
-      vendors = await api.get<any[]>("/vendors", { token: token || undefined });
-    } catch {
-      // Vendors endpoint might fail, return empty array
-      vendors = [];
-    }
+
+    const users = usersResult.status === "fulfilled" ? (usersResult.value || []) : [];
+    const strategicGoals = strategicGoalsResult.status === "fulfilled" ? (strategicGoalsResult.value || []) : [];
+    const vendors = vendorsResult.status === "fulfilled" ? (vendorsResult.value || []) : [];
+
     return json({ event: { ...event, strategicGoals }, users, vendors, user });
   } catch (error: any) {
     console.error("Error loading event:", error);
@@ -300,6 +291,63 @@ export async function action({ request, params }: ActionFunctionArgs) {
         comments,
       }, tokenOption);
 
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "createStrategicGoal") {
+      const title = formData.get("title") as string;
+      const description = formData.get("description") as string;
+      const targetValue = formData.get("targetValue") ? parseFloat(formData.get("targetValue") as string) : undefined;
+      const currentValue = formData.get("currentValue") ? parseFloat(formData.get("currentValue") as string) : undefined;
+      const unit = formData.get("unit") as string || undefined;
+      const deadline = formData.get("deadline") as string || undefined;
+      const status = formData.get("status") as string || "not-started";
+      const priority = formData.get("priority") as string || "medium";
+
+      const payload: any = {
+        title,
+        description: description || undefined,
+        targetValue,
+        currentValue,
+        unit,
+        deadline: deadline || undefined,
+        status,
+        priority,
+      };
+
+      await api.post(`/events/${eventId}/strategic-goals`, payload, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "updateStrategicGoal") {
+      const goalId = formData.get("goalId") as string;
+      const title = formData.get("title") as string;
+      const description = formData.get("description") as string;
+      const targetValue = formData.get("targetValue") ? parseFloat(formData.get("targetValue") as string) : undefined;
+      const currentValue = formData.get("currentValue") ? parseFloat(formData.get("currentValue") as string) : undefined;
+      const unit = formData.get("unit") as string || undefined;
+      const deadline = formData.get("deadline") as string || undefined;
+      const status = formData.get("status") as string || "not-started";
+      const priority = formData.get("priority") as string || "medium";
+
+      const payload: any = {
+        title,
+        description: description || undefined,
+        targetValue,
+        currentValue,
+        unit,
+        deadline: deadline || undefined,
+        status,
+        priority,
+      };
+
+      await api.put(`/events/${eventId}/strategic-goals/${goalId}`, payload, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "deleteStrategicGoal") {
+      const goalId = formData.get("goalId") as string;
+      await api.delete(`/events/${eventId}/strategic-goals/${goalId}`, tokenOption);
       return redirect(`/events/${eventId}`);
     }
 

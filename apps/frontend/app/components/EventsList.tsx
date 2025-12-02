@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@remix-run/react";
 import { useState } from "react";
 import { Plus, Search, Filter, Calendar, MapPin, Users, DollarSign, MoreVertical } from 'lucide-react';
 import type { User } from "~/lib/auth";
-import { EventForm } from "./EventForm";
+import { EventForm } from "./events";
 
 interface EventsListProps {
   user: User;

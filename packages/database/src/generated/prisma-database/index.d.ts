@@ -160,15 +160,6 @@ export const EventStatus: {
 export type EventStatus = (typeof EventStatus)[keyof typeof EventStatus]
 
 
-export const BudgetStatus: {
-  Draft: 'Draft',
-  Review: 'Review',
-  Approved: 'Approved'
-};
-
-export type BudgetStatus = (typeof BudgetStatus)[keyof typeof BudgetStatus]
-
-
 export const BudgetItemCategory: {
   Venue: 'Venue',
   Catering: 'Catering',
@@ -226,10 +217,6 @@ export const SubscriptionStatus: typeof $Enums.SubscriptionStatus
 export type EventStatus = $Enums.EventStatus
 
 export const EventStatus: typeof $Enums.EventStatus
-
-export type BudgetStatus = $Enums.BudgetStatus
-
-export const BudgetStatus: typeof $Enums.BudgetStatus
 
 export type BudgetItemCategory = $Enums.BudgetItemCategory
 
@@ -7565,7 +7552,6 @@ export namespace Prisma {
     type: string | null
     description: string | null
     status: $Enums.EventStatus | null
-    budgetStatus: $Enums.BudgetStatus | null
     attendees: number | null
     budget: Decimal | null
     organizer: string | null
@@ -7587,7 +7573,6 @@ export namespace Prisma {
     type: string | null
     description: string | null
     status: $Enums.EventStatus | null
-    budgetStatus: $Enums.BudgetStatus | null
     attendees: number | null
     budget: Decimal | null
     organizer: string | null
@@ -7609,7 +7594,6 @@ export namespace Prisma {
     type: number
     description: number
     status: number
-    budgetStatus: number
     attendees: number
     budget: number
     organizer: number
@@ -7643,7 +7627,6 @@ export namespace Prisma {
     type?: true
     description?: true
     status?: true
-    budgetStatus?: true
     attendees?: true
     budget?: true
     organizer?: true
@@ -7665,7 +7648,6 @@ export namespace Prisma {
     type?: true
     description?: true
     status?: true
-    budgetStatus?: true
     attendees?: true
     budget?: true
     organizer?: true
@@ -7687,7 +7669,6 @@ export namespace Prisma {
     type?: true
     description?: true
     status?: true
-    budgetStatus?: true
     attendees?: true
     budget?: true
     organizer?: true
@@ -7796,7 +7777,6 @@ export namespace Prisma {
     type: string | null
     description: string | null
     status: $Enums.EventStatus
-    budgetStatus: $Enums.BudgetStatus
     attendees: number | null
     budget: Decimal | null
     organizer: string | null
@@ -7837,7 +7817,6 @@ export namespace Prisma {
     type?: boolean
     description?: boolean
     status?: boolean
-    budgetStatus?: boolean
     attendees?: boolean
     budget?: boolean
     organizer?: boolean
@@ -7875,7 +7854,6 @@ export namespace Prisma {
     type?: boolean
     description?: boolean
     status?: boolean
-    budgetStatus?: boolean
     attendees?: boolean
     budget?: boolean
     organizer?: boolean
@@ -7899,7 +7877,6 @@ export namespace Prisma {
     type?: boolean
     description?: boolean
     status?: boolean
-    budgetStatus?: boolean
     attendees?: boolean
     budget?: boolean
     organizer?: boolean
@@ -7963,7 +7940,6 @@ export namespace Prisma {
       type: string | null
       description: string | null
       status: $Enums.EventStatus
-      budgetStatus: $Enums.BudgetStatus
       attendees: number | null
       budget: Prisma.Decimal | null
       organizer: string | null
@@ -8390,7 +8366,6 @@ export namespace Prisma {
     readonly type: FieldRef<"Event", 'String'>
     readonly description: FieldRef<"Event", 'String'>
     readonly status: FieldRef<"Event", 'EventStatus'>
-    readonly budgetStatus: FieldRef<"Event", 'BudgetStatus'>
     readonly attendees: FieldRef<"Event", 'Int'>
     readonly budget: FieldRef<"Event", 'Decimal'>
     readonly organizer: FieldRef<"Event", 'String'>
@@ -25600,7 +25575,6 @@ export namespace Prisma {
     type: 'type',
     description: 'description',
     status: 'status',
-    budgetStatus: 'budgetStatus',
     attendees: 'attendees',
     budget: 'budget',
     organizer: 'organizer',
@@ -25992,20 +25966,6 @@ export namespace Prisma {
    * Reference to a field of type 'EventStatus[]'
    */
   export type ListEnumEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'BudgetStatus'
-   */
-  export type EnumBudgetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'BudgetStatus[]'
-   */
-  export type ListEnumBudgetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetStatus[]'>
     
 
 
@@ -26451,7 +26411,6 @@ export namespace Prisma {
     type?: StringNullableFilter<"Event"> | string | null
     description?: StringNullableFilter<"Event"> | string | null
     status?: EnumEventStatusFilter<"Event"> | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFilter<"Event"> | $Enums.BudgetStatus
     attendees?: IntNullableFilter<"Event"> | number | null
     budget?: DecimalNullableFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
     organizer?: StringNullableFilter<"Event"> | string | null
@@ -26488,7 +26447,6 @@ export namespace Prisma {
     type?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     status?: SortOrder
-    budgetStatus?: SortOrder
     attendees?: SortOrderInput | SortOrder
     budget?: SortOrderInput | SortOrder
     organizer?: SortOrderInput | SortOrder
@@ -26528,7 +26486,6 @@ export namespace Prisma {
     type?: StringNullableFilter<"Event"> | string | null
     description?: StringNullableFilter<"Event"> | string | null
     status?: EnumEventStatusFilter<"Event"> | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFilter<"Event"> | $Enums.BudgetStatus
     attendees?: IntNullableFilter<"Event"> | number | null
     budget?: DecimalNullableFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
     organizer?: StringNullableFilter<"Event"> | string | null
@@ -26565,7 +26522,6 @@ export namespace Prisma {
     type?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     status?: SortOrder
-    budgetStatus?: SortOrder
     attendees?: SortOrderInput | SortOrder
     budget?: SortOrderInput | SortOrder
     organizer?: SortOrderInput | SortOrder
@@ -26595,7 +26551,6 @@ export namespace Prisma {
     type?: StringNullableWithAggregatesFilter<"Event"> | string | null
     description?: StringNullableWithAggregatesFilter<"Event"> | string | null
     status?: EnumEventStatusWithAggregatesFilter<"Event"> | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusWithAggregatesFilter<"Event"> | $Enums.BudgetStatus
     attendees?: IntNullableWithAggregatesFilter<"Event"> | number | null
     budget?: DecimalNullableWithAggregatesFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
     organizer?: StringNullableWithAggregatesFilter<"Event"> | string | null
@@ -28265,7 +28220,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -28301,7 +28255,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -28335,7 +28288,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28371,7 +28323,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28406,7 +28357,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -28427,7 +28377,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28448,7 +28397,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30290,13 +30238,6 @@ export namespace Prisma {
     not?: NestedEnumEventStatusFilter<$PrismaModel> | $Enums.EventStatus
   }
 
-  export type EnumBudgetStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.BudgetStatus | EnumBudgetStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumBudgetStatusFilter<$PrismaModel> | $Enums.BudgetStatus
-  }
-
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -30401,7 +30342,6 @@ export namespace Prisma {
     type?: SortOrder
     description?: SortOrder
     status?: SortOrder
-    budgetStatus?: SortOrder
     attendees?: SortOrder
     budget?: SortOrder
     organizer?: SortOrder
@@ -30428,7 +30368,6 @@ export namespace Prisma {
     type?: SortOrder
     description?: SortOrder
     status?: SortOrder
-    budgetStatus?: SortOrder
     attendees?: SortOrder
     budget?: SortOrder
     organizer?: SortOrder
@@ -30450,7 +30389,6 @@ export namespace Prisma {
     type?: SortOrder
     description?: SortOrder
     status?: SortOrder
-    budgetStatus?: SortOrder
     attendees?: SortOrder
     budget?: SortOrder
     organizer?: SortOrder
@@ -30473,16 +30411,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEventStatusFilter<$PrismaModel>
     _max?: NestedEnumEventStatusFilter<$PrismaModel>
-  }
-
-  export type EnumBudgetStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.BudgetStatus | EnumBudgetStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumBudgetStatusWithAggregatesFilter<$PrismaModel> | $Enums.BudgetStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumBudgetStatusFilter<$PrismaModel>
-    _max?: NestedEnumBudgetStatusFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -32379,10 +32307,6 @@ export namespace Prisma {
     set?: $Enums.EventStatus
   }
 
-  export type EnumBudgetStatusFieldUpdateOperationsInput = {
-    set?: $Enums.BudgetStatus
-  }
-
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -33912,13 +33836,6 @@ export namespace Prisma {
     not?: NestedEnumEventStatusFilter<$PrismaModel> | $Enums.EventStatus
   }
 
-  export type NestedEnumBudgetStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.BudgetStatus | EnumBudgetStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumBudgetStatusFilter<$PrismaModel> | $Enums.BudgetStatus
-  }
-
   export type NestedDecimalNullableFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
@@ -33938,16 +33855,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEventStatusFilter<$PrismaModel>
     _max?: NestedEnumEventStatusFilter<$PrismaModel>
-  }
-
-  export type NestedEnumBudgetStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.BudgetStatus | EnumBudgetStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.BudgetStatus[] | ListEnumBudgetStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumBudgetStatusWithAggregatesFilter<$PrismaModel> | $Enums.BudgetStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumBudgetStatusFilter<$PrismaModel>
-    _max?: NestedEnumBudgetStatusFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -34285,7 +34192,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -34319,7 +34225,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -34586,7 +34491,6 @@ export namespace Prisma {
     type?: StringNullableFilter<"Event"> | string | null
     description?: StringNullableFilter<"Event"> | string | null
     status?: EnumEventStatusFilter<"Event"> | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFilter<"Event"> | $Enums.BudgetStatus
     attendees?: IntNullableFilter<"Event"> | number | null
     budget?: DecimalNullableFilter<"Event"> | Decimal | DecimalJsLike | number | string | null
     organizer?: StringNullableFilter<"Event"> | string | null
@@ -34739,7 +34643,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -34774,7 +34677,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -36574,7 +36476,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -36609,7 +36510,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -36709,7 +36609,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36744,7 +36643,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36777,7 +36675,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -36812,7 +36709,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -36861,7 +36757,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36896,7 +36791,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37210,7 +37104,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -37245,7 +37138,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -37337,7 +37229,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37372,7 +37263,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37405,7 +37295,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -37440,7 +37329,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -37541,7 +37429,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37576,7 +37463,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37625,7 +37511,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -37660,7 +37545,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -37906,7 +37790,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37941,7 +37824,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38176,7 +38058,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -38211,7 +38092,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -38490,7 +38370,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38525,7 +38404,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38921,7 +38799,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -38956,7 +38833,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39005,7 +38881,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39040,7 +38915,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39073,7 +38947,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39108,7 +38981,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39157,7 +39029,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39192,7 +39063,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39225,7 +39095,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39260,7 +39129,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39309,7 +39177,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39344,7 +39211,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39377,7 +39243,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39412,7 +39277,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39540,7 +39404,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39575,7 +39438,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39675,7 +39537,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39710,7 +39571,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -39868,7 +39728,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39903,7 +39762,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40270,7 +40128,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -40305,7 +40162,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -40440,7 +40296,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40475,7 +40330,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40559,7 +40413,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -40594,7 +40447,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -40643,7 +40495,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40678,7 +40529,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40746,7 +40596,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -40935,7 +40784,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40969,7 +40817,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41003,7 +40850,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41140,7 +40986,6 @@ export namespace Prisma {
     type?: string | null
     description?: string | null
     status?: $Enums.EventStatus
-    budgetStatus?: $Enums.BudgetStatus
     attendees?: number | null
     budget?: Decimal | DecimalJsLike | number | string | null
     organizer?: string | null
@@ -41247,7 +41092,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41282,7 +41126,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41316,7 +41159,6 @@ export namespace Prisma {
     type?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
-    budgetStatus?: EnumBudgetStatusFieldUpdateOperationsInput | $Enums.BudgetStatus
     attendees?: NullableIntFieldUpdateOperationsInput | number | null
     budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     organizer?: NullableStringFieldUpdateOperationsInput | string | null

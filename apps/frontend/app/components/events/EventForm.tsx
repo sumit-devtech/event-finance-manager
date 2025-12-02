@@ -2,7 +2,7 @@ import { X, Calendar, MapPin, Users, DollarSign, UserCog } from 'lucide-react';
 import { Form, useNavigation } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import type { User } from '~/lib/auth';
-import { Dropdown } from './shared';
+import { Dropdown } from '../shared';
 import toast from 'react-hot-toast';
 
 interface EventFormProps {
@@ -34,15 +34,16 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
   }, [isEdit, event]);
 
 
-  // Close form on successful submission
+  // Close form on successful submission - only close when navigation is idle and we have success
   useEffect(() => {
-    if (actionData?.success) {
+    if (actionData?.success && navigation.state === 'idle' && !isSubmitting) {
+      // Only close if we're not currently submitting and navigation is idle
       const timer = setTimeout(() => {
         onClose();
-      }, 1000);
+      }, 500);
       return () => clearTimeout(timer);
     }
-  }, [actionData, onClose]);
+  }, [actionData, navigation.state, isSubmitting, onClose]);
 
   // Mock team members from organization
   const teamMembers = organization?.members || [

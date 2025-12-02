@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dropdown } from "./";
 import { ChevronRight, ChevronLeft, Check, FileText, DollarSign, Calendar, X, Loader } from "../Icons";
 import type { EventWithDetails, VendorWithStats } from "~/types";
@@ -106,7 +106,17 @@ export function ExpenseWizard({
 
     try {
       await onSubmit(formData);
-      // Reset form
+      // Don't close here - let parent component handle closing after fetcher completes
+      // Reset form will happen when modal closes
+    } catch (error) {
+      console.error("Error submitting expense:", error);
+      // Don't close on error - let user see the error and retry
+    }
+  };
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
       setFormData({
         eventId: event?.id || "",
         category: "",
@@ -119,11 +129,8 @@ export function ExpenseWizard({
       });
       setCurrentStep(1);
       setErrors({});
-      onClose();
-    } catch (error) {
-      console.error("Error submitting expense:", error);
     }
-  };
+  }, [isOpen, event?.id]);
 
   const handleClose = () => {
     if (!isLoading) {

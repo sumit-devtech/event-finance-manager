@@ -36,12 +36,10 @@ export {
   SubscriptionStatus,
   BillingCycle,
   BudgetItemStatus,
-  BudgetStatus
 } from "./generated/prisma-database";
 
 // Re-export enum types
 export type {
   BudgetItemStatus as BudgetItemStatusType,
-  BudgetStatus as BudgetStatusType,
 } from "./generated/prisma-database";
 

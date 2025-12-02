@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Calendar, MapPin, Users, DollarSign, CheckCircle, Clock, 
   TrendingUp, FileText, X, Target, Folder, Edit, Receipt
-} from './Icons';
-import { useFetcher } from '@remix-run/react';
-import { BudgetManager } from './BudgetManager';
-import { ExpenseTracker } from './ExpenseTracker';
-import { StrategicGoals } from './StrategicGoals';
+} from '../Icons';
+import { useFetcher, useRevalidator, useNavigation } from '@remix-run/react';
+import { BudgetManager } from '../budget';
+import { ExpenseTracker } from '../expenses';
+import { StrategicGoals } from '../StrategicGoals';
 import { EventDocuments } from './EventDocuments';
 import { EventNotes } from './EventNotes';
 import { api } from '~/lib/api';
 import type { EventWithDetails, VendorWithStats } from "~/types";
 import type { User } from "~/lib/auth";
 import type { EventStatus } from "~/types";
-import { Dropdown } from './shared';
+import { Dropdown } from '../shared';
 
-interface EventDetailsExpandedProps {
+interface EventDetailsModalProps {
   event: EventWithDetails;
   organization?: { name?: string; members?: Array<{ id: string; name: string }> } | null;
   onClose: () => void;
@@ -23,9 +23,10 @@ interface EventDetailsExpandedProps {
   isDemo?: boolean;
   user?: User | null;
   vendors?: VendorWithStats[];
+  actionData?: { success?: boolean; error?: string; message?: string } | null;
 }
 
-export function EventDetailsExpanded({
+export function EventDetailsModal({
   event,
   organization,
   onClose,
@@ -33,46 +34,164 @@ export function EventDetailsExpanded({
   isDemo = false,
   user,
   vendors = [],
-}: EventDetailsExpandedProps) {
+  actionData,
+}: EventDetailsModalProps) {
   const [activeSection, setActiveSection] = useState('overview');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [fullEvent, setFullEvent] = useState<EventWithDetails>(event);
   const [loadingEvent, setLoadingEvent] = useState(false);
-  const [status, setStatus] = useState<EventStatus>(event.status || 'planning');
+  const [eventUsers, setEventUsers] = useState<any[]>([]);
+  const [eventVendors, setEventVendors] = useState<VendorWithStats[]>(vendors);
+  // Normalize status: backend returns capitalized (Planning, Active, etc.), but we use lowercase for internal state
+  const normalizeStatus = (status: string | undefined): string => {
+    if (!status) return 'planning';
+    return status.toLowerCase();
+  };
+  const [status, setStatus] = useState<string>(normalizeStatus(event.status));
   const fetcher = useFetcher();
+  const revalidator = useRevalidator();
+  const navigation = useNavigation();
+  
+  // Track if we've done initial load to avoid reloading unnecessarily
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
   // Fetch full event details (including budgetItems) when component mounts or event changes
   useEffect(() => {
-    if (!isDemo && event?.id && (!event.budgetItems || event.budgetItems.length === 0)) {
-      setLoadingEvent(true);
-      
-      // Use fetcher to call the route loader (server-side has access to session)
-      // This will use the existing route loader which has proper authentication
-      fetcher.load(`/events/${event.id}`);
+    if (!isDemo && event?.id) {
+      // Always refresh if event prop changes (in case budgetItems were updated)
+      if (event.budgetItems && event.budgetItems.length > 0) {
+        // Event has budgetItems, update fullEvent
+        setFullEvent(event);
+        setLoadingEvent(false);
+        if (!hasInitialLoad) {
+          setHasInitialLoad(true);
+        }
+      } else if (!hasInitialLoad) {
+        // Load event details if we don't have them yet
+        setLoadingEvent(true);
+        fetcher.load(`/events/${event.id}`);
+        setHasInitialLoad(true);
+      } else {
+        // Update with new event data if event prop changed
+        setFullEvent(event);
+      }
     } else {
       setFullEvent(event);
       setLoadingEvent(false);
+      if (!hasInitialLoad) {
+        setHasInitialLoad(true);
+      }
     }
-  }, [event?.id, isDemo]);
-
-  // Handle fetcher response
+  }, [event?.id, isDemo, hasInitialLoad, fetcher]);
+  
+  // Update fullEvent when event prop changes (for budgetItems updates)
   useEffect(() => {
-    if (fetcher.state === 'idle' && loadingEvent) {
-      if (fetcher.data) {
-        const data = fetcher.data as any;
-        if (data && typeof data === 'object' && 'event' in data) {
-          // The route loader returns { event, users, vendors, user }
-          setFullEvent(data.event as EventWithDetails);
-          setLoadingEvent(false);
+    if (event && event.id === fullEvent?.id) {
+      // Only update if it's the same event (to avoid overwriting with stale data)
+      // Check if event has more recent data (more budgetItems or strategicGoals)
+      const eventHasMoreData = 
+        (event.budgetItems?.length || 0) > (fullEvent.budgetItems?.length || 0) ||
+        (event.strategicGoals?.length || 0) > (fullEvent.strategicGoals?.length || 0);
+      
+      if (eventHasMoreData || event.budgetItems?.length !== fullEvent.budgetItems?.length) {
+        setFullEvent(event);
+      }
+    }
+  }, [event?.budgetItems?.length, event?.id, fullEvent?.id, fullEvent?.budgetItems?.length, event?.strategicGoals?.length, fullEvent?.strategicGoals?.length]);
+  
+  // Update vendors when prop changes
+  useEffect(() => {
+    if (vendors && vendors.length > 0) {
+      setEventVendors(vendors);
+    }
+  }, [vendors]);
+  
+  // Track previous revalidator and navigation states to detect transitions
+  const prevRevalidatorState = useRef(revalidator.state);
+  const prevNavigationState = useRef(navigation.state);
+  const lastRefreshTime = useRef<number>(0);
+  
+  // Refresh event data when route revalidates (after form submissions that redirect)
+  // This handles cases where BudgetManager or other components submit via Form (not fetcher)
+  useEffect(() => {
+    // Detect when revalidator transitions from loading/idle to idle (revalidation complete)
+    const revalidatorJustCompleted = 
+      prevRevalidatorState.current !== 'idle' && 
+      revalidator.state === 'idle';
+    
+    // Also detect when navigation completes (form submission finished)
+    const navigationJustCompleted = 
+      prevNavigationState.current === 'submitting' && 
+      navigation.state === 'idle';
+    
+    prevRevalidatorState.current = revalidator.state;
+    prevNavigationState.current = navigation.state;
+    
+    // Throttle refreshes to avoid too many requests (max once per 500ms)
+    const now = Date.now();
+    const shouldRefresh = hasInitialLoad && 
+      (revalidatorJustCompleted || navigationJustCompleted) && 
+      !isDemo && 
+      event?.id && 
+      !loadingEvent &&
+      (now - lastRefreshTime.current > 500);
+    
+    if (shouldRefresh) {
+      lastRefreshTime.current = now;
+      // Small delay to ensure route has finished revalidating and data is available
+      const timer = setTimeout(() => {
+        fetcher.load(`/events/${event.id}`);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [revalidator.state, navigation.state, event?.id, isDemo, hasInitialLoad, loadingEvent, fetcher]);
+  
+  // Also refresh when actionData indicates success (for budget item operations)
+  useEffect(() => {
+    if (actionData?.success && hasInitialLoad && !isDemo && event?.id && !loadingEvent) {
+      const now = Date.now();
+      if (now - lastRefreshTime.current > 500) {
+        lastRefreshTime.current = now;
+        const timer = setTimeout(() => {
+          fetcher.load(`/events/${event.id}`);
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [actionData?.success, hasInitialLoad, isDemo, event?.id, loadingEvent, fetcher]);
+
+  // Handle fetcher response - both for loading and for action submissions
+  useEffect(() => {
+    if (fetcher.state === 'idle') {
+      if (loadingEvent) {
+        // Initial load
+        if (fetcher.data) {
+          const data = fetcher.data as any;
+          if (data && typeof data === 'object' && 'event' in data) {
+            // The route loader returns { event, users, vendors, user }
+            setFullEvent(data.event as EventWithDetails);
+            if (data.users) setEventUsers(data.users);
+            if (data.vendors) setEventVendors(data.vendors);
+            setLoadingEvent(false);
+          } else {
+            setLoadingEvent(false);
+            setFullEvent(event);
+          }
         } else {
-          // If data format is unexpected, use the event we already have
           setLoadingEvent(false);
           setFullEvent(event);
         }
-      } else {
-        // No data returned, use the event we already have
-        setLoadingEvent(false);
-        setFullEvent(event);
+      } else if (fetcher.data && !loadingEvent) {
+        // Action completed - refresh event data
+        const data = fetcher.data as any;
+        if (data && typeof data === 'object' && 'event' in data) {
+          setFullEvent(data.event as EventWithDetails);
+          if (data.users) setEventUsers(data.users);
+          if (data.vendors) setEventVendors(data.vendors);
+        } else {
+          // Reload event data after action
+          fetcher.load(`/events/${event.id}`);
+        }
       }
     }
   }, [fetcher.data, fetcher.state, loadingEvent, event]);
@@ -87,8 +206,14 @@ export function EventDetailsExpanded({
   ];
 
   const handleStatusChange = async (newStatus: string) => {
-    const statusValue = newStatus as EventStatus;
-    setStatus(statusValue);
+    // Keep status lowercase for internal state
+    const lowercaseStatus = newStatus.toLowerCase();
+    setStatus(lowercaseStatus);
+    
+    // Capitalize the first letter to match backend expectations (Planning, Active, Completed, Cancelled)
+    const capitalizedStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
+    const statusValue = capitalizedStatus as EventStatus;
+    
     if (isDemo) {
       await onUpdate({ status: statusValue });
       setFullEvent({ ...currentEvent, status: statusValue });
@@ -96,7 +221,7 @@ export function EventDetailsExpanded({
       const formData = new FormData();
       formData.append('intent', 'updateStatus');
       formData.append('eventId', currentEvent.id);
-      formData.append('status', newStatus);
+      formData.append('status', capitalizedStatus); // Send capitalized status to backend
       fetcher.submit(formData, { method: 'post', action: '/events' });
       await onUpdate({ status: statusValue });
       setFullEvent({ ...currentEvent, status: statusValue });
@@ -104,7 +229,18 @@ export function EventDetailsExpanded({
   };
 
   // Use fullEvent if available, otherwise use event
-  const currentEvent = fullEvent || event;
+  // Prefer event prop if it has more recent data (more budgetItems or strategicGoals)
+  const currentEvent = (() => {
+    if (!fullEvent) return event;
+    if (!event) return fullEvent;
+    
+    // If event prop has more budgetItems or strategicGoals, use it (it's more recent)
+    const eventHasMoreData = 
+      (event.budgetItems?.length || 0) > (fullEvent.budgetItems?.length || 0) ||
+      (event.strategicGoals?.length || 0) > (fullEvent.strategicGoals?.length || 0);
+    
+    return eventHasMoreData ? event : fullEvent;
+  })();
   const budgetUtilization = currentEvent.budget && currentEvent.budget > 0 ? ((currentEvent.spent || 0) / currentEvent.budget) * 100 : 0;
   const remaining = (currentEvent.budget || 0) - (currentEvent.spent || 0);
 
@@ -232,7 +368,7 @@ export function EventDetailsExpanded({
               {user?.role !== 'Viewer' && (
                 <div className="min-w-[120px]">
                   <Dropdown
-                    value={status}
+                    value={status?.toLowerCase() || 'planning'}
                     onChange={handleStatusChange}
                     options={[
                       { value: 'planning', label: 'Planning' },
@@ -425,9 +561,13 @@ export function EventDetailsExpanded({
                 user={user ?? null}
                 organization={organization}
                 event={currentEvent}
+                events={[currentEvent].filter(Boolean)}
                 budgetItems={currentEvent?.budgetItems || []}
+                users={eventUsers}
                 strategicGoals={currentEvent?.strategicGoals || []}
-                isDemo={isDemo} 
+                vendors={eventVendors}
+                isDemo={isDemo}
+                actionData={actionData}
               />
             )}
 
@@ -445,25 +585,37 @@ export function EventDetailsExpanded({
             {activeSection === 'strategic-goals' && (
               <StrategicGoals
                 eventId={currentEvent.id}
-                goals={currentEvent?.strategicGoals?.map(goal => ({
-                  id: goal.id,
-                  title: goal.title,
-                  description: goal.description || '',
-                  targetValue: goal.targetValue ?? undefined,
-                  currentValue: goal.currentValue ?? undefined,
-                  unit: goal.unit ?? undefined,
-                  deadline: goal.deadline ? goal.deadline.toISOString() : undefined,
-                  status: goal.status as 'not-started' | 'in-progress' | 'completed',
-                  priority: goal.priority as 'low' | 'medium' | 'high',
-                }))}
+                goals={currentEvent?.strategicGoals?.map(goal => {
+                  // Handle deadline - it might be a Date object or a string
+                  let deadlineStr: string | undefined = undefined;
+                  if (goal.deadline) {
+                    if (goal.deadline instanceof Date) {
+                      deadlineStr = goal.deadline.toISOString();
+                    } else if (typeof goal.deadline === 'string') {
+                      deadlineStr = goal.deadline;
+                    } else {
+                      // Try to parse as date string
+                      const date = new Date(goal.deadline);
+                      if (!isNaN(date.getTime())) {
+                        deadlineStr = date.toISOString();
+                      }
+                    }
+                  }
+                  
+                  return {
+                    id: goal.id,
+                    title: goal.title,
+                    description: goal.description || '',
+                    targetValue: goal.targetValue ?? undefined,
+                    currentValue: goal.currentValue ?? undefined,
+                    unit: goal.unit ?? undefined,
+                    deadline: deadlineStr,
+                    status: goal.status as 'not-started' | 'in-progress' | 'completed',
+                    priority: goal.priority as 'low' | 'medium' | 'high',
+                  };
+                })}
                 isDemo={isDemo}
                 user={user ?? null}
-                onSave={async (goals) => {
-                  if (!isDemo) {
-                    // TODO: Save goals to backend
-                    console.log('Save strategic goals:', goals);
-                  }
-                }}
               />
             )}
 
@@ -508,3 +660,4 @@ export function EventDetailsExpanded({
     </div>
   );
 }
+

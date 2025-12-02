@@ -5,7 +5,7 @@ import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
-import { BudgetManager } from "~/components/BudgetManager";
+import { BudgetManager } from "~/components/budget";
 import { demoBudgetEvents, demoBudgetVersions, demoBudgetItems } from "~/lib/demoData";
 import type { EventWithDetails, BudgetItemWithRelations, StrategicGoalType, VendorWithStats, UserWithCounts } from "~/types";
 import { Dropdown } from "~/components/shared";
@@ -73,37 +73,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const vendors = vendorsResult.status === 'fulfilled' ? (vendorsResult.value || []) : [];
     const budgetItems: BudgetItemWithRelations[] = [];
     const budgetVersions: BudgetVersion[] = [];
-
-    // Fetch strategic goals if eventId is specified
     let strategicGoals: StrategicGoalType[] = [];
-    if (eventId) {
-      try {
-        strategicGoals = await api.get<StrategicGoalType[]>(`/events/${eventId}/strategic-goals`, {
-          token: token || undefined,
-        });
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        console.warn(`Could not fetch strategic goals for event ${eventId}:`, errorMessage);
-        strategicGoals = [];
-      }
-    }
 
-    // If eventId is specified, fetch only that event's budget items
+    // Fetch strategic goals and budget items in parallel if eventId is specified
     if (eventId) {
-      try {
-        const items = await api.get<BudgetItemWithRelations[]>(`/events/${eventId}/budget-items`, {
+      const [strategicGoalsResult, budgetItemsResult] = await Promise.allSettled([
+        api.get<StrategicGoalType[]>(`/events/${eventId}/strategic-goals`, {
           token: token || undefined,
-        });
-        if (Array.isArray(items)) {
-          // Add eventId to each item for grouping
-          items.forEach(item => {
-            budgetItems.push({ ...item, eventId });
-          });
-        }
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        console.warn(`Could not fetch budget items for event ${eventId}:`, errorMessage);
-      }
+        }),
+        api.get<BudgetItemWithRelations[]>(`/events/${eventId}/budget-items`, {
+          token: token || undefined,
+        }),
+      ]);
+
+      strategicGoals = strategicGoalsResult.status === 'fulfilled' ? (strategicGoalsResult.value || []) : [];
+      const items = budgetItemsResult.status === 'fulfilled' && Array.isArray(budgetItemsResult.value) 
+        ? budgetItemsResult.value 
+        : [];
+      
+      // Add eventId to each item for grouping
+      items.forEach(item => {
+        budgetItems.push({ ...item, eventId });
+      });
     } else {
       // If no eventId specified, fetch budget items for ALL events
       const budgetItemsResults = await Promise.allSettled(
@@ -442,6 +433,7 @@ export default function BudgetRoute() {
         strategicGoals={(strategicGoals || []) as unknown as StrategicGoalType[]}
         vendors={vendors as unknown as VendorWithStats[]}
         isDemo={isDemo}
+        actionData={actionData}
       />
     </div>
   );

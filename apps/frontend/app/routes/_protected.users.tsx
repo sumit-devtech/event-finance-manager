@@ -53,22 +53,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     api.get<any[]>("/events", { token: token || undefined }),
   ]);
 
-  // Fetch user details with assigned event IDs for each user
-  const usersWithAssignments = await Promise.all(
-    users.map(async (u) => {
-      try {
-        const userDetails = await api.get<any>(`/users/${u.id}`, { token: token || undefined });
-        const assignedEventIds = userDetails.assignedEventIds || [];
-        console.log(`[Loader] User ${u.id} (${u.email}) has assigned events:`, assignedEventIds);
-        return { ...u, assignedEventIds };
-      } catch (error) {
-        console.error(`[Loader] Failed to fetch assignments for user ${u.id}:`, error);
-        return { ...u, assignedEventIds: [] };
-      }
-    })
-  );
+  // Backend now includes assignedEventIds in findAll() response, so no need for N+1 queries
+  // Map users to ensure assignedEventIds is always an array
+  const usersWithAssignments = users.map((u) => ({
+    ...u,
+    assignedEventIds: (u as any).assignedEventIds || [],
+  }));
 
-  console.log(`[Loader] Loaded ${usersWithAssignments.length} users with assignments`);
   return json({ users: usersWithAssignments, events, currentUser: user });
 }
 

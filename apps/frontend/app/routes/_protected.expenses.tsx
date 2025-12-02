@@ -5,7 +5,7 @@ import { requireAuth, getCurrentUser } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import type { User } from "~/lib/auth";
-import { ExpenseTracker } from "~/components/ExpenseTracker";
+import { ExpenseTracker } from "~/components/expenses";
 import { demoExpenses, demoEvents } from "~/lib/demoData";
 import type { ExpenseWithVendor, EventWithDetails, VendorWithStats } from "~/types";
 

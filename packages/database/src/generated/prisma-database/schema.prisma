@@ -166,7 +166,6 @@ model Event {
   type                String? // Alias for eventType for compatibility
   description         String?
   status              EventStatus          @default(Planning)
-  budgetStatus        BudgetStatus         @default(Draft) // Budget workflow status
   attendees           Int? // Expected number of attendees
   budget              Decimal?             @db.Decimal(10, 2) // Total budget for the event
   organizer           String? // Organizer name
@@ -198,7 +197,6 @@ model Event {
   @@index([endDate])
   @@index([createdAt])
   @@index([status])
-  @@index([budgetStatus])
   @@index([organizationId, startDate])
   @@index([organizationId, createdAt])
 }
