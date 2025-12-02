@@ -96,16 +96,25 @@ export function ExpenseTracker({ user, organization, event, expenses: initialExp
 
   // Handle fetcher state changes
   useEffect(() => {
-    if (fetcher?.data && typeof fetcher.data === 'object' && 'error' in fetcher.data) {
-      toast.error((fetcher.data as any).error);
-      // Keep form open on error - ExpenseWizard will handle it
-    } else if (fetcher?.state === "idle" && fetcher?.data && typeof fetcher.data === 'object' && !('error' in fetcher.data) && (fetcher.data as any).success !== false) {
-    // Success - close form
+    // Only process when fetcher is idle and has data
+    if (fetcher?.state !== "idle" || !fetcher?.data) {
+      return;
+    }
+
+    const fetcherData = fetcher.data as any;
+    
+    // Check for error
+    if (typeof fetcherData === 'object' && 'error' in fetcherData) {
+      toast.error(fetcherData.error);
+      return;
+    }
+    
+    // Check for success (explicit success flag or no error)
+    if (typeof fetcherData === 'object' && !('error' in fetcherData) && fetcherData.success !== false) {
       setShowAddExpense(false);
       toast.success("Expense submitted successfully");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher?.data, fetcher?.state]);
+  }, [fetcher?.state, fetcher?.data]);
 
   const filteredExpenses = expenses.filter(expense => {
     const matchesSearch = expense.item.toLowerCase().includes(searchQuery.toLowerCase()) ||

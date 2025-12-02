@@ -215,7 +215,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {displayGoals.map((goal) => {
-            const progress = getProgress(goal);
+            const progress = getProgress(goal as StrategicGoal);
             return (
               <div
                 key={goal.id}
@@ -227,10 +227,10 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
                     <p className="text-sm text-gray-600">{goal.description}</p>
                   </div>
                   <div className="flex gap-2">
-                    <span className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(goal.status)}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(goal.status as StrategicGoal['status'])}`}>
                       {goal.status.replace('-', ' ')}
                     </span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(goal.priority)}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(goal.priority as StrategicGoal['priority'])}`}>
                       {goal.priority}
                     </span>
                   </div>
@@ -264,7 +264,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
                 {canEditGoals && (
                   <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-200">
                     <EditButton
-                      onClick={() => handleEdit(goal)}
+                      onClick={() => handleEdit(goal as StrategicGoal)}
                     />
                     <DeleteButton
                       onClick={() => handleDelete(goal.id)}

@@ -12,6 +12,7 @@ import { EventNotes } from './EventNotes';
 import { api } from '~/lib/api';
 import type { EventWithDetails, VendorWithStats } from "~/types";
 import type { User } from "~/lib/auth";
+import type { EventStatus } from "~/types";
 import { Dropdown } from './shared';
 
 interface EventDetailsExpandedProps {
@@ -37,40 +38,44 @@ export function EventDetailsExpanded({
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [fullEvent, setFullEvent] = useState<EventWithDetails>(event);
   const [loadingEvent, setLoadingEvent] = useState(false);
-  const [status, setStatus] = useState(event.status || 'planning');
+  const [status, setStatus] = useState<EventStatus>(event.status || 'planning');
   const fetcher = useFetcher();
 
   // Fetch full event details (including budgetItems) when component mounts or event changes
   useEffect(() => {
     if (!isDemo && event?.id && (!event.budgetItems || event.budgetItems.length === 0)) {
       setLoadingEvent(true);
-      // Get token from session cookie
-      const getToken = () => {
-        const cookies = document.cookie.split(';');
-        for (const cookie of cookies) {
-          const [name, value] = cookie.trim().split('=');
-          if (name === 'accessToken' || name === 'auth_token') {
-            return value;
-          }
-        }
-        return null;
-      };
-
-      const token = getToken();
       
-      api.get(`/events/${event.id}?includeDetails=true`, { token: token || undefined })
-        .then((fullEventData: any) => {
-          setFullEvent(fullEventData);
-          setLoadingEvent(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching event details:', error);
-          setLoadingEvent(false);
-        });
+      // Use fetcher to call the route loader (server-side has access to session)
+      // This will use the existing route loader which has proper authentication
+      fetcher.load(`/events/${event.id}`);
     } else {
       setFullEvent(event);
+      setLoadingEvent(false);
     }
   }, [event?.id, isDemo]);
+
+  // Handle fetcher response
+  useEffect(() => {
+    if (fetcher.state === 'idle' && loadingEvent) {
+      if (fetcher.data) {
+        const data = fetcher.data as any;
+        if (data && typeof data === 'object' && 'event' in data) {
+          // The route loader returns { event, users, vendors, user }
+          setFullEvent(data.event as EventWithDetails);
+          setLoadingEvent(false);
+        } else {
+          // If data format is unexpected, use the event we already have
+          setLoadingEvent(false);
+          setFullEvent(event);
+        }
+      } else {
+        // No data returned, use the event we already have
+        setLoadingEvent(false);
+        setFullEvent(event);
+      }
+    }
+  }, [fetcher.data, fetcher.state, loadingEvent, event]);
 
   const sections = [
     { id: 'overview', label: 'Overview', icon: FileText },
@@ -82,24 +87,25 @@ export function EventDetailsExpanded({
   ];
 
   const handleStatusChange = async (newStatus: string) => {
-    setStatus(newStatus);
+    const statusValue = newStatus as EventStatus;
+    setStatus(statusValue);
     if (isDemo) {
-      await onUpdate({ status: newStatus });
-      setFullEvent({ ...currentEvent, status: newStatus });
+      await onUpdate({ status: statusValue });
+      setFullEvent({ ...currentEvent, status: statusValue });
     } else {
       const formData = new FormData();
       formData.append('intent', 'updateStatus');
       formData.append('eventId', currentEvent.id);
       formData.append('status', newStatus);
       fetcher.submit(formData, { method: 'post', action: '/events' });
-      await onUpdate({ status: newStatus });
-      setFullEvent({ ...currentEvent, status: newStatus });
+      await onUpdate({ status: statusValue });
+      setFullEvent({ ...currentEvent, status: statusValue });
     }
   };
 
   // Use fullEvent if available, otherwise use event
   const currentEvent = fullEvent || event;
-  const budgetUtilization = currentEvent.budget > 0 ? ((currentEvent.spent || 0) / currentEvent.budget) * 100 : 0;
+  const budgetUtilization = currentEvent.budget && currentEvent.budget > 0 ? ((currentEvent.spent || 0) / currentEvent.budget) * 100 : 0;
   const remaining = (currentEvent.budget || 0) - (currentEvent.spent || 0);
 
   const getStatusColor = (status: string) => {
@@ -265,9 +271,9 @@ export function EventDetailsExpanded({
                       <div className="p-2 bg-blue-100 rounded-lg">
                         <DollarSign size={20} className="text-blue-600" />
                       </div>
-                      <span className="text-xs text-gray-500 font-medium">Budget</span>
+                      <span className="text-xs text-gray-500 font-medium uppercase">Budget</span>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">${(event.budget || 0).toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-gray-900">${(currentEvent.budget || 0).toLocaleString()}</p>
                   </div>
 
                   <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
@@ -275,9 +281,9 @@ export function EventDetailsExpanded({
                       <div className="p-2 bg-purple-100 rounded-lg">
                         <TrendingUp size={20} className="text-purple-600" />
                       </div>
-                      <span className="text-xs text-gray-500 font-medium">Spent</span>
+                      <span className="text-xs text-gray-500 font-medium uppercase">Spent</span>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">${(event.spent || 0).toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-gray-900">${(currentEvent.spent || 0).toLocaleString()}</p>
                     <div className="mt-3">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-600">Utilization</span>
@@ -301,9 +307,9 @@ export function EventDetailsExpanded({
                       <div className="p-2 bg-indigo-100 rounded-lg">
                         <Users size={20} className="text-indigo-600" />
                       </div>
-                      <span className="text-xs text-gray-500 font-medium">Attendees</span>
+                      <span className="text-xs text-gray-500 font-medium uppercase">Attendees</span>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">{(event.attendees || 0).toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-gray-900">{(currentEvent.attendees || 0).toLocaleString()}</p>
                   </div>
 
                   <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
@@ -311,7 +317,7 @@ export function EventDetailsExpanded({
                       <div className="p-2 bg-emerald-100 rounded-lg">
                         <DollarSign size={20} className="text-emerald-600" />
                       </div>
-                      <span className="text-xs text-gray-500 font-medium">Remaining</span>
+                      <span className="text-xs text-gray-500 font-medium uppercase">Remaining</span>
                     </div>
                     <p className={`text-2xl font-bold ${remaining < 0 ? 'text-red-600' : 'text-green-600'}`}>
                       ${remaining.toLocaleString()}
@@ -330,7 +336,7 @@ export function EventDetailsExpanded({
                       <div>
                         <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date</p>
                         <p className="text-gray-900 font-medium">
-                          {new Date(currentEvent.date || currentEvent.startDate).toLocaleDateString()}
+                          {(currentEvent.date || currentEvent.startDate) ? new Date(currentEvent.date || currentEvent.startDate!).toLocaleDateString() : 'TBD'}
                           {currentEvent.endDate && ` - ${new Date(currentEvent.endDate).toLocaleDateString()}`}
                         </p>
                       </div>
@@ -339,17 +345,17 @@ export function EventDetailsExpanded({
                         <div className="flex items-start gap-2">
                           <MapPin size={18} className="text-gray-400 mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="text-gray-900 font-medium">{event.location || 'TBD'}</p>
-                            {event.venue && (
-                              <p className="text-sm text-gray-600 mt-1">{event.venue}</p>
+                            <p className="text-gray-900 font-medium">{currentEvent.location || 'TBD'}</p>
+                            {currentEvent.venue && (
+                              <p className="text-sm text-gray-600 mt-1">{currentEvent.venue}</p>
                             )}
                           </div>
                         </div>
                       </div>
-                      {event.organizer && (
+                      {currentEvent.organizer && (
                         <div>
                           <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Organizer</p>
-                          <p className="text-gray-900 font-medium">{event.organizer}</p>
+                          <p className="text-gray-900 font-medium">{currentEvent.organizer}</p>
                         </div>
                       )}
                     </div>
@@ -363,11 +369,11 @@ export function EventDetailsExpanded({
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-600">Total Budget</span>
-                        <span className="text-lg font-bold text-gray-900">${(event.budget || 0).toLocaleString()}</span>
+                        <span className="text-lg font-bold text-gray-900">${(currentEvent.budget || 0).toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-600">Total Spent</span>
-                        <span className="text-lg font-bold text-gray-900">${(event.spent || 0).toLocaleString()}</span>
+                        <span className="text-lg font-bold text-gray-900">${(currentEvent.spent || 0).toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-600">Remaining</span>
@@ -416,7 +422,7 @@ export function EventDetailsExpanded({
 
             {activeSection === 'budget' && (
               <BudgetManager 
-                user={user}
+                user={user ?? null}
                 organization={organization}
                 event={currentEvent}
                 budgetItems={currentEvent?.budgetItems || []}
@@ -427,7 +433,7 @@ export function EventDetailsExpanded({
 
             {activeSection === 'transactions' && (
               <ExpenseTracker 
-                user={user}
+                user={user ?? null}
                 organization={organization}
                 event={event}
                 vendors={vendors}
@@ -439,9 +445,19 @@ export function EventDetailsExpanded({
             {activeSection === 'strategic-goals' && (
               <StrategicGoals
                 eventId={currentEvent.id}
-                goals={currentEvent?.strategicGoals}
+                goals={currentEvent?.strategicGoals?.map(goal => ({
+                  id: goal.id,
+                  title: goal.title,
+                  description: goal.description || '',
+                  targetValue: goal.targetValue ?? undefined,
+                  currentValue: goal.currentValue ?? undefined,
+                  unit: goal.unit ?? undefined,
+                  deadline: goal.deadline ? goal.deadline.toISOString() : undefined,
+                  status: goal.status as 'not-started' | 'in-progress' | 'completed',
+                  priority: goal.priority as 'low' | 'medium' | 'high',
+                }))}
                 isDemo={isDemo}
-                user={user}
+                user={user ?? null}
                 onSave={async (goals) => {
                   if (!isDemo) {
                     // TODO: Save goals to backend
@@ -454,9 +470,9 @@ export function EventDetailsExpanded({
             {activeSection === 'documents' && (
               <EventDocuments
                 eventId={currentEvent.id}
-                documents={currentEvent?.files}
+                documents={currentEvent?.files || []}
                 isDemo={isDemo}
-                user={user}
+                user={user ?? null}
                 onUpload={async (file) => {
                   if (!isDemo) {
                     // TODO: Upload file to backend
@@ -475,9 +491,9 @@ export function EventDetailsExpanded({
             {activeSection === 'notes' && (
               <EventNotes
                 eventId={currentEvent.id}
-                notes={currentEvent?.notes}
+                notes={currentEvent?.notes || []}
                 isDemo={isDemo}
-                user={user}
+                user={user ?? null}
                 onSave={async (notes) => {
                   if (!isDemo) {
                     // TODO: Save notes to backend

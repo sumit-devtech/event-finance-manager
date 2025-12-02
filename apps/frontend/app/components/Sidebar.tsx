@@ -114,7 +114,7 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
                     }
                   `}
                 >
-                  {typeof Icon === 'function' ? <Icon size={20} /> : <Icon />}
+                  <Icon size={20} />
                   <span>{item.label}</span>
                 </Link>
               );

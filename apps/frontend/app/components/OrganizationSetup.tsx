@@ -94,7 +94,6 @@ export function OrganizationSetup({ user }: OrganizationSetupProps) {
                         { value: 'other', label: 'Other' },
                       ]}
                       placeholder="Select industry"
-                      required
                     />
                   </div>
 
@@ -113,7 +112,6 @@ export function OrganizationSetup({ user }: OrganizationSetupProps) {
                         { value: '500+', label: '500+ employees' },
                       ]}
                       placeholder="Select size"
-                      required
                     />
                   </div>
                 </div>

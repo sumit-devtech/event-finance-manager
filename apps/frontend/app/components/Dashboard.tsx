@@ -49,7 +49,7 @@ interface DashboardAlert {
 
 interface DashboardProps {
   user: User | null;
-  organization?: { name?: string; industry?: string } | null;
+  organization?: { name?: string; industry?: string; members?: unknown[] } | null;
   events: DashboardEvent[];
   stats: DashboardStats;
   budgetData?: BudgetDataPoint[];
@@ -319,7 +319,7 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
                       <p className={`font-medium ${alert.urgent ? 'text-red-900' : 'text-amber-900'}`}>
                         {alert.message}
                       </p>
-                      {alert.count > 1 && (
+                      {alert.count && alert.count > 1 && (
                         <p className={`text-sm mt-1 ${alert.urgent ? 'text-red-700' : 'text-amber-700'}`}>
                           {alert.count} items require attention
                         </p>

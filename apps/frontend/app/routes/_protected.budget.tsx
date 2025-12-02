@@ -42,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       user: null as any,
       events: demoBudgetEvents,
       budgetVersions: demoBudgetVersions,
-      budgetItems: demoBudgetItems,
+      budgetItems: demoBudgetItems as unknown as BudgetItemWithRelations[],
       users: [], // Demo mode doesn't need users
     });
   }
@@ -421,12 +421,12 @@ export default function BudgetRoute() {
       )}
 
       {/* Success/Error Messages */}
-      {actionData?.success && actionData.message && (
+      {actionData?.success && 'message' in actionData && actionData.message && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
           {actionData.message}
         </div>
       )}
-      {actionData && !actionData.success && actionData.error && (
+      {actionData && !actionData.success && 'error' in actionData && actionData.error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
           {actionData.error}
         </div>
@@ -437,10 +437,10 @@ export default function BudgetRoute() {
         organization={undefined} 
         event={selectedEvent} 
         events={events}
-        budgetItems={filteredBudgetItems}
-        users={users}
-        strategicGoals={strategicGoals || []}
-        vendors={vendors}
+        budgetItems={filteredBudgetItems as unknown as BudgetItemWithRelations[]}
+        users={users as unknown as UserWithCounts[]}
+        strategicGoals={(strategicGoals || []) as unknown as StrategicGoalType[]}
+        vendors={vendors as unknown as VendorWithStats[]}
         isDemo={isDemo}
       />
     </div>

@@ -6,7 +6,8 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect } from "react";
 import React from "react";
 import type { User } from "~/lib/auth";
-import { Dropdown } from "~/components/shared";
+import { Dropdown, ConfirmDialog } from "~/components/shared";
+import toast from "react-hot-toast";
 
 interface UserWithCounts {
   id: string;
@@ -212,6 +213,7 @@ export default function UsersPage() {
   const [accessLogs, setAccessLogs] = useState<ActivityLog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeProfileTab, setActiveProfileTab] = useState<'overview' | 'login' | 'events' | 'access'>('overview');
+  const [selectedEventId, setSelectedEventId] = useState<string>("");
   const itemsPerPage = 10;
 
   const isLoading = navigation.state === "submitting";
@@ -1230,6 +1232,7 @@ function EventAssignmentModal({
   isLoading: boolean;
 }) {
   const submit = useSubmit();
+  const [selectedEventId, setSelectedEventId] = useState<string>("");
 
   // Filter out events that are already assigned to this user
   // Debug logging

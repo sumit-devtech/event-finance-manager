@@ -203,7 +203,9 @@ function formatActivityLogDetails(action: string, details: any, log: ActivityLog
 }
 
 export default function ProfilePage() {
-  const { user, events, activityLogs, currentUser, error } = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
+  const { user, events, activityLogs, currentUser } = loaderData;
+  const error = 'error' in loaderData ? loaderData.error : undefined;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();

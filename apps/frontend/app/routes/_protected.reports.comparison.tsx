@@ -5,6 +5,7 @@ import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { env } from "~/lib/env";
+import toast from "react-hot-toast";
 import {
   BarChart,
   Bar,

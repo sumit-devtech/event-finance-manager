@@ -202,6 +202,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
         assignedUser: '',
         strategicGoalId: '',
         vendor: '',
+        vendorId: '',
         fileAttachment: null,
       });
       return;
@@ -232,6 +233,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
       assignedUser: assignedUserId || item.assignedUser || '', // Use ID for form submission
       strategicGoalId: item.strategicGoalId || '',
       vendor: item.vendor || '',
+      vendorId: (item as any).vendorId || '',
       fileAttachment: null,
     });
     setShowAddLine(true);
@@ -338,17 +340,20 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Category Breakdown</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(categoryTotals).map(([category, totals]: [string, { allocated: number; spent: number }]) => (
-              <div key={category} className="p-4 bg-gray-50 rounded-lg">
-                <div className="font-medium text-gray-900">{category}</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  Allocated: ${totals.allocated.toLocaleString()}
+            {Object.entries(categoryTotals).map(([category, totals]) => {
+              const typedTotals = totals as { allocated: number; spent: number };
+              return (
+                <div key={category} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="font-medium text-gray-900">{category}</div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Allocated: ${typedTotals.allocated.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Spent: ${typedTotals.spent.toLocaleString()}
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600">
-                  Spent: ${totals.spent.toLocaleString()}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -373,6 +378,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
                   assignedUser: '',
                   strategicGoalId: '',
                   vendor: '',
+                  vendorId: '',
                   fileAttachment: null,
                 });
                 setError(null);
@@ -540,6 +546,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
                     assignedUser: '',
                     strategicGoalId: '',
                     vendor: '',
+                    vendorId: '',
                     fileAttachment: null,
                   });
                 }}
@@ -784,6 +791,7 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
                       assignedUser: '',
                       strategicGoalId: '',
                       vendor: '',
+                      vendorId: '',
                       fileAttachment: null,
                     });
                   }}

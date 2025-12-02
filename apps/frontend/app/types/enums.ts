@@ -5,10 +5,12 @@ export {
   EventStatus,
   BudgetItemCategory,
   ExpenseStatus,
-  BudgetItemStatus,
-  BudgetStatus,
   NotificationType,
 } from "@event-finance-manager/database";
+
+// Define these locally since they're not exported from the database package
+export type BudgetItemStatus = "Pending" | "Approved" | "Closed";
+export type BudgetStatus = "Draft" | "Review" | "Approved";
 
 // Union types for better type safety
 export type UserRoleType = "Admin" | "EventManager" | "Finance" | "Viewer";

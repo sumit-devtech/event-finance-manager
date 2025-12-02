@@ -22,6 +22,16 @@ interface EventsListNewProps {
 
 type ViewMode = 'card' | 'table';
 
+interface FetcherResponse {
+  success: boolean;
+  message?: string;
+}
+
+interface ActionDataResponse {
+  success: boolean;
+  message?: string;
+}
+
 export function EventsListNew({ user, organization, isDemo, events: initialEvents, vendors = [], onRefresh }: EventsListNewProps) {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,15 +117,16 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
 
   // Handle fetcher responses for bulk actions and delete
   useEffect(() => {
-    if (fetcher.data && fetcher.data.success && fetcher.data !== lastProcessedFetcherData.current) {
-      lastProcessedFetcherData.current = fetcher.data;
+    const data = fetcher.data as FetcherResponse | undefined;
+    if (data && data.success && data !== lastProcessedFetcherData.current) {
+      lastProcessedFetcherData.current = data;
       
       const timer = setTimeout(() => {
         if (onRefresh) {
           onRefresh();
         }
         setSelectedEvents(new Set());
-        if (fetcher.data.message?.includes('deleted')) {
+        if (data.message?.includes('deleted')) {
           setSelectedEvent(null);
           setShowForm(false);
         }
@@ -127,7 +138,8 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
 
   // Handle actionData from route action (for create/update events)
   useEffect(() => {
-    if (actionData?.success) {
+    const data = actionData as ActionDataResponse | undefined;
+    if (data?.success) {
       const timer = setTimeout(() => {
         if (onRefresh) {
           onRefresh();
@@ -343,12 +355,12 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
   };
 
   const getRegions = () => {
-    const regions = new Set(events.map(e => e.region || (e.location ? e.location.split(',')[1]?.trim() : null)).filter(Boolean));
+    const regions = new Set(events.map(e => e.region || (e.location ? e.location.split(',')[1]?.trim() : null)).filter((r): r is string => Boolean(r)));
     return Array.from(regions);
   };
 
   const getEventTypes = () => {
-    const types = new Set(events.map(e => e.type || e.eventType).filter(Boolean));
+    const types = new Set(events.map(e => e.type || e.eventType).filter((t): t is string => Boolean(t)));
     return Array.from(types);
   };
 
@@ -609,7 +621,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
               {
                 icon: <Calendar size={16} />,
                 label: 'Date',
-                value: new Date(event.date || event.startDate).toLocaleDateString(),
+                value: (event.date || event.startDate) ? new Date(event.date || event.startDate!).toLocaleDateString() : 'TBD',
               },
               {
                 icon: <MapPin size={16} />,
@@ -654,7 +666,18 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
             if (canDeleteEvent) {
               actions.push({
                 label: 'Delete',
-                onClick: () => handleDeleteEvent(event.id),
+                onClick: () => {
+                  if (!isDemo) {
+                    const formData = new FormData();
+                    formData.append('intent', 'deleteEvent');
+                    formData.append('eventId', event.id);
+                    fetcher.submit(formData, { method: 'post' });
+                    toast.success('Event deleted successfully');
+                  } else {
+                    setEvents(events.filter(e => e.id !== event.id));
+                    toast.success('Event deleted successfully');
+                  }
+                },
                 variant: 'danger',
                 requireConfirm: true,
                 confirmMessage: 'Are you sure you want to delete this event?',
@@ -749,7 +772,7 @@ export function EventsListNew({ user, organization, isDemo, events: initialEvent
                       <td className="px-4 py-3 text-sm text-gray-700">{event.owner || event.organizer || event.createdBy || 'Unassigned'}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{event.region || (event.location ? event.location.split(',')[1]?.trim() : '-')}</td>
                       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                        {new Date(event.date || event.startDate).toLocaleDateString()}
+                        {(event.date || event.startDate) ? new Date(event.date || event.startDate!).toLocaleDateString() : 'TBD'}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

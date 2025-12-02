@@ -6,6 +6,7 @@ import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
 import { EventsListNew } from "~/components/EventsListNew";
 import { demoEvents } from "~/lib/demoData";
+import type { EventWithDetails, VendorWithStats } from "~/types";
 
 export interface Event {
   id: string;
@@ -57,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // In demo mode, return demo data with null user
   if (isDemo) {
-    return json({ events: demoEvents, user: null as any });
+    return json({ events: demoEvents, vendors: [], user: null as any });
   }
 
   // Otherwise, require authentication
@@ -527,30 +528,31 @@ export default function EventsPage() {
       // Extract region from location (simple heuristic: take part after comma)
       const region = event.location ? (event.location.includes(',') ? event.location.split(',')[1]?.trim() : event.location) : null;
       
+      const eventData = event as any;
       return {
         id: event.id,
         name: event.name,
-        type: event.type || event.eventType || 'conference',
-        eventType: event.eventType || event.type || 'conference',
+        type: eventData.type || eventData.eventType || 'conference',
+        eventType: eventData.eventType || eventData.type || 'conference',
         date: event.startDate || '',
         startDate: event.startDate,
         endDate: event.endDate,
-        location: event.location || 'TBD',
+        location: eventData.location || 'TBD',
         region: region,
-        venue: event.venue ?? '',
-        attendees: event.attendees ?? null,
-        budget: event.budget ?? null,
-        spent: event.spent || 0,
-        organizer: event.organizer ?? owner,
+        venue: eventData.venue ?? '',
+        attendees: eventData.attendees ?? null,
+        budget: eventData.budget ?? null,
+        spent: eventData.spent || 0,
+        organizer: eventData.organizer ?? owner,
         owner: owner,
-        createdBy: event.createdBy,
+        createdBy: eventData.createdBy,
         status: event.status?.toLowerCase() || 'planning',
         description: event.description ?? '',
         client: event.client ?? '',
         createdAt: event.createdAt,
         updatedAt: event.updatedAt,
-        roiPercent: event.roiMetrics?.roiPercent || event.roiPercent || null,
-        assignments: event.assignments || [],
+        roiPercent: eventData.roiMetrics?.roiPercent || eventData.roiPercent || null,
+        assignments: eventData.assignments || [],
       };
     });
   }, [events, user]);
@@ -558,12 +560,12 @@ export default function EventsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Success/Error Messages */}
-      {actionData?.success && actionData.message && (
+      {actionData && 'success' in actionData && actionData.success && 'message' in actionData && actionData.message && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
           {actionData.message}
         </div>
       )}
-      {actionData && !actionData.success && actionData.error && (
+      {actionData && 'error' in actionData && actionData.error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
           {actionData.error}
         </div>
@@ -572,8 +574,8 @@ export default function EventsPage() {
         user={user}
         organization={undefined}
         isDemo={isDemo}
-        events={transformedEvents}
-        vendors={vendors}
+        events={transformedEvents as unknown as EventWithDetails[]}
+        vendors={vendors as unknown as VendorWithStats[]}
         onRefresh={handleRefresh}
       />
     </div>

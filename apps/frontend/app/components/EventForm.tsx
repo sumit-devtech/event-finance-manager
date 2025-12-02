@@ -3,6 +3,7 @@ import { Form, useNavigation } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import type { User } from '~/lib/auth';
 import { Dropdown } from './shared';
+import toast from 'react-hot-toast';
 
 interface EventFormProps {
   event?: any;
@@ -95,7 +96,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
             if (isDemo) {
               e.preventDefault();
               setTimeout(() => {
-                toast.info("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
+                toast("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
                 onClose();
               }, 500);
             }

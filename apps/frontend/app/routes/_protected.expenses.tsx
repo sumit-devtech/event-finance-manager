@@ -24,8 +24,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isDemo) {
     return json<LoaderData>({
       user: null as any,
-      expenses: demoExpenses,
-      events: demoEvents,
+      expenses: demoExpenses as unknown as ExpenseWithVendor[],
+      events: demoEvents as unknown as EventWithDetails[],
       vendors: [],
     });
   }
@@ -217,7 +217,8 @@ export default function ExpensesRoute() {
 
   // Revalidate data when fetcher completes successfully
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data && !fetcher.data.error) {
+    const fetcherData = fetcher.data as { error?: string } | undefined;
+    if (fetcher.state === "idle" && fetcher.data && !fetcherData?.error) {
       revalidator.revalidate();
     }
   }, [fetcher.state, fetcher.data, revalidator]);
@@ -227,9 +228,9 @@ export default function ExpensesRoute() {
       user={user}
       organization={undefined}
       event={undefined}
-      expenses={expenses}
-      events={events}
-      vendors={vendors}
+      expenses={expenses as unknown as ExpenseWithVendor[]}
+      events={events as unknown as EventWithDetails[]}
+      vendors={vendors as unknown as VendorWithStats[]}
       isDemo={isDemo}
       fetcher={fetcher}
     />

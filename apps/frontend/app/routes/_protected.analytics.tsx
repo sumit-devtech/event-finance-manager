@@ -27,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   // In demo mode, return demo data with null user
   if (isDemo) {
-    return json<LoaderData>({ user: null as any, events: demoAnalyticsEvents, roiMetrics: demoROIMetrics });
+    return json<LoaderData>({ user: null as any, events: demoAnalyticsEvents as unknown as EventWithDetails[], roiMetrics: demoROIMetrics });
   }
 
   // Otherwise, require authentication
@@ -67,6 +67,6 @@ export default function AnalyticsRoute() {
   const [searchParams] = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
 
-  return <Analytics user={user} events={events} roiMetrics={roiMetrics} isDemo={isDemo} />;
+  return <Analytics user={user} events={events as unknown as EventWithDetails[]} roiMetrics={roiMetrics} isDemo={isDemo} />;
 }
 

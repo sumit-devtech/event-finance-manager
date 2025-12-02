@@ -17,9 +17,14 @@ interface TeamMember {
 
 interface OrganizationMember {
   id: string;
+  userId?: string;
   name: string | null;
   email: string;
   role?: string;
+  user?: {
+    name: string | null;
+    email: string;
+  };
 }
 
 interface TeamAssignmentsProps {

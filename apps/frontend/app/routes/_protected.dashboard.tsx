@@ -16,6 +16,8 @@ interface Event {
   startDate: string | null;
   endDate: string | null;
   createdAt: string;
+  budget?: number;
+  spent?: number;
   _count: {
     files: number;
     budgetItems: number;
@@ -448,17 +450,54 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function DashboardRoute() {
-  const { user, events, stats, budgetData, expenseCategories, alerts } = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
 
+  // Transform events to DashboardEvent format with progress calculation
+  const dashboardEvents = (loaderData.events as unknown as Event[]).map((event) => ({
+    id: event.id,
+    name: event.name,
+    status: event.status,
+    budget: event.budget || 0,
+    spent: event.spent || 0,
+    progress: event.budget && event.budget > 0 
+      ? Math.min(100, Math.round((event.spent || 0) / event.budget * 100))
+      : 0,
+  }));
+
+  // Transform stats to include DashboardEvent[] for upcomingEvents and recentEvents
+  const dashboardStats = {
+    ...loaderData.stats,
+    upcomingEvents: (loaderData.stats.upcomingEvents as unknown as Event[]).map((event) => ({
+      id: event.id,
+      name: event.name,
+      status: event.status,
+      budget: event.budget || 0,
+      spent: event.spent || 0,
+      progress: event.budget && event.budget > 0 
+        ? Math.min(100, Math.round((event.spent || 0) / event.budget * 100))
+        : 0,
+    })),
+    recentEvents: (loaderData.stats.recentEvents as unknown as Event[]).map((event) => ({
+      id: event.id,
+      name: event.name,
+      status: event.status,
+      budget: event.budget || 0,
+      spent: event.spent || 0,
+      progress: event.budget && event.budget > 0 
+        ? Math.min(100, Math.round((event.spent || 0) / event.budget * 100))
+        : 0,
+    })),
+  };
+
   return <Dashboard 
-    user={user} 
-    events={events} 
-    stats={stats} 
-    budgetData={budgetData}
-    expenseCategories={expenseCategories}
-    alerts={alerts}
+    user={loaderData.user} 
+    events={dashboardEvents} 
+    stats={dashboardStats} 
+    budgetData={loaderData.budgetData}
+    expenseCategories={loaderData.expenseCategories}
+    alerts={loaderData.alerts}
     isDemo={isDemo} 
   />;
 }

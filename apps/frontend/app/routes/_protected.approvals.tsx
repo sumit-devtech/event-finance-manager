@@ -27,8 +27,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // Return demo data from centralized file
     return json<LoaderData>({ 
       user: null as any, 
-      pendingExpenses: demoApprovalExpenses,
-      allExpenses: demoApprovalExpenses,
+      pendingExpenses: demoApprovalExpenses as unknown as ExpenseWithVendor[],
+      allExpenses: demoApprovalExpenses as unknown as ExpenseWithVendor[],
     });
   }
 
@@ -151,7 +151,9 @@ export default function ApprovalsRoute() {
     const totalAmount = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
     const highValue = filteredExpenses.filter(exp => exp.amount >= 10000).length;
     const urgent = filteredExpenses.filter(exp => {
-      const daysSince = Math.floor((Date.now() - new Date(exp.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+      const createdAt = typeof exp.createdAt === 'string' ? new Date(exp.createdAt) : exp.createdAt;
+      if (!createdAt) return false;
+      const daysSince = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
       return daysSince >= 3;
     }).length;
 
@@ -204,7 +206,8 @@ export default function ApprovalsRoute() {
   };
 
   // Handle fetcher response
-  if (fetcher.data?.success) {
+  const fetcherData = fetcher.data as { success?: boolean; message?: string; error?: string } | undefined;
+  if (fetcherData?.success) {
     // Refresh will happen automatically via loader
   }
 
@@ -354,7 +357,7 @@ export default function ApprovalsRoute() {
           </div>
           <div className="p-6">
             <DataTable
-              columns={columns}
+                columns={columns as any}
               data={filteredExpenses}
             />
           </div>

@@ -34,7 +34,7 @@ export function useRoleAccess(user: User | null, isDemo = false): RoleAccess {
     if (isAdmin) return true;
     if (isEventManager && event) {
       const isCreator = event.createdBy === user?.id;
-      const isAssigned = event.assignments?.some((a) => a.userId === user?.id);
+      const isAssigned = event.assignments?.some((a) => a.userId === user?.id) ?? false;
       return isCreator || isAssigned;
     }
     return false;

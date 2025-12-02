@@ -4,9 +4,11 @@ import type {
   EventStatus,
   BudgetItemCategory,
   ExpenseStatus,
-  BudgetItemStatus,
-  BudgetStatus,
 } from "@event-finance-manager/database";
+
+// Define enum types locally (these match the Prisma schema enums)
+export type BudgetItemStatus = 'Pending' | 'Approved' | 'Closed';
+export type BudgetStatus = 'Draft' | 'Review' | 'Approved';
 
 // Base entity types from Prisma
 export type {
@@ -15,13 +17,28 @@ export type {
   Vendor,
   Expense,
   BudgetItem,
-  StrategicGoal,
   EventStakeholder,
   ActivityLog,
   Notification,
   EventAssignment,
   VendorEvent,
 } from "@event-finance-manager/database";
+
+// StrategicGoal type - define locally until package exports are fixed
+export interface StrategicGoal {
+  id: string;
+  eventId: string;
+  title: string;
+  description: string | null;
+  targetValue: number | null;
+  currentValue: number | null;
+  unit: string | null;
+  deadline: Date | null;
+  status: string;
+  priority: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Extended Vendor type with computed stats
 export interface VendorWithStats {
@@ -61,8 +78,34 @@ export interface EventWithDetails {
   updatedAt: Date;
   description?: string | null;
   type?: string | null;
+  eventType?: string | null;
   expectedAttendees?: number | null;
   actualAttendees?: number | null;
+  budgetItems?: BudgetItemWithRelations[];
+  attendees?: number | null;
+  venue?: string | null;
+  organizer?: string | null;
+  owner?: string | null;
+  region?: string | null;
+  roi?: number | null;
+  strategicGoals?: StrategicGoalType[];
+  files?: Array<{
+    id: string;
+    name: string;
+    type: string;
+    size?: number;
+    uploadedAt: string;
+    uploadedBy?: string;
+    url?: string;
+  }>;
+  notes?: Array<{
+    id: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+    createdBy?: string;
+    tags?: string[];
+  }>;
 }
 
 // Extended User type with counts
@@ -87,12 +130,21 @@ export interface ExpenseWithVendor {
   vendorId: string | null;
   title: string;
   amount: number;
-  description: string | null;
+  description?: string | null;
   status: ExpenseStatus;
-  createdBy: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdBy?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   vendorName?: string | null;
+  event?: {
+    id: string;
+    name: string;
+  };
+  creator?: {
+    id: string;
+    fullName?: string;
+    email?: string;
+  };
 }
 
 // Extended BudgetItem type with relations

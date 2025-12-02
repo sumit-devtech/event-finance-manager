@@ -159,10 +159,10 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
               <div className="flex items-center gap-2 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => {
-                    if (doc.url) {
+                    if ('url' in doc && doc.url) {
                       window.open(doc.url, '_blank');
                     } else {
-                      toast.info('Download functionality will be implemented');
+                      toast('Download functionality will be implemented');
                     }
                   }}
                   className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-2"

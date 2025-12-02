@@ -42,6 +42,10 @@ interface EventDetail {
     estimatedCost: number | null;
     actualCost: number | null;
     vendor: string | null;
+    vendorId?: string | null;
+    vendorLink?: { id: string } | null;
+    assignedUserId?: string | null;
+    assignedUser?: { id: string } | null;
   }>;
   _count: {
     files: number;
@@ -73,7 +77,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       id: eventId,
     };
 
-    return json({ event: demoEvent, users: [], user: null as any });
+    return json({ event: demoEvent, users: [], vendors: [], user: null as any });
   }
 
   // Otherwise, require authentication
@@ -479,9 +483,9 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      {actionData?.error && (
+      {actionData && 'error' in actionData && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
-          {actionData.error}
+          {(actionData as { error: string }).error}
         </div>
       )}
 
@@ -850,7 +854,7 @@ export default function EventDetailPage() {
           >
             <h2 className="text-xl font-bold mb-4">Assign User</h2>
             <AssignUserForm
-              users={users}
+              users={Array.isArray(users) ? users.filter((u): u is User => u !== null) : []}
               assignedUserIds={event.assignments.map((a) => a.user.id)}
               onAssign={handleAssignUser}
               onCancel={() => setShowAssignModal(false)}
@@ -864,8 +868,8 @@ export default function EventDetailPage() {
         <BudgetItemModal
           eventId={event.id}
           item={selectedBudgetItem}
-          users={users}
-          vendors={vendors}
+          users={Array.isArray(users) ? users.filter((u): u is User => u !== null) : []}
+          vendors={vendors || []}
           onClose={() => {
             setShowBudgetItemModal(false);
             setSelectedBudgetItem(null);
@@ -1120,7 +1124,7 @@ function BudgetItemModal({
                   { value: '', label: 'No user assigned' },
                   ...users.map((user) => ({
                     value: user.id,
-                    label: user.name || user.fullName || user.email,
+                    label: user.name || user.email,
                   })),
                 ]}
                 placeholder="No user assigned"

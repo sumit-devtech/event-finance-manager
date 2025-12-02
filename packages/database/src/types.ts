@@ -20,6 +20,7 @@ export type {
   ActivityLog,
   File,
   AiBudgetSuggestion,
+  StrategicGoal,
 } from "./generated/prisma-database";
 
 // Re-export Prisma namespace (for advanced type operations)
@@ -33,6 +34,14 @@ export {
   NotificationType,
   ExpenseStatus,
   SubscriptionStatus,
-  BillingCycle
+  BillingCycle,
+  BudgetItemStatus,
+  BudgetStatus
+} from "./generated/prisma-database";
+
+// Re-export enum types
+export type {
+  BudgetItemStatus as BudgetItemStatusType,
+  BudgetStatus as BudgetStatusType,
 } from "./generated/prisma-database";
 
