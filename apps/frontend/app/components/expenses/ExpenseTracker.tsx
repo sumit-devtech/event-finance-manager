@@ -1,0 +1,210 @@
+/**
+ * Expense Tracker - Main Component
+ * 
+ * Orchestrates all expense-related functionality using smaller sub-components.
+ */
+
+import { useState, useEffect } from 'react';
+import { useFetcher } from "@remix-run/react";
+import type { User } from "~/lib/auth";
+import type { ExpenseWithVendor, VendorWithStats, EventWithDetails } from "~/types";
+import { ExpenseWizard } from "~/components/shared";
+import toast from "react-hot-toast";
+import { EXPENSE_STATUS, EXPENSE_MESSAGES } from "~/constants/expenses";
+import { ROLE_PERMISSIONS, hasPermission } from "~/constants/roles";
+import { demoExpenseTrackerExpenses } from "~/lib/demoData";
+import { useExpenseTransform } from "./hooks/useExpenseTransform";
+import { useExpenseFilters } from "./hooks/useExpenseFilters";
+import { useExpenseActions } from "./hooks/useExpenseActions";
+import { useExpenseDetails } from "./hooks/useExpenseDetails";
+import { calculateExpenseStats } from "./utils/expenseHelpers";
+import { ExpenseTrackerHeader } from "./ExpenseTrackerHeader";
+import { ExpenseSummaryStats } from "./ExpenseSummaryStats";
+import { ExpenseFilters } from "./ExpenseFilters";
+import { ExpenseTable } from "./ExpenseTable";
+import { PendingApprovalsAlert } from "./PendingApprovalsAlert";
+import { ExpenseDetailsModal } from "./ExpenseDetailsModal";
+import type { TransformedExpense } from "./utils/expenseTransformers";
+
+interface ExpenseTrackerProps {
+  user: User | null;
+  organization?: { name?: string } | null;
+  event?: EventWithDetails | null;
+  expenses?: ExpenseWithVendor[];
+  events?: EventWithDetails[];
+  vendors?: VendorWithStats[];
+  isDemo?: boolean;
+  fetcher?: ReturnType<typeof useFetcher>;
+}
+
+export function ExpenseTracker({
+  user,
+  organization,
+  event,
+  expenses: initialExpenses = [],
+  events = [],
+  vendors = [],
+  isDemo = false,
+  fetcher,
+}: ExpenseTrackerProps) {
+  const [showAddExpense, setShowAddExpense] = useState(false);
+
+  // Transform expenses
+  const demoExpenses = isDemo
+    ? demoExpenseTrackerExpenses.map(exp => ({
+        ...exp,
+        event: event?.name || exp.event,
+        submittedBy: user?.name || exp.submittedBy,
+      }))
+    : undefined;
+
+  const { expenses, setExpenses } = useExpenseTransform(initialExpenses, isDemo, demoExpenses);
+
+  // Filters
+  const { searchQuery, setSearchQuery, filterStatus, setFilterStatus, filteredExpenses } =
+    useExpenseFilters(expenses);
+
+  // Expense details
+  const {
+    selectedExpense,
+    showExpenseDetails,
+    loadingExpenseDetails,
+    handleViewExpense,
+    handleCloseExpenseDetails,
+  } = useExpenseDetails(isDemo);
+
+  // Role-based access control
+  const userRole = user?.role || null;
+  const canCreateExpense =
+    hasPermission(userRole, ROLE_PERMISSIONS.CAN_CREATE_EXPENSE) || isDemo;
+  const canApproveExpense =
+    hasPermission(userRole, ROLE_PERMISSIONS.CAN_APPROVE_EXPENSE) || isDemo;
+
+  // Actions
+  const { handleWizardSubmit, handleApprove, handleReject } = useExpenseActions({
+    expenses,
+    setExpenses,
+    fetcher,
+    isDemo,
+    user,
+    events,
+    vendors,
+    event,
+  });
+
+  // Handle fetcher state changes
+  useEffect(() => {
+    // Only process when fetcher is idle
+    if (fetcher?.state !== "idle") {
+      return;
+    }
+
+    // Handle redirect responses (approve/reject actions return redirects)
+    // When fetcher completes after a redirect, the route will revalidate
+    // and initialExpenses will update, which will sync via useExpenseTransform
+    if (fetcher?.data) {
+      const fetcherData = fetcher.data as any;
+
+      // Check for error
+      if (typeof fetcherData === 'object' && 'error' in fetcherData) {
+        toast.error(fetcherData.error);
+        // Revert optimistic update on error by syncing with initialExpenses
+        return;
+      }
+
+      // Check for success (explicit success flag or no error)
+      if (
+        typeof fetcherData === 'object' &&
+        !('error' in fetcherData) &&
+        fetcherData.success !== false
+      ) {
+        setShowAddExpense(false);
+        toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS);
+      }
+    }
+  }, [fetcher?.state, fetcher?.data]);
+
+  // Calculate statistics
+  const { statusCounts, totalExpenses, approvedTotal, pendingTotal } =
+    calculateExpenseStats(expenses);
+
+  // Handle approve/reject with modal close
+  const handleApproveWithClose = () => {
+    if (selectedExpense) {
+      handleApprove(selectedExpense.id);
+      handleCloseExpenseDetails();
+    }
+  };
+
+  const handleRejectWithClose = () => {
+    if (selectedExpense) {
+      handleReject(selectedExpense.id);
+      handleCloseExpenseDetails();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <ExpenseTrackerHeader
+        canCreateExpense={canCreateExpense}
+        onAddExpense={() => setShowAddExpense(true)}
+        isDemo={isDemo}
+      />
+
+      <ExpenseSummaryStats
+        totalExpenses={totalExpenses}
+        approvedTotal={approvedTotal}
+        pendingTotal={pendingTotal}
+        expensesCount={expenses.length}
+        approvedCount={statusCounts.approved}
+        pendingCount={statusCounts.pending}
+      />
+
+      <ExpenseFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterStatus={filterStatus}
+        onFilterChange={setFilterStatus}
+        statusCounts={statusCounts}
+      />
+
+      <PendingApprovalsAlert
+        pendingCount={statusCounts.pending}
+        pendingTotal={pendingTotal}
+      />
+
+      <ExpenseTable
+        expenses={filteredExpenses}
+        searchQuery={searchQuery}
+        onRowClick={handleViewExpense}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        canApprove={canApproveExpense}
+      />
+
+      <ExpenseWizard
+        isOpen={showAddExpense}
+        onClose={() => setShowAddExpense(false)}
+        onSubmit={handleWizardSubmit}
+        events={events}
+        vendors={vendors}
+        event={event}
+        isLoading={fetcher?.state === "submitting"}
+      />
+
+      {showExpenseDetails && selectedExpense && (
+        <ExpenseDetailsModal
+          expense={selectedExpense}
+          isOpen={showExpenseDetails}
+          onClose={handleCloseExpenseDetails}
+          isLoading={loadingExpenseDetails}
+          canApprove={canApproveExpense}
+          onApprove={handleApproveWithClose}
+          onReject={handleRejectWithClose}
+        />
+      )}
+    </div>
+  );
+}
+
+

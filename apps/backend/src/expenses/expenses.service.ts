@@ -234,6 +234,7 @@ export class ExpensesService {
                 id: true,
                 fullName: true,
                 email: true,
+                role: true,
               },
             },
           },

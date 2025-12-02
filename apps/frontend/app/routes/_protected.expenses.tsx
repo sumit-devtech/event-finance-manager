@@ -1,6 +1,6 @@
 import { json, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSearchParams, useFetcher, useRevalidator } from "@remix-run/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { requireAuth, getCurrentUser } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session";
@@ -215,11 +215,34 @@ export default function ExpensesRoute() {
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
 
+  // Track previous fetcher state to detect transitions
+  const prevFetcherStateRef = useRef<string>(fetcher.state);
+  
   // Revalidate data when fetcher completes successfully
+  // This handles both JSON responses and redirects (approve/reject return redirects)
   useEffect(() => {
-    const fetcherData = fetcher.data as { error?: string } | undefined;
-    if (fetcher.state === "idle" && fetcher.data && !fetcherData?.error) {
-      revalidator.revalidate();
+    // Only revalidate when transitioning from submitting to idle (action just completed)
+    // This prevents multiple revalidations and page flickering
+    const wasSubmitting = prevFetcherStateRef.current === "submitting";
+    const isNowIdle = fetcher.state === "idle";
+    
+    // Update the ref for next comparison
+    prevFetcherStateRef.current = fetcher.state;
+    
+    if (wasSubmitting && isNowIdle) {
+      const fetcherData = fetcher.data as { error?: string } | undefined;
+      
+      // If there's an error, don't revalidate
+      if (fetcherData?.error) {
+        return;
+      }
+      
+      // Add a small delay to prevent flickering and allow optimistic updates to settle
+      const timer = setTimeout(() => {
+        revalidator.revalidate();
+      }, 300);
+      
+      return () => clearTimeout(timer);
     }
   }, [fetcher.state, fetcher.data, revalidator]);
 
