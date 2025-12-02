@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsDateString, IsEnum, IsInt, IsNumber, Min } from "class-validator";
 import { Type } from "class-transformer";
-import { EventStatus } from "./create-event.dto";
+import { EventStatus, BudgetStatus } from "./create-event.dto";
 
 export class UpdateEventDto {
   @IsOptional()
@@ -58,5 +58,9 @@ export class UpdateEventDto {
   @IsOptional()
   @IsEnum(EventStatus)
   status?: EventStatus;
+
+  @IsOptional()
+  @IsEnum(BudgetStatus)
+  budgetStatus?: BudgetStatus;
 }
 

@@ -33,10 +33,10 @@ interface MulterFile {
   encoding: string;
   mimetype: string;
   size: number;
-  destination: string;
-  filename: string;
-  path: string;
-  buffer: Buffer;
+  destination?: string;
+  filename?: string;
+  path?: string; // Present when using diskStorage
+  buffer?: Buffer; // Present when using memoryStorage
 }
 
 @Controller("expenses")

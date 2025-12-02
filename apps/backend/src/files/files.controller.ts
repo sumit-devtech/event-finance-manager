@@ -93,9 +93,13 @@ export class FilesController {
     const fileName = result.file.filename || "file";
 
     res.setHeader("Content-Type", fileType);
+    
+    // For images, use "inline" to display in browser; for other files, use "attachment" to download
+    const isImage = fileType.startsWith("image/");
+    const disposition = isImage ? "inline" : "attachment";
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${fileName}"`,
+      `${disposition}; filename="${fileName}"`,
     );
 
     result.stream.pipe(res);

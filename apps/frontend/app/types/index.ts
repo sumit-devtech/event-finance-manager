@@ -30,12 +30,14 @@ export type {
   BudgetItemCategory,
   ExpenseStatus,
   BudgetItemStatus,
+  BudgetStatus,
   NotificationType,
   UserRoleType,
   EventStatusType,
   BudgetItemCategoryType,
   ExpenseStatusType,
   BudgetItemStatusType,
+  BudgetStatusType,
   NotificationTypeType,
 } from "./enums";
 

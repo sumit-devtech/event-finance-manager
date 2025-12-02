@@ -5,6 +5,7 @@ import type {
   BudgetItemCategory,
   ExpenseStatus,
   BudgetItemStatus,
+  BudgetStatus,
 } from "@event-finance-manager/database";
 
 // Base entity types from Prisma
@@ -50,6 +51,7 @@ export interface EventWithDetails {
   endDate: Date | null;
   location: string | null;
   status: EventStatus;
+  budgetStatus?: BudgetStatus;
   budget: number | null;
   spent?: number;
   roiPercent?: number | null;

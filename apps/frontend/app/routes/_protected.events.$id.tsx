@@ -6,6 +6,7 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import { useState, useEffect, useRef } from "react";
 import { ConfirmDialog, Dropdown } from "~/components/shared";
 import toast from "react-hot-toast";
+import { demoEventDetail } from "~/lib/demoData";
 
 interface EventDetail {
   id: string;
@@ -64,96 +65,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const isDemo = url.searchParams.get('demo') === 'true';
   const eventId = params.id!;
 
-  // In demo mode, return demo data
+  // In demo mode, return demo data from centralized file
   if (isDemo) {
-    // Return demo event data based on eventId
+    // Return demo event data based on eventId, but update the id to match the route param
     const demoEvent: EventDetail = {
+      ...demoEventDetail,
       id: eventId,
-      name: 'Annual Tech Conference 2024',
-      description: 'Annual technology conference featuring keynote speakers and workshops',
-      client: 'Tech Corp',
-      startDate: '2024-03-15',
-      endDate: '2024-03-17',
-      status: 'Active',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-03-10',
-      assignments: [
-        {
-          id: '1',
-          role: 'Lead Organizer',
-          user: {
-            id: '1',
-            name: 'Sarah Johnson',
-            email: 'sarah@demo.com',
-            role: 'EventManager',
-          },
-        },
-      ],
-      files: [
-        {
-          id: '1',
-          filename: 'event-plan.pdf',
-          mimeType: 'application/pdf',
-          size: 245760,
-          uploadedAt: '2024-01-20',
-        },
-      ],
-      budgetItems: [
-        {
-          id: '1',
-          category: 'Venue',
-          description: 'Conference Hall Rental',
-          estimatedCost: 45000,
-          actualCost: 45000,
-          vendor: 'Grand Convention Center',
-        },
-        {
-          id: '2',
-          category: 'Catering',
-          description: 'Lunch & Refreshments (500 pax)',
-          estimatedCost: 25000,
-          actualCost: 24000,
-          vendor: 'Premium Catering Co.',
-        },
-        {
-          id: '3',
-          category: 'Marketing',
-          description: 'Digital Marketing Campaign',
-          estimatedCost: 15000,
-          actualCost: 12000,
-          vendor: 'AdTech Solutions',
-        },
-      ],
-        strategicGoals: [
-          {
-            id: '1',
-            title: 'Achieve 500+ Attendees',
-            description: 'Target attendance for the main conference day',
-            targetValue: 500,
-            currentValue: 320,
-            unit: 'attendees',
-            deadline: '2024-03-15',
-            status: 'in-progress',
-            priority: 'high',
-          },
-          {
-            id: '2',
-            title: 'Generate 100 Qualified Leads',
-            description: 'Capture contact information from interested participants',
-            targetValue: 100,
-            currentValue: 45,
-            unit: 'leads',
-            deadline: '2024-03-17',
-            status: 'in-progress',
-            priority: 'high',
-          },
-        ],
-        _count: {
-          files: 5,
-          budgetItems: 12,
-          activityLogs: 8,
-        },
-      };
+    };
 
     return json({ event: demoEvent, users: [], user: null as any });
   }

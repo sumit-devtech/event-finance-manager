@@ -833,3 +833,397 @@ export const demoROIMetrics = [
   { event: 'Workshop', roi: 195, revenue: 88000, cost: 45000 },
   { event: 'Trade Show', roi: 225, revenue: 337500, cost: 150000 },
 ];
+
+// ============================================================================
+// EXPENSE TRACKER DEMO DATA (Component-specific format)
+// ============================================================================
+export const demoExpenseTrackerExpenses = [
+  {
+    id: 1,
+    event: 'Annual Tech Conference 2024',
+    category: 'Venue',
+    item: 'Conference Hall Rental',
+    amount: 35000,
+    vendor: 'Moscone Center',
+    date: '2024-02-15',
+    submittedBy: 'Sarah Johnson',
+    status: 'approved',
+    approver: 'Mike Davis',
+    notes: 'Full payment for 3-day rental',
+  },
+  {
+    id: 2,
+    event: 'Annual Tech Conference 2024',
+    category: 'Catering',
+    item: 'Lunch Catering - Day 1',
+    amount: 8500,
+    vendor: 'Gourmet Catering Co',
+    date: '2024-03-15',
+    submittedBy: 'Emily Chen',
+    status: 'pending',
+    notes: '500 attendees x $17 per person',
+  },
+  {
+    id: 3,
+    event: 'Product Launch Event',
+    category: 'Marketing',
+    item: 'Social Media Campaign',
+    amount: 12000,
+    vendor: 'Digital Marketing Agency',
+    date: '2024-02-20',
+    submittedBy: 'Mike Davis',
+    status: 'approved',
+    approver: 'Sarah Johnson',
+    notes: 'Month-long campaign',
+  },
+  {
+    id: 4,
+    event: 'Annual Tech Conference 2024',
+    category: 'Logistics',
+    item: 'Event Mobile App',
+    amount: 12000,
+    vendor: 'TechSolutions Inc',
+    date: '2024-01-30',
+    submittedBy: 'Sarah Johnson',
+    status: 'approved',
+    approver: 'Mike Davis',
+    notes: 'Custom app development',
+  },
+];
+
+// ============================================================================
+// BUDGET MANAGER DEMO DATA (BudgetLineItem format)
+// ============================================================================
+export const demoBudgetLineItems = [
+  { 
+    id: 1, 
+    category: 'Venue', 
+    subcategory: 'Rental',
+    description: 'Conference Hall Rental', 
+    estimatedCost: 35000, 
+    actualCost: 35000,
+    variance: 0,
+    status: 'Approved' as const,
+    notes: 'Booked for 3 days',
+    assignedUser: 'Sarah Johnson',
+    lastEditedBy: 'Sarah Johnson',
+    lastEditedAt: '2024-03-10T10:30:00Z',
+  },
+  { 
+    id: 2, 
+    category: 'Venue', 
+    subcategory: 'Equipment',
+    description: 'AV Equipment', 
+    estimatedCost: 12000, 
+    actualCost: 10500,
+    variance: 1500,
+    status: 'Approved' as const,
+    notes: 'Negotiated discount',
+    assignedUser: 'Mike Davis',
+    lastEditedBy: 'Mike Davis',
+    lastEditedAt: '2024-03-08T14:20:00Z',
+  },
+  { 
+    id: 3, 
+    category: 'Catering', 
+    subcategory: 'Meals',
+    description: 'Breakfast & Lunch', 
+    estimatedCost: 28000, 
+    actualCost: 24000,
+    variance: 4000,
+    status: 'Approved' as const,
+    assignedUser: 'Emily Chen',
+    lastEditedBy: 'Emily Chen',
+    lastEditedAt: '2024-03-09T09:15:00Z',
+  },
+];
+
+// ============================================================================
+// EVENT NOTES DEMO DATA
+// ============================================================================
+export const demoEventNotes = [
+  {
+    id: '1',
+    content: 'Venue confirmed for March 15-17. Need to finalize catering menu by end of week.',
+    createdAt: '2024-01-15T10:30:00Z',
+    updatedAt: '2024-01-15T10:30:00Z',
+    createdBy: 'Sarah Johnson',
+    tags: ['venue', 'catering', 'urgent'],
+  },
+  {
+    id: '2',
+    content: 'Keynote speaker availability confirmed. Contract sent for review.',
+    createdAt: '2024-01-20T14:15:00Z',
+    updatedAt: '2024-01-20T14:15:00Z',
+    createdBy: 'Mike Davis',
+    tags: ['speakers', 'contracts'],
+  },
+  {
+    id: '3',
+    content: 'Marketing campaign launched. Initial response rate is 15% higher than expected. Consider increasing ad spend.',
+    createdAt: '2024-02-01T09:00:00Z',
+    updatedAt: '2024-02-05T11:20:00Z',
+    createdBy: 'Emily Chen',
+    tags: ['marketing', 'budget'],
+  },
+  {
+    id: '4',
+    content: 'Follow up with vendor about AV equipment delivery timeline. Need confirmation by Friday.',
+    createdAt: '2024-02-10T16:45:00Z',
+    updatedAt: '2024-02-10T16:45:00Z',
+    createdBy: 'Sarah Johnson',
+    tags: ['vendors', 'logistics', 'urgent'],
+  },
+];
+
+// ============================================================================
+// STRATEGIC GOALS DEMO DATA
+// ============================================================================
+export const demoStrategicGoals = [
+  {
+    id: '1',
+    title: 'Achieve 500+ Attendees',
+    description: 'Target attendance for the main conference day',
+    targetValue: 500,
+    currentValue: 320,
+    unit: 'attendees',
+    deadline: '2024-03-15',
+    status: 'in-progress',
+    priority: 'high',
+  },
+  {
+    id: '2',
+    title: 'Generate 100 Qualified Leads',
+    description: 'Capture contact information from interested participants',
+    targetValue: 100,
+    currentValue: 45,
+    unit: 'leads',
+    deadline: '2024-03-17',
+    status: 'in-progress',
+    priority: 'high',
+  },
+  {
+    id: '3',
+    title: 'Maintain Budget Within 5% Variance',
+    description: 'Keep actual spending within 5% of planned budget',
+    targetValue: 5,
+    currentValue: 2.3,
+    unit: '%',
+    deadline: '2024-03-17',
+    status: 'in-progress',
+    priority: 'medium',
+  },
+];
+
+// ============================================================================
+// APPROVALS DEMO DATA (ExpenseWithVendor format)
+// ============================================================================
+export const demoApprovalExpenses = [
+  {
+    id: '1',
+    eventId: '1',
+    category: 'Venue',
+    title: 'Conference Hall Rental',
+    amount: 35000,
+    status: 'Pending',
+    vendor: 'Moscone Center',
+    vendorId: '1',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    event: { id: '1', name: 'Annual Tech Conference 2024' },
+    creator: { id: '1', fullName: 'Sarah Johnson', email: 'sarah@example.com' },
+  },
+  {
+    id: '2',
+    eventId: '1',
+    category: 'Catering',
+    title: 'Lunch Catering - Day 1',
+    amount: 8500,
+    status: 'Pending',
+    vendor: 'Gourmet Catering Co',
+    vendorId: '2',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    event: { id: '1', name: 'Annual Tech Conference 2024' },
+    creator: { id: '2', fullName: 'Emily Chen', email: 'emily@example.com' },
+  },
+];
+
+// ============================================================================
+// EVENT DETAIL DEMO DATA
+// ============================================================================
+export const demoEventDetail = {
+  id: '1',
+  name: 'Annual Tech Conference 2024',
+  description: 'Annual technology conference featuring keynote speakers and workshops',
+  client: 'Tech Corp',
+  startDate: '2024-03-15',
+  endDate: '2024-03-17',
+  status: 'Active',
+  createdAt: '2024-01-15',
+  updatedAt: '2024-03-10',
+  assignments: [
+    {
+      id: '1',
+      role: 'Lead Organizer',
+      user: {
+        id: '1',
+        name: 'Sarah Johnson',
+        email: 'sarah@demo.com',
+        role: 'EventManager',
+      },
+    },
+  ],
+  files: [
+    {
+      id: '1',
+      filename: 'event-plan.pdf',
+      mimeType: 'application/pdf',
+      size: 245760,
+      uploadedAt: '2024-01-20',
+    },
+  ],
+  budgetItems: [
+    {
+      id: '1',
+      category: 'Venue',
+      description: 'Conference Hall Rental',
+      estimatedCost: 45000,
+      actualCost: 45000,
+      vendor: 'Grand Convention Center',
+    },
+    {
+      id: '2',
+      category: 'Catering',
+      description: 'Lunch & Refreshments (500 pax)',
+      estimatedCost: 25000,
+      actualCost: 24000,
+      vendor: 'Premium Catering Co.',
+    },
+    {
+      id: '3',
+      category: 'Marketing',
+      description: 'Digital Marketing Campaign',
+      estimatedCost: 15000,
+      actualCost: 12000,
+      vendor: 'AdTech Solutions',
+    },
+  ],
+  strategicGoals: [
+    {
+      id: '1',
+      title: 'Achieve 500+ Attendees',
+      description: 'Target attendance for the main conference day',
+      targetValue: 500,
+      currentValue: 320,
+      unit: 'attendees',
+      deadline: '2024-03-15',
+      status: 'in-progress',
+      priority: 'high',
+    },
+    {
+      id: '2',
+      title: 'Generate 100 Qualified Leads',
+      description: 'Capture contact information from interested participants',
+      targetValue: 100,
+      currentValue: 45,
+      unit: 'leads',
+      deadline: '2024-03-17',
+      status: 'in-progress',
+      priority: 'high',
+    },
+  ],
+  _count: {
+    files: 5,
+    budgetItems: 12,
+    activityLogs: 8,
+  },
+};
+
+// ============================================================================
+// EVENT DOCUMENTS DEMO DATA
+// ============================================================================
+export const demoEventDocuments = [
+  {
+    id: '1',
+    name: 'Event Contract.pdf',
+    type: 'application/pdf',
+    size: 245760,
+    uploadedAt: '2024-01-15T10:30:00Z',
+    uploadedBy: 'Sarah Johnson',
+  },
+  {
+    id: '2',
+    name: 'Venue Floor Plan.jpg',
+    type: 'image/jpeg',
+    size: 1024000,
+    uploadedAt: '2024-01-20T14:15:00Z',
+    uploadedBy: 'Mike Davis',
+  },
+  {
+    id: '3',
+    name: 'Budget Spreadsheet.xlsx',
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    size: 512000,
+    uploadedAt: '2024-02-01T09:00:00Z',
+    uploadedBy: 'Sarah Johnson',
+  },
+  {
+    id: '4',
+    name: 'Marketing Materials.zip',
+    type: 'application/zip',
+    size: 5242880,
+    uploadedAt: '2024-02-10T16:45:00Z',
+    uploadedBy: 'Emily Chen',
+  },
+];
+
+// ============================================================================
+// STAKEHOLDER MANAGER DEMO DATA
+// ============================================================================
+export const demoStakeholders = [
+  {
+    id: '1',
+    name: 'John Smith',
+    role: 'Client Representative',
+    email: 'john@clientcompany.com',
+    phone: '+1 (555) 123-4567',
+    organization: 'Client Company Inc.',
+    notes: 'Primary decision maker',
+  },
+  {
+    id: '2',
+    name: 'Emily Chen',
+    role: 'Sponsor Contact',
+    email: 'emily@sponsor.com',
+    phone: '+1 (555) 987-6543',
+    organization: 'Sponsor Corp',
+    notes: 'Handles sponsorship logistics',
+  },
+];
+
+// ============================================================================
+// TEAM ASSIGNMENTS DEMO DATA
+// ============================================================================
+export const demoTeamAssignments = [
+  {
+    id: '1',
+    userId: 'user-1',
+    role: 'Lead Coordinator',
+    assignedBy: 'admin',
+    user: {
+      name: 'Sarah Johnson',
+      email: 'sarah@company.com',
+    },
+  },
+  {
+    id: '2',
+    userId: 'user-2',
+    role: 'Assistant Coordinator',
+    assignedBy: 'admin',
+    user: {
+      name: 'Mike Davis',
+      email: 'mike@company.com',
+    },
+  },
+];

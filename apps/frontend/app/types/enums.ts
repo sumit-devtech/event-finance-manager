@@ -6,6 +6,7 @@ export {
   BudgetItemCategory,
   ExpenseStatus,
   BudgetItemStatus,
+  BudgetStatus,
   NotificationType,
 } from "@event-finance-manager/database";
 
@@ -22,5 +23,6 @@ export type BudgetItemCategoryType =
   | "Miscellaneous";
 export type ExpenseStatusType = "Pending" | "Approved" | "Rejected";
 export type BudgetItemStatusType = "Pending" | "Approved" | "Closed";
+export type BudgetStatusType = "Draft" | "Review" | "Approved";
 export type NotificationTypeType = "Info" | "Warning" | "Error" | "Success";
 

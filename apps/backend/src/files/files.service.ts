@@ -138,12 +138,45 @@ export class FilesService {
       throw new NotFoundException(`File with ID ${id} not found`);
     }
 
+    // Normalize path to handle any path format issues
+    const normalizedPath = require("path").normalize(file.path);
+
+    console.log('=== File Download Debug ===');
+    console.log('File ID:', id);
+    console.log('File from DB:', {
+      id: file.id,
+      filename: file.filename,
+      path: file.path,
+      normalizedPath: normalizedPath,
+      mimeType: file.mimeType,
+      size: file.size,
+      expenseId: file.expenseId,
+    });
+
     // Check if physical file exists
-    if (!require("fs").existsSync(file.path)) {
-      throw new NotFoundException("Physical file not found on disk");
+    const fileExists = require("fs").existsSync(normalizedPath);
+    console.log('File exists check:', fileExists);
+    console.log('File path exists:', require("fs").existsSync(file.path));
+
+    if (!fileExists) {
+      // Try with original path as fallback
+      if (require("fs").existsSync(file.path)) {
+        console.log('Using original path as fallback');
+        const stream = this.storageService.getFileStream(file.path);
+        return {
+          file,
+          stream,
+        };
+      }
+      console.error('File not found at either path:', {
+        normalized: normalizedPath,
+        original: file.path,
+      });
+      throw new NotFoundException(`Physical file not found on disk. Path: ${normalizedPath}`);
     }
 
-    const stream = this.storageService.getFileStream(file.path);
+    const stream = this.storageService.getFileStream(normalizedPath);
+    console.log('File stream created successfully');
 
     return {
       file,

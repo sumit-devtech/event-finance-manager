@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Target, Plus, X, CheckCircle, Clock } from './Icons';
 import { Dropdown, EditButton, DeleteButton, ConfirmDialog } from './shared';
 import { toast } from 'react-hot-toast';
+import { demoStrategicGoals } from "~/lib/demoData";
 
 interface StrategicGoal {
   id: string;
@@ -146,44 +147,8 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
     return Math.min((goal.currentValue / goal.targetValue) * 100, 100);
   };
 
-  // Demo data
-  const demoGoals: StrategicGoal[] = [
-    {
-      id: '1',
-      title: 'Achieve 500+ Attendees',
-      description: 'Target attendance for the main conference day',
-      targetValue: 500,
-      currentValue: 320,
-      unit: 'attendees',
-      deadline: '2024-03-15',
-      status: 'in-progress',
-      priority: 'high',
-    },
-    {
-      id: '2',
-      title: 'Generate 100 Qualified Leads',
-      description: 'Capture contact information from interested participants',
-      targetValue: 100,
-      currentValue: 45,
-      unit: 'leads',
-      deadline: '2024-03-17',
-      status: 'in-progress',
-      priority: 'high',
-    },
-    {
-      id: '3',
-      title: 'Maintain Budget Within 5% Variance',
-      description: 'Keep actual spending within 5% of planned budget',
-      targetValue: 5,
-      currentValue: 2.3,
-      unit: '%',
-      deadline: '2024-03-17',
-      status: 'in-progress',
-      priority: 'medium',
-    },
-  ];
-
-  const displayGoals = isDemo ? demoGoals : goals;
+  // Use demo data from centralized file
+  const displayGoals = isDemo ? demoStrategicGoals : goals;
 
   return (
     <div className="space-y-6">

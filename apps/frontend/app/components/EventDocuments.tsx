@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Folder, Plus, X, Download, FileText, Calendar } from './Icons';
 import { DeleteButton } from './shared';
 import { toast } from 'react-hot-toast';
+import { demoEventDocuments } from "~/lib/demoData";
 
 interface Document {
   id: string;
@@ -91,43 +92,8 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
     return '📎';
   };
 
-  // Demo data
-  const demoDocuments: Document[] = [
-    {
-      id: '1',
-      name: 'Event Contract.pdf',
-      type: 'application/pdf',
-      size: 245760,
-      uploadedAt: '2024-01-15T10:30:00Z',
-      uploadedBy: 'Sarah Johnson',
-    },
-    {
-      id: '2',
-      name: 'Venue Floor Plan.jpg',
-      type: 'image/jpeg',
-      size: 1024000,
-      uploadedAt: '2024-01-20T14:15:00Z',
-      uploadedBy: 'Mike Davis',
-    },
-    {
-      id: '3',
-      name: 'Budget Spreadsheet.xlsx',
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      size: 512000,
-      uploadedAt: '2024-02-01T09:00:00Z',
-      uploadedBy: 'Sarah Johnson',
-    },
-    {
-      id: '4',
-      name: 'Marketing Materials.zip',
-      type: 'application/zip',
-      size: 5242880,
-      uploadedAt: '2024-02-10T16:45:00Z',
-      uploadedBy: 'Emily Chen',
-    },
-  ];
-
-  const displayDocuments = isDemo ? demoDocuments : documents;
+  // Use demo data from centralized file
+  const displayDocuments = isDemo ? demoEventDocuments : documents;
 
   return (
     <div className="space-y-6">

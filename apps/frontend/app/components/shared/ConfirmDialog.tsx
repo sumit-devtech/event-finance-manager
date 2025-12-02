@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { X, AlertTriangle } from "../Icons";
 
 interface ConfirmDialogProps {
@@ -8,8 +9,9 @@ interface ConfirmDialogProps {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: "danger" | "warning" | "info";
+  variant?: "danger" | "warning" | "info" | "success";
   isLoading?: boolean;
+  children?: ReactNode;
 }
 
 export function ConfirmDialog({
@@ -22,14 +24,15 @@ export function ConfirmDialog({
   cancelLabel = "Cancel",
   variant = "danger",
   isLoading = false,
+  children,
 }: ConfirmDialogProps) {
   if (!isOpen) return null;
 
   const variantStyles = {
     danger: {
-      icon: "text-destructive",
-      button: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      border: "border-destructive/20",
+      icon: "text-red-600",
+      button: "bg-red-600 text-white hover:bg-red-700",
+      border: "border-red-200",
     },
     warning: {
       icon: "text-yellow-600",
@@ -37,9 +40,14 @@ export function ConfirmDialog({
       border: "border-yellow-200",
     },
     info: {
-      icon: "text-primary",
-      button: "bg-primary text-primary-foreground hover:bg-primary/90",
-      border: "border-primary/20",
+      icon: "text-blue-600",
+      button: "bg-blue-600 text-white hover:bg-blue-700",
+      border: "border-blue-200",
+    },
+    success: {
+      icon: "text-green-600",
+      button: "bg-green-600 text-white hover:bg-green-700",
+      border: "border-green-200",
     },
   };
 
@@ -55,24 +63,24 @@ export function ConfirmDialog({
       }}
     >
       <div
-        className="bg-card text-card-foreground rounded-xl shadow-xl max-w-md w-full"
+        className="bg-white rounded-xl shadow-xl max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 border-b border-border">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4 flex-1">
               <div className={`flex-shrink-0 ${styles.icon}`}>
                 <AlertTriangle size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-card-foreground">{title}</h3>
+                <h3 className="text-xl font-bold text-gray-900">{title}</h3>
               </div>
             </div>
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+              className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               type="button"
             >
               <X size={24} />
@@ -82,16 +90,17 @@ export function ConfirmDialog({
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-muted-foreground">{message}</p>
+          <p className="text-gray-700">{message}</p>
+          {children}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-border flex gap-3 justify-end">
+        <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
           <button
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="px-6 py-2 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelLabel}
           </button>

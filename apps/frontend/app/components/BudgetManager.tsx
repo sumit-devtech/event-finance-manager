@@ -6,6 +6,7 @@ import type { EventWithDetails, BudgetItemWithRelations, StrategicGoalType, Vend
 import { ConfirmDialog, Dropdown } from "./shared";
 import toast from "react-hot-toast";
 import { getBudgetStatusColor, formatDateTime } from "~/lib/utils";
+import { demoBudgetLineItems } from "~/lib/demoData";
 
 interface BudgetEvent {
   id: string;
@@ -72,50 +73,8 @@ export function BudgetManager({ user, organization, event, events = [], budgetIt
   });
   const [error, setError] = useState<string | null>(null);
 
-  // Demo budget lines with all new fields
-  const [demoBudgetLines, setDemoBudgetLines] = useState<BudgetLineItem[]>([
-    { 
-      id: 1, 
-      category: 'Venue', 
-      subcategory: 'Rental',
-      description: 'Conference Hall Rental', 
-      estimatedCost: 35000, 
-      actualCost: 35000,
-      variance: 0,
-      status: 'Approved',
-      notes: 'Booked for 3 days',
-      assignedUser: 'Sarah Johnson',
-      lastEditedBy: 'Sarah Johnson',
-      lastEditedAt: '2024-03-10T10:30:00Z',
-    },
-    { 
-      id: 2, 
-      category: 'Venue', 
-      subcategory: 'Equipment',
-      description: 'AV Equipment', 
-      estimatedCost: 12000, 
-      actualCost: 10500,
-      variance: 1500,
-      status: 'Approved',
-      notes: 'Negotiated discount',
-      assignedUser: 'Mike Davis',
-      lastEditedBy: 'Mike Davis',
-      lastEditedAt: '2024-03-08T14:20:00Z',
-    },
-    { 
-      id: 3, 
-      category: 'Catering', 
-      subcategory: 'Meals',
-      description: 'Breakfast & Lunch', 
-      estimatedCost: 28000, 
-      actualCost: 24000,
-      variance: 4000,
-      status: 'Approved',
-      assignedUser: 'Emily Chen',
-      lastEditedBy: 'Emily Chen',
-      lastEditedAt: '2024-03-09T09:15:00Z',
-    },
-  ]);
+  // Demo budget lines with all new fields - use centralized demo data
+  const [demoBudgetLines, setDemoBudgetLines] = useState<BudgetLineItem[]>(demoBudgetLineItems);
 
   // Helper function to get event name from eventId
   const getEventName = (eventId: string | undefined): string => {

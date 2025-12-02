@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Edit, Plus, X, Calendar, User } from './Icons';
 import { EditButton, DeleteButton } from './shared';
 import { toast } from 'react-hot-toast';
+import { demoEventNotes } from "~/lib/demoData";
 
 interface Note {
   id: string;
@@ -83,43 +84,8 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
     toast.success('Note deleted successfully');
   };
 
-  // Demo data
-  const demoNotes: Note[] = [
-    {
-      id: '1',
-      content: 'Venue confirmed for March 15-17. Need to finalize catering menu by end of week.',
-      createdAt: '2024-01-15T10:30:00Z',
-      updatedAt: '2024-01-15T10:30:00Z',
-      createdBy: 'Sarah Johnson',
-      tags: ['venue', 'catering', 'urgent'],
-    },
-    {
-      id: '2',
-      content: 'Keynote speaker availability confirmed. Contract sent for review.',
-      createdAt: '2024-01-20T14:15:00Z',
-      updatedAt: '2024-01-20T14:15:00Z',
-      createdBy: 'Mike Davis',
-      tags: ['speakers', 'contracts'],
-    },
-    {
-      id: '3',
-      content: 'Marketing campaign launched. Initial response rate is 15% higher than expected. Consider increasing ad spend.',
-      createdAt: '2024-02-01T09:00:00Z',
-      updatedAt: '2024-02-05T11:20:00Z',
-      createdBy: 'Emily Chen',
-      tags: ['marketing', 'budget'],
-    },
-    {
-      id: '4',
-      content: 'Follow up with vendor about AV equipment delivery timeline. Need confirmation by Friday.',
-      createdAt: '2024-02-10T16:45:00Z',
-      updatedAt: '2024-02-10T16:45:00Z',
-      createdBy: 'Sarah Johnson',
-      tags: ['vendors', 'logistics', 'urgent'],
-    },
-  ];
-
-  const displayNotes = isDemo ? demoNotes : notes;
+  // Use demo data from centralized file
+  const displayNotes = isDemo ? demoEventNotes : notes;
 
   return (
     <div className="space-y-6">

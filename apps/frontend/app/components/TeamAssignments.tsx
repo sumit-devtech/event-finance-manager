@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Users, Plus, X, CheckCircle } from 'lucide-react';
 import type { User as AuthUser } from "~/lib/auth";
 import { Dropdown } from './shared';
+import { demoTeamAssignments } from "~/lib/demoData";
 
 interface TeamMember {
   id: string;
@@ -48,31 +49,10 @@ export function TeamAssignments({
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
   const canAssignTeam = isAdmin || isDemo;
 
-  // Mock data for demo
+  // Use demo data from centralized file
   useEffect(() => {
     if (isDemo) {
-      setAssignments([
-        {
-          id: '1',
-          userId: 'user-1',
-          role: 'Lead Coordinator',
-          assignedBy: 'admin',
-          user: {
-            name: 'Sarah Johnson',
-            email: 'sarah@company.com',
-          },
-        },
-        {
-          id: '2',
-          userId: 'user-2',
-          role: 'Assistant Coordinator',
-          assignedBy: 'admin',
-          user: {
-            name: 'Mike Davis',
-            email: 'mike@company.com',
-          },
-        },
-      ]);
+      setAssignments(demoTeamAssignments);
     }
   }, [eventId, isDemo]);
 

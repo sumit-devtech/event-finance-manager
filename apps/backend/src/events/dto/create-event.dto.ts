@@ -8,6 +8,12 @@ export enum EventStatus {
   Cancelled = "Cancelled",
 }
 
+export enum BudgetStatus {
+  Draft = "Draft",
+  Review = "Review",
+  Approved = "Approved",
+}
+
 export class CreateEventDto {
   @IsString()
   name: string;
@@ -63,6 +69,10 @@ export class CreateEventDto {
   @IsOptional()
   @IsEnum(EventStatus)
   status?: EventStatus;
+
+  @IsOptional()
+  @IsEnum(BudgetStatus)
+  budgetStatus?: BudgetStatus;
 
   @IsOptional()
   @IsString()

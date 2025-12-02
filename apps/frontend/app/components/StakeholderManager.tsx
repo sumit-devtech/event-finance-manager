@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Users, Plus, Edit2, Trash2, Mail, Phone } from 'lucide-react';
 import type { User as AuthUser } from "~/lib/auth";
 import { Dropdown } from './shared';
+import { demoStakeholders } from "~/lib/demoData";
 
 interface Stakeholder {
   id: string;
@@ -51,29 +52,10 @@ export function StakeholderManager({
   });
   const [loading, setLoading] = useState(false);
 
-  // Mock data for demo
+  // Use demo data from centralized file
   useEffect(() => {
     if (isDemo) {
-      setStakeholders([
-        {
-          id: '1',
-          name: 'John Smith',
-          role: 'Client Representative',
-          email: 'john@clientcompany.com',
-          phone: '+1 (555) 123-4567',
-          organization: 'Client Company Inc.',
-          notes: 'Primary decision maker',
-        },
-        {
-          id: '2',
-          name: 'Emily Chen',
-          role: 'Sponsor Contact',
-          email: 'emily@sponsor.com',
-          phone: '+1 (555) 987-6543',
-          organization: 'Sponsor Corp',
-          notes: 'Handles sponsorship logistics',
-        },
-      ]);
+      setStakeholders(demoStakeholders);
     }
   }, [eventId, isDemo]);
 

@@ -20,18 +20,18 @@ export function DataTable<T extends Record<string, unknown>>({
     <div className={`relative w-full overflow-x-auto ${className}`}>
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-b border-border bg-muted">
+          <tr className="border-b border-gray-200 bg-gray-50">
             {columns.map((column, index) => (
               <th
                 key={index}
-                className={`px-4 py-3 text-left text-sm font-semibold text-foreground ${
+                className={`px-4 py-3 text-left text-sm font-semibold text-gray-900 ${
                   column.width ? `w-[${column.width}]` : ""
                 }`}
               >
                 {column.label}
               </th>
             ))}
-            {actions && <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Actions</th>}
+            {actions && <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@ export function DataTable<T extends Record<string, unknown>>({
             <tr>
               <td
                 colSpan={columns.length + (actions ? 1 : 0)}
-                className="px-4 py-8 text-center text-muted-foreground"
+                className="px-4 py-8 text-center text-gray-500"
               >
                 No data available
               </td>
@@ -47,16 +47,16 @@ export function DataTable<T extends Record<string, unknown>>({
           ) : (
             data.map((item, rowIndex) => (
               <tr
-                key={rowIndex}
+                key={(item as any).id || rowIndex}
                 onClick={() => onRowClick?.(item)}
-                className={`border-b border-border hover:bg-muted/50 transition-colors ${
+                className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${
                   onRowClick ? "cursor-pointer" : ""
                 }`}
               >
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex}
-                    className={`px-4 py-4 text-sm text-foreground ${
+                    className={`px-4 py-4 text-sm text-gray-900 ${
                       column.align === "center"
                         ? "text-center"
                         : column.align === "right"

@@ -217,6 +217,16 @@ export class ExpensesService {
             name: true,
           },
         },
+        receiptFiles: {
+          select: {
+            id: true,
+            filename: true,
+            path: true,
+            mimeType: true,
+            size: true,
+            uploadedAt: true,
+          },
+        },
         workflows: {
           include: {
             approver: {
@@ -332,6 +342,22 @@ export class ExpensesService {
           throw new NotFoundException(`Expense with ID ${id} not found`); // Return 404 to hide existence
         }
       }
+    }
+
+    // Debug: Log receiptFiles
+    console.log('=== Expense findOne Debug ===');
+    console.log('Expense ID:', expense.id);
+    console.log('ReceiptFiles:', expense.receiptFiles);
+    console.log('ReceiptFiles count:', expense.receiptFiles?.length || 0);
+    if (expense.receiptFiles && expense.receiptFiles.length > 0) {
+      expense.receiptFiles.forEach((file: any, index: number) => {
+        console.log(`File ${index + 1}:`, {
+          id: file.id,
+          filename: file.filename,
+          expenseId: file.expenseId,
+          path: file.path,
+        });
+      });
     }
 
     return expense;
@@ -591,34 +617,90 @@ export class ExpensesService {
     return updatedExpense;
   }
 
-  async uploadFile(expenseId: string, file: { originalname: string; buffer: Buffer; mimetype: string; size: number }, userId: string) {
+  async uploadFile(expenseId: string, file: { originalname: string; buffer?: Buffer; path?: string; mimetype: string; size: number; filename?: string }, userId: string) {
     const expense = await this.findOne(expenseId);
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), "uploads");
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    let normalizedPath: string;
+    let fileSize: number;
+
+    // Handle disk storage (file already saved to disk by Multer)
+    if (file.path && fs.existsSync(file.path)) {
+      // File was already saved to disk by Multer's diskStorage
+      // Resolve to absolute path to ensure consistency
+      normalizedPath = path.resolve(path.normalize(file.path));
+      const fileStats = fs.statSync(normalizedPath);
+      fileSize = fileStats.size;
+      
+      console.log('=== File Upload Debug (Disk Storage) ===');
+      console.log('Expense ID:', expenseId);
+      console.log('Original filename:', file.originalname);
+      console.log('Multer saved file to:', file.path);
+      console.log('Normalized path:', normalizedPath);
+      console.log('File exists:', fs.existsSync(normalizedPath));
+      console.log('File size:', fileSize);
+      console.log('MIME type:', file.mimetype);
+    } 
+    // Handle memory storage (file in buffer)
+    else if (file.buffer) {
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(process.cwd(), "uploads");
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomSuffix = Math.floor(Math.random() * 1000000000);
+      const fileExtension = path.extname(file.originalname);
+      const filename = `file-${timestamp}-${randomSuffix}${fileExtension}`;
+      const filePath = path.join(uploadsDir, filename);
+
+      // Normalize path to ensure consistent format across OS
+      normalizedPath = path.normalize(filePath);
+
+      // Save file from buffer
+      fs.writeFileSync(normalizedPath, file.buffer);
+
+      // Verify file was saved
+      if (!fs.existsSync(normalizedPath)) {
+        throw new Error(`Failed to save file: ${normalizedPath}`);
+      }
+
+      const fileStats = fs.statSync(normalizedPath);
+      fileSize = fileStats.size;
+      
+      console.log('=== File Upload Debug (Memory Storage) ===');
+      console.log('Expense ID:', expenseId);
+      console.log('Original filename:', file.originalname);
+      console.log('Upload directory:', uploadsDir);
+      console.log('Generated filename:', filename);
+      console.log('Full file path:', normalizedPath);
+      console.log('File exists:', fs.existsSync(normalizedPath));
+      console.log('File size (saved):', fileStats.size);
+      console.log('File size (expected):', file.size);
+      console.log('MIME type:', file.mimetype);
+    } else {
+      throw new Error('File must have either buffer or path property');
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomSuffix = Math.floor(Math.random() * 1000000000);
-    const fileExtension = path.extname(file.originalname);
-    const filename = `file-${timestamp}-${randomSuffix}${fileExtension}`;
-    const filePath = path.join(uploadsDir, filename);
-
-    // Save file
-    fs.writeFileSync(filePath, file.buffer);
-
-    // Create file record
+    // Create file record - save normalized path
     const fileRecord = await this.prisma.client.file.create({
       data: {
         expenseId: expenseId,
         filename: file.originalname,
-        path: filePath,
+        path: normalizedPath,
         mimeType: file.mimetype,
-        size: file.size,
+        size: fileSize,
       },
+    });
+
+    console.log('File record created:', {
+      id: fileRecord.id,
+      expenseId: fileRecord.expenseId,
+      filename: fileRecord.filename,
+      path: fileRecord.path,
+      mimeType: fileRecord.mimeType,
+      size: fileRecord.size,
     });
 
     // Create activity log

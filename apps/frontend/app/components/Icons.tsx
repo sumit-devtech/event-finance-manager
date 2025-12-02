@@ -32,6 +32,12 @@ export const DollarSign = ({ size = 20, className = '' }: { size?: number; class
   </svg>
 );
 
+export const Check = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
+
 export const CheckCircle = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -177,6 +183,18 @@ export const ChevronUp = ({ size = 20, className = '' }: { size?: number; classN
   </svg>
 );
 
+export const ChevronRight = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+);
+
+export const ChevronLeft = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="15 18 9 12 15 6"></polyline>
+  </svg>
+);
+
 export const Filter = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -259,6 +277,30 @@ export const Mail = ({ size = 20, className = '' }: { size?: number; className?:
 export const Loader = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`animate-spin ${className}`}>
     <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+  </svg>
+);
+
+export const Building = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+    <path d="M9 22v-4h6v4"></path>
+    <path d="M8 6h.01"></path>
+    <path d="M16 6h.01"></path>
+    <path d="M12 6h.01"></path>
+    <path d="M12 10h.01"></path>
+    <path d="M12 14h.01"></path>
+    <path d="M16 10h.01"></path>
+    <path d="M16 14h.01"></path>
+    <path d="M8 10h.01"></path>
+    <path d="M8 14h.01"></path>
+  </svg>
+);
+
+export const Image = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+    <polyline points="21 15 16 10 5 21"></polyline>
   </svg>
 );
 
