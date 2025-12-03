@@ -48,6 +48,7 @@ interface BudgetItemFormProps {
   availableUsers: Array<UserWithCounts | { id: string; name?: string; fullName?: string; email?: string }>;
   vendors: VendorWithStats[];
   strategicGoals: StrategicGoalType[];
+  error?: string | null;
 }
 
 export function BudgetItemForm({
@@ -65,6 +66,7 @@ export function BudgetItemForm({
   availableUsers,
   vendors,
   strategicGoals,
+  error,
 }: BudgetItemFormProps) {
   if (!isOpen) return null;
 
@@ -95,6 +97,12 @@ export function BudgetItemForm({
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
               <p className="font-medium">{BUDGET_MESSAGES.DEMO_MODE_TITLE}</p>
               <p className="text-sm mt-1">{BUDGET_MESSAGES.DEMO_MODE_DESCRIPTION}</p>
+            </div>
+          )}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+              <p className="font-medium">Error</p>
+              <p className="text-sm mt-1">{error}</p>
             </div>
           )}
 

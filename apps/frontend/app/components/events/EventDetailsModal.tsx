@@ -114,15 +114,13 @@ export function EventDetailsModal({
   const prevBudgetItemsRef = useRef<any[]>(event?.budgetItems || []);
   useEffect(() => {
     const currentBudgetItems = event?.budgetItems || [];
-    if (currentBudgetItems.length > 0) {
-      // Only update if budgetItems actually changed (different IDs or length)
-      const prevIds = prevBudgetItemsRef.current.map((item: any) => item.id).sort().join(',');
-      const newIds = currentBudgetItems.map((item: any) => item.id).sort().join(',');
-      
-      if (prevIds !== newIds || prevBudgetItemsRef.current.length !== currentBudgetItems.length) {
-        setEventBudgetItems(currentBudgetItems);
-        prevBudgetItemsRef.current = currentBudgetItems;
-      }
+    // Always check for changes, even if array is empty
+    const prevIds = prevBudgetItemsRef.current.map((item: any) => item.id).sort().join(',');
+    const newIds = currentBudgetItems.map((item: any) => item.id).sort().join(',');
+
+    if (prevIds !== newIds || prevBudgetItemsRef.current.length !== currentBudgetItems.length) {
+      setEventBudgetItems(currentBudgetItems);
+      prevBudgetItemsRef.current = currentBudgetItems;
     }
   }, [event?.budgetItems]);
 
@@ -207,9 +205,9 @@ export function EventDetailsModal({
         if (data.users) setEventUsers(data.users);
         if (data.vendors) setEventVendors(data.vendors);
         if (data.expenses) setEventExpenses(data.expenses);
-        // Update budgetItems from fetched event
-        if (fetchedEvent?.budgetItems && fetchedEvent.budgetItems.length > 0) {
-          setEventBudgetItems(fetchedEvent.budgetItems);
+        // Update budgetItems from fetched event (always update, even if empty array)
+        if (fetchedEvent?.budgetItems !== undefined) {
+          setEventBudgetItems(fetchedEvent.budgetItems || []);
         }
         // StrategicGoals are already in fullEvent, so they'll be available via currentEvent
         if (loadingEvent) {

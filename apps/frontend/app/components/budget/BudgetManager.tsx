@@ -192,6 +192,7 @@ export function BudgetManager({
     setShowAddLine(false);
     setEditingItem(null);
     setFormData(getDefaultFormData());
+    setError(null); // Clear error when form is closed
   };
 
   const handleFormDataChange = (data: Partial<typeof formData>) => {
@@ -245,6 +246,7 @@ export function BudgetManager({
         availableUsers={availableUsers}
         vendors={vendors}
         strategicGoals={strategicGoals}
+        error={error}
       />
 
       <ConfirmDialog

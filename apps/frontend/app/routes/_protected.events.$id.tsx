@@ -108,10 +108,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const expenses = expensesResult.status === "fulfilled" ? (expensesResult.value || []) : [];
     const budgetItems = budgetItemsResult.status === "fulfilled" ? (budgetItemsResult.value || []) : [];
 
-    // Merge budgetItems into event if they exist, otherwise use event's budgetItems if available
+    // Merge budgetItems into event - always use fetched budgetItems if API call succeeded, even if empty
+    // This ensures we have the most up-to-date data from the budget-items endpoint
     const eventWithBudgetItems = {
       ...event,
-      budgetItems: budgetItems.length > 0 ? budgetItems : (event.budgetItems || []),
+      budgetItems: budgetItemsResult.status === "fulfilled" ? budgetItems : (event.budgetItems || []),
       strategicGoals,
     };
 
