@@ -7,9 +7,10 @@ import illustrationImage from '~/assets/illustration.png';
 
 interface AuthPageProps {
   actionData?: { error?: string };
+  redirectTo?: string;
 }
 
-export function AuthPage({ actionData }: AuthPageProps = {}) {
+export function AuthPage({ actionData, redirectTo = "/dashboard" }: AuthPageProps = {}) {
   const [searchParams] = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
   const [isLogin, setIsLogin] = useState(true);
@@ -182,6 +183,7 @@ export function AuthPage({ actionData }: AuthPageProps = {}) {
               <Form method="post" action="/login" className="space-y-3 md:space-y-4">
             <input type="hidden" name="intent" value={isLogin ? "login" : "register"} />
             <input type="hidden" name="accountType" value={accountType} />
+                <input type="hidden" name="redirectTo" value={redirectTo} />
 
             {!isLogin && (
               <div>

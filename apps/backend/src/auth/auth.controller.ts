@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus } from "@nestjs/common";
+import { Controller, Post, Get, Query, Body, UseGuards, Request, HttpCode, HttpStatus } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { Public } from "./decorators/public.decorator";
@@ -36,6 +36,23 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req) {
     return this.authService.logout(req.user.id);
+  }
+
+  @Public()
+  @Get("verify-email")
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Query("token") token: string) {
+    if (!token) {
+      throw new Error("Verification token is required");
+    }
+    return this.authService.verifyEmail(token);
+  }
+
+  @Public()
+  @Post("resend-verification")
+  @HttpCode(HttpStatus.OK)
+  async resendVerification(@Body() body: { email: string }) {
+    return this.authService.resendVerificationEmail(body.email);
   }
 }
 

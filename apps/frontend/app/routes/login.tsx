@@ -11,14 +11,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // OPTIMIZE: Check session directly instead of making API call
   const session = await getSessionFromRequest(request);
   const userFromSession = session.get("user");
-  
+  console.log("userFromSession", userFromSession);
+
   // If user exists in session, redirect immediately (no API call needed)
   if (userFromSession) {
     return redirect("/dashboard");
   }
-  
   const url = new URL(request.url);
+  console.log("url", url);
+
   const redirectTo = url.searchParams.get("redirectTo") || "/dashboard";
+  console.log("redirectTo", redirectTo);
+
   
   return json({ redirectTo });
 }
@@ -92,31 +96,18 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       // Call registration API directly (server-side)
       const { api } = await import("~/lib/api");
-      const authResponse = await api.post<any>("/auth/register", {
+      const registrationResponse = await api.post<{ message: string; email: string }>("/auth/register", {
         email,
         password,
         name,
       });
 
-      // Registration successful - automatically log the user in
-      const loginResult = await loginUser(email, password, redirectTo || "/dashboard");
-
-      if (loginResult.error) {
-        // Registration succeeded but login failed - redirect to login page
-        return json(
-          { error: "Registration successful. Please log in." },
-          { status: 200 },
-        );
-      }
-
-      // Success - redirect with session cookie
-      return redirect(loginResult.redirectTo || "/dashboard", {
-        headers: loginResult.headers as HeadersInit,
-      });
+      // Registration successful - redirect to email verification page
+      return redirect(`/auth/verify-email?email=${encodeURIComponent(registrationResponse.email)}&pending=true`);
     } catch (error: any) {
       console.error("Registration error:", error);
       // Handle specific error messages from the API
-      const errorMessage = error.response?.data?.message || error.message || "Registration failed. Please try again.";
+      const errorMessage = error.message || "Registration failed. Please try again.";
       return json(
         { error: errorMessage },
         { status: 400 },

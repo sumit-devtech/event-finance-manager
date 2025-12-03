@@ -1,17 +1,36 @@
 import { useState } from 'react';
 import { Form, useNavigate } from '@remix-run/react';
-import { Check, X, Zap, ArrowRight } from 'lucide-react';
+import { Check, X, Zap, ArrowRight, AlertCircle } from 'lucide-react';
 import type { User } from '~/lib/auth';
 
 interface SubscriptionPageProps {
   user: User;
-  organization?: any;
+  subscription?: any;
+  limits?: {
+    maxEvents: number | null;
+    features: string[];
+  };
+  currentEventCount?: number;
+  error?: string;
+  isSubmitting?: boolean;
 }
 
-export function SubscriptionPage({ user, organization }: SubscriptionPageProps) {
+export function SubscriptionPage({ 
+  user, 
+  subscription, 
+  limits = { maxEvents: 1, features: [] },
+  currentEventCount = 0,
+  error,
+  isSubmitting = false,
+}: SubscriptionPageProps) {
   const navigate = useNavigate();
-  const [selectedPlan, setSelectedPlan] = useState('professional');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  
+  // Set default plan based on current subscription or free
+  const currentPlan = subscription?.planName?.toLowerCase() || 'free';
+  const [selectedPlan, setSelectedPlan] = useState(currentPlan);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(
+    subscription?.billingCycle?.toLowerCase() === 'yearly' ? 'yearly' : 'monthly'
+  );
 
   const plans = [
     {
@@ -183,20 +202,58 @@ export function SubscriptionPage({ user, organization }: SubscriptionPageProps) 
           })}
         </div>
 
+        {/* Current Subscription Status */}
+        {subscription && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold mb-2 text-blue-900">Current Subscription</h3>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-800 font-medium capitalize">{subscription.planName} Plan</p>
+                <p className="text-sm text-blue-600">
+                  {limits.maxEvents === null 
+                    ? 'Unlimited events' 
+                    : `${currentEventCount} / ${limits.maxEvents} events used`}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-blue-600">
+                  {subscription.currentPeriodEnd 
+                    ? `Renews ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`
+                    : 'Active'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-center gap-2">
+            <AlertCircle className="text-red-600" size={20} />
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
+
         {/* Summary & Action */}
         <div className="bg-white rounded-2xl p-8 border-2 border-blue-600">
-          <Form method="post" action="/setup/subscription">
+          <Form method="post">
             <input type="hidden" name="plan" value={selectedPlan} />
             <input type="hidden" name="billingCycle" value={billingCycle} />
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1">
                 <h3 className="text-xl font-bold mb-2">Ready to get started?</h3>
                 <p className="text-gray-600">
-                  You've selected the <strong>{selectedPlanData?.name}</strong> plan
-                  {selectedPlan === 'free' ? (
-                    <span> - Start with 1 free event</span>
+                  {subscription && selectedPlan === currentPlan ? (
+                    <span>You're currently on the <strong>{selectedPlanData?.name}</strong> plan</span>
                   ) : (
-                    <span> - ${price}/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
+                    <>
+                      You've selected the <strong>{selectedPlanData?.name}</strong> plan
+                      {selectedPlan === 'free' ? (
+                        <span> - Start with 1 free event</span>
+                      ) : (
+                        <span> - ${price}/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
+                      )}
+                    </>
                   )}
                 </p>
               </div>
@@ -205,16 +262,26 @@ export function SubscriptionPage({ user, organization }: SubscriptionPageProps) 
                   type="button"
                   onClick={() => navigate('/dashboard')}
                   className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+                  disabled={isSubmitting}
                 >
                   {selectedPlan === 'free' ? 'Continue with Free' : 'Skip for now'}
                 </button>
-                <button
-                  type="submit"
-                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
-                >
-                  <span>{selectedPlan === 'free' ? 'Start Free Trial' : 'Subscribe Now'}</span>
-                  <ArrowRight size={20} />
-                </button>
+                {(!subscription || selectedPlan !== currentPlan) && (
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span>
+                      {isSubmitting 
+                        ? 'Processing...' 
+                        : selectedPlan === 'free' 
+                          ? 'Start Free Trial' 
+                          : 'Subscribe Now'}
+                    </span>
+                    {!isSubmitting && <ArrowRight size={20} />}
+                  </button>
+                )}
               </div>
             </div>
           </Form>

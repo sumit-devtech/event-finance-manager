@@ -50,7 +50,7 @@ export class EventsController {
   @Roles(UserRole.Admin, UserRole.EventManager)
   @UseGuards(RolesGuard)
   create(@Body() createEventDto: CreateEventDto, @Request() req) {
-    return this.eventsService.create(createEventDto, req.user.id);
+    return this.eventsService.create(createEventDto, req.user.id, req.user.organizationId);
   }
 
   @Get()

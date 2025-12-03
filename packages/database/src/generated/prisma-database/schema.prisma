@@ -93,29 +93,33 @@ model Organization {
 
 // User Model
 model User {
-  id                  String                @id @default(uuid())
-  organizationId      String?
-  fullName            String
-  email               String                @unique
-  role                UserRole
-  passwordHash        String?
-  isActive            Boolean               @default(true)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  organization        Organization?         @relation(fields: [organizationId], references: [id])
-  createdEvents       Event[]               @relation("EventCreator")
-  subscriptionHistory SubscriptionHistory[]
-  expenses            Expense[]             @relation("ExpenseCreator")
-  workflowActions     ApprovalWorkflow[]    @relation("ApproverWorkflow")
-  activityLogs        ActivityLog[]
-  notifications       Notification[]
-  reports             Report[]
-  events              EventAssignment[]
-  assignedBudgetItems BudgetItem[]          @relation("BudgetItemAssignee")
+  id                       String                @id @default(uuid())
+  organizationId           String?
+  fullName                 String
+  email                    String                @unique
+  role                     UserRole
+  passwordHash             String?
+  isActive                 Boolean               @default(true)
+  emailVerified            Boolean               @default(false)
+  emailVerificationToken   String?               @unique
+  emailVerificationExpires DateTime?
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  organization             Organization?         @relation(fields: [organizationId], references: [id])
+  createdEvents            Event[]               @relation("EventCreator")
+  subscriptionHistory      SubscriptionHistory[]
+  expenses                 Expense[]             @relation("ExpenseCreator")
+  workflowActions          ApprovalWorkflow[]    @relation("ApproverWorkflow")
+  activityLogs             ActivityLog[]
+  notifications            Notification[]
+  reports                  Report[]
+  events                   EventAssignment[]
+  assignedBudgetItems      BudgetItem[]          @relation("BudgetItemAssignee")
 
   @@index([organizationId])
   @@index([email])
   @@index([organizationId, isActive])
+  @@index([emailVerificationToken])
 }
 
 // Subscription Management

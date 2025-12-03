@@ -6,6 +6,7 @@ export class AuthResponseDto {
     email: string;
     name: string | null;
     role: string;
+    organizationId: string | null;
   };
 }
 

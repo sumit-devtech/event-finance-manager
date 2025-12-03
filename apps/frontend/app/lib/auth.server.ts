@@ -24,27 +24,18 @@ import type { User, AuthResponse } from "./auth";
 export async function getCurrentUser(request: Request): Promise<User | null> {
   const session = await getSessionFromRequest(request);
   
-  // First try to get user from session (set during login)
+  // Get both user and token from session - both must exist for valid authentication
   const userFromSession = session.get("user");
-  if (userFromSession) {
+  const token = session.get("accessToken");
+  
+  // Only return user if both user and token exist (prevents stale sessions)
+  if (userFromSession && token) {
     return userFromSession as User;
   }
-
-  // If no user in session, try to validate token with API
-  const token = await getAuthTokenFromSession(request);
-  if (!token) return null;
-
-  try {
-    // Try to get user from API (if /auth/me endpoint exists)
-    // For now, we'll rely on session storage
-    // If needed, uncomment below and add /auth/me endpoint to backend
-    // const user = await api.get<User>("/auth/me", { token });
-    // return user;
-    return null;
-  } catch (error) {
-    // If token is invalid, clear session
-    return null;
-  }
+  
+  // If user exists but no token, it's a stale session - don't return user
+  // This prevents redirecting to dashboard when not actually logged in
+  return null;
 }
 
 /**
@@ -54,8 +45,8 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
 export async function requireAuth(request: Request): Promise<User> {
   const user = await getCurrentUser(request);
   if (!user) {
-    const searchParams = new URL(request.url).searchParams;
-    const redirectTo = searchParams.get("redirectTo") || "/";
+    const url = new URL(request.url);
+    const redirectTo = (url.pathname + url.search) || "/";
     throw redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
   }
   return user;

@@ -5,6 +5,7 @@ import { UpdateEventDto } from "./dto/update-event.dto";
 import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
 import { NotificationsService } from "../notifications/notifications.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { UserRole } from "../auth/types/user-role.enum";
 import { ExpenseStatus } from "@event-finance-manager/database";
 import * as fs from "fs";
@@ -16,9 +17,18 @@ export class EventsService {
     private readonly prisma: PrismaService,
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
-  async create(createEventDto: CreateEventDto, userId: string) {
+  async create(createEventDto: CreateEventDto, userId: string, organizationId?: string) {
+    // Check subscription limits if organizationId is provided
+    if (organizationId) {
+      const canCreate = await this.subscriptionsService.canCreateEvent(organizationId);
+      if (!canCreate.allowed) {
+        throw new BadRequestException(canCreate.reason || "Event creation limit reached");
+      }
+    }
+
     const { startDate, endDate, client, budget, attendees, ...data } = createEventDto;
 
     const eventData: any = {
@@ -30,6 +40,7 @@ export class EventsService {
       budget: budget !== undefined ? budget : null,
       attendees: attendees !== undefined ? attendees : null,
       createdBy: userId,
+      organizationId: organizationId || null,
     };
     
     // Add type alias if eventType is set (for backward compatibility)

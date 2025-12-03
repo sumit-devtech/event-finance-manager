@@ -15,6 +15,7 @@ export default defineConfig({
     cssMinify: true,
   },
   // Suppress CSS syntax warnings from Tailwind v4
-  logLevel: "warn",
+  // These warnings are harmless - Tailwind v4 uses valid CSS that the parser doesn't recognize
+  logLevel: "error", // Only show errors, suppress warnings
 });
 
