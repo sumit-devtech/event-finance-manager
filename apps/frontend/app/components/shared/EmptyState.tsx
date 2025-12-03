@@ -18,7 +18,11 @@ export function EmptyState({
 }: EmptyStateComponentProps) {
   return (
     <div className="text-center py-12 bg-card rounded-lg border border-border">
-      {icon && <div className="mx-auto text-muted-foreground mb-4">{icon}</div>}
+      {icon && (
+        <div className="flex justify-center items-center mb-4 text-muted-foreground">
+          {icon}
+        </div>
+      )}
       <h3 className="mb-2 font-semibold text-lg text-card-foreground">{title}</h3>
       {description && (
         <p className="text-muted-foreground mb-4">{description}</p>

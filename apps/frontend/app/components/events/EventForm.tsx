@@ -18,8 +18,26 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
   const isEdit = !!event;
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
+  
+  // Normalize status value to match dropdown options
+  const normalizeStatus = (status: string | null | undefined): string => {
+    if (!status) return 'Planning'; // Default value
+    
+    const validStatuses = ['Planning', 'Active', 'Completed', 'Cancelled'];
+    const capitalized = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    
+    // Check if the normalized value matches a valid status
+    if (validStatuses.includes(capitalized)) {
+      return capitalized;
+    }
+    
+    // If it doesn't match, try case-insensitive match
+    const matched = validStatuses.find(s => s.toLowerCase() === status.toLowerCase());
+    return matched || 'Planning'; // Default to Planning if no match
+  };
+  
   const [eventType, setEventType] = useState(event?.type || event?.eventType || 'conference');
-  const [status, setStatus] = useState(event?.status || 'Planning');
+  const [status, setStatus] = useState(normalizeStatus(event?.status));
   const [assignedTo, setAssignedTo] = useState(event?.assignedTo || user?.id || '');
 
   // Debug: Log event data when editing

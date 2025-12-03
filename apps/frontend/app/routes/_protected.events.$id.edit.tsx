@@ -70,7 +70,26 @@ export default function EditEventPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  const [status, setStatus] = useState(event.status);
+
+  // Normalize status value to match dropdown options
+  // Capitalize first letter and ensure it matches one of the valid options
+  const normalizeStatus = (status: string | null | undefined): string => {
+    if (!status) return 'Planning'; // Default value
+
+    const validStatuses = ['Planning', 'Active', 'Completed', 'Cancelled'];
+    const capitalized = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+    // Check if the normalized value matches a valid status
+    if (validStatuses.includes(capitalized)) {
+      return capitalized;
+    }
+
+    // If it doesn't match, try case-insensitive match
+    const matched = validStatuses.find(s => s.toLowerCase() === status.toLowerCase());
+    return matched || 'Planning'; // Default to Planning if no match
+  };
+
+  const [status, setStatus] = useState(normalizeStatus(event.status));
 
   // Format dates for input fields
   const startDate = event.startDate ? new Date(event.startDate).toISOString().split("T")[0] : "";

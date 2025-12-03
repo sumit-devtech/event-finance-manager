@@ -80,8 +80,8 @@ export function ExpenseTable({
     return (
       <EmptyState
         icon={<AlertCircle size={48} className="text-gray-400" />}
-        title={EXPENSE_LABELS.NO_EXPENSES_FOUND}
-        description={searchQuery ? EXPENSE_LABELS.TRY_ADJUSTING_SEARCH : EXPENSE_LABELS.NO_EXPENSES_SUBMITTED}
+        title={searchQuery ? EXPENSE_LABELS.NO_EXPENSES_FOUND : EXPENSE_LABELS.NO_EXPENSES_SUBMITTED}
+        description={searchQuery ? EXPENSE_LABELS.TRY_ADJUSTING_SEARCH : undefined}
       />
     );
   }
