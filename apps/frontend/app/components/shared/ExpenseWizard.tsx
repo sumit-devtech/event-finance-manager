@@ -114,6 +114,16 @@ export function ExpenseWizard({
     }
   };
 
+  // Update eventId when modal opens with a specific event
+  useEffect(() => {
+    if (isOpen && event?.id) {
+      setFormData(prev => ({
+        ...prev,
+        eventId: event.id,
+      }));
+    }
+  }, [isOpen, event?.id]);
+
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {

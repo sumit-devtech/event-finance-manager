@@ -4,8 +4,8 @@
  * Orchestrates all expense-related functionality using smaller sub-components.
  */
 
-import { useState, useEffect } from 'react';
-import { useFetcher } from "@remix-run/react";
+import { useState, useEffect, useRef } from 'react';
+import { useFetcher, useRevalidator } from "@remix-run/react";
 import type { User } from "~/lib/auth";
 import type { ExpenseWithVendor, VendorWithStats, EventWithDetails } from "~/types";
 import { ExpenseWizard } from "~/components/shared";
@@ -48,6 +48,9 @@ export function ExpenseTracker({
   fetcher,
 }: ExpenseTrackerProps) {
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const previousFetcherStateRef = useRef<string | undefined>(fetcher?.state);
+  const wasSubmittingRef = useRef(false);
+  const revalidator = useRevalidator();
 
   // Transform expenses
   const demoExpenses = isDemo
@@ -60,9 +63,19 @@ export function ExpenseTracker({
 
   const { expenses, setExpenses } = useExpenseTransform(initialExpenses, isDemo, demoExpenses);
 
+  // Filter expenses by event if event prop is provided
+  const eventFilteredExpenses = event?.id 
+    ? expenses.filter(exp => {
+        // Check if expense belongs to the current event
+        // The expense might have event as string (name) or object with id
+        const expenseEventId = exp._original?.eventId || exp._original?.event?.id;
+        return expenseEventId === event.id;
+      })
+    : expenses;
+
   // Filters
   const { searchQuery, setSearchQuery, filterStatus, setFilterStatus, filteredExpenses } =
-    useExpenseFilters(expenses);
+    useExpenseFilters(eventFilteredExpenses);
 
   // Expense details
   const {
@@ -92,38 +105,59 @@ export function ExpenseTracker({
     event,
   });
 
-  // Handle fetcher state changes
+  // Handle fetcher state changes - only close modal when transitioning from submitting to idle
   useEffect(() => {
+    if (!fetcher) return;
+
+    const currentState = fetcher.state;
+    const previousState = previousFetcherStateRef.current;
+
+    // Track when we start submitting
+    if (currentState === "submitting" && previousState !== "submitting") {
+      wasSubmittingRef.current = true;
+    }
+
     // Only process when fetcher transitions from submitting to idle
-    if (!fetcher || fetcher.state !== "idle") {
-      return;
-    }
+    if (currentState === "idle" && wasSubmittingRef.current && previousState === "submitting") {
+      // When fetcher completes, check for errors or success
+      if (fetcher.data) {
+        const fetcherData = fetcher.data as any;
 
-    // When fetcher completes, check for errors or success
-    if (fetcher.data) {
-      const fetcherData = fetcher.data as any;
-
-      // Check for error
-      if (typeof fetcherData === 'object' && 'error' in fetcherData) {
-        toast.error(fetcherData.error);
-        // Don't close wizard on error - let user retry
-        return;
+        // Check for error
+        if (typeof fetcherData === 'object' && 'error' in fetcherData) {
+          toast.error(fetcherData.error);
+          wasSubmittingRef.current = false;
+          // Don't close wizard on error - let user retry
+          previousFetcherStateRef.current = currentState;
+          return;
+        }
       }
+
+      // Success case - close wizard and refresh data
+      // For redirects, fetcher.data will be undefined but state will be idle
+      // The route will revalidate and initialExpenses will update via useExpenseTransform
+      if (showAddExpense) {
+        setShowAddExpense(false);
+        // Show success message
+        toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS);
+        // Revalidate to refresh expenses list
+        // Add a small delay to allow the redirect to complete
+        setTimeout(() => {
+          revalidator.revalidate();
+        }, 300);
+        // Reset wizard form state by triggering a re-render
+        // The ExpenseWizard will reset when isOpen becomes false
+      }
+      wasSubmittingRef.current = false;
     }
 
-    // Success case - close wizard and refresh data
-    // For redirects, fetcher.data will be undefined but state will be idle
-    // The route will revalidate and initialExpenses will update via useExpenseTransform
-    if (showAddExpense) {
-      setShowAddExpense(false);
-      // Reset wizard form state by triggering a re-render
-      // The ExpenseWizard will reset when isOpen becomes false
-    }
+    // Update previous state
+    previousFetcherStateRef.current = currentState;
   }, [fetcher?.state, fetcher?.data, showAddExpense]);
 
-  // Calculate statistics
+  // Calculate statistics (use event-filtered expenses if event is provided)
   const { statusCounts, totalExpenses, approvedTotal, pendingTotal } =
-    calculateExpenseStats(expenses);
+    calculateExpenseStats(eventFilteredExpenses);
 
   // Handle approve/reject with modal close
   const handleApproveWithClose = () => {
@@ -152,7 +186,7 @@ export function ExpenseTracker({
         totalExpenses={totalExpenses}
         approvedTotal={approvedTotal}
         pendingTotal={pendingTotal}
-        expensesCount={expenses.length}
+        expensesCount={eventFilteredExpenses.length}
         approvedCount={statusCounts.approved}
         pendingCount={statusCounts.pending}
       />
@@ -183,7 +217,12 @@ export function ExpenseTracker({
         isOpen={showAddExpense}
         onClose={() => setShowAddExpense(false)}
         onSubmit={handleWizardSubmit}
-        events={events}
+        events={
+          // Ensure the current event is included in the events array
+          event && !events.find(e => e.id === event.id)
+            ? [...events, event]
+            : events
+        }
         vendors={vendors}
         event={event}
         isLoading={fetcher?.state === "submitting"}

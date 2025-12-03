@@ -122,7 +122,9 @@ export function useExpenseActions({
         formDataToSubmit.append("file", wizardData.file);
       }
 
-      fetcher.submit(formDataToSubmit, { method: "post" });
+      // Submit to the event route if we have an event, otherwise submit to expenses route
+      const actionUrl = event?.id ? `/events/${event.id}` : "/expenses";
+      fetcher.submit(formDataToSubmit, { method: "post", action: actionUrl });
       // Note: Wizard will close when fetcher completes successfully (handled in ExpenseTracker useEffect)
     } catch (error) {
       console.error("Error submitting expense:", error);

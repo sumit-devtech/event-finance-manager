@@ -4,7 +4,7 @@
 
 import { DEFAULT_EXPENSE_VALUES, EXPENSE_STATUS } from "~/constants/expenses";
 
-export interface TransformedExpense {
+export interface TransformedExpense extends Record<string, unknown> {
   id: string | number;
   event: string;
   category: string;

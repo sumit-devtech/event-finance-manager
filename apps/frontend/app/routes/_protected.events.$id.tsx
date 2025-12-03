@@ -86,13 +86,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   try {
     // Fetch all data in parallel for better performance
-    const [eventResult, usersResult, strategicGoalsResult, vendorsResult] = await Promise.allSettled([
+    const [eventResult, usersResult, strategicGoalsResult, vendorsResult, expensesResult, budgetItemsResult] = await Promise.allSettled([
       api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined }),
       user.role === "Admin"
         ? api.get<User[]>("/users", { token: token || undefined })
         : Promise.resolve([]),
       api.get<any[]>(`/events/${eventId}/strategic-goals`, { token: token || undefined }),
       api.get<any[]>("/vendors", { token: token || undefined }),
+      api.get<any[]>(`/events/${eventId}/expenses`, { token: token || undefined }).catch(() => []),
+      api.get<any[]>(`/events/${eventId}/budget-items`, { token: token || undefined }).catch(() => []),
     ]);
 
     const event = eventResult.status === "fulfilled" ? eventResult.value : null;
@@ -103,8 +105,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const users = usersResult.status === "fulfilled" ? (usersResult.value || []) : [];
     const strategicGoals = strategicGoalsResult.status === "fulfilled" ? (strategicGoalsResult.value || []) : [];
     const vendors = vendorsResult.status === "fulfilled" ? (vendorsResult.value || []) : [];
+    const expenses = expensesResult.status === "fulfilled" ? (expensesResult.value || []) : [];
+    const budgetItems = budgetItemsResult.status === "fulfilled" ? (budgetItemsResult.value || []) : [];
 
-    return json({ event: { ...event, strategicGoals }, users, vendors, user });
+    // Merge budgetItems into event if they exist, otherwise use event's budgetItems if available
+    const eventWithBudgetItems = {
+      ...event,
+      budgetItems: budgetItems.length > 0 ? budgetItems : (event.budgetItems || []),
+      strategicGoals,
+    };
+
+    return json({ event: eventWithBudgetItems, users, vendors, expenses, user });
   } catch (error: any) {
     console.error("Error loading event:", error);
     console.error("Event ID:", eventId);
@@ -378,7 +389,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EventDetailPage() {
-  const { event, users, vendors = [], user } = useLoaderData<typeof loader>();
+  const { event, users, vendors = [], expenses = [], user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();

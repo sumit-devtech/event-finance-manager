@@ -10,7 +10,7 @@ import { StrategicGoals } from '../StrategicGoals';
 import { EventDocuments } from './EventDocuments';
 import { EventNotes } from './EventNotes';
 import { api } from '~/lib/api';
-import type { EventWithDetails, VendorWithStats } from "~/types";
+import type { EventWithDetails, VendorWithStats, ExpenseWithVendor } from "~/types";
 import type { User } from "~/lib/auth";
 import type { EventStatus } from "~/types";
 import { Dropdown } from '../shared';
@@ -23,6 +23,7 @@ interface EventDetailsModalProps {
   isDemo?: boolean;
   user?: User | null;
   vendors?: VendorWithStats[];
+  expenses?: ExpenseWithVendor[];
   actionData?: { success?: boolean; error?: string; message?: string } | null;
 }
 
@@ -34,6 +35,7 @@ export function EventDetailsModal({
   isDemo = false,
   user,
   vendors = [],
+  expenses: initialExpenses = [],
   actionData,
 }: EventDetailsModalProps) {
   const [activeSection, setActiveSection] = useState('overview');
@@ -42,6 +44,7 @@ export function EventDetailsModal({
   const [loadingEvent, setLoadingEvent] = useState(false);
   const [eventUsers, setEventUsers] = useState<any[]>([]);
   const [eventVendors, setEventVendors] = useState<VendorWithStats[]>(vendors);
+  const [eventExpenses, setEventExpenses] = useState<ExpenseWithVendor[]>(initialExpenses);
   // Normalize status: backend returns capitalized (Planning, Active, etc.), but we use lowercase for internal state
   const normalizeStatus = (status: string | undefined): string => {
     if (!status) return 'planning';
@@ -55,34 +58,19 @@ export function EventDetailsModal({
   // Track if we've done initial load to avoid reloading unnecessarily
   const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
-  // Fetch full event details (including budgetItems) when component mounts or event changes
+  // Fetch full event details (including budgetItems and expenses) when component mounts or event changes
   useEffect(() => {
-    if (!isDemo && event?.id) {
-      // Always refresh if event prop changes (in case budgetItems were updated)
-      if (event.budgetItems && event.budgetItems.length > 0) {
-        // Event has budgetItems, update fullEvent
-        setFullEvent(event);
-        setLoadingEvent(false);
-        if (!hasInitialLoad) {
-          setHasInitialLoad(true);
-        }
-      } else if (!hasInitialLoad) {
-        // Load event details if we don't have them yet
-        setLoadingEvent(true);
-        fetcher.load(`/events/${event.id}`);
-        setHasInitialLoad(true);
-      } else {
-        // Update with new event data if event prop changed
-        setFullEvent(event);
-      }
-    } else {
+    if (!isDemo && event?.id && !hasInitialLoad) {
+      // Always load event details to get expenses, budgetItems, and other data
+      setLoadingEvent(true);
+      fetcher.load(`/events/${event.id}`);
+      setHasInitialLoad(true);
+    } else if (event?.id) {
+      // Update with event data
       setFullEvent(event);
       setLoadingEvent(false);
-      if (!hasInitialLoad) {
-        setHasInitialLoad(true);
-      }
     }
-  }, [event?.id, isDemo, hasInitialLoad, fetcher]);
+  }, [event?.id, isDemo, hasInitialLoad]);
   
   // Update fullEvent when event prop changes (for budgetItems updates)
   useEffect(() => {
@@ -105,15 +93,38 @@ export function EventDetailsModal({
       setEventVendors(vendors);
     }
   }, [vendors]);
-  
+
+  // Update expenses when prop changes - use ref to prevent unnecessary updates
+  const prevExpensesRef = useRef<ExpenseWithVendor[]>(initialExpenses);
+  useEffect(() => {
+    if (initialExpenses) {
+      // Only update if expenses actually changed (different IDs or length)
+      const prevIds = prevExpensesRef.current.map(e => e.id).sort().join(',');
+      const newIds = initialExpenses.map(e => e.id).sort().join(',');
+      
+      if (prevIds !== newIds || prevExpensesRef.current.length !== initialExpenses.length) {
+        setEventExpenses(initialExpenses);
+        prevExpensesRef.current = initialExpenses;
+      }
+    }
+  }, [initialExpenses]);
+
   // Track previous revalidator and navigation states to detect transitions
   const prevRevalidatorState = useRef(revalidator.state);
   const prevNavigationState = useRef(navigation.state);
   const lastRefreshTime = useRef<number>(0);
+  const isRefreshingRef = useRef(false);
   
   // Refresh event data when route revalidates (after form submissions that redirect)
   // This handles cases where BudgetManager or other components submit via Form (not fetcher)
   useEffect(() => {
+    // Prevent infinite loops - don't refresh if already refreshing
+    if (isRefreshingRef.current || !hasInitialLoad || isDemo || !event?.id || loadingEvent) {
+      prevRevalidatorState.current = revalidator.state;
+      prevNavigationState.current = navigation.state;
+      return;
+    }
+
     // Detect when revalidator transitions from loading/idle to idle (revalidation complete)
     const revalidatorJustCompleted = 
       prevRevalidatorState.current !== 'idle' && 
@@ -127,74 +138,79 @@ export function EventDetailsModal({
     prevRevalidatorState.current = revalidator.state;
     prevNavigationState.current = navigation.state;
     
-    // Throttle refreshes to avoid too many requests (max once per 500ms)
+    // Throttle refreshes to avoid too many requests (max once per 2 seconds)
     const now = Date.now();
-    const shouldRefresh = hasInitialLoad && 
+    const shouldRefresh = 
       (revalidatorJustCompleted || navigationJustCompleted) && 
-      !isDemo && 
-      event?.id && 
-      !loadingEvent &&
-      (now - lastRefreshTime.current > 500);
+      fetcher.state === 'idle' &&
+      (now - lastRefreshTime.current > 2000);
     
     if (shouldRefresh) {
       lastRefreshTime.current = now;
+      isRefreshingRef.current = true;
       // Small delay to ensure route has finished revalidating and data is available
       const timer = setTimeout(() => {
         fetcher.load(`/events/${event.id}`);
+        // Reset refreshing flag after a delay
+        setTimeout(() => {
+          isRefreshingRef.current = false;
+        }, 1000);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [revalidator.state, navigation.state, event?.id, isDemo, hasInitialLoad, loadingEvent, fetcher]);
+  }, [revalidator.state, navigation.state, event?.id, isDemo, hasInitialLoad, loadingEvent]);
   
   // Also refresh when actionData indicates success (for budget item operations)
   useEffect(() => {
-    if (actionData?.success && hasInitialLoad && !isDemo && event?.id && !loadingEvent) {
+    if (actionData?.success && hasInitialLoad && !isDemo && event?.id && !loadingEvent && !isRefreshingRef.current) {
       const now = Date.now();
-      if (now - lastRefreshTime.current > 500) {
+      if (now - lastRefreshTime.current > 2000 && fetcher.state === 'idle') {
         lastRefreshTime.current = now;
+        isRefreshingRef.current = true;
         const timer = setTimeout(() => {
           fetcher.load(`/events/${event.id}`);
+          setTimeout(() => {
+            isRefreshingRef.current = false;
+          }, 1000);
         }, 300);
         return () => clearTimeout(timer);
       }
     }
-  }, [actionData?.success, hasInitialLoad, isDemo, event?.id, loadingEvent, fetcher]);
+  }, [actionData?.success, hasInitialLoad, isDemo, event?.id, loadingEvent]);
 
   // Handle fetcher response - both for loading and for action submissions
   useEffect(() => {
-    if (fetcher.state === 'idle') {
-      if (loadingEvent) {
-        // Initial load
-        if (fetcher.data) {
-          const data = fetcher.data as any;
-          if (data && typeof data === 'object' && 'event' in data) {
-            // The route loader returns { event, users, vendors, user }
-            setFullEvent(data.event as EventWithDetails);
-            if (data.users) setEventUsers(data.users);
-            if (data.vendors) setEventVendors(data.vendors);
-            setLoadingEvent(false);
-          } else {
-            setLoadingEvent(false);
-            setFullEvent(event);
-          }
-        } else {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      const data = fetcher.data as any;
+      if (data && typeof data === 'object' && 'event' in data) {
+        // The route loader returns { event, users, vendors, expenses, user }
+        // Ensure we preserve all event data including budgetItems and strategicGoals
+        const fetchedEvent = data.event as EventWithDetails;
+        setFullEvent(fetchedEvent);
+        if (data.users) setEventUsers(data.users);
+        if (data.vendors) setEventVendors(data.vendors);
+        if (data.expenses) setEventExpenses(data.expenses);
+        if (loadingEvent) {
           setLoadingEvent(false);
+        }
+        // Reset refreshing flag when we get data
+        isRefreshingRef.current = false;
+      } else if (loadingEvent) {
+        setLoadingEvent(false);
+        // Only set fullEvent from event prop if it has budgetItems, otherwise keep current fullEvent
+        if (event?.budgetItems && event.budgetItems.length > 0) {
           setFullEvent(event);
         }
-      } else if (fetcher.data && !loadingEvent) {
-        // Action completed - refresh event data
-        const data = fetcher.data as any;
-        if (data && typeof data === 'object' && 'event' in data) {
-          setFullEvent(data.event as EventWithDetails);
-          if (data.users) setEventUsers(data.users);
-          if (data.vendors) setEventVendors(data.vendors);
-        } else {
-          // Reload event data after action
-          fetcher.load(`/events/${event.id}`);
-        }
+      }
+    } else if (fetcher.state === 'idle' && loadingEvent) {
+      // No data but fetcher is idle - stop loading
+      setLoadingEvent(false);
+      // Only set fullEvent from event prop if it has budgetItems, otherwise keep current fullEvent
+      if (event?.budgetItems && event.budgetItems.length > 0) {
+        setFullEvent(event);
       }
     }
-  }, [fetcher.data, fetcher.state, loadingEvent, event]);
+  }, [fetcher.data, fetcher.state, loadingEvent, event?.id]);
 
   const sections = [
     { id: 'overview', label: 'Overview', icon: FileText },
@@ -229,10 +245,16 @@ export function EventDetailsModal({
   };
 
   // Use fullEvent if available, otherwise use event
-  // Prefer event prop if it has more recent data (more budgetItems or strategicGoals)
+  // Prefer fullEvent (from fetcher) as it has the most complete data including budgetItems and expenses
+  // Only use event prop if fullEvent doesn't exist or event has more recent data
   const currentEvent = (() => {
     if (!fullEvent) return event;
     if (!event) return fullEvent;
+    
+    // Prefer fullEvent if it has budgetItems or strategicGoals (loaded from fetcher)
+    if ((fullEvent.budgetItems?.length || 0) > 0 || (fullEvent.strategicGoals?.length || 0) > 0) {
+      return fullEvent;
+    }
     
     // If event prop has more budgetItems or strategicGoals, use it (it's more recent)
     const eventHasMoreData = 
@@ -576,6 +598,7 @@ export function EventDetailsModal({
                 user={user ?? null}
                 organization={organization}
                 event={event}
+                expenses={eventExpenses}
                 vendors={vendors}
                 isDemo={isDemo}
                 fetcher={fetcher}

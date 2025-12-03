@@ -97,46 +97,49 @@ export function ExpenseTable({
       </div>
       <div className="p-6">
         <DataTable
-          columns={columns}
-          data={expenses}
-          onRowClick={onRowClick}
-          actions={(expense) => (
-            <div className="flex items-center justify-center gap-2">
-              {expense.status === EXPENSE_STATUS.PENDING && canApprove && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onApprove(expense.id);
-                    }}
-                    className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
-                    title={EXPENSE_LABELS.APPROVE}
-                  >
-                    <Check size={16} />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onReject(expense.id);
-                    }}
-                    className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
-                    title={EXPENSE_LABELS.REJECT}
-                  >
-                    <X size={16} />
-                  </button>
-                </>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRowClick(expense);
-                }}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                {EXPENSE_LABELS.VIEW}
-              </button>
-            </div>
-          )}
+          columns={columns as unknown as TableColumn<Record<string, unknown>>[]}
+          data={expenses as unknown as Record<string, unknown>[]}
+          onRowClick={onRowClick as (item: Record<string, unknown>) => void}
+          actions={(expense) => {
+            const typedExpense = expense as TransformedExpense;
+            return (
+              <div className="flex items-center justify-center gap-2">
+                {typedExpense.status === EXPENSE_STATUS.PENDING && canApprove && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onApprove(typedExpense.id);
+                      }}
+                      className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
+                      title={EXPENSE_LABELS.APPROVE}
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReject(typedExpense.id);
+                      }}
+                      className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                      title={EXPENSE_LABELS.REJECT}
+                    >
+                      <X size={16} />
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRowClick(typedExpense);
+                  }}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  {EXPENSE_LABELS.VIEW}
+                </button>
+              </div>
+            );
+          }}
         />
       </div>
     </div>
