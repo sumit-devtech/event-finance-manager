@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useFetcher } from '@remix-run/react';
+import { useState } from 'react';
 import { Folder, Plus, X, Download, FileText, Calendar } from '../Icons';
 import { DeleteButton } from '../shared';
 import { toast } from 'react-hot-toast';
@@ -22,36 +21,12 @@ interface EventDocumentsProps {
   onUpload?: (file: File) => Promise<void>;
   onDelete?: (documentId: string) => Promise<void>;
   user?: any;
-  fetcher?: ReturnType<typeof useFetcher>;
 }
 
-export function EventDocuments({ eventId, documents: initialDocuments = [], isDemo = false, onUpload, onDelete, user, fetcher }: EventDocumentsProps) {
+export function EventDocuments({ eventId, documents: initialDocuments = [], isDemo = false, onUpload, onDelete, user }: EventDocumentsProps) {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  // Update documents when initialDocuments change (after refresh)
-  useEffect(() => {
-    setDocuments(initialDocuments);
-  }, [initialDocuments]);
-
-  // Handle fetcher response
-  useEffect(() => {
-    if (fetcher && fetcher.state === 'idle' && fetcher.data) {
-      const data = fetcher.data as any;
-      if (data.error) {
-        toast.error(data.error || 'Failed to upload/delete document');
-        setUploading(false);
-      } else if (data.success || !data.error) {
-        // Success - data will refresh via route revalidation
-        if (uploading) {
-          setUploading(false);
-          setShowUploadForm(false);
-          toast.success('Document uploaded successfully');
-        }
-      }
-    }
-  }, [fetcher?.state, fetcher?.data, uploading]);
 
   // Role-based access control
   const isViewer = user?.role === 'Viewer';
@@ -61,36 +36,12 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      toast.error('File size exceeds 10MB limit');
-      return;
-    }
-
-    // Validate file type
-    const allowedTypes = [
-      'image/*',
-      'application/pdf',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-    const isAllowed = allowedTypes.some(type => {
-      if (type.endsWith('/*')) {
-        return file.type.startsWith(type.slice(0, -1));
+    setUploading(true);
+    try {
+      if (onUpload) {
+        await onUpload(file);
       }
-      return file.type === type;
-    });
-
-    if (!isAllowed) {
-      toast.error('File type not allowed. Please upload images, PDFs, or Office documents.');
-      return;
-    }
-
-    if (isDemo) {
-    // Demo mode - update local state
+      
       const newDocument: Document = {
         id: `doc-${Date.now()}`,
         name: file.name,
@@ -103,49 +54,27 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       setDocuments([...documents, newDocument]);
       setShowUploadForm(false);
       toast.success('Document uploaded successfully');
-      return;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error('Error uploading file:', errorMessage);
+      toast.error('Failed to upload file. Please try again.');
+    } finally {
+      setUploading(false);
     }
-
-    // Real mode - submit to backend
-    if (!fetcher) {
-      toast.error('Unable to upload document');
-      return;
-    }
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('intent', 'uploadFile');
-    formData.append('file', file);
-
-    fetcher.submit(formData, {
-      method: 'post',
-      action: `/events/${eventId}`,
-      encType: 'multipart/form-data',
-    });
   };
 
   const handleDelete = async (documentId: string) => {
-    if (isDemo) {
-    // Demo mode - update local state
+    try {
+      if (onDelete) {
+        await onDelete(documentId);
+      }
       setDocuments(documents.filter(doc => doc.id !== documentId));
       toast.success('Document deleted successfully');
-      return;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error('Error deleting document:', errorMessage);
+      toast.error('Failed to delete document. Please try again.');
     }
-
-    // Real mode - submit to backend
-    if (!fetcher) {
-      toast.error('Unable to delete document');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('intent', 'deleteFile');
-    formData.append('fileId', documentId);
-
-    fetcher.submit(formData, {
-      method: 'post',
-      action: `/events/${eventId}`,
-    });
   };
 
   const formatFileSize = (bytes?: number) => {

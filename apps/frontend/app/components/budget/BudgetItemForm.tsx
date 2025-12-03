@@ -18,7 +18,7 @@ import { DEFAULT_STRINGS } from '~/constants/common';
 import type { BudgetLineItem } from './utils/budgetTransformers';
 import type { StrategicGoalType, VendorWithStats, UserWithCounts } from '~/types';
 
-interface BudgetFormData {
+export interface BudgetFormData {
   category: string;
   subcategory: string;
   description: string;
@@ -90,7 +90,14 @@ export function BudgetItemForm({
             <X size={20} />
           </button>
         </div>
-        <Form method="post" onSubmit={onSubmit} className="p-6 space-y-4">
+        <Form
+          data-budget-form
+          method="post"
+          action={event?.id ? `/events/${event.id}` : undefined}
+          onSubmit={onSubmit}
+          encType={formData.fileAttachment ? "multipart/form-data" : undefined}
+          className="p-6 space-y-4"
+        >
           {isDemo && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
               <p className="font-medium">{BUDGET_MESSAGES.DEMO_MODE_TITLE}</p>
@@ -128,7 +135,7 @@ export function BudgetItemForm({
           {/* Hidden inputs for controlled Dropdown fields */}
           <input type="hidden" name={BUDGET_FORM_FIELDS.CATEGORY} value={formData.category} />
           <input type="hidden" name={BUDGET_FORM_FIELDS.STATUS} value={formData.status} />
-          <input type="hidden" name={BUDGET_FORM_FIELDS.ASSIGNED_USER} value={formData.assignedUser} />
+          <input type="hidden" name="assignedUserId" value={formData.assignedUser} />
           <input type="hidden" name={BUDGET_FORM_FIELDS.STRATEGIC_GOAL_ID} value={formData.strategicGoalId} />
           <input type="hidden" name={BUDGET_FORM_FIELDS.VENDOR_ID} value={formData.vendorId} />
 

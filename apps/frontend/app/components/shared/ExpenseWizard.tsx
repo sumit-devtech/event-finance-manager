@@ -114,9 +114,16 @@ export function ExpenseWizard({
     }
   };
 
-  // Reset form when modal closes
+  // Reset form when modal opens or closes, and when event changes
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // When modal opens, initialize form with event ID
+      setFormData(prev => ({
+        ...prev,
+        eventId: event?.id || prev.eventId || "",
+      }));
+    } else {
+      // When modal closes, reset everything
       setFormData({
         eventId: event?.id || "",
         category: "",
@@ -166,7 +173,7 @@ export function ExpenseWizard({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoading) {
           handleClose();

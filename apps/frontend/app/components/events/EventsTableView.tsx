@@ -30,8 +30,9 @@ export function EventsTableView({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {canPerformBulkActions && (
@@ -72,6 +73,7 @@ export function EventsTableView({
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

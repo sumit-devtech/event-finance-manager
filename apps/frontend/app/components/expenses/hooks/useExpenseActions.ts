@@ -83,23 +83,23 @@ export function useExpenseActions({
     }
   }, [fetcher?.state, fetcher?.data, setExpenses]);
   const handleWizardSubmit = async (wizardData: ExpenseFormData) => {
+    // Create optimistic expense for immediate UI update
+    const optimisticExpense: TransformedExpense = {
+      id: `temp-${Date.now()}`,
+      event: events.find(e => e.id === wizardData.eventId)?.name || DEFAULT_EXPENSE_VALUES.EVENT_NAME,
+      category: wizardData.category,
+      item: wizardData.title,
+      amount: parseFloat(wizardData.amount) || 0,
+      vendor: vendors.find(v => v.id === wizardData.vendorId)?.name || DEFAULT_EXPENSE_VALUES.VENDOR,
+      date: wizardData.date,
+      submittedBy: user?.name || DEFAULT_EXPENSE_VALUES.USER,
+      status: EXPENSE_STATUS.PENDING,
+      notes: wizardData.description,
+      _original: {},
+    };
+
     if (isDemo) {
-      setExpenses([
-        ...expenses,
-        {
-          id: Date.now(),
-          event: events.find(e => e.id === wizardData.eventId)?.name || DEFAULT_EXPENSE_VALUES.EVENT_NAME,
-          category: wizardData.category,
-          item: wizardData.title,
-          amount: parseFloat(wizardData.amount) || 0,
-          vendor: vendors.find(v => v.id === wizardData.vendorId)?.name || DEFAULT_EXPENSE_VALUES.VENDOR,
-          date: wizardData.date,
-          submittedBy: user?.name || DEFAULT_EXPENSE_VALUES.USER,
-          status: EXPENSE_STATUS.PENDING,
-          notes: wizardData.description,
-          _original: {},
-        },
-      ]);
+      setExpenses([...expenses, optimisticExpense]);
       toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS_DEMO);
       return;
     }
@@ -108,6 +108,14 @@ export function useExpenseActions({
       toast.error(EXPENSE_MESSAGES.UNABLE_TO_SUBMIT);
       return;
     }
+
+    // Track the optimistic expense ID for potential rollback
+    const tempId = optimisticExpense.id;
+    processingExpenseIdRef.current = tempId;
+    previousExpenseStatesRef.current.set(tempId, optimisticExpense);
+
+    // Optimistically add expense to UI immediately
+    setExpenses(prevExpenses => [...prevExpenses, optimisticExpense]);
 
     try {
       const formDataToSubmit = new FormData();
@@ -122,10 +130,18 @@ export function useExpenseActions({
         formDataToSubmit.append("file", wizardData.file);
       }
 
-      fetcher.submit(formDataToSubmit, { method: "post" });
+      fetcher.submit(formDataToSubmit, { 
+        method: "post",
+        action: event?.id ? `/events/${event.id}` : "/expenses"
+      });
       // Note: Wizard will close when fetcher completes successfully (handled in ExpenseTracker useEffect)
+      // The optimistic expense will be replaced with real data when route revalidates
     } catch (error) {
       console.error("Error submitting expense:", error);
+      // Remove optimistic expense on error
+      setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== tempId));
+      previousExpenseStatesRef.current.delete(tempId);
+      processingExpenseIdRef.current = null;
       toast.error(EXPENSE_MESSAGES.FAILED_TO_SUBMIT);
       throw error;
     }

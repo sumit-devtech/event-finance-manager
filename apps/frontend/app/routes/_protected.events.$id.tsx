@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { ConfirmDialog, Dropdown } from "~/components/shared";
 import toast from "react-hot-toast";
 import { demoEventDetail } from "~/lib/demoData";
+import { getErrorMessage } from "~/lib/errorMessages";
 
 interface EventDetail {
   id: string;
@@ -161,40 +162,122 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if (!file) {
         return json({ error: "No file selected" }, { status: 400 });
       }
-      await api.upload(`/events/${eventId}/files`, file, {}, tokenOption);
-      return redirect(`/events/${eventId}`);
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        return json({ error: "File size exceeds 10MB limit" }, { status: 400 });
+      }
+
+      // Validate file type
+      const allowedTypes = [
+        'image/',
+        'application/pdf',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ];
+      const isAllowed = allowedTypes.some(type => file.type.startsWith(type));
+
+      if (!isAllowed) {
+        return json({ error: "File type not allowed. Please upload images, PDFs, or Office documents." }, { status: 400 });
+      }
+
+      try {
+        await api.upload(`/events/${eventId}/files`, file, {}, tokenOption);
+        return redirect(`/events/${eventId}`);
+      } catch (error: any) {
+        return json({
+          error: error?.message || "Failed to upload file"
+        }, { status: error?.statusCode || 500 });
+      }
     }
 
     if (intent === "deleteFile") {
       const fileId = formData.get("fileId") as string;
-      await api.delete(`/events/${eventId}/files/${fileId}`, tokenOption);
-      return redirect(`/events/${eventId}`);
+      if (!fileId) {
+        return json({ error: "File ID is required" }, { status: 400 });
+      }
+
+      try {
+        await api.delete(`/events/${eventId}/files/${fileId}`, tokenOption);
+        return redirect(`/events/${eventId}`);
+      } catch (error: any) {
+        return json({
+          error: error?.message || "Failed to delete file"
+        }, { status: error?.statusCode || 500 });
+      }
     }
 
     if (intent === "createBudgetItem") {
       const category = formData.get("category") as string;
       const description = formData.get("description") as string;
+      const subcategory = formData.get("subcategory") as string || undefined;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : undefined;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : undefined;
       const vendorId = formData.get("vendorId") as string || undefined;
       const assignedUserId = formData.get("assignedUserId") as string || undefined;
+      const strategicGoalId = formData.get("strategicGoalId") as string || undefined;
+      const notes = formData.get("notes") as string || undefined;
+      const status = formData.get("status") as string || undefined;
 
       const payload: any = {
         category,
         description,
-        estimatedCost,
-        actualCost,
       };
 
+      if (subcategory !== undefined && subcategory.trim()) {
+        payload.subcategory = subcategory.trim();
+      }
+      if (estimatedCost !== undefined) {
+        payload.estimatedCost = estimatedCost;
+      }
+      if (actualCost !== undefined) {
+        payload.actualCost = actualCost;
+      }
       if (vendorId && vendorId.trim()) {
         payload.vendorId = vendorId.trim();
       }
-
       if (assignedUserId && assignedUserId.trim()) {
         payload.assignedUserId = assignedUserId.trim();
       }
+      if (strategicGoalId && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
+      }
+      if (notes !== undefined && notes.trim()) {
+        payload.notes = notes.trim();
+      }
+      if (status) {
+        payload.status = status;
+      }
 
-      await api.post(`/events/${eventId}/budget-items`, payload, tokenOption);
+      const newBudgetItem = await api.post(`/events/${eventId}/budget-items`, payload, tokenOption) as { id: string };
+
+      // Upload file if provided
+      const file = formData.get("fileAttachment") as File | null;
+      if (file && newBudgetItem.id) {
+        try {
+          // Validate file size (10MB limit)
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          if (file.size > maxSize) {
+            // Budget item created but file upload failed
+            return json({
+              error: "Budget item created but file upload failed: File size exceeds 10MB limit"
+            }, { status: 207 }); // 207 Multi-Status
+          }
+
+          await api.upload(`/budget-items/${newBudgetItem.id}/files`, file, {}, tokenOption);
+        } catch (fileError: any) {
+          console.error("Error uploading budget item file:", fileError);
+          // Budget item created but file upload failed
+          const errorMessage = fileError?.message || fileError?.error || "Unknown error";
+          return json({
+            error: `Budget item created but file upload failed: ${errorMessage}. You can upload the file later by editing the budget item.`
+          }, { status: 207 }); // 207 Multi-Status
+        }
+      }
+
       return redirect(`/events/${eventId}`);
     }
 
@@ -202,27 +285,69 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const budgetItemId = formData.get("budgetItemId") as string;
       const category = formData.get("category") as string;
       const description = formData.get("description") as string;
+      const subcategory = formData.get("subcategory") as string || undefined;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : null;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : null;
       const vendorId = formData.get("vendorId") as string || undefined;
       const assignedUserId = formData.get("assignedUserId") as string || undefined;
+      const strategicGoalId = formData.get("strategicGoalId") as string || undefined;
+      const notes = formData.get("notes") as string || undefined;
+      const status = formData.get("status") as string || undefined;
 
       const payload: any = {
         category,
         description,
-        estimatedCost,
-        actualCost,
       };
 
+      if (subcategory !== undefined) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+      if (estimatedCost !== undefined) {
+        payload.estimatedCost = estimatedCost;
+      }
+      if (actualCost !== undefined) {
+        payload.actualCost = actualCost;
+      }
       if (vendorId !== null && vendorId !== undefined) {
         payload.vendorId = vendorId.trim() || null;
       }
-
       if (assignedUserId !== null && assignedUserId !== undefined) {
         payload.assignedUserId = assignedUserId.trim() || null;
       }
+      if (strategicGoalId !== null && strategicGoalId !== undefined) {
+        payload.strategicGoalId = strategicGoalId.trim() || null;
+      }
+      if (notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+      if (status) {
+        payload.status = status;
+      }
 
       await api.put(`/budget-items/${budgetItemId}`, payload, tokenOption);
+
+      // Upload file if provided (for updates)
+      const file = formData.get("fileAttachment") as File | null;
+      if (file) {
+        try {
+          // Validate file size (10MB limit)
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          if (file.size > maxSize) {
+            return json({
+              error: "Budget item updated but file upload failed: File size exceeds 10MB limit"
+            }, { status: 207 }); // 207 Multi-Status
+          }
+
+          await api.upload(`/budget-items/${budgetItemId}/files`, file, {}, tokenOption);
+        } catch (fileError: any) {
+          console.error("Error uploading budget item file:", fileError);
+          const errorMessage = fileError?.message || fileError?.error || "Unknown error";
+          return json({
+            error: `Budget item updated but file upload failed: ${errorMessage}. You can upload the file later.`
+          }, { status: 207 }); // 207 Multi-Status
+        }
+      }
+
       return redirect(`/events/${eventId}`);
     }
 
@@ -351,20 +476,87 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return redirect(`/events/${eventId}`);
     }
 
+    // Note operations
+    if (intent === "createNote") {
+      const content = formData.get("content") as string;
+      const tagsStr = formData.get("tags") as string;
+
+      if (!content || !content.trim()) {
+        return json({ error: "Note content is required" }, { status: 400 });
+      }
+
+      const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+      // Note: Assuming backend has /events/:id/notes endpoint
+      // If not, this will need to be implemented in the backend
+      try {
+        await api.post(`/events/${eventId}/notes`, {
+          content: content.trim(),
+          tags: tags,
+        }, tokenOption);
+        return redirect(`/events/${eventId}`);
+      } catch (error: any) {
+        // If endpoint doesn't exist, return error
+        return json({
+          error: error?.message || "Note creation not yet implemented in backend"
+        }, { status: 501 });
+      }
+    }
+
+    if (intent === "updateNote") {
+      const noteId = formData.get("noteId") as string;
+      const content = formData.get("content") as string;
+      const tagsStr = formData.get("tags") as string;
+
+      if (!noteId) {
+        return json({ error: "Note ID is required" }, { status: 400 });
+      }
+      if (!content || !content.trim()) {
+        return json({ error: "Note content is required" }, { status: 400 });
+      }
+
+      const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+      try {
+        await api.put(`/events/${eventId}/notes/${noteId}`, {
+          content: content.trim(),
+          tags: tags,
+        }, tokenOption);
+        return redirect(`/events/${eventId}`);
+      } catch (error: any) {
+        return json({
+          error: error?.message || "Note update not yet implemented in backend"
+        }, { status: 501 });
+      }
+    }
+
+    if (intent === "deleteNote") {
+      const noteId = formData.get("noteId") as string;
+
+      if (!noteId) {
+        return json({ error: "Note ID is required" }, { status: 400 });
+      }
+
+      try {
+        await api.delete(`/events/${eventId}/notes/${noteId}`, tokenOption);
+        return redirect(`/events/${eventId}`);
+      } catch (error: any) {
+        return json({
+          error: error?.message || "Note deletion not yet implemented in backend"
+        }, { status: 501 });
+      }
+    }
+
     return json({ error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
     console.error("Action error:", error);
-    // Extract error message from API error
-    let errorMessage = "An error occurred";
-    let statusCode = 400;
 
-    // Handle ApiClientError from api.ts
-    if (error.statusCode) {
-      statusCode = error.statusCode;
-      errorMessage = error.message || `Error ${statusCode}: Request failed`;
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
+    // Use error message utility for user-friendly messages
+    const statusCode = error?.statusCode || 500;
+    const errorMessage = getErrorMessage(error, {
+      statusCode,
+      operation: 'performing this action',
+    });
 
     // Log full error for debugging
     console.error("Full error details:", {

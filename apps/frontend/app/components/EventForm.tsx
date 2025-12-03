@@ -21,30 +21,17 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
   const [eventType, setEventType] = useState(event?.type || event?.eventType || 'conference');
   const [status, setStatus] = useState(event?.status || 'Planning');
   const [assignedTo, setAssignedTo] = useState(event?.assignedTo || user?.id || '');
-  const [formKey, setFormKey] = useState(0); // Key to force form reset
-  const [dateError, setDateError] = useState('');
 
-  // Sync state when event prop changes (for edit mode)
+  // Debug: Log event data when editing
   useEffect(() => {
-    if (event) {
-      // Prefer eventType over type, but handle both
-      const eventTypeValue = event.eventType || event.type || 'conference';
-      setEventType(eventTypeValue);
-
-      // Normalize status - ensure it's capitalized (Planning, Active, etc.)
-      if (event.status) {
-        const normalizedStatus = event.status.charAt(0).toUpperCase() + event.status.slice(1).toLowerCase();
-        setStatus(normalizedStatus);
-      }
-
-      // Handle assignedTo
-      if (event.assignedTo) {
-        setAssignedTo(event.assignedTo);
-      } else if (user?.id) {
-        setAssignedTo(user.id);
-      }
+    if (isEdit && event) {
+      console.log('EventForm - Full event object:', event);
+      console.log('EventForm - Client field:', event?.client);
+      console.log('EventForm - Venue field:', event?.venue);
+      console.log('EventForm - Attendees field:', event?.attendees);
+      console.log('EventForm - Budget field:', event?.budget);
     }
-  }, [event?.id, event?.eventType, event?.type, event?.status, event?.assignedTo, user?.id]);
+  }, [isEdit, event]);
 
 
   // Close form on successful submission - only close when navigation is idle and we have success
@@ -52,45 +39,20 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
     if (actionData?.success && navigation.state === 'idle' && !isSubmitting) {
       // Only close if we're not currently submitting and navigation is idle
       const timer = setTimeout(() => {
-        // Reset form by incrementing key (forces remount)
-        setFormKey(prev => prev + 1);
         onClose();
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [actionData, navigation.state, isSubmitting, onClose]);
 
-  // Reset form when it closes (for add mode)
-  useEffect(() => {
-    if (!isEdit && !event) {
-      // Reset form state when opening add form
-      setEventType('conference');
-      setStatus('Planning');
-      setAssignedTo(user?.id || '');
-      setDateError('');
-    }
-  }, [isEdit, event, user?.id]);
-
   // Mock team members from organization
   const teamMembers = organization?.members || [
     { id: user?.id, name: user?.name || 'You', email: user?.email },
   ];
 
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] sm:max-h-[95vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
           <h3 className="text-xl font-semibold text-gray-900">
@@ -129,32 +91,9 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
 
         {/* Form */}
         <Form 
-          key={formKey}
           method={isDemo ? "get" : "post"} 
           className="p-6"
           onSubmit={(e) => {
-            // Validate dates
-            const startDateInput = e.currentTarget.querySelector<HTMLInputElement>('input[name="startDate"]');
-            const endDateInput = e.currentTarget.querySelector<HTMLInputElement>('input[name="endDate"]');
-
-            if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
-              const startDate = new Date(startDateInput.value);
-              const endDate = new Date(endDateInput.value);
-
-              if (endDate < startDate) {
-                e.preventDefault();
-                setDateError('End date must be after start date');
-                // Scroll to error
-                setTimeout(() => {
-                  endDateInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  endDateInput.focus();
-                }, 100);
-                return;
-              }
-            }
-
-            setDateError('');
-
             if (isDemo) {
               e.preventDefault();
               setTimeout(() => {
@@ -207,11 +146,7 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
               <input type="hidden" name="status" value={status} />
               <Dropdown
                 value={status}
-                onChange={(value) => {
-                  // Ensure status is always capitalized
-                  const capitalized = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-                  setStatus(capitalized);
-                }}
+                onChange={setStatus}
                 options={[
                   { value: 'Planning', label: 'Planning' },
                   { value: 'Active', label: 'Active' },
@@ -246,12 +181,8 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
                   type="date"
                   name="endDate"
                   defaultValue={event?.endDate ? new Date(event.endDate).toISOString().split('T')[0] : ''}
-                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${dateError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                    }`}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {dateError && (
-                  <p className="mt-1 text-sm text-red-600">{dateError}</p>
-                )}
               </div>
             </div>
 
@@ -377,14 +308,14 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0"
+              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation min-h-[44px] sm:min-h-0"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

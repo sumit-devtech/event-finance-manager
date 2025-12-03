@@ -111,15 +111,47 @@ export function EventDetailsModal({
   const prevNavigationState = useRef(navigation.state);
   const lastRefreshTime = useRef<number>(0);
   
-  // Simplified refresh logic - refresh when actionData indicates success
-  // This handles budget items, expenses, goals, and other operations
+  // Refresh event data when route revalidates (after form submissions that redirect)
+  // This handles cases where BudgetManager or other components submit via Form (not fetcher)
   useEffect(() => {
-    if (!isDemo && event?.id && actionData?.success && hasInitialLoad && !loadingEvent) {
-      // Throttle refreshes to avoid too many requests (max once per 500ms)
+    // Detect when revalidator transitions from loading/idle to idle (revalidation complete)
+    const revalidatorJustCompleted = 
+      prevRevalidatorState.current !== 'idle' && 
+      revalidator.state === 'idle';
+    
+    // Also detect when navigation completes (form submission finished)
+    const navigationJustCompleted = 
+      prevNavigationState.current === 'submitting' && 
+      navigation.state === 'idle';
+    
+    prevRevalidatorState.current = revalidator.state;
+    prevNavigationState.current = navigation.state;
+    
+    // Throttle refreshes to avoid too many requests (max once per 500ms)
+    const now = Date.now();
+    const shouldRefresh = hasInitialLoad && 
+      (revalidatorJustCompleted || navigationJustCompleted) && 
+      !isDemo && 
+      event?.id && 
+      !loadingEvent &&
+      (now - lastRefreshTime.current > 500);
+    
+    if (shouldRefresh) {
+      lastRefreshTime.current = now;
+      // Small delay to ensure route has finished revalidating and data is available
+      const timer = setTimeout(() => {
+        fetcher.load(`/events/${event.id}`);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [revalidator.state, navigation.state, event?.id, isDemo, hasInitialLoad, loadingEvent, fetcher]);
+  
+  // Also refresh when actionData indicates success (for budget item operations)
+  useEffect(() => {
+    if (actionData?.success && hasInitialLoad && !isDemo && event?.id && !loadingEvent) {
       const now = Date.now();
       if (now - lastRefreshTime.current > 500) {
         lastRefreshTime.current = now;
-        // Small delay to ensure backend has processed the change
         const timer = setTimeout(() => {
           fetcher.load(`/events/${event.id}`);
         }, 300);
@@ -127,26 +159,6 @@ export function EventDetailsModal({
       }
     }
   }, [actionData?.success, hasInitialLoad, isDemo, event?.id, loadingEvent, fetcher]);
-  
-  // Refresh when navigation completes (for form submissions that redirect)
-  useEffect(() => {
-    const navigationJustCompleted =
-      prevNavigationState.current === 'submitting' &&
-      navigation.state === 'idle';
-
-    prevNavigationState.current = navigation.state;
-
-    if (navigationJustCompleted && hasInitialLoad && !isDemo && event?.id && !loadingEvent) {
-      const now = Date.now();
-      if (now - lastRefreshTime.current > 500) {
-        lastRefreshTime.current = now;
-        const timer = setTimeout(() => {
-          fetcher.load(`/events/${event.id}`);
-        }, 300);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [navigation.state, hasInitialLoad, isDemo, event?.id, loadingEvent, fetcher]);
 
   // Handle fetcher response - both for loading and for action submissions
   useEffect(() => {
@@ -194,8 +206,6 @@ export function EventDetailsModal({
   ];
 
   const handleStatusChange = async (newStatus: string) => {
-    if (!currentEvent?.id) return; // Safety check
-
     // Keep status lowercase for internal state
     const lowercaseStatus = newStatus.toLowerCase();
     setStatus(lowercaseStatus);
@@ -230,26 +240,9 @@ export function EventDetailsModal({
       (event.strategicGoals?.length || 0) > (fullEvent.strategicGoals?.length || 0);
     
     return eventHasMoreData ? event : fullEvent;
-  })() || event; // Fallback to event prop if somehow both are undefined
-
-  // Calculate budget utilization from actual budget items instead of spent field
-  const calculateBudgetUtilization = (event: EventWithDetails) => {
-    const totalBudget = event.budget || 0;
-    if (totalBudget === 0) return 0;
-
-    // Calculate total spent from budget items (prefer actualCost, fallback to estimatedCost)
-    const totalSpent = (event.budgetItems || []).reduce((sum, item) => {
-      return sum + (item.actualCost ?? item.estimatedCost ?? 0);
-    }, 0);
-
-    return (totalSpent / totalBudget) * 100;
-  };
-
-  const budgetUtilization = calculateBudgetUtilization(currentEvent);
-  const totalSpent = (currentEvent.budgetItems || []).reduce((sum, item) => {
-    return sum + (item.actualCost ?? item.estimatedCost ?? 0);
-  }, 0);
-  const remaining = (currentEvent.budget || 0) - totalSpent;
+  })();
+  const budgetUtilization = currentEvent.budget && currentEvent.budget > 0 ? ((currentEvent.spent || 0) / currentEvent.budget) * 100 : 0;
+  const remaining = (currentEvent.budget || 0) - (currentEvent.spent || 0);
 
   const getStatusColor = (status: string) => {
     const colors: any = {
@@ -261,34 +254,21 @@ export function EventDetailsModal({
     return colors[status] || colors.planning;
   };
 
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isMobileSidebarOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [onClose, isMobileSidebarOpen]);
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-none sm:rounded-xl shadow-2xl max-w-7xl w-full h-full sm:h-auto sm:max-h-[95vh] flex flex-col sm:flex-row overflow-hidden relative z-50 touch-pan-y">
-        {/* Mobile Overlay - Behind sidebar but above background */}
-        {isMobileSidebarOpen && (
-          <div
-            className="sm:hidden fixed inset-0 bg-black bg-opacity-50 z-[49]"
-            onClick={() => setIsMobileSidebarOpen(false)}
-          />
-        )}
+      {/* Mobile Overlay - Outside sidebar */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-[45] sm:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
 
+      <div className="bg-white rounded-none sm:rounded-xl shadow-2xl max-w-7xl w-full h-full sm:h-auto sm:max-h-[95vh] flex flex-col sm:flex-row overflow-hidden relative">
         {/* Mobile Sidebar Toggle Button */}
         <button
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           className="sm:hidden fixed top-4 left-4 z-[60] p-2 bg-white rounded-lg shadow-lg border border-gray-200"
-          aria-label="Toggle sidebar"
         >
           <FileText size={20} className="text-gray-700" />
         </button>
@@ -333,12 +313,10 @@ export function EventDetailsModal({
                   className={`
                     w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1
                     transition-colors duration-200 text-left
-                    touch-manipulation
-                    min-h-[44px] sm:min-h-0
                     ${
                       isActive
                         ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-50 bg-white active:bg-gray-100'
+                        : 'text-gray-700 hover:bg-gray-50 bg-white'
                     }
                   `}
                 >
@@ -369,7 +347,7 @@ export function EventDetailsModal({
         </div>
 
         {/* Main Content Area */}
-        <div className={`flex-1 flex flex-col overflow-hidden bg-gray-50 ${isMobileSidebarOpen ? 'z-[51]' : ''}`}>
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
           {/* Top Bar */}
           <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex-1 min-w-0">
@@ -420,15 +398,7 @@ export function EventDetailsModal({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            {loadingEvent && (
-              <div className="flex items-center justify-center py-12">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  <p className="text-gray-600">Loading event details...</p>
-                </div>
-              </div>
-            )}
-            {!loadingEvent && currentEvent && activeSection === 'overview' && (
+            {activeSection === 'overview' && (
               <div className="space-y-6">
                 {/* Key Metrics Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -449,7 +419,7 @@ export function EventDetailsModal({
                       </div>
                       <span className="text-xs text-gray-500 font-medium uppercase">Spent</span>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">${totalSpent.toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-gray-900">${(currentEvent.spent || 0).toLocaleString()}</p>
                     <div className="mt-3">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-gray-600">Utilization</span>
@@ -539,7 +509,7 @@ export function EventDetailsModal({
                       </div>
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-600">Total Spent</span>
-                        <span className="text-lg font-bold text-gray-900">${totalSpent.toLocaleString()}</span>
+                        <span className="text-lg font-bold text-gray-900">${(currentEvent.spent || 0).toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-600">Remaining</span>
@@ -586,13 +556,13 @@ export function EventDetailsModal({
               </div>
             )}
 
-            {!loadingEvent && currentEvent && activeSection === 'budget' && (
+            {activeSection === 'budget' && (
               <BudgetManager 
                 user={user ?? null}
                 organization={organization}
                 event={currentEvent}
                 events={[currentEvent].filter(Boolean)}
-                budgetItems={currentEvent.budgetItems || []}
+                budgetItems={currentEvent?.budgetItems || []}
                 users={eventUsers}
                 strategicGoals={currentEvent?.strategicGoals || []}
                 vendors={eventVendors}
@@ -601,19 +571,18 @@ export function EventDetailsModal({
               />
             )}
 
-            {!loadingEvent && currentEvent && activeSection === 'transactions' && (
+            {activeSection === 'transactions' && (
               <ExpenseTracker 
                 user={user ?? null}
                 organization={organization}
-                event={currentEvent}
-                events={[currentEvent].filter(Boolean)}
+                event={event}
                 vendors={vendors}
                 isDemo={isDemo}
                 fetcher={fetcher}
               />
             )}
 
-            {!loadingEvent && currentEvent && activeSection === 'strategic-goals' && (
+            {activeSection === 'strategic-goals' && (
               <StrategicGoals
                 eventId={currentEvent.id}
                 goals={currentEvent?.strategicGoals?.map(goal => {
@@ -650,46 +619,39 @@ export function EventDetailsModal({
               />
             )}
 
-            {!loadingEvent && currentEvent && activeSection === 'documents' && (
+            {activeSection === 'documents' && (
               <EventDocuments
                 eventId={currentEvent.id}
-                documents={currentEvent.files || []}
+                documents={currentEvent?.files || []}
                 isDemo={isDemo}
                 user={user ?? null}
-                fetcher={fetcher}
                 onUpload={async (file) => {
-                  if (!isDemo && fetcher) {
-                    const formData = new FormData();
-                    formData.append('intent', 'uploadFile');
-                    formData.append('file', file);
-                    fetcher.submit(formData, {
-                      method: 'post',
-                      action: `/events/${currentEvent.id}`,
-                      encType: 'multipart/form-data',
-                    });
+                  if (!isDemo) {
+                    // TODO: Upload file to backend
+                    console.log('Upload file:', file);
                   }
                 }}
                 onDelete={async (documentId) => {
-                  if (!isDemo && fetcher) {
-                    const formData = new FormData();
-                    formData.append('intent', 'deleteFile');
-                    formData.append('fileId', documentId);
-                    fetcher.submit(formData, {
-                      method: 'post',
-                      action: `/events/${currentEvent.id}`,
-                    });
+                  if (!isDemo) {
+                    // TODO: Delete file from backend
+                    console.log('Delete document:', documentId);
                   }
                 }}
               />
             )}
 
-            {!loadingEvent && currentEvent && activeSection === 'notes' && (
+            {activeSection === 'notes' && (
               <EventNotes
                 eventId={currentEvent.id}
-                notes={currentEvent.notes || []}
+                notes={currentEvent?.notes || []}
                 isDemo={isDemo}
                 user={user ?? null}
-                fetcher={fetcher}
+                onSave={async (notes) => {
+                  if (!isDemo) {
+                    // TODO: Save notes to backend
+                    console.log('Save notes:', notes);
+                  }
+                }}
               />
             )}
           </div>

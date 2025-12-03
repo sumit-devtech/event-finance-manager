@@ -70,9 +70,9 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
           });
           // Data will refresh via route revalidation after redirect
         }
-      } else if (showForm && !editingGoal) {
-        // Handle redirect case (no data but state is idle) - close form
-        // This happens when the action redirects
+      } else if (showForm) {
+        // Redirect case - no data but state is idle means redirect happened
+        // Close form - data will refresh via route revalidation
         setShowForm(false);
         setEditingGoal(null);
         setFormData({
@@ -85,6 +85,11 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
           status: 'not-started',
           priority: 'medium',
         });
+        if (!editingGoal) {
+          toast.success('Strategic goal created successfully');
+        } else {
+          toast.success('Strategic goal updated successfully');
+        }
       }
     }
   }, [fetcher.state, fetcher.data, editingGoal, showForm]);
@@ -393,7 +398,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
 
       {/* Add/Edit Form Modal */}
       {showForm && canEditGoals && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
               <h3 className="text-xl font-bold text-gray-900">

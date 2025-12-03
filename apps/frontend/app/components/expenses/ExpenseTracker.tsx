@@ -4,7 +4,7 @@
  * Orchestrates all expense-related functionality using smaller sub-components.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFetcher } from "@remix-run/react";
 import type { User } from "~/lib/auth";
 import type { ExpenseWithVendor, VendorWithStats, EventWithDetails } from "~/types";
@@ -92,34 +92,66 @@ export function ExpenseTracker({
     event,
   });
 
+  // Track previous fetcher state to detect transitions
+  const prevFetcherStateRef = useRef<string | undefined>(undefined);
+  const submissionIntentRef = useRef<string | null>(null);
+
   // Handle fetcher state changes
   useEffect(() => {
-    // Only process when fetcher transitions from submitting to idle
-    if (!fetcher || fetcher.state !== "idle") {
+    if (!fetcher) {
       return;
     }
 
-    // When fetcher completes, check for errors or success
-    if (fetcher.data) {
-      const fetcherData = fetcher.data as any;
+    const prevState = prevFetcherStateRef.current;
+    const currentState = fetcher.state;
 
-      // Check for error
-      if (typeof fetcherData === 'object' && 'error' in fetcherData) {
-        toast.error(fetcherData.error);
-        // Don't close wizard on error - let user retry
-        return;
+    // Track when a submission starts (check formData to confirm it's an expense submission)
+    if (currentState === "submitting" && fetcher.formData && fetcher.formMethod === "post") {
+      const intent = fetcher.formData.get("intent");
+      if (intent === "createExpense") {
+        submissionIntentRef.current = "createExpense";
       }
     }
 
-    // Success case - close wizard and refresh data
-    // For redirects, fetcher.data will be undefined but state will be idle
-    // The route will revalidate and initialExpenses will update via useExpenseTransform
-    if (showAddExpense) {
+    // Only process when fetcher transitions from submitting to idle (meaning a submission just completed)
+    // AND we have a tracked submission intent
+    // AND the modal is currently open
+    if (
+      prevState === "submitting" && 
+      currentState === "idle" && 
+      submissionIntentRef.current === "createExpense" &&
+      showAddExpense
+    ) {
+      // Clear the intent
+      submissionIntentRef.current = null;
+
+      // When fetcher completes, check for errors or success
+      if (fetcher.data) {
+        const fetcherData = fetcher.data as any;
+
+        // Check for error
+        if (typeof fetcherData === 'object' && 'error' in fetcherData) {
+          toast.error(fetcherData.error);
+          // Don't close wizard on error - let user retry
+          prevFetcherStateRef.current = currentState;
+          return;
+        }
+      }
+
+      // Success case - close wizard and refresh data
+      // For redirects, fetcher.data will be undefined but state will be idle
+      // The route will revalidate and initialExpenses will update via useExpenseTransform
       setShowAddExpense(false);
+      // Show success message
+      toast.success('Expense submitted successfully');
       // Reset wizard form state by triggering a re-render
       // The ExpenseWizard will reset when isOpen becomes false
+      // Note: Data will refresh via route revalidation after redirect
     }
-  }, [fetcher?.state, fetcher?.data, showAddExpense]);
+    
+    // Update ref AFTER checking condition
+    prevFetcherStateRef.current = currentState;
+  }, [fetcher?.state, fetcher?.data, fetcher?.formData, showAddExpense]);
 
   // Calculate statistics
   const { statusCounts, totalExpenses, approvedTotal, pendingTotal } =

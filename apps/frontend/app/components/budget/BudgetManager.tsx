@@ -21,6 +21,7 @@ import { useBudgetActions } from './hooks/useBudgetActions';
 import { getDefaultFormData, transformBudgetItem } from './utils/budgetTransformers';
 import { validateBudgetForm, validateEventSelection } from './utils/budgetValidators';
 import type { BudgetLineItem } from './utils/budgetTransformers';
+import type { BudgetFormData } from './BudgetItemForm';
 
 interface BudgetEvent {
   id: string;
@@ -77,6 +78,32 @@ export function BudgetManager({
     setDemoBudgetLines,
   });
 
+  // Track deleted items for optimistic updates
+  const [deletedItemIds, setDeletedItemIds] = useState<Set<string | number>>(new Set());
+
+  // Filter out deleted items optimistically
+  const visibleBudgetLines = budgetLines.filter(item => !deletedItemIds.has(item.id));
+
+  // Enhanced delete handler with optimistic update
+  const handleDeleteWithOptimistic = (id: string | number) => {
+    // Optimistically remove from view
+    setDeletedItemIds(prev => new Set([...prev, id]));
+    // Call original delete handler
+    handleDelete(id);
+  };
+
+  // Clear deleted items when budgetItems refresh (after successful delete)
+  // Only clear if the number of budget items actually decreased (indicating successful delete)
+  useEffect(() => {
+    if (actionData?.success && deletedItemIds.size > 0) {
+      // Small delay to ensure state has updated
+      const timer = setTimeout(() => {
+        setDeletedItemIds(new Set());
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [actionData?.success, budgetItems.length]);
+
   // Close form when submission completes successfully
   useEffect(() => {
     if (navigation.state === 'submitting') {
@@ -87,6 +114,14 @@ export function BudgetManager({
         // Error occurred - keep form open and show error
         setError(actionData.error);
         setWasSubmitting(false);
+
+        // Scroll to error message
+        setTimeout(() => {
+          const formElement = document.querySelector('[data-budget-form]');
+          if (formElement) {
+            formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
       } else if (actionData?.success !== false) {
         // Success - close form and reset
         setShowAddLine(false);
@@ -194,7 +229,7 @@ export function BudgetManager({
     setFormData(getDefaultFormData());
   };
 
-  const handleFormDataChange = (data: Partial<typeof formData>) => {
+  const handleFormDataChange = (data: Partial<BudgetFormData>) => {
     setFormData({ ...formData, ...data });
   };
 
@@ -212,18 +247,18 @@ export function BudgetManager({
         error={error}
       />
 
-      <BudgetSummaryStats budgetLines={budgetLines} />
+      <BudgetSummaryStats budgetLines={visibleBudgetLines} />
 
-      <CategoryBreakdown budgetLines={budgetLines} />
+      <CategoryBreakdown budgetLines={visibleBudgetLines} />
 
       <BudgetTable
-        budgetLines={budgetLines}
+        budgetLines={visibleBudgetLines}
         event={event}
         events={events}
         expandedRow={expandedRow}
         onToggleExpand={handleToggleExpand}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={handleDeleteWithOptimistic}
         onAddClick={handleAddClick}
         canEditBudget={permissions.canEditBudget}
         isDemo={isDemo}

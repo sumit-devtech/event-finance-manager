@@ -70,10 +70,41 @@ export function EventsList({ user, organization, isDemo, events: initialEvents, 
     onRefresh,
   });
 
-  // Sync events with initialEvents
+  // Sync events with initialEvents - improved to detect actual changes
   useEffect(() => {
-    setEvents(initialEvents || []);
-  }, [initialEvents]);
+    if (!initialEvents || initialEvents.length === 0) {
+      if (events.length > 0) {
+        setEvents([]);
+      }
+      return;
+    }
+
+    // Deep comparison to detect actual changes
+    const currentIds = new Set(events.map(e => e.id));
+    const newIds = new Set(initialEvents.map(e => e.id));
+
+    // Check if there are new events
+    const hasNewEvents = initialEvents.some(e => !currentIds.has(e.id));
+
+    // Check if events were removed
+    const hasRemovedEvents = events.some(e => !newIds.has(e.id));
+
+    // Check if events were updated (compare updatedAt timestamps)
+    const hasUpdatedEvents = initialEvents.some(newEvent => {
+      const current = events.find(e => e.id === newEvent.id);
+      if (!current) return false;
+      // Compare updatedAt or check if key fields changed
+      return current.updatedAt !== newEvent.updatedAt ||
+        current.name !== newEvent.name ||
+        current.status !== newEvent.status ||
+        (current.budgetItems?.length || 0) !== (newEvent.budgetItems?.length || 0);
+    });
+
+    // Update if there are any changes
+    if (hasNewEvents || hasRemovedEvents || hasUpdatedEvents || events.length !== initialEvents.length) {
+      setEvents(initialEvents);
+    }
+  }, [initialEvents, events.length]);
   
   // Update selectedEvent when events are refreshed (to get latest budgetItems, etc.)
   useEffect(() => {
@@ -95,23 +126,34 @@ export function EventsList({ user, organization, isDemo, events: initialEvents, 
   // Handle fetcher responses for bulk actions and delete
   useEffect(() => {
     const data = fetcher.data as FetcherResponse | undefined;
-    if (data && data.success && data !== lastProcessedFetcherData.current) {
+    if (data && data !== lastProcessedFetcherData.current && fetcher.state === 'idle') {
       lastProcessedFetcherData.current = data;
       
-      const timer = setTimeout(() => {
+      if (data.success) {
+        // Show success message if provided
+        if (data.message) {
+          toast.success(data.message);
+        }
+
+      // Refresh data immediately
         if (onRefresh) {
           onRefresh();
         }
+
+        // Clear selections
         clearSelection();
-        if (data.message?.includes('deleted')) {
+
+        // Handle delete-specific cleanup
+        if (data.message?.toLowerCase().includes('deleted')) {
           setSelectedEvent(null);
           setShowForm(false);
         }
-      }, 100);
-      
-      return () => clearTimeout(timer);
+      } else if (data.message && !data.success) {
+        // Show error message
+        toast.error(data.message);
+      }
     }
-  }, [fetcher.data, onRefresh, clearSelection]);
+  }, [fetcher.data, fetcher.state, onRefresh, clearSelection]);
 
   // Track when form was opened to prevent premature closing
   const formOpenedAt = useRef<number | null>(null);

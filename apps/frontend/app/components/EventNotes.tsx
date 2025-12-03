@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useFetcher } from '@remix-run/react';
+import { useState } from 'react';
 import { Edit, Plus, X, Calendar, User } from '../Icons';
 import { EditButton, DeleteButton } from '../shared';
 import { toast } from 'react-hot-toast';
@@ -20,38 +19,14 @@ interface EventNotesProps {
   isDemo?: boolean;
   onSave?: (notes: Note[]) => Promise<void>;
   user?: any;
-  fetcher?: ReturnType<typeof useFetcher>;
 }
 
-export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, onSave, user, fetcher }: EventNotesProps) {
+export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, onSave, user }: EventNotesProps) {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [showForm, setShowForm] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [noteContent, setNoteContent] = useState('');
   const [noteTags, setNoteTags] = useState('');
-
-  // Update notes when initialNotes change (after refresh)
-  useEffect(() => {
-    setNotes(initialNotes);
-  }, [initialNotes]);
-
-  // Handle fetcher response
-  useEffect(() => {
-    if (fetcher && fetcher.state === 'idle' && fetcher.data) {
-      const data = fetcher.data as any;
-      if (data.error) {
-        toast.error(data.error || 'Failed to save note');
-      } else if (data.success || !data.error) {
-        // Success - form will close and data will refresh via route revalidation
-        if (showForm) {
-          setShowForm(false);
-          setEditingNote(null);
-          setNoteContent('');
-          setNoteTags('');
-        }
-      }
-    }
-  }, [fetcher?.state, fetcher?.data, showForm]);
 
   // Role-based access control
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
@@ -66,62 +41,31 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
     
     if (!noteContent.trim()) return;
 
-    // Validate and clean tags
-    const tags = noteTags
-      .split(',')
-      .map(t => t.trim())
-      .filter(t => t.length > 0 && t.length <= 20) // Max tag length
-      .filter((t, i, arr) => arr.indexOf(t) === i); // Remove duplicates
+    const tags = noteTags.split(',').map(t => t.trim()).filter(Boolean);
+    const newNote: Note = {
+      id: editingNote?.id || `note-${Date.now()}`,
+      content: noteContent,
+      createdAt: editingNote?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: editingNote?.createdBy || 'Current User',
+      tags: tags.length > 0 ? tags : undefined,
+    };
 
-    if (isDemo) {
-      // Demo mode - update local state
-      const newNote: Note = {
-        id: editingNote?.id || `note-${Date.now()}`,
-        content: noteContent,
-        createdAt: editingNote?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: editingNote?.createdBy || 'Current User',
-        tags: tags.length > 0 ? tags : undefined,
-      };
-
-      const updatedNotes = editingNote
-        ? notes.map(n => n.id === editingNote.id ? newNote : n)
-        : [...notes, newNote].sort((a, b) =>
+    const updatedNotes = editingNote
+      ? notes.map(n => n.id === editingNote.id ? newNote : n)
+      : [...notes, newNote].sort((a, b) => 
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
 
-      setNotes(updatedNotes);
-      if (onSave) {
-        onSave(updatedNotes);
-      }
-
-      setNoteContent('');
-      setNoteTags('');
-      setShowForm(false);
-      setEditingNote(null);
-      return;
+    setNotes(updatedNotes);
+    if (onSave) {
+      onSave(updatedNotes);
     }
-
-    // Real mode - submit to backend
-    if (!fetcher) {
-      toast.error('Unable to save note');
-      return;
-    }
-
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append('intent', editingNote ? 'updateNote' : 'createNote');
-    if (editingNote) {
-      formDataToSubmit.append('noteId', editingNote.id);
-    }
-    formDataToSubmit.append('content', noteContent.trim());
-    if (tags.length > 0) {
-      formDataToSubmit.append('tags', tags.join(','));
-    }
-
-    fetcher.submit(formDataToSubmit, {
-      method: 'post',
-      action: `/events/${eventId}`,
-    });
+    
+    setNoteContent('');
+    setNoteTags('');
+    setShowForm(false);
+    setEditingNote(null);
   };
 
   const handleEdit = (note: Note) => {
@@ -132,31 +76,12 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
   };
 
   const handleDelete = (noteId: string) => {
-    if (isDemo) {
-    // Demo mode - update local state
-      const updatedNotes = notes.filter(n => n.id !== noteId);
-      setNotes(updatedNotes);
-      if (onSave) {
-        onSave(updatedNotes);
-      }
-      toast.success('Note deleted successfully');
-      return;
+    const updatedNotes = notes.filter(n => n.id !== noteId);
+    setNotes(updatedNotes);
+    if (onSave) {
+      onSave(updatedNotes);
     }
-
-    // Real mode - submit to backend
-    if (!fetcher) {
-      toast.error('Unable to delete note');
-      return;
-    }
-
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append('intent', 'deleteNote');
-    formDataToSubmit.append('noteId', noteId);
-
-    fetcher.submit(formDataToSubmit, {
-      method: 'post',
-      action: `/events/${eventId}`,
-    });
+    toast.success('Note deleted successfully');
   };
 
   // Use demo data from centralized file

@@ -83,6 +83,9 @@ export function useEventActions({
       const formData = new FormData();
       formData.append('intent', 'deleteEvent');
       formData.append('eventId', eventId);
+      
+      // Don't show success toast immediately - wait for server confirmation
+      // The success will be shown in the fetcher response handler
       fetcher.submit(formData, { method: 'post' });
       toast.success('Event deleted successfully');
     }

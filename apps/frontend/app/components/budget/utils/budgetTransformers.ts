@@ -91,7 +91,7 @@ export function getDefaultFormData(): {
   strategicGoalId: string;
   vendor: string;
   vendorId: string;
-  fileAttachment: null;
+  fileAttachment: File | null;
 } {
   return {
     category: '',

@@ -7,6 +7,7 @@ import { getAuthTokenFromSession } from "~/lib/session";
 import { EventsList } from "~/components/events";
 import { demoEvents } from "~/lib/demoData";
 import type { EventWithDetails, VendorWithStats } from "~/types";
+import { getErrorMessage } from "~/lib/errorMessages";
 
 export interface Event {
   id: string;
@@ -72,14 +73,34 @@ export async function loader({ request }: LoaderFunctionArgs) {
       api.get<any[]>("/vendors", { token: token || undefined }),
     ]);
 
-    const events = eventsResult.status === "fulfilled" ? (eventsResult.value || []) : [];
+    // Handle events result
+    let events: Event[] = [];
+    if (eventsResult.status === "fulfilled") {
+      events = eventsResult.value || [];
+    } else {
+      console.error("Error fetching events:", eventsResult.reason);
+      // Don't fail silently - return error state
+      return json({
+        events: [],
+        vendors: [],
+        user,
+        error: "Failed to load events. Please try refreshing the page."
+      });
+    }
+
+    // Handle vendors result (non-critical, can fail silently)
     const vendors = vendorsResult.status === "fulfilled" ? (vendorsResult.value || []) : [];
 
     return json({ events, vendors, user });
   } catch (error: any) {
     console.error("Error fetching events:", error);
-    // Return empty array on error instead of failing
-    return json({ events: [], vendors: [], user });
+    // Return error state instead of failing silently
+    return json({
+      events: [],
+      vendors: [],
+      user,
+      error: error?.message || "An error occurred while loading events. Please try again."
+    });
   }
 }
 
@@ -133,14 +154,24 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ success: false, error: 'Description is required' }, { status: 400 });
       }
 
+      const subcategory = formData.get("subcategory") as string || undefined;
       const estimatedCostStr = formData.get("estimatedCost") as string;
       const actualCostStr = formData.get("actualCost") as string;
       const vendor = formData.get("vendor") as string;
+      const vendorId = formData.get("vendorId") as string || undefined;
+      const assignedUserId = formData.get("assignedUserId") as string || undefined;
+      const strategicGoalId = formData.get("strategicGoalId") as string || undefined;
+      const notes = formData.get("notes") as string || undefined;
+      const status = formData.get("status") as string || undefined;
 
       const payload: any = {
         category,
         description,
       };
+
+      if (subcategory !== undefined && subcategory.trim()) {
+        payload.subcategory = subcategory.trim();
+      }
 
       if (estimatedCostStr) {
         const estimatedCost = parseFloat(estimatedCostStr);
@@ -158,6 +189,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (vendor && vendor.trim()) {
         payload.vendor = vendor.trim();
+      }
+
+      if (vendorId && vendorId.trim()) {
+        payload.vendorId = vendorId.trim();
+      }
+
+      if (assignedUserId && assignedUserId.trim()) {
+        payload.assignedUserId = assignedUserId.trim();
+      }
+
+      if (strategicGoalId && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
+      }
+
+      if (notes !== undefined && notes.trim()) {
+        payload.notes = notes.trim();
+      }
+
+      if (status) {
+        payload.status = status;
       }
 
       await api.post(
@@ -183,6 +234,11 @@ export async function action({ request }: ActionFunctionArgs) {
       const description = formData.get("description") as string;
       if (description) payload.description = description;
 
+      const subcategory = formData.get("subcategory") as string || undefined;
+      if (subcategory !== undefined) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+
       const estimatedCostStr = formData.get("estimatedCost") as string;
       if (estimatedCostStr) {
         const estimatedCost = parseFloat(estimatedCostStr);
@@ -202,6 +258,31 @@ export async function action({ request }: ActionFunctionArgs) {
       const vendor = formData.get("vendor") as string;
       if (vendor !== null) {
         payload.vendor = vendor.trim() || null;
+      }
+
+      const vendorId = formData.get("vendorId") as string || undefined;
+      if (vendorId !== null && vendorId !== undefined) {
+        payload.vendorId = vendorId.trim() || null;
+      }
+
+      const assignedUserId = formData.get("assignedUserId") as string || undefined;
+      if (assignedUserId !== null && assignedUserId !== undefined) {
+        payload.assignedUserId = assignedUserId.trim() || null;
+      }
+
+      const strategicGoalId = formData.get("strategicGoalId") as string || undefined;
+      if (strategicGoalId !== null && strategicGoalId !== undefined) {
+        payload.strategicGoalId = strategicGoalId.trim() || null;
+      }
+
+      const notes = formData.get("notes") as string || undefined;
+      if (notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+
+      const status = formData.get("status") as string || undefined;
+      if (status) {
+        payload.status = status;
       }
 
       await api.put(
@@ -324,7 +405,10 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ success: true, message: 'Event created successfully' });
       } catch (error: any) {
         console.error("Error creating event:", error);
-        const errorMessage = error?.message || error?.error || 'Failed to create event. Please try again.';
+        const errorMessage = getErrorMessage(error, {
+          statusCode: error?.statusCode,
+          operation: 'creating event',
+        });
         return json({ success: false, error: errorMessage }, { status: error?.statusCode || 500 });
       }
     }
@@ -387,7 +471,10 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ success: true, message: 'Event updated successfully' });
       } catch (error: any) {
         console.error("Error updating event:", error);
-        const errorMessage = error?.message || error?.error || 'Failed to update event. Please try again.';
+        const errorMessage = getErrorMessage(error, {
+          statusCode: error?.statusCode,
+          operation: 'updating event',
+        });
         return json({ success: false, error: errorMessage }, { status: error?.statusCode || 500 });
       }
     }
@@ -451,10 +538,24 @@ export async function action({ request }: ActionFunctionArgs) {
       const file = formData.get("file") as File | null;
       if (file && newExpense.id) {
         try {
+          // Validate file size (10MB limit)
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          if (file.size > maxSize) {
+            return json({
+              success: false,
+              error: `Expense created but file upload failed: File size exceeds 10MB limit`
+            }, { status: 207 }); // 207 Multi-Status
+          }
+
           await api.upload(`/expenses/${newExpense.id}/files`, file, {}, { token: token || undefined });
         } catch (fileError: any) {
           console.error("Error uploading expense file:", fileError);
-          // Don't fail the entire request if file upload fails
+          // Return partial success - expense created but file upload failed
+          const errorMessage = fileError?.message || fileError?.error || "Unknown error";
+          return json({
+            success: false,
+            error: `Expense created but file upload failed: ${errorMessage}. You can upload the file later by editing the expense.`
+          }, { status: 207 }); // 207 Multi-Status
         }
       }
 

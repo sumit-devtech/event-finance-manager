@@ -2,7 +2,7 @@
  * Hook for filtering events
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { EVENT_STATUS, EVENT_TYPES, TIME_RANGE_FILTERS, BUDGET_HEALTH_FILTERS, type EventStatus } from "~/constants/events";
 import type { EventWithDetails } from "~/types";
 import { getBudgetHealth, isEventInTimeRange, getEventRegion } from "../utils/eventHelpers";
@@ -17,6 +17,7 @@ interface EventFilters {
 
 export function useEventFilters(events: EventWithDetails[]) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [filters, setFilters] = useState<EventFilters>({
     status: EVENT_STATUS.ALL,
     type: EVENT_TYPES.ALL,
@@ -25,12 +26,21 @@ export function useEventFilters(events: EventWithDetails[]) {
     timeRange: TIME_RANGE_FILTERS.ALL,
   });
 
+  // Debounce search query (300ms delay)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
-      // Search filter
+      // Search filter (using debounced query)
       const matchesSearch = 
-        event.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (event.location?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+        event.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        (event.location?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase());
       
       // Status filter
       const matchesStatus = 
@@ -59,7 +69,7 @@ export function useEventFilters(events: EventWithDetails[]) {
       
       return matchesSearch && matchesStatus && matchesType && matchesBudgetHealth && matchesRegion && matchesTimeRange;
     });
-  }, [events, searchQuery, filters]);
+  }, [events, debouncedSearchQuery, filters]);
 
   const updateFilter = <K extends keyof EventFilters>(key: K, value: EventFilters[K]) => {
     setFilters(prev => ({ ...prev, [key]: value }));
