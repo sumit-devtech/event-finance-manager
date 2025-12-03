@@ -211,6 +211,7 @@ export function EventDetailsModal({
         if (fetchedEvent?.budgetItems && fetchedEvent.budgetItems.length > 0) {
           setEventBudgetItems(fetchedEvent.budgetItems);
         }
+        // StrategicGoals are already in fullEvent, so they'll be available via currentEvent
         if (loadingEvent) {
           setLoadingEvent(false);
         }
@@ -629,7 +630,8 @@ export function EventDetailsModal({
             {activeSection === 'strategic-goals' && (
               <StrategicGoals
                 eventId={currentEvent.id}
-                goals={currentEvent?.strategicGoals?.map(goal => {
+                parentFetcher={fetcher}
+                goals={(currentEvent?.strategicGoals || []).map(goal => {
                   // Handle deadline - it might be a Date object or a string
                   let deadlineStr: string | undefined = undefined;
                   if (goal.deadline) {

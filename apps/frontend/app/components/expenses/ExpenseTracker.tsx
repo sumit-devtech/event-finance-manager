@@ -54,11 +54,15 @@ export function ExpenseTracker({
 
   // Transform expenses
   const demoExpenses = isDemo
-    ? demoExpenseTrackerExpenses.map(exp => ({
-        ...exp,
-        event: event?.name || exp.event,
-        submittedBy: user?.name || exp.submittedBy,
-      }))
+    ? demoExpenseTrackerExpenses.map(exp => {
+        const transformed = {
+          ...exp,
+          event: event?.name || exp.event,
+          submittedBy: user?.name || exp.submittedBy,
+          _original: exp, // Add _original property required by TransformedExpense
+        };
+        return transformed;
+      })
     : undefined;
 
   const { expenses, setExpenses } = useExpenseTransform(initialExpenses, isDemo, demoExpenses);

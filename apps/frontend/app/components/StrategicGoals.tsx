@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useFetcher } from '@remix-run/react';
+import { useState, useEffect, useRef } from 'react';
+import { useFetcher, useRevalidator, type FetcherWithComponents } from '@remix-run/react';
 import { Target, Plus, X, CheckCircle, Clock } from './Icons';
 import { Dropdown, EditButton, DeleteButton, ConfirmDialog } from './shared';
 import { toast } from 'react-hot-toast';
@@ -23,9 +23,10 @@ interface StrategicGoalsProps {
   isDemo?: boolean;
   onSave?: (goals: StrategicGoal[]) => Promise<void>;
   user?: any;
+  parentFetcher?: FetcherWithComponents<any>;
 }
 
-export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = false, onSave, user }: StrategicGoalsProps) {
+export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = false, onSave, user, parentFetcher }: StrategicGoalsProps) {
   const [goals, setGoals] = useState<StrategicGoal[]>(initialGoals);
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<StrategicGoal | null>(null);
@@ -34,22 +35,53 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
     goalId: null,
   });
   const fetcher = useFetcher();
+  const revalidator = useRevalidator();
+  const previousFetcherStateRef = useRef<string | undefined>(fetcher?.state);
+  const wasSubmittingRef = useRef(false);
 
-  // Update goals when initialGoals change (after refresh)
+  // Update goals when initialGoals change (after refresh) - use ref to prevent unnecessary updates
+  const prevGoalsRef = useRef<StrategicGoal[]>(initialGoals);
   useEffect(() => {
-    setGoals(initialGoals);
+    if (initialGoals) {
+      const prevIds = prevGoalsRef.current.map(g => g.id).sort().join(',');
+      const newIds = initialGoals.map(g => g.id).sort().join(',');
+
+      if (prevIds !== newIds || prevGoalsRef.current.length !== initialGoals.length) {
+        setGoals(initialGoals);
+        prevGoalsRef.current = initialGoals;
+      }
+    } else if (initialGoals.length === 0 && prevGoalsRef.current.length > 0) {
+      // Handle case where goals are cleared
+      setGoals([]);
+      prevGoalsRef.current = [];
+    }
   }, [initialGoals]);
 
   // Handle fetcher response - close form and refresh data after successful save
   useEffect(() => {
-    if (fetcher.state === 'idle') {
+    if (!fetcher) return;
+
+    const currentState = fetcher.state;
+    const previousState = previousFetcherStateRef.current;
+
+    // Track when we start submitting
+    if (currentState === "submitting" && previousState !== "submitting") {
+      wasSubmittingRef.current = true;
+    }
+
+    // Only process when fetcher transitions from submitting to idle
+    if (currentState === "idle" && wasSubmittingRef.current && previousState === "submitting") {
+    // Check for errors first
       if (fetcher.data) {
         const data = fetcher.data as any;
         if (data.error) {
           toast.error(data.error || 'Failed to save goal');
           // Don't close form on error - let user retry
+          wasSubmittingRef.current = false;
+          previousFetcherStateRef.current = currentState;
+          return;
         } else {
-          // Success - close form and show success message
+          // Success with data response - close form and show success message
           if (!editingGoal) {
             toast.success('Strategic goal created successfully');
           } else {
@@ -68,26 +100,46 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
             status: 'not-started',
             priority: 'medium',
           });
-          // Data will refresh via route revalidation after redirect
+          wasSubmittingRef.current = false;
+          previousFetcherStateRef.current = currentState;
+          return;
         }
-      } else if (showForm && !editingGoal) {
-        // Handle redirect case (no data but state is idle) - close form
-        // This happens when the action redirects
-        setShowForm(false);
-        setEditingGoal(null);
-        setFormData({
-          title: '',
-          description: '',
-          targetValue: '',
-          currentValue: '',
-          unit: '',
-          deadline: '',
-          status: 'not-started',
-          priority: 'medium',
-        });
+      }
+
+      // Handle redirect case (no data but state is idle after submission) - close form
+      // This happens when the action redirects (which is the normal flow)
+      // The redirect will cause the page to reload and fetch fresh data
+      if (!editingGoal) {
+        toast.success('Strategic goal created successfully');
+      } else {
+        toast.success('Strategic goal updated successfully');
+      }
+      setShowForm(false);
+      setEditingGoal(null);
+      setFormData({
+        title: '',
+        description: '',
+        targetValue: '',
+        currentValue: '',
+        unit: '',
+        deadline: '',
+        status: 'not-started',
+        priority: 'medium',
+      });
+      wasSubmittingRef.current = false;
+      // Trigger revalidation to refresh the goals list
+      revalidator.revalidate();
+      // Also trigger parent fetcher to reload event data if available
+      if (parentFetcher && parentFetcher.state === 'idle') {
+        setTimeout(() => {
+          parentFetcher.load(`/events/${eventId}`);
+        }, 300);
       }
     }
-  }, [fetcher.state, fetcher.data, editingGoal, showForm]);
+
+    // Update previous state
+    previousFetcherStateRef.current = currentState;
+  }, [fetcher?.state, fetcher?.data, editingGoal]);
 
   // Role-based access control
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
@@ -110,6 +162,12 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+
     if (isDemo) {
       // Demo mode - just update local state
       const newGoal: StrategicGoal = {
@@ -145,6 +203,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
       });
       setShowForm(false);
       setEditingGoal(null);
+      toast.success(editingGoal ? 'Strategic goal updated successfully' : 'Strategic goal created successfully');
       return;
     }
 
@@ -154,7 +213,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
     if (editingGoal) {
       formDataToSubmit.append('goalId', editingGoal.id);
     }
-    formDataToSubmit.append('title', formData.title);
+    formDataToSubmit.append('title', formData.title.trim());
     formDataToSubmit.append('description', formData.description || '');
     if (formData.targetValue) {
       formDataToSubmit.append('targetValue', formData.targetValue);
