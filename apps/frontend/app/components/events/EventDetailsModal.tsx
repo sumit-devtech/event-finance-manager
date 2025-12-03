@@ -298,20 +298,20 @@ export function EventDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
       {/* Mobile Overlay - Outside sidebar */}
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[45] sm:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-[95] sm:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
 
-      <div className="bg-white rounded-none sm:rounded-xl shadow-2xl max-w-7xl w-full h-full sm:h-auto sm:max-h-[95vh] flex flex-col sm:flex-row overflow-hidden relative">
+      <div className="bg-white rounded-none sm:rounded-xl shadow-2xl max-w-7xl w-full h-full sm:h-auto sm:max-h-[95vh] flex flex-col sm:flex-row overflow-hidden relative z-[100]">
         {/* Mobile Sidebar Toggle Button */}
         <button
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          className="sm:hidden fixed top-4 left-4 z-[60] p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+          className="sm:hidden fixed top-4 left-4 z-[110] p-2 bg-white rounded-lg shadow-lg border border-gray-200"
         >
           <FileText size={20} className="text-gray-700" />
         </button>
@@ -319,7 +319,7 @@ export function EventDetailsModal({
         {/* Sidebar Navigation - Matches Main Sidebar Colors */}
         <div className={`
           w-full sm:w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col
-          fixed sm:relative inset-y-0 left-0 z-[50] shadow-2xl sm:shadow-none
+          fixed sm:relative top-0 left-0 bottom-0 z-[105] shadow-2xl sm:shadow-none
           transform transition-transform duration-300 ease-in-out
           ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}
         `}>
