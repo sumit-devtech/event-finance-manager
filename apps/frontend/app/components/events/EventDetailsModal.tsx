@@ -45,6 +45,7 @@ export function EventDetailsModal({
   const [eventUsers, setEventUsers] = useState<any[]>([]);
   const [eventVendors, setEventVendors] = useState<VendorWithStats[]>(vendors);
   const [eventExpenses, setEventExpenses] = useState<ExpenseWithVendor[]>(initialExpenses);
+  const [eventBudgetItems, setEventBudgetItems] = useState<any[]>(event?.budgetItems || []);
   // Normalize status: backend returns capitalized (Planning, Active, etc.), but we use lowercase for internal state
   const normalizeStatus = (status: string | undefined): string => {
     if (!status) return 'planning';
@@ -108,6 +109,22 @@ export function EventDetailsModal({
       }
     }
   }, [initialExpenses]);
+
+  // Update budgetItems when event prop changes - use ref to prevent unnecessary updates
+  const prevBudgetItemsRef = useRef<any[]>(event?.budgetItems || []);
+  useEffect(() => {
+    const currentBudgetItems = event?.budgetItems || [];
+    if (currentBudgetItems.length > 0) {
+      // Only update if budgetItems actually changed (different IDs or length)
+      const prevIds = prevBudgetItemsRef.current.map((item: any) => item.id).sort().join(',');
+      const newIds = currentBudgetItems.map((item: any) => item.id).sort().join(',');
+      
+      if (prevIds !== newIds || prevBudgetItemsRef.current.length !== currentBudgetItems.length) {
+        setEventBudgetItems(currentBudgetItems);
+        prevBudgetItemsRef.current = currentBudgetItems;
+      }
+    }
+  }, [event?.budgetItems]);
 
   // Track previous revalidator and navigation states to detect transitions
   const prevRevalidatorState = useRef(revalidator.state);
@@ -190,6 +207,10 @@ export function EventDetailsModal({
         if (data.users) setEventUsers(data.users);
         if (data.vendors) setEventVendors(data.vendors);
         if (data.expenses) setEventExpenses(data.expenses);
+        // Update budgetItems from fetched event
+        if (fetchedEvent?.budgetItems && fetchedEvent.budgetItems.length > 0) {
+          setEventBudgetItems(fetchedEvent.budgetItems);
+        }
         if (loadingEvent) {
           setLoadingEvent(false);
         }
@@ -584,7 +605,7 @@ export function EventDetailsModal({
                 organization={organization}
                 event={currentEvent}
                 events={[currentEvent].filter(Boolean)}
-                budgetItems={currentEvent?.budgetItems || []}
+                budgetItems={eventBudgetItems}
                 users={eventUsers}
                 strategicGoals={currentEvent?.strategicGoals || []}
                 vendors={eventVendors}
