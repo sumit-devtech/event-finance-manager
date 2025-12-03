@@ -22,6 +22,7 @@ export type BudgetItemCategoryType =
   | "Logistics"
   | "Entertainment"
   | "StaffTravel"
+  | "Technology"
   | "Miscellaneous";
 export type ExpenseStatusType = "Pending" | "Approved" | "Rejected";
 export type BudgetItemStatusType = "Pending" | "Approved" | "Closed";

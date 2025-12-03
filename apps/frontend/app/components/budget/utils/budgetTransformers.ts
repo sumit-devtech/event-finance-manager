@@ -40,9 +40,18 @@ export function transformBudgetItem(
   const actual = parseDecimal(item.actualCost);
   const variance = estimated - actual;
 
+  // Extract vendor information - check both vendor (text field) and vendorLink (relation)
+  const vendorName = item.vendor || item.vendorLink?.name || '';
+  const vendorIdValue = item.vendorId || item.vendorLink?.id || '';
+  
+  // Extract assigned user ID - check both direct field and object
+  const assignedUserIdValue = item.assignedUserId || 
+    (typeof item.assignedUser === 'object' && item.assignedUser?.id ? item.assignedUser.id : '') ||
+    '';
+
   return {
     id: item.id,
-    category: item.category,
+    category: item.category || '',
     subcategory: item.subcategory || '',
     description: item.description || '',
     estimatedCost: estimated,
@@ -53,13 +62,13 @@ export function transformBudgetItem(
     fileAttachment: item.fileAttachment || '',
     assignedUser: typeof item.assignedUser === 'string' 
       ? item.assignedUser 
-      : (item.assignedUser?.fullName || item.assignedUser?.name || item.assignedUser?.email || item.assignedUserId || ''),
-    assignedUserId: item.assignedUserId || (typeof item.assignedUser === 'object' && item.assignedUser?.id ? item.assignedUser.id : ''),
+      : (item.assignedUser?.fullName || item.assignedUser?.name || item.assignedUser?.email || ''),
+    assignedUserId: assignedUserIdValue,
     strategicGoalId: item.strategicGoalId || '',
     lastEditedBy: item.lastEditedBy || item.updatedBy || currentUserName || DEFAULT_STRINGS.UNKNOWN,
     lastEditedAt: item.updatedAt || item.lastEditedAt || new Date().toISOString(),
-    vendor: item.vendor || '',
-    vendorId: item.vendorId || '',
+    vendor: vendorName,
+    vendorId: vendorIdValue,
     eventId: item.eventId || '',
     eventName: getEventName(item.eventId),
   };

@@ -167,6 +167,7 @@ export const BudgetItemCategory: {
   Logistics: 'Logistics',
   Entertainment: 'Entertainment',
   StaffTravel: 'StaffTravel',
+  Technology: 'Technology',
   Miscellaneous: 'Miscellaneous'
 };
 

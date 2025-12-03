@@ -186,10 +186,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (intent === "createBudgetItem") {
       const category = formData.get("category") as string;
       const description = formData.get("description") as string;
+      const subcategory = formData.get("subcategory") as string;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : undefined;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : undefined;
       const vendorId = formData.get("vendorId") as string || undefined;
-      const assignedUserId = formData.get("assignedUserId") as string || undefined;
+      const assignedUserId = formData.get("assignedUserId") as string || formData.get("assignedUser") as string || undefined;
 
       const payload: any = {
         category,
@@ -198,10 +199,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         actualCost,
       };
 
+      // Include subcategory if provided
+      if (subcategory !== null && subcategory !== undefined && subcategory.trim()) {
+        payload.subcategory = subcategory.trim();
+      }
+
       if (vendorId && vendorId.trim()) {
         payload.vendorId = vendorId.trim();
       }
 
+      // Include assignedUserId if provided
       if (assignedUserId && assignedUserId.trim()) {
         payload.assignedUserId = assignedUserId.trim();
       }
@@ -214,10 +221,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const budgetItemId = formData.get("budgetItemId") as string;
       const category = formData.get("category") as string;
       const description = formData.get("description") as string;
+      const subcategory = formData.get("subcategory") as string;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : null;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : null;
       const vendorId = formData.get("vendorId") as string || undefined;
-      const assignedUserId = formData.get("assignedUserId") as string || undefined;
+      const assignedUserId = formData.get("assignedUserId") as string || formData.get("assignedUser") as string || undefined;
 
       const payload: any = {
         category,
@@ -226,10 +234,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         actualCost,
       };
 
+      // Always include subcategory, even if empty (to allow clearing the field)
+      if (subcategory !== null && subcategory !== undefined) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+
       if (vendorId !== null && vendorId !== undefined) {
         payload.vendorId = vendorId.trim() || null;
       }
 
+      // Always include assignedUserId, even if empty (to allow clearing the field)
       if (assignedUserId !== null && assignedUserId !== undefined) {
         payload.assignedUserId = assignedUserId.trim() || null;
       }

@@ -96,13 +96,13 @@ export function AuthPage({ actionData, redirectTo = "/dashboard" }: AuthPageProp
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="max-w-5xl w-full">
         {/* Back Button */}
-        <button
-          onClick={() => window.history.back()}
+        <Link
+          to="/"
           className="flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-4 md:mb-6 transition-colors text-sm md:text-base"
         >
           <ArrowLeft size={18} className="md:w-5 md:h-5" />
           <span>Back to home</span>
-        </button>
+        </Link>
 
         {/* Auth Card */}
         <div className="bg-white rounded-xl md:rounded-2xl shadow-xl overflow-hidden">

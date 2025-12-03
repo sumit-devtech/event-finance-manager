@@ -436,6 +436,7 @@ exports.BudgetItemCategory = exports.$Enums.BudgetItemCategory = {
   Logistics: 'Logistics',
   Entertainment: 'Entertainment',
   StaffTravel: 'StaffTravel',
+  Technology: 'Technology',
   Miscellaneous: 'Miscellaneous'
 };
 

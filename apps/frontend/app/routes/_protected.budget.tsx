@@ -206,6 +206,7 @@ export async function action({ request }: ActionFunctionArgs) {
         payload.vendorId = vendorId.trim();
       }
 
+      // Always include subcategory, even if empty (to allow clearing the field)
       if (subcategory !== null && subcategory !== undefined) {
         payload.subcategory = subcategory.trim() || null;
       }
@@ -214,12 +215,14 @@ export async function action({ request }: ActionFunctionArgs) {
         payload.status = status;
       }
 
+      // Always include notes, even if empty (to allow clearing the field)
       if (notes !== null && notes !== undefined) {
         payload.notes = notes.trim() || null;
       }
 
-      if (assignedUser !== null && assignedUser !== undefined && assignedUser.trim()) {
-        payload.assignedUserId = assignedUser.trim();
+      // Always include assignedUserId, even if empty (to allow clearing the field)
+      if (assignedUser !== null && assignedUser !== undefined) {
+        payload.assignedUserId = assignedUser.trim() || null;
       }
 
       if (strategicGoalId !== null && strategicGoalId !== undefined && strategicGoalId.trim()) {
@@ -261,22 +264,25 @@ export async function action({ request }: ActionFunctionArgs) {
       if (description) payload.description = description;
 
       const subcategory = formData.get("subcategory") as string;
-      if (subcategory !== null) {
-        payload.subcategory = subcategory.trim() || null;
-      }
+      // Always include subcategory, even if empty (to allow clearing the field)
+      payload.subcategory = subcategory !== null && subcategory !== undefined 
+        ? (subcategory.trim() || null) 
+        : null;
 
       const status = formData.get("status") as string;
       if (status) payload.status = status;
 
       const notes = formData.get("notes") as string;
-      if (notes !== null) {
-        payload.notes = notes.trim() || null;
-      }
+      // Always include notes, even if empty (to allow clearing the field)
+      payload.notes = notes !== null && notes !== undefined 
+        ? (notes.trim() || null) 
+        : null;
 
       const assignedUser = formData.get("assignedUser") as string;
-      if (assignedUser !== null) {
-        payload.assignedUserId = assignedUser.trim() || null;
-      }
+      // Always include assignedUserId, even if empty (to allow clearing the field)
+      payload.assignedUserId = assignedUser !== null && assignedUser !== undefined 
+        ? (assignedUser.trim() || null) 
+        : null;
 
       const strategicGoalId = formData.get("strategicGoalId") as string;
       if (strategicGoalId !== null) {
