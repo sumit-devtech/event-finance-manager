@@ -116,7 +116,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   // Attempt login
-  const result = await loginUser(email, password, redirectTo || "/dashboard");
+  const result = await loginUser(email, password, redirectTo || "/dashboard", request);
 
   if (result.error) {
     return json(

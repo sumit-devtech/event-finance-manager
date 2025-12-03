@@ -52,8 +52,10 @@ export async function setAuthTokensInSession(
   accessToken: string,
   refreshToken: string,
   user: any,
+  cookieHeader?: string | null,
 ) {
-  const session = await getSession();
+  // Use existing session from request if provided, otherwise create new one
+  const session = await getSession(cookieHeader || undefined);
   session.set("accessToken", accessToken);
   session.set("refreshToken", refreshToken);
   session.set("user", user);

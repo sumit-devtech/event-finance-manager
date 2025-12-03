@@ -74,6 +74,7 @@ export async function loginUser(
   email: string,
   password: string,
   redirectTo: string = "/",
+  request?: Request,
 ) {
   try {
     // Call login API
@@ -82,11 +83,13 @@ export async function loginUser(
       password,
     });
 
-    // Set tokens in session
+    // Set tokens in session - pass existing cookie header to preserve session
+    const existingCookieHeader = request?.headers.get("Cookie") || null;
     const session = await setAuthTokensInSession(
       authResponse.accessToken,
       authResponse.refreshToken,
       authResponse.user,
+      existingCookieHeader,
     );
 
     // Commit session and get cookie header

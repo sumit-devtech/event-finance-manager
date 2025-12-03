@@ -32,7 +32,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
  * Layout component that wraps all protected routes
  */
 export default function ProtectedLayout() {
-  const { user } = useLoaderData<typeof loader>() as { user: User };
+  const { user } = useLoaderData<typeof loader>() as { user: User | null };
   return <Layout user={user} />;
 }
 
