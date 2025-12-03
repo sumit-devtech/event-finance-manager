@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
 import { TeamManagement } from "~/components/TeamManagement";
 

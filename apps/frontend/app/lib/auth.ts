@@ -1,12 +1,11 @@
 /**
- * Auth Utilities
+ * Auth Types
  * 
- * Utilities for handling authentication in Remix loaders and actions
+ * Type definitions for authentication.
+ * 
+ * Note: This file only exports types and interfaces to ensure it's safe
+ * for client-side type imports. All server-side auth functions are in auth.server.ts
  */
-
-import { redirect } from "@remix-run/node";
-import { api, getAuthTokenFromRequest } from "./api";
-import { getAuthTokenFromSession } from "./session";
 
 export interface User {
   id: string;
@@ -22,87 +21,5 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
-}
-
-/**
- * Get current user from API using token from request
- */
-export async function getCurrentUser(request: Request): Promise<User | null> {
-  // Try to get token from session first, then from request headers
-  const token = (await getAuthTokenFromSession(request)) || getAuthTokenFromRequest(request);
-  if (!token) return null;
-
-  try {
-    const user = await api.get<User>("/auth/me", {
-      token,
-    });
-    return user;
-  } catch (error) {
-    return null;
-  }
-}
-
-/**
- * Require authentication - redirects to login if not authenticated
- */
-export async function requireAuth(request: Request): Promise<User> {
-  const user = await getCurrentUser(request);
-  if (!user) {
-    throw redirect("/login");
-  }
-  return user;
-}
-
-/**
- * Require specific role - redirects to unauthorized if role doesn't match
- */
-export async function requireRole(
-  request: Request,
-  allowedRoles: string[],
-): Promise<User> {
-  const user = await requireAuth(request);
-  if (!allowedRoles.includes(user.role)) {
-    throw redirect("/unauthorized");
-  }
-  return user;
-}
-
-/**
- * Login user and set auth tokens
- */
-export async function login(email: string, password: string): Promise<AuthResponse> {
-  return api.post<AuthResponse>("/auth/login", { email, password });
-}
-
-/**
- * Register new user
- */
-export async function register(
-  email: string,
-  password: string,
-  name?: string,
-): Promise<AuthResponse> {
-  return api.post<AuthResponse>("/auth/register", { email, password, name });
-}
-
-/**
- * Logout user
- */
-export async function logout(request: Request): Promise<void> {
-  const token = getAuthTokenFromRequest(request);
-  if (token) {
-    try {
-      await api.post("/auth/logout", {}, { token });
-    } catch (error) {
-      // Continue with logout even if API call fails
-    }
-  }
-}
-
-/**
- * Refresh access token
- */
-export async function refreshToken(refreshToken: string): Promise<AuthResponse> {
-  return api.post<AuthResponse>("/auth/refresh", { refreshToken });
 }
 

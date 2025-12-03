@@ -1,7 +1,7 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { loginUser } from "~/lib/auth.server";
-import { getSessionFromRequest } from "~/lib/session";
+import { getSessionFromRequest } from "~/lib/session.server";
 import { AuthPage } from "~/components/AuthPage";
 
 /**

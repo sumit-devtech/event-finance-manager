@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-r
 import { useLoaderData, Form, Link, useSubmit, useNavigation, Outlet, useLocation } from "@remix-run/react";
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { env } from "~/lib/env";
 import { useState, useEffect } from "react";
 import { demoReportsEvents } from "~/lib/demoData";

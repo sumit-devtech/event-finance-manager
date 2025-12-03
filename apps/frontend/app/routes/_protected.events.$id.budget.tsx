@@ -2,7 +2,7 @@ import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from
 import { Form, useLoaderData, useActionData, useNavigation, Link, useSubmit, useRevalidator } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { useState, useEffect } from "react";
 import type { SubmitFunction } from "@remix-run/react";
 import { BudgetItemCategory } from "@event-finance-manager/database";

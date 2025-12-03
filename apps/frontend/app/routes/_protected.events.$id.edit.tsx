@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from
 import { Form, useLoaderData, useActionData, useNavigation } from "@remix-run/react";
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { Dropdown } from "~/components/shared";
 import { useState } from "react";
 

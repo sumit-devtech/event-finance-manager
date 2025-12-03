@@ -14,7 +14,7 @@ import {
   clearAuthTokensFromSession,
   commitSession,
   destroySession,
-} from "./session";
+} from "./session.server";
 import type { User, AuthResponse } from "./auth";
 
 /**

@@ -3,7 +3,7 @@ import { useLoaderData, Link, useSearchParams, useSubmit, useNavigation } from "
 import React, { useState, useEffect } from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { env } from "~/lib/env";
 import toast from "react-hot-toast";
 import {

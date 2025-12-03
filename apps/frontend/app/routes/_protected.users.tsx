@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from
 import { useLoaderData, useActionData, useNavigation, Form, useSubmit, useRevalidator } from "@remix-run/react";
 import { requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { useState, useEffect } from "react";
 import React from "react";
 import type { User } from "~/lib/auth";

@@ -3,7 +3,7 @@ import { useLoaderData, useSearchParams, useFetcher, useRevalidator } from "@rem
 import { useEffect, useRef } from "react";
 import { requireAuth, getCurrentUser } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
 import { ExpenseTracker } from "~/components/expenses";
 import { demoExpenses, demoEvents } from "~/lib/demoData";

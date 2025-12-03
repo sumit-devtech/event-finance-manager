@@ -51,9 +51,10 @@ app/
 │   └── ErrorBoundary.tsx
 ├── lib/                 # Utilities and helpers
 │   ├── api.ts          # API client for NestJS backend
-│   ├── auth.ts         # Authentication utilities
+│   ├── auth.ts         # Authentication types (client-safe)
+│   ├── auth.server.ts  # Server-side authentication utilities
 │   ├── env.ts          # Environment variables
-│   └── session.ts      # Session management
+│   └── session.server.ts # Session management (server-only)
 ├── routes/             # Remix routes
 │   ├── example.action.ts  # Example action pattern
 │   ├── example.loader.ts  # Example loader pattern

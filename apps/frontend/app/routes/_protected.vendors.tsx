@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
 import { VendorManager } from "~/components/VendorManager";
 import { demoVendors } from "~/lib/demoData";

@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { logoutUser } from "~/lib/auth.server";
-import { getSessionFromRequest, destroySession } from "~/lib/session";
+import { getSessionFromRequest, destroySession } from "~/lib/session.server";
 
 /**
  * Action - handle logout

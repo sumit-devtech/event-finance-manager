@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from
 import { Form, useLoaderData, useActionData, useNavigation, useSubmit, Link } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { useState, useEffect, useRef } from "react";
 import { ConfirmDialog, Dropdown } from "~/components/shared";
 import toast from "react-hot-toast";

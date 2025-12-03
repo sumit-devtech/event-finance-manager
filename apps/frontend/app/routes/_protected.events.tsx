@@ -3,7 +3,7 @@ import { useLoaderData, useSearchParams, useRevalidator, useActionData } from "@
 import { useCallback, useMemo, useEffect } from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import { EventsList } from "~/components/events";
 import { demoEvents } from "~/lib/demoData";
 import type { EventWithDetails, VendorWithStats } from "~/types";

@@ -3,7 +3,7 @@ import { useLoaderData, useSearchParams, useRevalidator, useActionData } from "@
 import { useEffect } from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
 import { BudgetManager } from "~/components/budget";
 import { demoBudgetEvents, demoBudgetVersions, demoBudgetItems } from "~/lib/demoData";

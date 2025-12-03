@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-r
 import { useLoaderData, useFetcher, useSearchParams } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
-import { getAuthTokenFromSession } from "~/lib/session";
+import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
 import type { ExpenseWithVendor } from "~/types";
 import { FilterBar, DataTable, SummaryStats, EmptyState, ConfirmDialog } from "~/components/shared";

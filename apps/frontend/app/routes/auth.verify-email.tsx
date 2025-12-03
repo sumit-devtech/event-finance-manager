@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }>(`/auth/verify-email?token=${token}`);
 
       // Set tokens in session directly (no need to login again)
-      const { setAuthTokensInSession, commitSession } = await import("~/lib/session");
+      const { setAuthTokensInSession, commitSession } = await import("~/lib/session.server");
       const session = await setAuthTokensInSession(
         authResponse.accessToken,
         authResponse.refreshToken,

@@ -1,7 +1,10 @@
 /**
- * Session Utilities
+ * Session Utilities (Server-only)
  * 
  * Utilities for managing session data (cookies) in Remix
+ * 
+ * Note: This file uses .server.ts extension to ensure it's never bundled for the client.
+ * The createCookieSessionStorage function is server-only and will cause errors if bundled.
  */
 
 import { createCookieSessionStorage } from "@remix-run/node";
