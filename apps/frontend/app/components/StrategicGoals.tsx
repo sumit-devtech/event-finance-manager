@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useFetcher, useRevalidator, type FetcherWithComponents } from '@remix-run/react';
+import { useFetcher, useRevalidator } from '@remix-run/react';
 import { Target, Plus, X, CheckCircle, Clock } from './Icons';
 import { Dropdown, EditButton, DeleteButton, ConfirmDialog } from './shared';
 import { toast } from 'react-hot-toast';
@@ -22,11 +22,11 @@ interface StrategicGoalsProps {
   goals?: StrategicGoal[];
   isDemo?: boolean;
   onSave?: (goals: StrategicGoal[]) => Promise<void>;
+  parentFetcher?: ReturnType<typeof useFetcher>;
   user?: any;
-  parentFetcher?: FetcherWithComponents<any>;
 }
 
-export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = false, onSave, user, parentFetcher }: StrategicGoalsProps) {
+export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = false, onSave, parentFetcher, user }: StrategicGoalsProps) {
   const [goals, setGoals] = useState<StrategicGoal[]>(initialGoals);
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<StrategicGoal | null>(null);
@@ -42,18 +42,15 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
   // Update goals when initialGoals change (after refresh) - use ref to prevent unnecessary updates
   const prevGoalsRef = useRef<StrategicGoal[]>(initialGoals);
   useEffect(() => {
-    if (initialGoals) {
+    const currentGoals = initialGoals || [];
+    if (currentGoals.length > 0 || prevGoalsRef.current.length > 0) {
       const prevIds = prevGoalsRef.current.map(g => g.id).sort().join(',');
-      const newIds = initialGoals.map(g => g.id).sort().join(',');
+      const newIds = currentGoals.map(g => g.id).sort().join(',');
 
-      if (prevIds !== newIds || prevGoalsRef.current.length !== initialGoals.length) {
-        setGoals(initialGoals);
-        prevGoalsRef.current = initialGoals;
+      if (prevIds !== newIds || prevGoalsRef.current.length !== currentGoals.length) {
+        setGoals(currentGoals);
+        prevGoalsRef.current = currentGoals;
       }
-    } else if (initialGoals.length === 0 && prevGoalsRef.current.length > 0) {
-      // Handle case where goals are cleared
-      setGoals([]);
-      prevGoalsRef.current = [];
     }
   }, [initialGoals]);
 
@@ -71,7 +68,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
 
     // Only process when fetcher transitions from submitting to idle
     if (currentState === "idle" && wasSubmittingRef.current && previousState === "submitting") {
-    // Check for errors first
+      // Check for errors first
       if (fetcher.data) {
         const data = fetcher.data as any;
         if (data.error) {
@@ -128,13 +125,10 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
       });
       wasSubmittingRef.current = false;
       // Trigger revalidation to refresh the goals list
-      revalidator.revalidate();
-      // Also trigger parent fetcher to reload event data if available
-      if (parentFetcher && parentFetcher.state === 'idle') {
-        setTimeout(() => {
-          parentFetcher.load(`/events/${eventId}`);
-        }, 300);
-      }
+      // Add a small delay to allow the redirect to complete
+      setTimeout(() => {
+        revalidator.revalidate();
+      }, 300);
     }
 
     // Update previous state

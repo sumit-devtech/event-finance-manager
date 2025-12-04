@@ -31,7 +31,7 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createUserDto: CreateUserDto, @Request() req) {
-    return this.usersService.create(createUserDto, req.user.id);
+    return this.usersService.create(createUserDto, req.user.id, req.user.organizationId);
   }
 
   @Get()

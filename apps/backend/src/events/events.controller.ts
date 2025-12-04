@@ -74,6 +74,7 @@ export class EventsController {
       offset: offset ? parseInt(offset, 10) : undefined,
       userId: req?.user?.id,
       userRole: req?.user?.role,
+      organizationId: req?.user?.organizationId,
     });
   }
 
@@ -164,5 +165,55 @@ export class EventsController {
     @Request() req,
   ) {
     await this.eventsService.deleteFile(eventId, fileId, req.user.id);
+  }
+
+  @Get(":id/files")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
+  getFiles(@Param("id") eventId: string) {
+    return this.eventsService.getFiles(eventId);
+  }
+
+  @Get(":id/notes")
+  @Roles(UserRole.Admin, UserRole.EventManager, UserRole.Finance, UserRole.Viewer)
+  @UseGuards(RolesGuard)
+  getNotes(@Param("id") eventId: string) {
+    return this.eventsService.getNotes(eventId);
+  }
+
+  @Post(":id/notes")
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(EventAssignmentGuard, RolesGuard)
+  @Roles(UserRole.Admin, UserRole.EventManager)
+  createNote(
+    @Param("id") eventId: string,
+    @Body() createNoteDto: { content: string; tags?: string[] },
+    @Request() req,
+  ) {
+    return this.eventsService.createNote(eventId, createNoteDto, req.user.id);
+  }
+
+  @Put(":id/notes/:noteId")
+  @UseGuards(EventAssignmentGuard, RolesGuard)
+  @Roles(UserRole.Admin, UserRole.EventManager)
+  updateNote(
+    @Param("id") eventId: string,
+    @Param("noteId") noteId: string,
+    @Body() updateNoteDto: { content: string; tags?: string[] },
+    @Request() req,
+  ) {
+    return this.eventsService.updateNote(eventId, noteId, updateNoteDto, req.user.id);
+  }
+
+  @Delete(":id/notes/:noteId")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(EventAssignmentGuard, RolesGuard)
+  @Roles(UserRole.Admin, UserRole.EventManager)
+  async deleteNote(
+    @Param("id") eventId: string,
+    @Param("noteId") noteId: string,
+    @Request() req,
+  ) {
+    await this.eventsService.deleteNote(eventId, noteId, req.user.id);
   }
 }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useFetcher, useRevalidator } from '@remix-run/react';
 import { Folder, Plus, X, Download, FileText, Calendar } from '../Icons';
 import { DeleteButton } from '../shared';
 import { toast } from 'react-hot-toast';
@@ -21,59 +22,183 @@ interface EventDocumentsProps {
   onUpload?: (file: File) => Promise<void>;
   onDelete?: (documentId: string) => Promise<void>;
   user?: any;
+  fetcher?: ReturnType<typeof useFetcher>;
 }
 
-export function EventDocuments({ eventId, documents: initialDocuments = [], isDemo = false, onUpload, onDelete, user }: EventDocumentsProps) {
+export function EventDocuments({ eventId, documents: initialDocuments = [], isDemo = false, onUpload, onDelete, user, fetcher: parentFetcher }: EventDocumentsProps) {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const fetcher = parentFetcher || useFetcher();
+  const revalidator = useRevalidator();
+  const previousFetcherStateRef = useRef<string | undefined>(fetcher?.state);
+  const wasSubmittingRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadingRef = useRef(false);
+  const submittingUploadFormRef = useRef(false);
+
+  // Derive uploading state from fetcher state for non-demo mode
+  const isUploading = isDemo ? uploading : (fetcher.state === "submitting" || uploadingRef.current);
 
   // Role-based access control
   const isViewer = user?.role === 'Viewer';
   const canEditDocuments = !isViewer || isDemo;
 
+  // Update documents when initialDocuments prop changes
+  useEffect(() => {
+    setDocuments(initialDocuments);
+  }, [initialDocuments]);
+
+  // Handle fetcher state changes - refresh data when submission completes
+  useEffect(() => {
+    if (!fetcher || isDemo) {
+      return;
+    }
+
+    const currentState = fetcher.state;
+    const previousState = previousFetcherStateRef.current;
+
+    // Track when we start submitting
+    if (currentState === "submitting" && previousState !== "submitting") {
+      wasSubmittingRef.current = true;
+      uploadingRef.current = true;
+      if (isDemo) {
+        setUploading(true);
+      }
+    }
+
+    // Reset uploading state whenever fetcher becomes idle (safeguard for any edge cases)
+    if (currentState === "idle" && uploadingRef.current) {
+      uploadingRef.current = false;
+      if (isDemo) {
+        setUploading(false);
+      }
+    }
+
+    // Process when fetcher becomes idle after submitting
+    // This handles both direct transitions (submitting -> idle) and redirects (submitting -> loading -> idle)
+    if (currentState === "idle" && wasSubmittingRef.current && (previousState === "submitting" || previousState === "loading")) {
+      // Check for error
+      if (fetcher.data && typeof fetcher.data === 'object' && 'error' in fetcher.data) {
+        toast.error((fetcher.data as { error: string }).error);
+        uploadingRef.current = false;
+        if (isDemo) {
+          setUploading(false);
+        }
+        wasSubmittingRef.current = false;
+        submittingUploadFormRef.current = false;
+        previousFetcherStateRef.current = currentState;
+        // Reset file input on error
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      // Success case - refresh data
+      // Use ref to get the value at submission time
+      const wasShowingUploadForm = submittingUploadFormRef.current;
+
+      if (wasShowingUploadForm) {
+        setShowUploadForm(false);
+        uploadingRef.current = false;
+        if (isDemo) {
+          setUploading(false);
+        }
+        toast.success('Document uploaded successfully');
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } else {
+        toast.success('Document deleted successfully');
+      }
+
+      // Reset refs
+      submittingUploadFormRef.current = false;
+      wasSubmittingRef.current = false;
+
+      // Refresh data - trigger revalidation which will reload all loaders
+      // Also explicitly reload the parent fetcher to ensure we get the latest files
+      revalidator.revalidate();
+      if (parentFetcher && parentFetcher.state === "idle") {
+        // Small delay to ensure redirect has completed
+        setTimeout(() => {
+          parentFetcher.load(`/events/${eventId}`);
+        }, 200);
+      }
+    }
+
+    previousFetcherStateRef.current = currentState;
+  }, [fetcher?.state, fetcher?.data, eventId, parentFetcher, revalidator, isDemo]);
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
-    try {
-      if (onUpload) {
-        await onUpload(file);
-      }
-      
-      const newDocument: Document = {
-        id: `doc-${Date.now()}`,
-        name: file.name,
-        type: file.type || 'application/octet-stream',
-        size: file.size,
-        uploadedAt: new Date().toISOString(),
-        uploadedBy: 'Current User',
-      };
+    if (isDemo) {
+    // Demo mode - handle locally
+      setUploading(true);
+      try {
+        if (onUpload) {
+          await onUpload(file);
+        }
 
-      setDocuments([...documents, newDocument]);
-      setShowUploadForm(false);
-      toast.success('Document uploaded successfully');
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      console.error('Error uploading file:', errorMessage);
-      toast.error('Failed to upload file. Please try again.');
-    } finally {
-      setUploading(false);
+        const newDocument: Document = {
+          id: `doc-${Date.now()}`,
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          size: file.size,
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: 'Current User',
+        };
+
+        setDocuments([...documents, newDocument]);
+        setShowUploadForm(false);
+        toast.success('Document uploaded successfully');
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.error('Error uploading file:', errorMessage);
+        toast.error('Failed to upload file. Please try again.');
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      // Non-demo mode - use fetcher to submit
+      // Capture that we're showing the upload form before submission
+      submittingUploadFormRef.current = true;
+
+      const formData = new FormData();
+      formData.append("intent", "uploadFile");
+      formData.append("file", file);
+      setUploading(true);
+      fetcher.submit(formData, { method: "post", action: `/events/${eventId}`, encType: "multipart/form-data" });
     }
   };
 
   const handleDelete = async (documentId: string) => {
-    try {
-      if (onDelete) {
-        await onDelete(documentId);
+    if (isDemo) {
+      try {
+        if (onDelete) {
+          await onDelete(documentId);
+        }
+        setDocuments(documents.filter(doc => doc.id !== documentId));
+        toast.success('Document deleted successfully');
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.error('Error deleting document:', errorMessage);
+        toast.error('Failed to delete document. Please try again.');
       }
-      setDocuments(documents.filter(doc => doc.id !== documentId));
-      toast.success('Document deleted successfully');
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      console.error('Error deleting document:', errorMessage);
-      toast.error('Failed to delete document. Please try again.');
+    } else {
+      // Non-demo mode - use fetcher to submit
+      if (!confirm("Are you sure you want to delete this document? This action cannot be undone.")) {
+        return;
+      }
+      submittingUploadFormRef.current = false; // Not showing upload form for delete
+      const formData = new FormData();
+      formData.append("intent", "deleteFile");
+      formData.append("fileId", documentId);
+      fetcher.submit(formData, { method: "post", action: `/events/${eventId}` });
     }
   };
 
@@ -190,7 +315,13 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
               <h3 className="text-xl font-bold text-gray-900">Upload Document</h3>
               <button
-                onClick={() => setShowUploadForm(false)}
+                onClick={() => {
+                  setShowUploadForm(false);
+                  setUploading(false);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X size={20} className="text-gray-600" />
@@ -203,24 +334,42 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
                   Drag and drop a file here, or click to select
                 </p>
                 <input
+                  ref={fileInputRef}
                   type="file"
+                  name="file"
                   onChange={handleFileUpload}
-                  disabled={uploading}
+                  disabled={isUploading}
                   className="hidden"
                   id="file-upload"
+                  required
                 />
                 <label
                   htmlFor="file-upload"
                   className={`inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer ${
-                    uploading ? 'opacity-50 cursor-not-allowed' : ''
+                    isUploading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  {uploading ? 'Uploading...' : 'Select File'}
+                  {isUploading ? 'Uploading...' : 'Select File'}
                 </label>
               </div>
               <div className="mt-4 flex items-center gap-3">
                 <button
-                  onClick={() => setShowUploadForm(false)}
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isUploading ? 'Uploading...' : 'Select File to Upload'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUploadForm(false);
+                    setUploading(false);
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                  }}
                   className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                 >
                   Cancel

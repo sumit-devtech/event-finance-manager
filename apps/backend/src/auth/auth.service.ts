@@ -151,17 +151,19 @@ export class AuthService {
     const verificationUrl = `${this.configService.get<string>("FRONTEND_URL") || "http://localhost:5173"}/auth/verify-email?token=${emailVerificationToken}`;
     
     try {
-      await this.emailService.sendNotificationEmail({
-        to: registerDto.email,
-        name: registerDto.name || registerDto.email.split("@")[0],
-        type: "Info" as any,
-        title: "Verify Your Email Address",
-        message: `Please click the link below to verify your email address and activate your account:\n\n${verificationUrl}\n\nThis link will expire in 24 hours.`,
-        metadata: {
-          verificationUrl,
-          token: emailVerificationToken,
-        },
-      });
+       console.log("Sending verification email to", registerDto.email);
+       await this.emailService.sendNotificationEmail({
+         to: registerDto.email,
+         name: registerDto.name || registerDto.email.split("@")[0],
+         type: "Info" as any,
+         title: "Verify Your Email Address",
+         message: `Please click the link below to verify your email address and activate your account:\n\n${verificationUrl}\n\nThis link will expire in 24 hours.`,
+         metadata: {
+           verificationUrl,
+           token: emailVerificationToken,
+         },
+       });
+       console.log("Verification email sent to", registerDto.email);
     } catch (error) {
       console.error("Failed to send verification email:", error);
       // Don't fail registration if email fails - user can request resend

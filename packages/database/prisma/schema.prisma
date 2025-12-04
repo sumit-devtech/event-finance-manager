@@ -116,6 +116,8 @@ model User {
   reports                  Report[]
   events                   EventAssignment[]
   assignedBudgetItems      BudgetItem[]          @relation("BudgetItemAssignee")
+  uploadedFiles            File[]                @relation("FileUploader")
+  createdNotes             Note[]                 @relation("NoteCreator")
 
   @@index([organizationId])
   @@index([email])
@@ -186,6 +188,7 @@ model Event {
   expenses            Expense[]
   vendorEvents        VendorEvent[]
   files               File[]
+  notes               Note[]
   activityLogs        ActivityLog[]
   insights            Insight[]
   roiMetrics          ROIMetrics?
@@ -468,10 +471,12 @@ model File {
   mimeType     String?
   size         Int? // Size in bytes
   uploadedAt   DateTime    @default(now())
-  event        Event?      @relation(fields: [eventId], references: [id])
+  uploadedBy   String? // User ID who uploaded the file
+  event        Event?      @relation(fields: [eventId], references: [id], onDelete: Cascade)
   budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id])
   expense      Expense?    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   report       Report?     @relation(fields: [reportId], references: [id])
+  uploader     User?       @relation("FileUploader", fields: [uploadedBy], references: [id])
 
   @@index([eventId])
   @@index([budgetItemId])
@@ -479,8 +484,28 @@ model File {
   @@index([reportId])
   @@index([uploadedAt])
   @@index([mimeType])
+  @@index([uploadedBy])
   @@index([eventId, uploadedAt])
   @@index([expenseId, uploadedAt])
+}
+
+// Event Notes
+model Note {
+  id        String   @id @default(uuid())
+  eventId   String
+  content   String
+  tags      String[] // Array of tag strings
+  createdBy String? // User ID who created the note
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  creator   User?    @relation("NoteCreator", fields: [createdBy], references: [id])
+
+  @@index([eventId])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([eventId, createdAt])
+  @@index([eventId, updatedAt])
 }
 
 // Notifications (Simplified with type enum)

@@ -34,6 +34,15 @@ interface EventDetail {
     mimeType: string;
     size: number;
     uploadedAt: string;
+    uploadedBy?: string | null;
+  }>;
+  notes?: Array<{
+    id: string;
+    content: string;
+    tags: string[];
+    createdBy?: string | null;
+    createdAt: string;
+    updatedAt: string;
   }>;
   budgetItems: Array<{
     id: string;
@@ -49,6 +58,7 @@ interface EventDetail {
   }>;
   _count: {
     files: number;
+    notes: number;
     budgetItems: number;
     activityLogs: number;
   };
@@ -86,7 +96,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   try {
     // Fetch all data in parallel for better performance
-    const [eventResult, usersResult, strategicGoalsResult, vendorsResult, expensesResult, budgetItemsResult] = await Promise.allSettled([
+    const [eventResult, usersResult, strategicGoalsResult, vendorsResult, expensesResult, budgetItemsResult, notesResult, filesResult] = await Promise.allSettled([
       api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined }),
       user.role === "Admin"
         ? api.get<User[]>("/users", { token: token || undefined })
@@ -95,6 +105,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       api.get<any[]>("/vendors", { token: token || undefined }),
       api.get<any[]>(`/events/${eventId}/expenses`, { token: token || undefined }).catch(() => []),
       api.get<any[]>(`/events/${eventId}/budget-items`, { token: token || undefined }).catch(() => []),
+      api.get<any[]>(`/events/${eventId}/notes`, { token: token || undefined }).catch(() => []),
+      api.get<any[]>(`/events/${eventId}/files`, { token: token || undefined }).catch((error) => {
+        console.error('📁 Route Loader - Files API Error:', error);
+        return [];
+      }),
     ]);
 
     const event = eventResult.status === "fulfilled" ? eventResult.value : null;
@@ -107,16 +122,70 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const vendors = vendorsResult.status === "fulfilled" ? (vendorsResult.value || []) : [];
     const expenses = expensesResult.status === "fulfilled" ? (expensesResult.value || []) : [];
     const budgetItems = budgetItemsResult.status === "fulfilled" ? (budgetItemsResult.value || []) : [];
+    const notes = notesResult.status === "fulfilled" ? (notesResult.value || []) : [];
+    
+    // Handle files result - IMPORTANT: Check if API call succeeded
+    console.log('📁 Route Loader - Files Result:', {
+      status: filesResult.status,
+      hasValue: filesResult.status === "fulfilled",
+      value: filesResult.status === "fulfilled" ? filesResult.value : null,
+      error: filesResult.status === "rejected" ? filesResult.reason : null,
+      errorMessage: filesResult.status === "rejected" ? (filesResult.reason?.message || filesResult.reason) : null,
+    });
+    
+    const rawFiles = filesResult.status === "fulfilled" ? (filesResult.value || []) : [];
+    console.log('📁 Route Loader - Raw Files:', {
+      rawFiles,
+      length: rawFiles.length,
+      isArray: Array.isArray(rawFiles),
+      firstFile: rawFiles[0] || null,
+    });
 
-    // Merge budgetItems into event - always use fetched budgetItems if API call succeeded, even if empty
-    // This ensures we have the most up-to-date data from the budget-items endpoint
+    // Transform files from backend format (filename, mimeType) to frontend format (name, type)
+    const files = rawFiles.map((file: any) => ({
+      id: file.id,
+      name: file.filename,
+      type: file.mimeType,
+      size: file.size,
+      uploadedAt: file.uploadedAt,
+      uploadedBy: file.uploadedBy || undefined,
+    }));
+    
+    console.log('📁 Route Loader - Transformed Files:', {
+      files,
+      filesLength: files.length,
+      filesIsArray: Array.isArray(files),
+      firstFile: files[0] || null,
+    });
+
+    // Merge budgetItems, strategicGoals, notes, and files into event - always use fetched data if API call succeeded, even if empty
+    // This ensures we have the most up-to-date data from the endpoints
+    console.log('📁 Route Loader - Before Merge:', {
+      filesResultStatus: filesResult.status,
+      filesToMerge: files,
+      filesLength: files.length,
+      eventHasFiles: 'files' in event,
+      eventFilesValue: event.files,
+      eventFilesLength: Array.isArray(event.files) ? event.files.length : 'not array',
+    });
+    
     const eventWithBudgetItems = {
       ...event,
       budgetItems: budgetItemsResult.status === "fulfilled" ? budgetItems : (event.budgetItems || []),
       strategicGoals,
+      notes: notesResult.status === "fulfilled" ? notes : (event.notes || []),
+      files: files, // Always use the transformed files, even if empty array
     };
+    
+    console.log('📁 Route Loader - Final Event Files:', {
+      files: eventWithBudgetItems.files,
+      filesLength: eventWithBudgetItems.files?.length || 0,
+      filesIsArray: Array.isArray(eventWithBudgetItems.files),
+      eventKeys: Object.keys(eventWithBudgetItems),
+      hasFilesKey: 'files' in eventWithBudgetItems,
+    });
 
-    return json({ event: eventWithBudgetItems, users, vendors, expenses, user });
+    return json({ event: eventWithBudgetItems, users, vendors, expenses, files, user });
   } catch (error: any) {
     console.error("Error loading event:", error);
     console.error("Event ID:", eventId);
@@ -180,6 +249,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (intent === "deleteFile") {
       const fileId = formData.get("fileId") as string;
       await api.delete(`/events/${eventId}/files/${fileId}`, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "createNote") {
+      const content = formData.get("content") as string;
+      const tagsStr = formData.get("tags") as string;
+      const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+      await api.post(`/events/${eventId}/notes`, { content, tags }, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "updateNote") {
+      const noteId = formData.get("noteId") as string;
+      const content = formData.get("content") as string;
+      const tagsStr = formData.get("tags") as string;
+      const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+      await api.put(`/events/${eventId}/notes/${noteId}`, { content, tags }, tokenOption);
+      return redirect(`/events/${eventId}`);
+    }
+
+    if (intent === "deleteNote") {
+      const noteId = formData.get("noteId") as string;
+      await api.delete(`/events/${eventId}/notes/${noteId}`, tokenOption);
       return redirect(`/events/${eventId}`);
     }
 

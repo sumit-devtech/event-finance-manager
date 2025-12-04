@@ -341,7 +341,18 @@ exports.Prisma.FileScalarFieldEnum = {
   path: 'path',
   mimeType: 'mimeType',
   size: 'size',
-  uploadedAt: 'uploadedAt'
+  uploadedAt: 'uploadedAt',
+  uploadedBy: 'uploadedBy'
+};
+
+exports.Prisma.NoteScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  content: 'content',
+  tags: 'tags',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.NotificationScalarFieldEnum = {
@@ -478,6 +489,7 @@ exports.Prisma.ModelName = {
   CRMSync: 'CRMSync',
   Report: 'Report',
   File: 'File',
+  Note: 'Note',
   Notification: 'Notification',
   ActivityLog: 'ActivityLog',
   AiBudgetSuggestion: 'AiBudgetSuggestion'

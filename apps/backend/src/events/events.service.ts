@@ -95,6 +95,7 @@ export class EventsService {
     offset?: number;
     userId?: string;
     userRole?: UserRole;
+    organizationId?: string;
   }) {
     const where: any = {};
 
@@ -131,7 +132,9 @@ export class EventsService {
     if (filters?.userId && filters?.userRole) {
       if (filters.userRole === UserRole.Admin) {
         // Admin can see all events in their organization
-        // No additional filtering needed - show all events
+        if (filters?.organizationId) {
+          where.organizationId = filters.organizationId;
+        }
       } else if (filters.userRole === UserRole.EventManager) {
         // EventManager can see events they created OR are assigned to
         const roleFilter = {
@@ -154,17 +157,25 @@ export class EventsService {
         ];
         // Remove individual filter keys since they're now in AND
         Object.keys(baseFilters).forEach(key => {
-          if (key !== 'AND') delete where[key];
+          if (key !== 'AND' && key !== 'organizationId') delete where[key];
         });
+        // Re-add organizationId if it was removed
+        if (filters?.organizationId) {
+          where.organizationId = filters.organizationId;
+        }
       } else if ([UserRole.Finance, UserRole.Viewer].includes(filters.userRole)) {
         // Finance and Viewer can only see events they are assigned to
-        const roleFilter = {
+        const roleFilter: any = {
           assignments: {
             some: {
               userId: filters.userId,
             },
           },
         };
+        // Also ensure event is in the same organization if organizationId is provided
+        if (filters?.organizationId) {
+          roleFilter.organizationId = filters.organizationId;
+        }
         // Combine role filter with existing filters using AND
         const baseFilters = { ...where };
         where.AND = [
@@ -173,8 +184,12 @@ export class EventsService {
         ];
         // Remove individual filter keys since they're now in AND
         Object.keys(baseFilters).forEach(key => {
-          if (key !== 'AND') delete where[key];
+          if (key !== 'AND' && key !== 'organizationId') delete where[key];
         });
+        // Re-add organizationId if it was removed
+        if (filters?.organizationId) {
+          where.organizationId = filters.organizationId;
+        }
       }
     }
 
@@ -415,6 +430,20 @@ export class EventsService {
             uploadedAt: true,
           },
           take: 10, // Limit files
+        } : false,
+        notes: includeDetails ? {
+          select: {
+            id: true,
+            content: true,
+            tags: true,
+            createdBy: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            updatedAt: 'desc',
+          },
+          take: 50, // Limit notes
         } : false,
         _count: {
           select: {
@@ -852,6 +881,7 @@ export class EventsService {
         path: file.path,
         mimeType: file.mimetype,
         size: file.size,
+        uploadedBy: userId,
       },
     });
     
@@ -898,6 +928,188 @@ export class EventsService {
     });
     
     return { message: "File deleted successfully" };
+  }
+
+  async getFiles(eventId: string) {
+    // Verify event exists
+    await this.findOne(eventId);
+    
+    // Debug: Check if files exist in database
+    const fileCount = await this.prisma.client.file.count({
+      where: { eventId },
+    });
+    console.log(`📁 Backend getFiles - Event ${eventId} has ${fileCount} files in database`);
+    
+    const files = await this.prisma.client.file.findMany({
+      where: { eventId },
+      select: {
+        id: true,
+        filename: true,
+        mimeType: true,
+        size: true,
+        uploadedAt: true,
+        uploadedBy: true,
+        uploader: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        uploadedAt: 'desc',
+      },
+    });
+    
+    console.log(`📁 Backend getFiles - Found ${files.length} files for event ${eventId}:`, files.map(f => ({ id: f.id, filename: f.filename })));
+    
+    // Transform files to include uploader name
+    return files.map(file => ({
+      id: file.id,
+      filename: file.filename,
+      mimeType: file.mimeType,
+      size: file.size,
+      uploadedAt: file.uploadedAt.toISOString(),
+      uploadedBy: file.uploader?.fullName || file.uploader?.email || null,
+    }));
+  }
+
+  async getNotes(eventId: string) {
+    // Verify event exists
+    await this.findOne(eventId);
+    
+    const notes = await this.prisma.client.note.findMany({
+      where: { eventId },
+      select: {
+        id: true,
+        content: true,
+        tags: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true,
+        creator: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+    
+    return notes;
+  }
+
+  async createNote(
+    eventId: string,
+    createNoteDto: { content: string; tags?: string[] },
+    userId: string,
+  ) {
+    // Verify event exists and user has access
+    await this.findOne(eventId);
+    
+    const note = await this.prisma.client.note.create({
+      data: {
+        eventId,
+        content: createNoteDto.content,
+        tags: createNoteDto.tags || [],
+        createdBy: userId,
+      },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    });
+    
+    await this.createActivityLog(userId, "note_created", {
+      eventId,
+      noteId: note.id,
+    }, eventId);
+    
+    return note;
+  }
+
+  async updateNote(
+    eventId: string,
+    noteId: string,
+    updateNoteDto: { content: string; tags?: string[] },
+    userId: string,
+  ) {
+    // Verify event exists
+    await this.findOne(eventId);
+    
+    // Verify note exists and belongs to event
+    const note = await this.prisma.client.note.findFirst({
+      where: {
+        id: noteId,
+        eventId,
+      },
+    });
+    
+    if (!note) {
+      throw new NotFoundException(`Note with ID ${noteId} not found for this event`);
+    }
+    
+    const updatedNote = await this.prisma.client.note.update({
+      where: { id: noteId },
+      data: {
+        content: updateNoteDto.content,
+        tags: updateNoteDto.tags || [],
+      },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    });
+    
+    await this.createActivityLog(userId, "note_updated", {
+      eventId,
+      noteId: updatedNote.id,
+    }, eventId);
+    
+    return updatedNote;
+  }
+
+  async deleteNote(eventId: string, noteId: string, userId: string) {
+    // Verify event exists
+    await this.findOne(eventId);
+    
+    // Verify note exists and belongs to event
+    const note = await this.prisma.client.note.findFirst({
+      where: {
+        id: noteId,
+        eventId,
+      },
+    });
+    
+    if (!note) {
+      throw new NotFoundException(`Note with ID ${noteId} not found for this event`);
+    }
+    
+    await this.prisma.client.note.delete({
+      where: { id: noteId },
+    });
+    
+    await this.createActivityLog(userId, "note_deleted", {
+      eventId,
+      noteId,
+    }, eventId);
+    
+    return { message: "Note deleted successfully" };
   }
 
   private async createActivityLog(

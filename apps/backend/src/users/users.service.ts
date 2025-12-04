@@ -8,11 +8,18 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { AssignRoleDto } from "./dto/assign-role.dto";
 import { AssignEventDto } from "./dto/assign-event.dto";
+import { EmailService } from "../notifications/email.service";
+import { ConfigService } from "@nestjs/config";
 import * as bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async findAll() {
     const users = await this.prisma.client.user.findMany({
@@ -119,7 +126,7 @@ export class UsersService {
     return transformed;
   }
 
-  async create(createUserDto: CreateUserDto, adminUserId: string) {
+  async create(createUserDto: CreateUserDto, adminUserId: string, organizationId?: string) {
     const existingUser = await this.prisma.client.user.findUnique({
       where: { email: createUserDto.email },
     });
@@ -128,6 +135,11 @@ export class UsersService {
       throw new ConflictException("User with this email already exists");
     }
 
+    // Generate email verification token
+    const emailVerificationToken = randomUUID();
+    const emailVerificationExpires = new Date();
+    emailVerificationExpires.setHours(emailVerificationExpires.getHours() + 24); // 24 hours expiry
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const user = await this.prisma.client.user.create({
       data: {
@@ -135,6 +147,11 @@ export class UsersService {
         passwordHash: hashedPassword,
         fullName: createUserDto.name || "",
         role: createUserDto.role || "Viewer",
+        organizationId: organizationId || null,
+        isActive: false, // Inactive until email verified
+        emailVerified: false,
+        emailVerificationToken,
+        emailVerificationExpires,
       },
       select: {
         id: true,
@@ -146,12 +163,34 @@ export class UsersService {
       },
     });
 
+    // Send verification email
+    const verificationUrl = `${this.configService.get<string>("FRONTEND_URL") || "http://localhost:5173"}/auth/verify-email?token=${emailVerificationToken}`;
+    
+    try {
+      console.log("Sending verification email to", createUserDto.email);
+      await this.emailService.sendNotificationEmail({
+        to: createUserDto.email,
+        name: createUserDto.name || createUserDto.email.split("@")[0],
+        type: "Info" as any,
+        title: "Welcome! Verify Your Email Address",
+        message: `You have been invited to join the Event Finance Manager platform.\n\nPlease click the link below to verify your email address and activate your account:\n\n${verificationUrl}\n\nThis link will expire in 24 hours.`,
+        metadata: {
+          verificationUrl,
+          token: emailVerificationToken,
+        },
+      });
+      console.log("Verification email sent to", createUserDto.email);
+    } catch (error) {
+      console.error("Failed to send verification email:", error);
+      // Don't fail user creation if email fails - user can request resend
+    }
+
     // Create activity log
     await this.createActivityLog(adminUserId, "user.created", {
       userId: user.id,
       userName: user.fullName || user.email,
       email: user.email,
-    });
+    }, undefined, organizationId);
 
     // Transform fullName to name for frontend compatibility
     const { fullName, ...rest } = user;
@@ -421,6 +460,7 @@ export class UsersService {
     action: string,
     details: any,
     eventId?: string,
+    organizationId?: string,
   ) {
     await this.prisma.client.activityLog.create({
       data: {
@@ -428,6 +468,7 @@ export class UsersService {
         action,
         details,
         eventId,
+        organizationId,
       },
     });
   }

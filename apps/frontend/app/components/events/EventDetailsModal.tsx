@@ -10,10 +10,30 @@ import { StrategicGoals } from '../StrategicGoals';
 import { EventDocuments } from './EventDocuments';
 import { EventNotes } from './EventNotes';
 import { api } from '~/lib/api';
-import type { EventWithDetails, VendorWithStats, ExpenseWithVendor } from "~/types";
+import type { EventWithDetails, VendorWithStats, ExpenseWithVendor, StrategicGoal } from "~/types";
 import type { User } from "~/lib/auth";
 import type { EventStatus } from "~/types";
 import { Dropdown } from '../shared';
+
+// Types for event files and notes
+type EventFile = {
+  id: string;
+  name: string;
+  type: string;
+  size?: number;
+  uploadedAt: string;
+  uploadedBy?: string;
+  url?: string;
+};
+
+type EventNote = {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  tags?: string[];
+};
 
 interface EventDetailsModalProps {
   event: EventWithDetails;
@@ -46,6 +66,9 @@ export function EventDetailsModal({
   const [eventVendors, setEventVendors] = useState<VendorWithStats[]>(vendors);
   const [eventExpenses, setEventExpenses] = useState<ExpenseWithVendor[]>(initialExpenses);
   const [eventBudgetItems, setEventBudgetItems] = useState<any[]>(event?.budgetItems || []);
+  const [eventStrategicGoals, setEventStrategicGoals] = useState<StrategicGoal[]>(event?.strategicGoals || []);
+  const [eventFiles, setEventFiles] = useState<EventFile[]>(event?.files || []);
+  const [eventNotes, setEventNotes] = useState<EventNote[]>(event?.notes || []);
   // Normalize status: backend returns capitalized (Planning, Active, etc.), but we use lowercase for internal state
   const normalizeStatus = (status: string | undefined): string => {
     if (!status) return 'planning';
@@ -124,6 +147,48 @@ export function EventDetailsModal({
     }
   }, [event?.budgetItems]);
 
+  // Update strategicGoals when event prop changes - use ref to prevent unnecessary updates
+  const prevStrategicGoalsRef = useRef<StrategicGoal[]>(event?.strategicGoals || []);
+  useEffect(() => {
+    const currentStrategicGoals = event?.strategicGoals || [];
+    // Always check for changes, even if array is empty
+    const prevIds = prevStrategicGoalsRef.current.map((goal: StrategicGoal) => goal.id).sort().join(',');
+    const newIds = currentStrategicGoals.map((goal: StrategicGoal) => goal.id).sort().join(',');
+
+    if (prevIds !== newIds || prevStrategicGoalsRef.current.length !== currentStrategicGoals.length) {
+      setEventStrategicGoals(currentStrategicGoals);
+      prevStrategicGoalsRef.current = currentStrategicGoals;
+    }
+  }, [event?.strategicGoals]);
+
+  // Update files when event prop changes - same pattern as expenses
+  const prevFilesRef = useRef<EventFile[]>(event?.files || []);
+  useEffect(() => {
+    const currentFiles = event?.files || [];
+    // Always check for changes, even if array is empty
+    const prevIds = prevFilesRef.current.map((file: EventFile) => file.id).sort().join(',');
+    const newIds = currentFiles.map((file: EventFile) => file.id).sort().join(',');
+
+    if (prevIds !== newIds || prevFilesRef.current.length !== currentFiles.length) {
+      setEventFiles(currentFiles);
+      prevFilesRef.current = currentFiles;
+    }
+  }, [event?.files]);
+
+  // Update notes when event prop changes - same pattern as expenses
+  const prevNotesRef = useRef<EventNote[]>(event?.notes || []);
+  useEffect(() => {
+    const currentNotes = event?.notes || [];
+    // Always check for changes, even if array is empty
+    const prevIds = prevNotesRef.current.map((note: EventNote) => note.id).sort().join(',');
+    const newIds = currentNotes.map((note: EventNote) => note.id).sort().join(',');
+
+    if (prevIds !== newIds || prevNotesRef.current.length !== currentNotes.length) {
+      setEventNotes(currentNotes);
+      prevNotesRef.current = currentNotes;
+    }
+  }, [event?.notes]);
+
   // Track previous revalidator and navigation states to detect transitions
   const prevRevalidatorState = useRef(revalidator.state);
   const prevNavigationState = useRef(navigation.state);
@@ -197,19 +262,96 @@ export function EventDetailsModal({
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
       const data = fetcher.data as any;
+      console.log('🔄 EventDetailsModal - Fetcher data received:', {
+        hasData: !!data,
+        hasEvent: data && typeof data === 'object' && 'event' in data,
+        dataKeys: data ? Object.keys(data) : [],
+      });
+
       if (data && typeof data === 'object' && 'event' in data) {
         // The route loader returns { event, users, vendors, expenses, user }
         // Ensure we preserve all event data including budgetItems and strategicGoals
         const fetchedEvent = data.event as EventWithDetails;
+        console.log('📋 EventDetailsModal - Fetched Event Keys:', {
+          eventId: fetchedEvent.id,
+          eventKeys: Object.keys(fetchedEvent),
+          hasFiles: 'files' in fetchedEvent,
+          hasNotes: 'notes' in fetchedEvent,
+          hasBudgetItems: 'budgetItems' in fetchedEvent,
+          hasStrategicGoals: 'strategicGoals' in fetchedEvent,
+        });
+
         setFullEvent(fetchedEvent);
         if (data.users) setEventUsers(data.users);
         if (data.vendors) setEventVendors(data.vendors);
-        if (data.expenses) setEventExpenses(data.expenses);
-        // Update budgetItems from fetched event (always update, even if empty array)
-        if (fetchedEvent?.budgetItems !== undefined) {
-          setEventBudgetItems(fetchedEvent.budgetItems || []);
+
+        // Update expenses - always update when available (same pattern as transactions)
+        if (data.expenses) {
+          console.log('💳 EventDetailsModal - Expenses Updated:', {
+            eventId: fetchedEvent.id,
+            expensesCount: data.expenses.length,
+            expenses: data.expenses,
+          });
+          setEventExpenses(data.expenses);
         }
-        // StrategicGoals are already in fullEvent, so they'll be available via currentEvent
+
+        // Update files - same pattern as expenses (from separate field, not from event object)
+        if (data.files !== undefined) {
+          console.log('📁 EventDetailsModal - Files Updated from data.files:', {
+            eventId: fetchedEvent.id,
+            filesCount: (data.files || []).length,
+            files: data.files || [],
+          });
+          setEventFiles(data.files || []);
+        }
+
+        // Update budgetItems - always update when available (same pattern as transactions)
+        // Always update, even if empty array, to ensure we have the latest data
+        const budgetItems = fetchedEvent?.budgetItems || [];
+        console.log('📦 EventDetailsModal - Budget Items Updated:', {
+          eventId: fetchedEvent.id,
+          budgetItemsCount: budgetItems.length,
+          budgetItems: budgetItems,
+        });
+        setEventBudgetItems(budgetItems);
+
+        // Update strategicGoals - always update when available (same pattern as transactions)
+        // Always update, even if empty array, to ensure we have the latest data
+        const strategicGoals = fetchedEvent?.strategicGoals || [];
+        console.log('🎯 EventDetailsModal - Strategic Goals Updated:', {
+          eventId: fetchedEvent.id,
+          goalsCount: strategicGoals.length,
+          goals: strategicGoals,
+        });
+        setEventStrategicGoals(strategicGoals);
+
+        // Update files - always update when available (same pattern as transactions)
+        // Always update, even if empty array, to ensure we have the latest data
+        console.log('📁 EventDetailsModal - Processing Files:', {
+          eventId: fetchedEvent.id,
+          filesInEvent: fetchedEvent?.files,
+          filesType: typeof fetchedEvent?.files,
+          filesIsArray: Array.isArray(fetchedEvent?.files),
+          filesValue: fetchedEvent?.files,
+        });
+        const files = fetchedEvent?.files || [];
+        console.log('📁 EventDetailsModal - Files Updated:', {
+          eventId: fetchedEvent.id,
+          filesCount: files.length,
+          files: files,
+          currentEventFiles: eventFiles.length,
+        });
+        setEventFiles(files);
+
+        // Update notes - always update when available (same pattern as transactions)
+        // Always update, even if empty array, to ensure we have the latest data
+        const notes = fetchedEvent?.notes || [];
+        console.log('📝 EventDetailsModal - Notes Updated:', {
+          eventId: fetchedEvent.id,
+          notesCount: notes.length,
+          notes: notes,
+        });
+        setEventNotes(notes);
         if (loadingEvent) {
           setLoadingEvent(false);
         }
@@ -349,6 +491,7 @@ export function EventDetailsModal({
                 <button
                   key={section.id}
                   onClick={() => {
+                    console.log('🔍 Clicked section:', section.id);
                     setActiveSection(section.id);
                     setIsMobileSidebarOpen(false);
                   }}
@@ -599,37 +742,62 @@ export function EventDetailsModal({
             )}
 
             {activeSection === 'budget' && (
-              <BudgetManager 
-                user={user ?? null}
-                organization={organization}
-                event={currentEvent}
-                events={[currentEvent].filter(Boolean)}
-                budgetItems={eventBudgetItems}
-                users={eventUsers}
-                strategicGoals={currentEvent?.strategicGoals || []}
-                vendors={eventVendors}
-                isDemo={isDemo}
-                actionData={actionData}
-              />
+              (() => {
+                console.log('📊 Budget Section - Displaying Budget Items:', {
+                  eventId: currentEvent.id,
+                  eventName: currentEvent.name,
+                  budgetItemsCount: eventBudgetItems.length,
+                  budgetItems: eventBudgetItems,
+                  strategicGoalsCount: eventStrategicGoals.length,
+                  strategicGoals: eventStrategicGoals,
+                  vendorsCount: eventVendors.length,
+                  usersCount: eventUsers.length,
+                });
+                return (
+                  <BudgetManager
+                    user={user ?? null}
+                    organization={organization}
+                    event={currentEvent}
+                    events={[currentEvent].filter(Boolean)}
+                    budgetItems={eventBudgetItems}
+                    users={eventUsers}
+                    strategicGoals={eventStrategicGoals}
+                    vendors={eventVendors}
+                    isDemo={isDemo}
+                    actionData={actionData}
+                  />
+                );
+              })()
             )}
 
             {activeSection === 'transactions' && (
-              <ExpenseTracker 
-                user={user ?? null}
-                organization={organization}
-                event={event}
-                expenses={eventExpenses}
-                vendors={vendors}
-                isDemo={isDemo}
-                fetcher={fetcher}
-              />
+              (() => {
+                console.log('💰 Transactions Section - Displaying Expenses:', {
+                  eventId: currentEvent.id,
+                  eventName: currentEvent.name,
+                  expensesCount: eventExpenses.length,
+                  expenses: eventExpenses,
+                  vendorsCount: vendors.length,
+                  vendors: vendors,
+                });
+                return (
+                  <ExpenseTracker
+                    user={user ?? null}
+                    organization={organization}
+                    event={currentEvent}
+                    expenses={eventExpenses}
+                    vendors={vendors}
+                    isDemo={isDemo}
+                    fetcher={fetcher}
+                  />
+                );
+              })()
             )}
 
             {activeSection === 'strategic-goals' && (
-              <StrategicGoals
-                eventId={currentEvent.id}
-                parentFetcher={fetcher}
-                goals={(currentEvent?.strategicGoals || []).map(goal => {
+              (() => {
+                console.log('🔍 Strategic Goals State:', eventStrategicGoals);
+                const goals = eventStrategicGoals.map(goal => {
                   // Handle deadline - it might be a Date object or a string
                   let deadlineStr: string | undefined = undefined;
                   if (goal.deadline) {
@@ -657,43 +825,74 @@ export function EventDetailsModal({
                     status: goal.status as 'not-started' | 'in-progress' | 'completed',
                     priority: goal.priority as 'low' | 'medium' | 'high',
                   };
-                })}
-                isDemo={isDemo}
-                user={user ?? null}
-              />
+                });
+                console.log('🎯 Strategic Goals Section - Displaying Goals:', {
+                  eventId: currentEvent.id,
+                  eventName: currentEvent.name,
+                  goalsCount: goals.length,
+                  goals: goals,
+                  rawStrategicGoals: eventStrategicGoals,
+                });
+                return (
+                  <StrategicGoals
+                    eventId={currentEvent.id}
+                    parentFetcher={fetcher}
+                    goals={goals}
+                    isDemo={isDemo}
+                    user={user ?? null}
+                  />
+                );
+              })()
             )}
 
             {activeSection === 'documents' && (
-              <EventDocuments
-                eventId={currentEvent.id}
-                documents={currentEvent?.files || []}
-                isDemo={isDemo}
-                user={user ?? null}
-                onUpload={async (file) => {
-                  if (!isDemo) {
-                    // TODO: Upload file to backend
-                    console.log('Upload file:', file);
-                  }
-                }}
-                onDelete={async (documentId) => {
-                  if (!isDemo) {
-                    // TODO: Delete file from backend
-                    console.log('Delete document:', documentId);
-                  }
-                }}
-              />
+              (() => {
+                console.log('📁 Documents Section - Displaying Files:', {
+                  eventId: currentEvent.id,
+                  eventName: currentEvent.name,
+                  filesCount: eventFiles.length,
+                  files: eventFiles,
+                  currentEventFiles: currentEvent?.files?.length || 0,
+                });
+                return (
+                  <EventDocuments
+                    eventId={currentEvent.id}
+                    documents={eventFiles}
+                    isDemo={isDemo}
+                    user={user ?? null}
+                    fetcher={fetcher}
+                    onUpload={async (file) => {
+                      if (!isDemo) {
+                        // File upload is handled by EventDocuments component via fetcher submission
+                        console.log('File upload initiated:', file.name);
+                      }
+                    }}
+                    onDelete={async (documentId) => {
+                      if (!isDemo) {
+                        // File deletion is handled by EventDocuments component via fetcher submission
+                        console.log('File deletion initiated:', documentId);
+                      }
+                    }}
+                  />
+                );
+              })()
             )}
 
             {activeSection === 'notes' && (
               <EventNotes
                 eventId={currentEvent.id}
-                notes={currentEvent?.notes || []}
+                notes={eventNotes}
                 isDemo={isDemo}
                 user={user ?? null}
+                fetcher={fetcher}
                 onSave={async (notes) => {
-                  if (!isDemo) {
-                    // TODO: Save notes to backend
-                    console.log('Save notes:', notes);
+                  // In demo mode, update local state to keep notes in sync
+                  // In non-demo mode, EventNotes uses fetcher submissions which are handled
+                  // by the route handler and trigger a reload via fetcher
+                  if (isDemo) {
+                    setEventNotes(notes);
+                    // Also update fullEvent to keep it consistent
+                    setFullEvent({ ...currentEvent, notes });
                   }
                 }}
               />
