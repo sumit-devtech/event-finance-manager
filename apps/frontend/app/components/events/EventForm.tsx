@@ -55,11 +55,8 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
   // Close form on successful submission - only close when navigation is idle and we have success
   useEffect(() => {
     if (actionData?.success && navigation.state === 'idle' && !isSubmitting) {
-      // Only close if we're not currently submitting and navigation is idle
-      const timer = setTimeout(() => {
-        onClose();
-      }, 500);
-      return () => clearTimeout(timer);
+      // Close immediately when submission is successful
+      onClose();
     }
   }, [actionData, navigation.state, isSubmitting, onClose]);
 
@@ -114,10 +111,8 @@ export function EventForm({ event, onClose, user, organization, actionData, isDe
           onSubmit={(e) => {
             if (isDemo) {
               e.preventDefault();
-              setTimeout(() => {
-                toast("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
-                onClose();
-              }, 500);
+              toast("Demo Mode: Event would be created, but changes aren't saved in demo mode.");
+              onClose();
             }
           }}
         >

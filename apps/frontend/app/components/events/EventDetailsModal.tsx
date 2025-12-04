@@ -228,15 +228,9 @@ export function EventDetailsModal({
     if (shouldRefresh) {
       lastRefreshTime.current = now;
       isRefreshingRef.current = true;
-      // Small delay to ensure route has finished revalidating and data is available
-      const timer = setTimeout(() => {
-        fetcher.load(`/events/${event.id}`);
-        // Reset refreshing flag after a delay
-        setTimeout(() => {
-          isRefreshingRef.current = false;
-        }, 1000);
-      }, 300);
-      return () => clearTimeout(timer);
+      fetcher.load(`/events/${event.id}`);
+      // Reset refreshing flag immediately after load starts
+      isRefreshingRef.current = false;
     }
   }, [revalidator.state, navigation.state, event?.id, isDemo, hasInitialLoad, loadingEvent]);
   
@@ -247,13 +241,9 @@ export function EventDetailsModal({
       if (now - lastRefreshTime.current > 2000 && fetcher.state === 'idle') {
         lastRefreshTime.current = now;
         isRefreshingRef.current = true;
-        const timer = setTimeout(() => {
-          fetcher.load(`/events/${event.id}`);
-          setTimeout(() => {
-            isRefreshingRef.current = false;
-          }, 1000);
-        }, 300);
-        return () => clearTimeout(timer);
+        fetcher.load(`/events/${event.id}`);
+        // Reset refreshing flag immediately after load starts
+        isRefreshingRef.current = false;
       }
     }
   }, [actionData?.success, hasInitialLoad, isDemo, event?.id, loadingEvent]);

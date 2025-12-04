@@ -122,10 +122,7 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       // Also explicitly reload the parent fetcher to ensure we get the latest files
       revalidator.revalidate();
       if (parentFetcher && parentFetcher.state === "idle") {
-        // Small delay to ensure redirect has completed
-        setTimeout(() => {
-          parentFetcher.load(`/events/${eventId}`);
-        }, 200);
+        parentFetcher.load(`/events/${eventId}`);
       }
     }
 

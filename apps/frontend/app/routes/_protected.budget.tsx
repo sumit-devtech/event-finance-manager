@@ -365,10 +365,7 @@ export default function BudgetRoute() {
   // Reload data after successful actions (same pattern as events route)
   useEffect(() => {
     if (actionData?.success) {
-      const timer = setTimeout(() => {
-        revalidator.revalidate();
-      }, 500);
-      return () => clearTimeout(timer);
+      revalidator.revalidate();
     }
   }, [actionData, revalidator]);
 

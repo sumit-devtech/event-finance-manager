@@ -97,19 +97,15 @@ export function EventsList({ user, organization, isDemo, events: initialEvents, 
     const data = fetcher.data as FetcherResponse | undefined;
     if (data && data.success && data !== lastProcessedFetcherData.current) {
       lastProcessedFetcherData.current = data;
-      
-      const timer = setTimeout(() => {
-        if (onRefresh) {
-          onRefresh();
-        }
-        clearSelection();
-        if (data.message?.includes('deleted')) {
-          setSelectedEvent(null);
-          setShowForm(false);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
+
+      if (onRefresh) {
+        onRefresh();
+      }
+      clearSelection();
+      if (data.message?.includes('deleted')) {
+        setSelectedEvent(null);
+        setShowForm(false);
+      }
     }
   }, [fetcher.data, onRefresh, clearSelection]);
 

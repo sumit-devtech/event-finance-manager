@@ -145,10 +145,7 @@ export function ExpenseTracker({
         // Show success message
         toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS);
         // Revalidate to refresh expenses list
-        // Add a small delay to allow the redirect to complete
-        setTimeout(() => {
-          revalidator.revalidate();
-        }, 300);
+        revalidator.revalidate();
         // Reset wizard form state by triggering a re-render
         // The ExpenseWizard will reset when isOpen becomes false
       }

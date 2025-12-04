@@ -501,10 +501,7 @@ export default function EventsPage() {
   // Reload data after successful actions
   useEffect(() => {
     if (actionData?.success) {
-      const timer = setTimeout(() => {
-        revalidator.revalidate();
-      }, 500);
-      return () => clearTimeout(timer);
+      revalidator.revalidate();
     }
   }, [actionData, revalidator]);
 

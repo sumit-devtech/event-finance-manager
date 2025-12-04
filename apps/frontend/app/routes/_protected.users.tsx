@@ -226,11 +226,8 @@ export default function UsersPage() {
             setShowEventModal(false);
             setSelectedUser(null);
 
-            // Reload the page data after a short delay to show the success message
-            const timer = setTimeout(() => {
-                revalidator.revalidate();
-            }, 1000);
-            return () => clearTimeout(timer);
+          // Reload the page data immediately
+          revalidator.revalidate();
         }
     }, [actionData, revalidator]);
 

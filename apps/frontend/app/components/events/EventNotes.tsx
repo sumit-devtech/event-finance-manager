@@ -100,10 +100,7 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
       // Also explicitly reload the parent fetcher to ensure we get the latest notes
       revalidator.revalidate();
       if (parentFetcher && parentFetcher.state === "idle") {
-        // Small delay to ensure redirect has completed
-        setTimeout(() => {
-          parentFetcher.load(`/events/${eventId}`);
-        }, 200);
+        parentFetcher.load(`/events/${eventId}`);
       }
     }
 

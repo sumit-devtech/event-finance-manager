@@ -125,10 +125,7 @@ export function StrategicGoals({ eventId, goals: initialGoals = [], isDemo = fal
       });
       wasSubmittingRef.current = false;
       // Trigger revalidation to refresh the goals list
-      // Add a small delay to allow the redirect to complete
-      setTimeout(() => {
-        revalidator.revalidate();
-      }, 300);
+      revalidator.revalidate();
     }
 
     // Update previous state

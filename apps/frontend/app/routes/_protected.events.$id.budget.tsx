@@ -394,10 +394,7 @@ export default function BudgetPage() {
   // Revalidate after successful actions
   useEffect(() => {
     if (navigation.state === "idle" && actionData?.success !== undefined) {
-      const timer = setTimeout(() => {
-        revalidator.revalidate();
-      }, 100);
-      return () => clearTimeout(timer);
+      revalidator.revalidate();
     }
   }, [navigation.state, actionData, revalidator]);
 

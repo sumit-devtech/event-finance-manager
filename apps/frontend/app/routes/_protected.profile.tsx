@@ -210,10 +210,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (actionData?.success && "message" in actionData && actionData.message) {
       setShowEditModal(false);
-      const timer = setTimeout(() => {
-        revalidator.revalidate();
-      }, 1000);
-      return () => clearTimeout(timer);
+      revalidator.revalidate();
     }
   }, [actionData, revalidator]);
 

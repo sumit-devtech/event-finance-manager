@@ -236,13 +236,8 @@ export default function ExpensesRoute() {
       if (fetcherData?.error) {
         return;
       }
-      
-      // Add a small delay to prevent flickering and allow optimistic updates to settle
-      const timer = setTimeout(() => {
-        revalidator.revalidate();
-      }, 300);
-      
-      return () => clearTimeout(timer);
+
+      revalidator.revalidate();
     }
   }, [fetcher.state, fetcher.data, revalidator]);
 
