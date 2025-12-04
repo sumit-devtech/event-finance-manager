@@ -191,9 +191,7 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       }
     } else {
       // Non-demo mode - use fetcher to submit
-      if (!confirm("Are you sure you want to delete this document? This action cannot be undone.")) {
-        return;
-      }
+      // DeleteButton component already handles confirmation, so no need for confirm() here
       submittingUploadFormRef.current = false; // Not showing upload form for delete
       const formData = new FormData();
       formData.append("intent", "deleteFile");

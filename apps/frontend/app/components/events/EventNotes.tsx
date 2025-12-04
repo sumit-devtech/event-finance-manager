@@ -180,9 +180,7 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
       toast.success('Note deleted successfully');
     } else {
       // Non-demo mode - use fetcher to submit
-      if (!confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
-        return;
-      }
+      // DeleteButton component already handles confirmation, so no need for confirm() here
       submittingFormRef.current = false; // Not showing form for delete
       const formData = new FormData();
       formData.append("intent", "deleteNote");
