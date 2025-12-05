@@ -8,8 +8,6 @@ import { NotificationsService } from "../notifications/notifications.service";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { UserRole } from "../auth/types/user-role.enum";
 import { ExpenseStatus } from "@event-finance-manager/database";
-import * as fs from "fs";
-import * as path from "path";
 
 @Injectable()
 export class EventsService {

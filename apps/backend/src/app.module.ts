@@ -16,6 +16,7 @@ import { StrategicGoalsModule } from "./strategic-goals/strategic-goals.module";
 import { ExpensesModule } from "./expenses/expenses.module";
 import { VendorsModule } from "./vendors/vendors.module";
 import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 
 @Module({
@@ -33,6 +34,7 @@ import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
     ExpensesModule,
     VendorsModule,
     SubscriptionsModule,
+    DashboardModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

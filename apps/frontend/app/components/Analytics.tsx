@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, DollarSign, Calendar, Users, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, Users } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import type { User } from "~/lib/auth";
 import type { EventWithDetails } from "~/types";

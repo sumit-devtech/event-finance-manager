@@ -1,9 +1,9 @@
 import { Link, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
-import { Calendar, DollarSign, TrendingUp, Clock, AlertCircle, CheckCircle, FileText, Plus, Crown } from './Icons';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from 'recharts';
+import { Calendar, DollarSign, TrendingUp, AlertCircle, FileText, Plus, Crown } from './Icons';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from 'recharts';
 import type { User } from "~/lib/auth";
-import { demoDashboardStats, demoDashboardBudgetData, demoDashboardExpenseCategories, demoDashboardRecentEvents, demoDashboardAlerts } from "~/lib/demoData";
+import { demoDashboardBudgetData, demoDashboardExpenseCategories, demoDashboardRecentEvents, demoDashboardAlerts } from "~/lib/demoData";
 import { ProgressBar } from "./shared/ProgressBar";
 import { Dropdown } from "./shared";
 
@@ -60,7 +60,6 @@ interface DashboardProps {
 
 export function Dashboard({ user, organization, events, stats, budgetData: budgetDataProp, expenseCategories: expenseCategoriesProp, alerts: alertsProp, isDemo: isDemoProp }: DashboardProps) {
   const [searchParams] = useSearchParams();
-  const [selectedEventFilter, setSelectedEventFilter] = useState('all');
   const [dateRangeFilter, setDateRangeFilter] = useState('6months');
   // Check if we're in demo mode by checking the demo query parameter
   const isDemo = isDemoProp ?? searchParams.get('demo') === 'true';
@@ -77,51 +76,6 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
   const canManageBudget = !isViewer || isDemo;
   // View Reports: Admin, EventManager, and Finance (Viewer cannot access reports)
   const canViewReports = (isAdmin || isEventManager || isFinance || isDemo);
-
-  // Use demo data from centralized file - map icons
-  const demoStats = demoDashboardStats.map(stat => {
-    let icon = Calendar;
-    if (stat.label === 'Total Budget') icon = DollarSign;
-    else if (stat.label === 'Pending Approvals') icon = Clock;
-    else if (stat.label === 'ROI Average') icon = TrendingUp;
-    return { ...stat, icon };
-  });
-
-  // Use demo data if in demo mode, otherwise use real stats
-  const dashboardStats = isDemo ? demoStats : [
-    { 
-      label: 'Active Events', 
-      value: stats.activeEvents.toString(), 
-      change: `${stats.activeEvents > 0 ? '+' : ''}${stats.activeEvents} active`, 
-      icon: Calendar, 
-      color: 'blue',
-      href: '/events?status=Active'
-    },
-    { 
-      label: 'Total Budget Items', 
-      value: stats.totalBudgetItems.toString(), 
-      change: 'Across all events', 
-      icon: DollarSign, 
-      color: 'green',
-      href: '/budget'
-    },
-    { 
-      label: 'Total Events', 
-      value: stats.totalEvents.toString(), 
-      change: `${stats.planningEvents} planning`, 
-      icon: Clock, 
-      color: 'yellow',
-      href: '/events'
-    },
-    { 
-      label: 'Completed', 
-      value: stats.completedEvents.toString(), 
-      change: 'Events finished', 
-      icon: TrendingUp, 
-      color: 'purple',
-      href: '/events?status=Completed'
-    },
-  ];
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -375,22 +329,6 @@ export function Dashboard({ user, organization, events, stats, budgetData: budge
 
           {/* Chart Filters */}
           <div className="flex flex-wrap gap-3">
-            {/* Event Filter */}
-            <Dropdown
-              value={selectedEventFilter}
-              onChange={setSelectedEventFilter}
-              options={[
-                { value: 'all', label: 'All Events' },
-                ...events.slice(0, 5).map((event) => ({
-                  value: event.id || '',
-                  label: event.name,
-                })),
-              ]}
-              placeholder="Select event"
-              size="sm"
-              className="min-w-[150px]"
-            />
-
             {/* Date Range Filter */}
             <Dropdown
               value={dateRangeFilter}

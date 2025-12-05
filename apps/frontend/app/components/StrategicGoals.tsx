@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useFetcher, useRevalidator } from '@remix-run/react';
-import { Target, Plus, X, CheckCircle, Clock } from './Icons';
+import { Target, Plus, X, Clock } from './Icons';
 import { Dropdown, EditButton, DeleteButton, ConfirmDialog } from './shared';
 import { toast } from 'react-hot-toast';
 import { demoStrategicGoals } from "~/lib/demoData";

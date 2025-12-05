@@ -78,7 +78,7 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
     // Process when fetcher becomes idle after submitting
     // This handles both direct transitions (submitting -> idle) and redirects (submitting -> loading -> idle)
     if (currentState === "idle" && wasSubmittingRef.current && (previousState === "submitting" || previousState === "loading")) {
-      // Check for error
+      // Check for error - rollback optimistic update
       if (fetcher.data && typeof fetcher.data === 'object' && 'error' in fetcher.data) {
         toast.error((fetcher.data as { error: string }).error);
         uploadingRef.current = false;
@@ -88,6 +88,8 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
         wasSubmittingRef.current = false;
         submittingUploadFormRef.current = false;
         previousFetcherStateRef.current = currentState;
+        // Rollback optimistic update - refresh from server
+        revalidator.revalidate();
         // Reset file input on error
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -95,21 +97,17 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
         return;
       }
 
-      // Success case - refresh data
+      // Success case - form already closed optimistically, just show success toast
       // Use ref to get the value at submission time
       const wasShowingUploadForm = submittingUploadFormRef.current;
 
       if (wasShowingUploadForm) {
-        setShowUploadForm(false);
+        // Form already closed optimistically, just show success message
         uploadingRef.current = false;
         if (isDemo) {
           setUploading(false);
         }
         toast.success('Document uploaded successfully');
-        // Reset file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
       } else {
         toast.success('Document deleted successfully');
       }
@@ -118,12 +116,8 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       submittingUploadFormRef.current = false;
       wasSubmittingRef.current = false;
 
-      // Refresh data - trigger revalidation which will reload all loaders
-      // Also explicitly reload the parent fetcher to ensure we get the latest files
+      // Refresh data - use revalidator only (more reliable than fetcher.load)
       revalidator.revalidate();
-      if (parentFetcher && parentFetcher.state === "idle") {
-        parentFetcher.load(`/events/${eventId}`);
-      }
     }
 
     previousFetcherStateRef.current = currentState;
@@ -165,10 +159,22 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       // Capture that we're showing the upload form before submission
       submittingUploadFormRef.current = true;
 
+      // Optimistic update - add document immediately for better UX
+      const optimisticDocument: Document = {
+        id: `temp-${Date.now()}`,
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: user?.name || 'You',
+      };
+      setDocuments([...documents, optimisticDocument]);
+      setShowUploadForm(false);
+      setUploading(true);
+
       const formData = new FormData();
       formData.append("intent", "uploadFile");
       formData.append("file", file);
-      setUploading(true);
       fetcher.submit(formData, { method: "post", action: `/events/${eventId}`, encType: "multipart/form-data" });
     }
   };
@@ -190,10 +196,20 @@ export function EventDocuments({ eventId, documents: initialDocuments = [], isDe
       // Non-demo mode - use fetcher to submit
       // DeleteButton component already handles confirmation, so no need for confirm() here
       submittingUploadFormRef.current = false; // Not showing upload form for delete
+
+      // Optimistic update - remove document immediately for better UX
+      const documentToDelete = documents.find(doc => doc.id === documentId);
+      setDocuments(documents.filter(doc => doc.id !== documentId));
+
       const formData = new FormData();
       formData.append("intent", "deleteFile");
       formData.append("fileId", documentId);
       fetcher.submit(formData, { method: "post", action: `/events/${eventId}` });
+
+      // Store for rollback on error
+      if (documentToDelete) {
+        wasSubmittingRef.current = true;
+      }
     }
   };
 

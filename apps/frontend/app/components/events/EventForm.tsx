@@ -1,4 +1,4 @@
-import { X, Calendar, MapPin, Users, DollarSign, UserCog } from 'lucide-react';
+import { X, Calendar, MapPin, Users, DollarSign } from 'lucide-react';
 import { Form, useNavigation } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import type { User } from '~/lib/auth';

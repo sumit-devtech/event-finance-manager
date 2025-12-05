@@ -66,26 +66,25 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
     // Process when fetcher becomes idle after submitting
     // This handles both direct transitions (submitting -> idle) and redirects (submitting -> loading -> idle)
     if (currentState === "idle" && wasSubmittingRef.current && (previousState === "submitting" || previousState === "loading")) {
-      // Check for error
+      // Check for error - rollback optimistic update
       if (fetcher.data && typeof fetcher.data === 'object' && 'error' in fetcher.data) {
         toast.error((fetcher.data as { error: string }).error);
         wasSubmittingRef.current = false;
         submittingNoteRef.current = null;
         submittingFormRef.current = false;
         previousFetcherStateRef.current = currentState;
+        // Rollback optimistic update - refresh from server
+        revalidator.revalidate();
         return;
       }
 
-      // Success case - refresh data
+      // Success case - form already closed optimistically, just show success toast
       // Use refs to get the values at submission time
       const wasEditing = submittingNoteRef.current !== null;
       const wasShowingForm = submittingFormRef.current;
 
       if (wasShowingForm) {
-        setShowForm(false);
-        setNoteContent('');
-        setNoteTags('');
-        setEditingNote(null);
+        // Form already closed optimistically, just show success message
         toast.success(wasEditing ? 'Note updated successfully' : 'Note created successfully');
       } else {
         toast.success('Note deleted successfully');
@@ -96,12 +95,8 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
       submittingFormRef.current = false;
       wasSubmittingRef.current = false;
 
-      // Refresh data - trigger revalidation which will reload all loaders
-      // Also explicitly reload the parent fetcher to ensure we get the latest notes
+      // Refresh data - use revalidator only (more reliable than fetcher.load)
       revalidator.revalidate();
-      if (parentFetcher && parentFetcher.state === "idle") {
-        parentFetcher.load(`/events/${eventId}`);
-      }
     }
 
     previousFetcherStateRef.current = currentState;
@@ -146,6 +141,29 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
       submittingNoteRef.current = editingNote;
       submittingFormRef.current = true;
       
+      // Optimistic update - update UI immediately for better UX
+      const tags = noteTags.split(',').map(t => t.trim()).filter(Boolean);
+      const optimisticNote: Note = {
+        id: editingNote?.id || `temp-${Date.now()}`,
+        content: noteContent,
+        createdAt: editingNote?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: editingNote?.createdBy || user?.name || 'You',
+        tags: tags.length > 0 ? tags : undefined,
+      };
+
+      const updatedNotes = editingNote
+        ? notes.map(n => n.id === editingNote.id ? optimisticNote : n)
+        : [...notes, optimisticNote].sort((a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+      setNotes(updatedNotes);
+      // Close form and clear fields optimistically
+      setNoteContent('');
+      setNoteTags('');
+      setShowForm(false);
+      setEditingNote(null);
+
       const formData = new FormData();
       formData.append("intent", editingNote ? "updateNote" : "createNote");
       formData.append("content", noteContent);
@@ -179,10 +197,20 @@ export function EventNotes({ eventId, notes: initialNotes = [], isDemo = false, 
       // Non-demo mode - use fetcher to submit
       // DeleteButton component already handles confirmation, so no need for confirm() here
       submittingFormRef.current = false; // Not showing form for delete
+
+      // Optimistic update - remove note immediately for better UX
+      const noteToDelete = notes.find(n => n.id === noteId);
+      setNotes(notes.filter(n => n.id !== noteId));
+
       const formData = new FormData();
       formData.append("intent", "deleteNote");
       formData.append("noteId", noteId);
       fetcher.submit(formData, { method: "post", action: `/events/${eventId}` });
+
+      // Store for rollback on error
+      if (noteToDelete) {
+        wasSubmittingRef.current = true;
+      }
     }
   };
 

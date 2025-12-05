@@ -11,8 +11,6 @@ import { CreateBudgetItemDto, BudgetItemCategory } from "./dto/create-budget-ite
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import { UserRole } from "../auth/types/user-role.enum";
-import * as fs from "fs";
-import * as path from "path";
 
 @Injectable()
 export class BudgetItemsService {
