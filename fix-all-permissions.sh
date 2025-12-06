@@ -75,3 +75,4 @@ echo "   If you see permission errors, run this script again:"
 echo "   ./fix-all-permissions.sh"
 echo ""
 
+
