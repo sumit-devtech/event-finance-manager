@@ -6,6 +6,7 @@ import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { MetricsService } from "../metrics/metrics.service";
 import { UserRole } from "../auth/types/user-role.enum";
 import { ExpenseStatus } from "@event-finance-manager/database";
 
@@ -16,6 +17,7 @@ export class EventsService {
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
     private readonly subscriptionsService: SubscriptionsService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async create(createEventDto: CreateEventDto, userId: string, organizationId?: string) {
@@ -79,6 +81,16 @@ export class EventsService {
       eventId: event.id,
       eventName: event.name,
     });
+
+    // Synchronously recompute metrics for immediate consistency
+    // This ensures modals/detail views see updated data right away
+    try {
+      await this.metricsService.recomputeMetricsForEvent(event.id);
+    } catch (error) {
+      console.error("Error recomputing metrics after event creation:", error);
+      // Don't fail the create operation if metrics recompute fails
+      // Metrics will be recomputed on next CRUD operation or can be manually refreshed
+    }
 
     return event;
   }
@@ -250,23 +262,40 @@ export class EventsService {
     // Get event IDs for batch queries
     const eventIds = events.map(e => e.id);
 
-    // Calculate spent (sum of approved expenses) for all events in one query
-    const expensesByEvent = await this.prisma.client.expense.groupBy({
-      by: ['eventId'],
-      where: {
-        eventId: { in: eventIds },
-        status: ExpenseStatus.Approved, // Only count approved expenses
-      },
-      _sum: {
-        amount: true,
+    // OPTIMIZATION: Batch fetch cached event metrics (single query vs N queries)
+    const eventMetricsList = await this.prisma.client.eventMetrics.findMany({
+      where: { eventId: { in: eventIds } },
+      select: {
+        eventId: true,
+        totalSpent: true,
       },
     });
 
-    // Create a map for quick lookup
+    // Create lookup map for O(1) access
     const spentMap = new Map<string, number>();
-    expensesByEvent.forEach((item) => {
-      spentMap.set(item.eventId, item._sum.amount || 0);
+    eventMetricsList.forEach((metrics) => {
+      spentMap.set(metrics.eventId, metrics.totalSpent ? Number(metrics.totalSpent) : 0);
     });
+
+    // FALLBACK: Calculate on-the-fly for events without cached metrics
+    // This handles edge cases where metrics haven't been computed yet
+    const eventsWithoutMetrics = eventIds.filter((id) => !spentMap.has(id));
+    if (eventsWithoutMetrics.length > 0) {
+      const expensesByEvent = await this.prisma.client.expense.groupBy({
+        by: ['eventId'],
+        where: {
+          eventId: { in: eventsWithoutMetrics },
+          status: ExpenseStatus.Approved, // Only count approved expenses
+        },
+        _sum: {
+          amount: true,
+        },
+      });
+
+      expensesByEvent.forEach((item) => {
+        spentMap.set(item.eventId, item._sum.amount || 0);
+      });
+    }
 
     // Fetch ROI metrics for all events in one query
     const roiMetrics = await this.prisma.client.rOIMetrics.findMany({
@@ -623,12 +652,21 @@ export class EventsService {
       changes: Object.keys(updateData),
     }, id);
 
+    // Synchronously recompute metrics for immediate consistency
+    try {
+      await this.metricsService.recomputeMetricsForEvent(id);
+    } catch (error) {
+      console.error("Error recomputing metrics after event update:", error);
+      // Don't fail the update operation if metrics recompute fails
+    }
+
     return updatedEvent;
   }
 
   async remove(id: string, userId: string): Promise<void> {
     const event = await this.findOne(id);
     const eventName = event.name;
+    const organizationId = (event as any).organizationId;
 
     // Create activity log before deletion (since eventId will be invalid after)
     await this.createActivityLog(userId, "event.deleted", {
@@ -640,9 +678,21 @@ export class EventsService {
     // - BudgetItem
     // - Expense (linked to BudgetItems)
     // - File (linked to Expenses via expenseId)
+    // - EventMetrics (via cascade)
     await this.prisma.client.event.delete({
       where: { id },
     });
+
+    // Recompute dashboard metrics after event deletion
+    // EventMetrics are automatically deleted via CASCADE, but dashboard needs refresh
+    if (organizationId) {
+      try {
+        await this.metricsService.recomputeDashboardMetrics(organizationId);
+      } catch (error) {
+        console.error("Error recomputing dashboard metrics after event deletion:", error);
+        // Don't fail the delete operation if metrics recompute fails
+      }
+    }
   }
 
   async findByStatus(status: EventStatus) {

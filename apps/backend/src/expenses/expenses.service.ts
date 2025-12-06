@@ -12,6 +12,7 @@ import { UpdateExpenseDto } from "./dto/update-expense.dto";
 import { ApproveExpenseDto, ExpenseAction } from "./dto/approve-expense.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import { BudgetItemsService } from "../budget-items/budget-items.service";
+import { MetricsService } from "../metrics/metrics.service";
 import { UserRole } from "../auth/types/user-role.enum";
 import { ExpenseStatus, NotificationType } from "@event-finance-manager/database";
 import * as fs from "fs";
@@ -25,6 +26,7 @@ export class ExpensesService {
     private readonly notificationsService: NotificationsService,
     @Inject(forwardRef(() => BudgetItemsService))
     private readonly budgetItemsService: BudgetItemsService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async create(createExpenseDto: CreateExpenseDto, userId: string, organizationId?: string) {
@@ -106,6 +108,25 @@ export class ExpensesService {
 
     // Notify event manager and admin about new expense
     await this.notifyExpenseCreated(expense.eventId, expense.id, expense.title, expense.amount);
+
+    // Synchronously recompute event metrics (affects budget totals, expense counts)
+    try {
+      await this.metricsService.recomputeEventMetrics(expense.eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after expense creation:", error);
+      // Don't fail the create operation if metrics recompute fails
+    }
+
+    // Also recompute vendor metrics if expense is linked to a vendor
+    // This updates vendor's totalSpent and totalContracts
+    if (expense.vendorId) {
+      try {
+        await this.metricsService.recomputeVendorMetrics(expense.vendorId);
+      } catch (error) {
+        console.error("Error recomputing vendor metrics after expense creation:", error);
+        // Don't fail the create operation if metrics recompute fails
+      }
+    }
 
     return expense;
   }
@@ -435,6 +456,36 @@ export class ExpensesService {
       eventId: updatedExpense.eventId,
     });
 
+    // Recompute event metrics for the expense's event
+    try {
+      await this.metricsService.recomputeEventMetrics(updatedExpense.eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after expense update:", error);
+      // Don't fail the update operation if metrics recompute fails
+    }
+
+    // Recompute vendor metrics if vendorId changed
+    const oldVendorId = expense.vendorId;
+    const newVendorId = updatedExpense.vendorId;
+    if (oldVendorId !== newVendorId) {
+      // Recompute old vendor if vendor was removed
+      if (oldVendorId) {
+        try {
+          await this.metricsService.recomputeVendorMetrics(oldVendorId);
+        } catch (error) {
+          console.error("Error recomputing old vendor metrics after expense update:", error);
+        }
+      }
+      // Recompute new vendor if vendor was added/changed
+      if (newVendorId) {
+        try {
+          await this.metricsService.recomputeVendorMetrics(newVendorId);
+        } catch (error) {
+          console.error("Error recomputing new vendor metrics after expense update:", error);
+        }
+      }
+    }
+
     return updatedExpense;
   }
 
@@ -457,6 +508,8 @@ export class ExpensesService {
       throw new ForbiddenException("You can only delete your own expenses or must be an admin");
     }
 
+    const eventId = expense.eventId;
+
     await this.prisma.client.expense.delete({
       where: { id },
     });
@@ -466,6 +519,24 @@ export class ExpensesService {
       expenseId: expense.id,
       eventId: expense.eventId,
     });
+
+    // Recompute event metrics for the expense's event
+    try {
+      await this.metricsService.recomputeEventMetrics(eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after expense deletion:", error);
+      // Don't fail the delete operation if metrics recompute fails
+    }
+
+    // Recompute vendor metrics if expense was linked to a vendor
+    if (expense.vendorId) {
+      try {
+        await this.metricsService.recomputeVendorMetrics(expense.vendorId);
+      } catch (error) {
+        console.error("Error recomputing vendor metrics after expense deletion:", error);
+        // Don't fail the delete operation if metrics recompute fails
+      }
+    }
   }
 
   async approveOrReject(
@@ -571,6 +642,26 @@ export class ExpensesService {
         await this.validateCategoryBudget(expense.eventId, expense.category, expense.amount, expense.budgetItemId);
       }
       await this.updateBudgetItemActualCost(expense);
+    }
+
+    // CRITICAL: Recompute event metrics after status change
+    // Approval/rejection affects: totalSpent, pendingExpensesCount, approvedExpensesCount
+    try {
+      await this.metricsService.recomputeEventMetrics(expense.eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after expense approval/rejection:", error);
+      // Don't fail the approval operation if metrics recompute fails
+    }
+
+    // Also recompute vendor metrics (status change affects vendor's totalSpent)
+    // Only approved expenses count toward vendor totals
+    if (expense.vendorId) {
+      try {
+        await this.metricsService.recomputeVendorMetrics(expense.vendorId);
+      } catch (error) {
+        console.error("Error recomputing vendor metrics after expense approval/rejection:", error);
+        // Don't fail the approval operation if metrics recompute fails
+      }
     }
 
     // Create activity log

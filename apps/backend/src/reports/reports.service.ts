@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { MetricsService } from "../metrics/metrics.service";
 import { ComparisonReportDto } from "./dto/comparison-report.dto";
 
 // Dynamic imports for optional dependencies
@@ -20,7 +21,10 @@ try {
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly metricsService: MetricsService,
+  ) {}
 
   async getEventSummary(eventId: string) {
     const event = await this.prisma.client.event.findUnique({
@@ -50,41 +54,62 @@ export class ReportsService {
       throw new NotFoundException(`Event with ID ${eventId} not found`);
     }
 
-    // Get budget items directly from event
-    const budgetItems = event.budgetItems || [];
+    // Try to get cached event metrics first
+    const eventMetrics = await this.metricsService.getEventMetrics(eventId);
 
-    // Calculate budget totals
-    const totalsByCategory: Record<string, { estimated: number; actual: number; variance: number }> = {};
+    let totalsByCategory: Record<string, { estimated: number; actual: number; variance: number }> = {};
     let totalEstimated = 0;
     let totalActual = 0;
+    let variance = 0;
+    let variancePercentage = 0;
 
-    budgetItems.forEach((item) => {
-      const category = item.category;
-      if (!totalsByCategory[category]) {
-        totalsByCategory[category] = { estimated: 0, actual: 0, variance: 0 };
-      }
+    if (eventMetrics && eventMetrics.totalsByCategory) {
+      // Use cached metrics
+      const cachedTotals = eventMetrics.totalsByCategory as Record<string, { estimated: number; actual: number }>;
+      totalsByCategory = {};
+      Object.entries(cachedTotals).forEach(([category, totals]) => {
+        totalsByCategory[category] = {
+          estimated: totals.estimated,
+          actual: totals.actual,
+          variance: totals.actual - totals.estimated,
+        };
+      });
+      totalEstimated = eventMetrics.totalEstimated ? Number(eventMetrics.totalEstimated) : 0;
+      totalActual = eventMetrics.totalActual ? Number(eventMetrics.totalActual) : 0;
+      variance = eventMetrics.variance ? Number(eventMetrics.variance) : 0;
+      variancePercentage = eventMetrics.variancePercentage || 0;
+    } else {
+      // Fallback: Calculate from budget items
+      const budgetItems = event.budgetItems || [];
 
-      // Handle Decimal type conversion (Prisma Decimal type)
-      const estimated = item.estimatedCost 
-        ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
-          ? item.estimatedCost.toNumber() 
-          : Number(item.estimatedCost)) 
-        : 0;
-      const actual = item.actualCost 
-        ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
-          ? item.actualCost.toNumber() 
-          : Number(item.actualCost)) 
-        : 0;
+      budgetItems.forEach((item) => {
+        const category = item.category;
+        if (!totalsByCategory[category]) {
+          totalsByCategory[category] = { estimated: 0, actual: 0, variance: 0 };
+        }
 
-      totalsByCategory[category].estimated += estimated;
-      totalsByCategory[category].actual += actual;
-      totalsByCategory[category].variance += actual - estimated;
-      totalEstimated += estimated;
-      totalActual += actual;
-    });
+        // Handle Decimal type conversion (Prisma Decimal type)
+        const estimated = item.estimatedCost 
+          ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
+            ? item.estimatedCost.toNumber() 
+            : Number(item.estimatedCost)) 
+          : 0;
+        const actual = item.actualCost 
+          ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
+            ? item.actualCost.toNumber() 
+            : Number(item.actualCost)) 
+          : 0;
 
-    const variance = totalActual - totalEstimated;
-    const variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0;
+        totalsByCategory[category].estimated += estimated;
+        totalsByCategory[category].actual += actual;
+        totalsByCategory[category].variance += actual - estimated;
+        totalEstimated += estimated;
+        totalActual += actual;
+      });
+
+      variance = totalActual - totalEstimated;
+      variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0;
+    }
 
     // Calculate cost per attendee using stakeholders count
     const attendeeCount = event.stakeholders.length || 1;
@@ -156,40 +181,62 @@ export class ReportsService {
       throw new NotFoundException(`Events not found: ${missingIds.join(", ")}`);
     }
 
-    const comparison = events.map((event) => {
-      // Get budget items directly from event
-      const budgetItems = event.budgetItems || [];
+    // Get cached event metrics for all events
+    const eventMetricsList = await this.prisma.client.eventMetrics.findMany({
+      where: { eventId: { in: eventIds } },
+    });
+    const metricsMap = new Map(
+      eventMetricsList.map((m) => [m.eventId, m]),
+    );
 
-      const totalsByCategory: Record<string, { estimated: number; actual: number }> = {};
+    const comparison = events.map((event) => {
+      // Try to use cached metrics first
+      const eventMetrics = metricsMap.get(event.id);
+
+      let totalsByCategory: Record<string, { estimated: number; actual: number }> = {};
       let totalEstimated = 0;
       let totalActual = 0;
+      let variance = 0;
+      let variancePercentage = 0;
 
-      budgetItems.forEach((item) => {
-        const category = item.category;
-        if (!totalsByCategory[category]) {
-          totalsByCategory[category] = { estimated: 0, actual: 0 };
-        }
+      if (eventMetrics && eventMetrics.totalsByCategory) {
+        // Use cached metrics
+        totalsByCategory = eventMetrics.totalsByCategory as Record<string, { estimated: number; actual: number }>;
+        totalEstimated = eventMetrics.totalEstimated ? Number(eventMetrics.totalEstimated) : 0;
+        totalActual = eventMetrics.totalActual ? Number(eventMetrics.totalActual) : 0;
+        variance = eventMetrics.variance ? Number(eventMetrics.variance) : 0;
+        variancePercentage = eventMetrics.variancePercentage || 0;
+      } else {
+        // Fallback: Calculate from budget items
+        const budgetItems = event.budgetItems || [];
 
-        // Handle Decimal type conversion (Prisma Decimal type)
-        const estimated = item.estimatedCost 
-          ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
-            ? item.estimatedCost.toNumber() 
-            : Number(item.estimatedCost)) 
-          : 0;
-        const actual = item.actualCost 
-          ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
-            ? item.actualCost.toNumber() 
-            : Number(item.actualCost)) 
-          : 0;
+        budgetItems.forEach((item) => {
+          const category = item.category;
+          if (!totalsByCategory[category]) {
+            totalsByCategory[category] = { estimated: 0, actual: 0 };
+          }
 
-        totalsByCategory[category].estimated += estimated;
-        totalsByCategory[category].actual += actual;
-        totalEstimated += estimated;
-        totalActual += actual;
-      });
+          // Handle Decimal type conversion (Prisma Decimal type)
+          const estimated = item.estimatedCost 
+            ? (typeof item.estimatedCost === 'object' && 'toNumber' in item.estimatedCost 
+              ? item.estimatedCost.toNumber() 
+              : Number(item.estimatedCost)) 
+            : 0;
+          const actual = item.actualCost 
+            ? (typeof item.actualCost === 'object' && 'toNumber' in item.actualCost 
+              ? item.actualCost.toNumber() 
+              : Number(item.actualCost)) 
+            : 0;
 
-      const variance = totalActual - totalEstimated;
-      const variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0;
+          totalsByCategory[category].estimated += estimated;
+          totalsByCategory[category].actual += actual;
+          totalEstimated += estimated;
+          totalActual += actual;
+        });
+
+        variance = totalActual - totalEstimated;
+        variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0;
+      }
       const attendeeCount = event.stakeholders.length || 1;
       const costPerAttendee = attendeeCount > 0 ? totalActual / attendeeCount : 0;
 

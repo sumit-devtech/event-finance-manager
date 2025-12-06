@@ -14,7 +14,7 @@ export * from './shared';
 // Standalone Components
 export { Analytics } from './Analytics';
 export { AuthPage } from './AuthPage';
-export { Dashboard } from './Dashboard';
+export { Dashboard } from './dashboard';
 export { ErrorBoundary } from './ErrorBoundary';
 export { EventsList } from './EventsList';
 export { LandingPage } from './LandingPage';
@@ -29,20 +29,4 @@ export { TeamAssignments } from './TeamAssignments';
 export { TeamManagement } from './TeamManagement';
 export { UserProfile } from './UserProfile';
 export { VendorManager } from './VendorManager';
-
-// Backward compatibility re-exports (deprecated - use module exports instead)
-/** @deprecated Use EventsList from ~/components/events instead */
-export { EventsList as EventsListNew } from './events';
-/** @deprecated Use EventDetailsModal from ~/components/events instead */
-export { EventDetailsModal as EventDetailsExpanded } from './events';
-/** @deprecated Use EventForm from ~/components/events instead */
-export { EventForm } from './events';
-/** @deprecated Use EventDocuments from ~/components/events instead */
-export { EventDocuments } from './events';
-/** @deprecated Use EventNotes from ~/components/events instead */
-export { EventNotes } from './events';
-/** @deprecated Use ExpenseTracker from ~/components/expenses instead */
-export { ExpenseTracker } from './expenses';
-/** @deprecated Use BudgetManager from ~/components/budget instead */
-export { BudgetManager } from './budget';
 

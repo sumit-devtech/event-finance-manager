@@ -123,6 +123,21 @@ export type ActivityLog = $Result.DefaultSelection<Prisma.$ActivityLogPayload>
  * 
  */
 export type AiBudgetSuggestion = $Result.DefaultSelection<Prisma.$AiBudgetSuggestionPayload>
+/**
+ * Model DashboardMetrics
+ * 
+ */
+export type DashboardMetrics = $Result.DefaultSelection<Prisma.$DashboardMetricsPayload>
+/**
+ * Model EventMetrics
+ * 
+ */
+export type EventMetrics = $Result.DefaultSelection<Prisma.$EventMetricsPayload>
+/**
+ * Model VendorMetrics
+ * 
+ */
+export type VendorMetrics = $Result.DefaultSelection<Prisma.$VendorMetricsPayload>
 
 /**
  * Enums
@@ -582,6 +597,36 @@ export class PrismaClient<
     * ```
     */
   get aiBudgetSuggestion(): Prisma.AiBudgetSuggestionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.dashboardMetrics`: Exposes CRUD operations for the **DashboardMetrics** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DashboardMetrics
+    * const dashboardMetrics = await prisma.dashboardMetrics.findMany()
+    * ```
+    */
+  get dashboardMetrics(): Prisma.DashboardMetricsDelegate<ExtArgs>;
+
+  /**
+   * `prisma.eventMetrics`: Exposes CRUD operations for the **EventMetrics** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EventMetrics
+    * const eventMetrics = await prisma.eventMetrics.findMany()
+    * ```
+    */
+  get eventMetrics(): Prisma.EventMetricsDelegate<ExtArgs>;
+
+  /**
+   * `prisma.vendorMetrics`: Exposes CRUD operations for the **VendorMetrics** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VendorMetrics
+    * const vendorMetrics = await prisma.vendorMetrics.findMany()
+    * ```
+    */
+  get vendorMetrics(): Prisma.VendorMetricsDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1044,7 +1089,10 @@ export namespace Prisma {
     Note: 'Note',
     Notification: 'Notification',
     ActivityLog: 'ActivityLog',
-    AiBudgetSuggestion: 'AiBudgetSuggestion'
+    AiBudgetSuggestion: 'AiBudgetSuggestion',
+    DashboardMetrics: 'DashboardMetrics',
+    EventMetrics: 'EventMetrics',
+    VendorMetrics: 'VendorMetrics'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1060,7 +1108,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "subscription" | "subscriptionHistory" | "event" | "eventAssignment" | "eventStakeholder" | "vendor" | "vendorEvent" | "strategicGoal" | "budgetItem" | "expense" | "approvalWorkflow" | "insight" | "rOIMetrics" | "cRMSync" | "report" | "file" | "note" | "notification" | "activityLog" | "aiBudgetSuggestion"
+      modelProps: "organization" | "user" | "subscription" | "subscriptionHistory" | "event" | "eventAssignment" | "eventStakeholder" | "vendor" | "vendorEvent" | "strategicGoal" | "budgetItem" | "expense" | "approvalWorkflow" | "insight" | "rOIMetrics" | "cRMSync" | "report" | "file" | "note" | "notification" | "activityLog" | "aiBudgetSuggestion" | "dashboardMetrics" | "eventMetrics" | "vendorMetrics"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2604,6 +2652,216 @@ export namespace Prisma {
           }
         }
       }
+      DashboardMetrics: {
+        payload: Prisma.$DashboardMetricsPayload<ExtArgs>
+        fields: Prisma.DashboardMetricsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DashboardMetricsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DashboardMetricsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>
+          }
+          findFirst: {
+            args: Prisma.DashboardMetricsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DashboardMetricsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>
+          }
+          findMany: {
+            args: Prisma.DashboardMetricsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>[]
+          }
+          create: {
+            args: Prisma.DashboardMetricsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>
+          }
+          createMany: {
+            args: Prisma.DashboardMetricsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DashboardMetricsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>[]
+          }
+          delete: {
+            args: Prisma.DashboardMetricsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>
+          }
+          update: {
+            args: Prisma.DashboardMetricsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>
+          }
+          deleteMany: {
+            args: Prisma.DashboardMetricsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DashboardMetricsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DashboardMetricsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricsPayload>
+          }
+          aggregate: {
+            args: Prisma.DashboardMetricsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDashboardMetrics>
+          }
+          groupBy: {
+            args: Prisma.DashboardMetricsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DashboardMetricsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DashboardMetricsCountArgs<ExtArgs>
+            result: $Utils.Optional<DashboardMetricsCountAggregateOutputType> | number
+          }
+        }
+      }
+      EventMetrics: {
+        payload: Prisma.$EventMetricsPayload<ExtArgs>
+        fields: Prisma.EventMetricsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EventMetricsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EventMetricsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>
+          }
+          findFirst: {
+            args: Prisma.EventMetricsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EventMetricsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>
+          }
+          findMany: {
+            args: Prisma.EventMetricsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>[]
+          }
+          create: {
+            args: Prisma.EventMetricsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>
+          }
+          createMany: {
+            args: Prisma.EventMetricsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EventMetricsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>[]
+          }
+          delete: {
+            args: Prisma.EventMetricsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>
+          }
+          update: {
+            args: Prisma.EventMetricsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>
+          }
+          deleteMany: {
+            args: Prisma.EventMetricsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EventMetricsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.EventMetricsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventMetricsPayload>
+          }
+          aggregate: {
+            args: Prisma.EventMetricsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEventMetrics>
+          }
+          groupBy: {
+            args: Prisma.EventMetricsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EventMetricsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EventMetricsCountArgs<ExtArgs>
+            result: $Utils.Optional<EventMetricsCountAggregateOutputType> | number
+          }
+        }
+      }
+      VendorMetrics: {
+        payload: Prisma.$VendorMetricsPayload<ExtArgs>
+        fields: Prisma.VendorMetricsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VendorMetricsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VendorMetricsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>
+          }
+          findFirst: {
+            args: Prisma.VendorMetricsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VendorMetricsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>
+          }
+          findMany: {
+            args: Prisma.VendorMetricsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>[]
+          }
+          create: {
+            args: Prisma.VendorMetricsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>
+          }
+          createMany: {
+            args: Prisma.VendorMetricsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VendorMetricsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>[]
+          }
+          delete: {
+            args: Prisma.VendorMetricsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>
+          }
+          update: {
+            args: Prisma.VendorMetricsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>
+          }
+          deleteMany: {
+            args: Prisma.VendorMetricsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VendorMetricsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.VendorMetricsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VendorMetricsPayload>
+          }
+          aggregate: {
+            args: Prisma.VendorMetricsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVendorMetrics>
+          }
+          groupBy: {
+            args: Prisma.VendorMetricsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VendorMetricsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VendorMetricsCountArgs<ExtArgs>
+            result: $Utils.Optional<VendorMetricsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3501,6 +3759,7 @@ export namespace Prisma {
     expenses?: boolean | Organization$expensesArgs<ExtArgs>
     activityLogs?: boolean | Organization$activityLogsArgs<ExtArgs>
     notifications?: boolean | Organization$notificationsArgs<ExtArgs>
+    dashboardMetrics?: boolean | Organization$dashboardMetricsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -3530,6 +3789,7 @@ export namespace Prisma {
     expenses?: boolean | Organization$expensesArgs<ExtArgs>
     activityLogs?: boolean | Organization$activityLogsArgs<ExtArgs>
     notifications?: boolean | Organization$notificationsArgs<ExtArgs>
+    dashboardMetrics?: boolean | Organization$dashboardMetricsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3544,6 +3804,7 @@ export namespace Prisma {
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
       activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      dashboardMetrics: Prisma.$DashboardMetricsPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3923,6 +4184,7 @@ export namespace Prisma {
     expenses<T extends Organization$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany"> | Null>
     activityLogs<T extends Organization$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany"> | Null>
     notifications<T extends Organization$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
+    dashboardMetrics<T extends Organization$dashboardMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$dashboardMetricsArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4409,6 +4671,21 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.dashboardMetrics
+   */
+  export type Organization$dashboardMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    where?: DashboardMetricsWhereInput
   }
 
   /**
@@ -8038,6 +8315,7 @@ export namespace Prisma {
     reports?: boolean | Event$reportsArgs<ExtArgs>
     aiBudgetSuggestions?: boolean | Event$aiBudgetSuggestionsArgs<ExtArgs>
     strategicGoals?: boolean | Event$strategicGoalsArgs<ExtArgs>
+    eventMetrics?: boolean | Event$eventMetricsArgs<ExtArgs>
     _count?: boolean | EventCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
 
@@ -8102,6 +8380,7 @@ export namespace Prisma {
     reports?: boolean | Event$reportsArgs<ExtArgs>
     aiBudgetSuggestions?: boolean | Event$aiBudgetSuggestionsArgs<ExtArgs>
     strategicGoals?: boolean | Event$strategicGoalsArgs<ExtArgs>
+    eventMetrics?: boolean | Event$eventMetricsArgs<ExtArgs>
     _count?: boolean | EventCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type EventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8128,6 +8407,7 @@ export namespace Prisma {
       reports: Prisma.$ReportPayload<ExtArgs>[]
       aiBudgetSuggestions: Prisma.$AiBudgetSuggestionPayload<ExtArgs>[]
       strategicGoals: Prisma.$StrategicGoalPayload<ExtArgs>[]
+      eventMetrics: Prisma.$EventMetricsPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8528,6 +8808,7 @@ export namespace Prisma {
     reports<T extends Event$reportsArgs<ExtArgs> = {}>(args?: Subset<T, Event$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany"> | Null>
     aiBudgetSuggestions<T extends Event$aiBudgetSuggestionsArgs<ExtArgs> = {}>(args?: Subset<T, Event$aiBudgetSuggestionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiBudgetSuggestionPayload<ExtArgs>, T, "findMany"> | Null>
     strategicGoals<T extends Event$strategicGoalsArgs<ExtArgs> = {}>(args?: Subset<T, Event$strategicGoalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategicGoalPayload<ExtArgs>, T, "findMany"> | Null>
+    eventMetrics<T extends Event$eventMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Event$eventMetricsArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9190,6 +9471,21 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: StrategicGoalScalarFieldEnum | StrategicGoalScalarFieldEnum[]
+  }
+
+  /**
+   * Event.eventMetrics
+   */
+  export type Event$eventMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    where?: EventMetricsWhereInput
   }
 
   /**
@@ -11365,6 +11661,7 @@ export namespace Prisma {
     vendorEvents?: boolean | Vendor$vendorEventsArgs<ExtArgs>
     budgetItems?: boolean | Vendor$budgetItemsArgs<ExtArgs>
     expenses?: boolean | Vendor$expensesArgs<ExtArgs>
+    vendorMetrics?: boolean | Vendor$vendorMetricsArgs<ExtArgs>
     _count?: boolean | VendorCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["vendor"]>
 
@@ -11402,6 +11699,7 @@ export namespace Prisma {
     vendorEvents?: boolean | Vendor$vendorEventsArgs<ExtArgs>
     budgetItems?: boolean | Vendor$budgetItemsArgs<ExtArgs>
     expenses?: boolean | Vendor$expensesArgs<ExtArgs>
+    vendorMetrics?: boolean | Vendor$vendorMetricsArgs<ExtArgs>
     _count?: boolean | VendorCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type VendorIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11415,6 +11713,7 @@ export namespace Prisma {
       vendorEvents: Prisma.$VendorEventPayload<ExtArgs>[]
       budgetItems: Prisma.$BudgetItemPayload<ExtArgs>[]
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
+      vendorMetrics: Prisma.$VendorMetricsPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11796,6 +12095,7 @@ export namespace Prisma {
     vendorEvents<T extends Vendor$vendorEventsArgs<ExtArgs> = {}>(args?: Subset<T, Vendor$vendorEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorEventPayload<ExtArgs>, T, "findMany"> | Null>
     budgetItems<T extends Vendor$budgetItemsArgs<ExtArgs> = {}>(args?: Subset<T, Vendor$budgetItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findMany"> | Null>
     expenses<T extends Vendor$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Vendor$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany"> | Null>
+    vendorMetrics<T extends Vendor$vendorMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Vendor$vendorMetricsArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12226,6 +12526,21 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ExpenseScalarFieldEnum | ExpenseScalarFieldEnum[]
+  }
+
+  /**
+   * Vendor.vendorMetrics
+   */
+  export type Vendor$vendorMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    where?: VendorMetricsWhereInput
   }
 
   /**
@@ -26724,6 +27039,3278 @@ export namespace Prisma {
 
 
   /**
+   * Model DashboardMetrics
+   */
+
+  export type AggregateDashboardMetrics = {
+    _count: DashboardMetricsCountAggregateOutputType | null
+    _avg: DashboardMetricsAvgAggregateOutputType | null
+    _sum: DashboardMetricsSumAggregateOutputType | null
+    _min: DashboardMetricsMinAggregateOutputType | null
+    _max: DashboardMetricsMaxAggregateOutputType | null
+  }
+
+  export type DashboardMetricsAvgAggregateOutputType = {
+    totalBudget: Decimal | null
+    totalExpenses: Decimal | null
+    pendingApprovals: number | null
+    overBudgetEvents: number | null
+    upcomingEvents: number | null
+  }
+
+  export type DashboardMetricsSumAggregateOutputType = {
+    totalBudget: Decimal | null
+    totalExpenses: Decimal | null
+    pendingApprovals: number | null
+    overBudgetEvents: number | null
+    upcomingEvents: number | null
+  }
+
+  export type DashboardMetricsMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    totalBudget: Decimal | null
+    totalExpenses: Decimal | null
+    pendingApprovals: number | null
+    overBudgetEvents: number | null
+    upcomingEvents: number | null
+    lastComputedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DashboardMetricsMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    totalBudget: Decimal | null
+    totalExpenses: Decimal | null
+    pendingApprovals: number | null
+    overBudgetEvents: number | null
+    upcomingEvents: number | null
+    lastComputedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DashboardMetricsCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    totalBudget: number
+    totalExpenses: number
+    pendingApprovals: number
+    overBudgetEvents: number
+    upcomingEvents: number
+    recentEvents: number
+    chartsJson: number
+    statsJson: number
+    lastComputedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DashboardMetricsAvgAggregateInputType = {
+    totalBudget?: true
+    totalExpenses?: true
+    pendingApprovals?: true
+    overBudgetEvents?: true
+    upcomingEvents?: true
+  }
+
+  export type DashboardMetricsSumAggregateInputType = {
+    totalBudget?: true
+    totalExpenses?: true
+    pendingApprovals?: true
+    overBudgetEvents?: true
+    upcomingEvents?: true
+  }
+
+  export type DashboardMetricsMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    totalBudget?: true
+    totalExpenses?: true
+    pendingApprovals?: true
+    overBudgetEvents?: true
+    upcomingEvents?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DashboardMetricsMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    totalBudget?: true
+    totalExpenses?: true
+    pendingApprovals?: true
+    overBudgetEvents?: true
+    upcomingEvents?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DashboardMetricsCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    totalBudget?: true
+    totalExpenses?: true
+    pendingApprovals?: true
+    overBudgetEvents?: true
+    upcomingEvents?: true
+    recentEvents?: true
+    chartsJson?: true
+    statsJson?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DashboardMetricsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardMetrics to aggregate.
+     */
+    where?: DashboardMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardMetrics to fetch.
+     */
+    orderBy?: DashboardMetricsOrderByWithRelationInput | DashboardMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DashboardMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DashboardMetrics
+    **/
+    _count?: true | DashboardMetricsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DashboardMetricsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DashboardMetricsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DashboardMetricsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DashboardMetricsMaxAggregateInputType
+  }
+
+  export type GetDashboardMetricsAggregateType<T extends DashboardMetricsAggregateArgs> = {
+        [P in keyof T & keyof AggregateDashboardMetrics]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDashboardMetrics[P]>
+      : GetScalarType<T[P], AggregateDashboardMetrics[P]>
+  }
+
+
+
+
+  export type DashboardMetricsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardMetricsWhereInput
+    orderBy?: DashboardMetricsOrderByWithAggregationInput | DashboardMetricsOrderByWithAggregationInput[]
+    by: DashboardMetricsScalarFieldEnum[] | DashboardMetricsScalarFieldEnum
+    having?: DashboardMetricsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DashboardMetricsCountAggregateInputType | true
+    _avg?: DashboardMetricsAvgAggregateInputType
+    _sum?: DashboardMetricsSumAggregateInputType
+    _min?: DashboardMetricsMinAggregateInputType
+    _max?: DashboardMetricsMaxAggregateInputType
+  }
+
+  export type DashboardMetricsGroupByOutputType = {
+    id: string
+    organizationId: string | null
+    totalBudget: Decimal | null
+    totalExpenses: Decimal | null
+    pendingApprovals: number
+    overBudgetEvents: number
+    upcomingEvents: number
+    recentEvents: JsonValue | null
+    chartsJson: JsonValue | null
+    statsJson: JsonValue | null
+    lastComputedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DashboardMetricsCountAggregateOutputType | null
+    _avg: DashboardMetricsAvgAggregateOutputType | null
+    _sum: DashboardMetricsSumAggregateOutputType | null
+    _min: DashboardMetricsMinAggregateOutputType | null
+    _max: DashboardMetricsMaxAggregateOutputType | null
+  }
+
+  type GetDashboardMetricsGroupByPayload<T extends DashboardMetricsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DashboardMetricsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DashboardMetricsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DashboardMetricsGroupByOutputType[P]>
+            : GetScalarType<T[P], DashboardMetricsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DashboardMetricsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    totalBudget?: boolean
+    totalExpenses?: boolean
+    pendingApprovals?: boolean
+    overBudgetEvents?: boolean
+    upcomingEvents?: boolean
+    recentEvents?: boolean
+    chartsJson?: boolean
+    statsJson?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | DashboardMetrics$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardMetrics"]>
+
+  export type DashboardMetricsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    totalBudget?: boolean
+    totalExpenses?: boolean
+    pendingApprovals?: boolean
+    overBudgetEvents?: boolean
+    upcomingEvents?: boolean
+    recentEvents?: boolean
+    chartsJson?: boolean
+    statsJson?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | DashboardMetrics$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardMetrics"]>
+
+  export type DashboardMetricsSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    totalBudget?: boolean
+    totalExpenses?: boolean
+    pendingApprovals?: boolean
+    overBudgetEvents?: boolean
+    upcomingEvents?: boolean
+    recentEvents?: boolean
+    chartsJson?: boolean
+    statsJson?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DashboardMetricsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | DashboardMetrics$organizationArgs<ExtArgs>
+  }
+  export type DashboardMetricsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | DashboardMetrics$organizationArgs<ExtArgs>
+  }
+
+  export type $DashboardMetricsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DashboardMetrics"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string | null
+      totalBudget: Prisma.Decimal | null
+      totalExpenses: Prisma.Decimal | null
+      pendingApprovals: number
+      overBudgetEvents: number
+      upcomingEvents: number
+      recentEvents: Prisma.JsonValue | null
+      chartsJson: Prisma.JsonValue | null
+      statsJson: Prisma.JsonValue | null
+      lastComputedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["dashboardMetrics"]>
+    composites: {}
+  }
+
+  type DashboardMetricsGetPayload<S extends boolean | null | undefined | DashboardMetricsDefaultArgs> = $Result.GetResult<Prisma.$DashboardMetricsPayload, S>
+
+  type DashboardMetricsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DashboardMetricsFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DashboardMetricsCountAggregateInputType | true
+    }
+
+  export interface DashboardMetricsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DashboardMetrics'], meta: { name: 'DashboardMetrics' } }
+    /**
+     * Find zero or one DashboardMetrics that matches the filter.
+     * @param {DashboardMetricsFindUniqueArgs} args - Arguments to find a DashboardMetrics
+     * @example
+     * // Get one DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DashboardMetricsFindUniqueArgs>(args: SelectSubset<T, DashboardMetricsFindUniqueArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one DashboardMetrics that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DashboardMetricsFindUniqueOrThrowArgs} args - Arguments to find a DashboardMetrics
+     * @example
+     * // Get one DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DashboardMetricsFindUniqueOrThrowArgs>(args: SelectSubset<T, DashboardMetricsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first DashboardMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsFindFirstArgs} args - Arguments to find a DashboardMetrics
+     * @example
+     * // Get one DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DashboardMetricsFindFirstArgs>(args?: SelectSubset<T, DashboardMetricsFindFirstArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first DashboardMetrics that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsFindFirstOrThrowArgs} args - Arguments to find a DashboardMetrics
+     * @example
+     * // Get one DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DashboardMetricsFindFirstOrThrowArgs>(args?: SelectSubset<T, DashboardMetricsFindFirstOrThrowArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more DashboardMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.findMany()
+     * 
+     * // Get first 10 DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dashboardMetricsWithIdOnly = await prisma.dashboardMetrics.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DashboardMetricsFindManyArgs>(args?: SelectSubset<T, DashboardMetricsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a DashboardMetrics.
+     * @param {DashboardMetricsCreateArgs} args - Arguments to create a DashboardMetrics.
+     * @example
+     * // Create one DashboardMetrics
+     * const DashboardMetrics = await prisma.dashboardMetrics.create({
+     *   data: {
+     *     // ... data to create a DashboardMetrics
+     *   }
+     * })
+     * 
+     */
+    create<T extends DashboardMetricsCreateArgs>(args: SelectSubset<T, DashboardMetricsCreateArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many DashboardMetrics.
+     * @param {DashboardMetricsCreateManyArgs} args - Arguments to create many DashboardMetrics.
+     * @example
+     * // Create many DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DashboardMetricsCreateManyArgs>(args?: SelectSubset<T, DashboardMetricsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DashboardMetrics and returns the data saved in the database.
+     * @param {DashboardMetricsCreateManyAndReturnArgs} args - Arguments to create many DashboardMetrics.
+     * @example
+     * // Create many DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DashboardMetrics and only return the `id`
+     * const dashboardMetricsWithIdOnly = await prisma.dashboardMetrics.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DashboardMetricsCreateManyAndReturnArgs>(args?: SelectSubset<T, DashboardMetricsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a DashboardMetrics.
+     * @param {DashboardMetricsDeleteArgs} args - Arguments to delete one DashboardMetrics.
+     * @example
+     * // Delete one DashboardMetrics
+     * const DashboardMetrics = await prisma.dashboardMetrics.delete({
+     *   where: {
+     *     // ... filter to delete one DashboardMetrics
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DashboardMetricsDeleteArgs>(args: SelectSubset<T, DashboardMetricsDeleteArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one DashboardMetrics.
+     * @param {DashboardMetricsUpdateArgs} args - Arguments to update one DashboardMetrics.
+     * @example
+     * // Update one DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DashboardMetricsUpdateArgs>(args: SelectSubset<T, DashboardMetricsUpdateArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more DashboardMetrics.
+     * @param {DashboardMetricsDeleteManyArgs} args - Arguments to filter DashboardMetrics to delete.
+     * @example
+     * // Delete a few DashboardMetrics
+     * const { count } = await prisma.dashboardMetrics.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DashboardMetricsDeleteManyArgs>(args?: SelectSubset<T, DashboardMetricsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DashboardMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DashboardMetricsUpdateManyArgs>(args: SelectSubset<T, DashboardMetricsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DashboardMetrics.
+     * @param {DashboardMetricsUpsertArgs} args - Arguments to update or create a DashboardMetrics.
+     * @example
+     * // Update or create a DashboardMetrics
+     * const dashboardMetrics = await prisma.dashboardMetrics.upsert({
+     *   create: {
+     *     // ... data to create a DashboardMetrics
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DashboardMetrics we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DashboardMetricsUpsertArgs>(args: SelectSubset<T, DashboardMetricsUpsertArgs<ExtArgs>>): Prisma__DashboardMetricsClient<$Result.GetResult<Prisma.$DashboardMetricsPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of DashboardMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsCountArgs} args - Arguments to filter DashboardMetrics to count.
+     * @example
+     * // Count the number of DashboardMetrics
+     * const count = await prisma.dashboardMetrics.count({
+     *   where: {
+     *     // ... the filter for the DashboardMetrics we want to count
+     *   }
+     * })
+    **/
+    count<T extends DashboardMetricsCountArgs>(
+      args?: Subset<T, DashboardMetricsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DashboardMetricsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DashboardMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DashboardMetricsAggregateArgs>(args: Subset<T, DashboardMetricsAggregateArgs>): Prisma.PrismaPromise<GetDashboardMetricsAggregateType<T>>
+
+    /**
+     * Group by DashboardMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DashboardMetricsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DashboardMetricsGroupByArgs['orderBy'] }
+        : { orderBy?: DashboardMetricsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DashboardMetricsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDashboardMetricsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DashboardMetrics model
+   */
+  readonly fields: DashboardMetricsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DashboardMetrics.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DashboardMetricsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends DashboardMetrics$organizationArgs<ExtArgs> = {}>(args?: Subset<T, DashboardMetrics$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DashboardMetrics model
+   */ 
+  interface DashboardMetricsFieldRefs {
+    readonly id: FieldRef<"DashboardMetrics", 'String'>
+    readonly organizationId: FieldRef<"DashboardMetrics", 'String'>
+    readonly totalBudget: FieldRef<"DashboardMetrics", 'Decimal'>
+    readonly totalExpenses: FieldRef<"DashboardMetrics", 'Decimal'>
+    readonly pendingApprovals: FieldRef<"DashboardMetrics", 'Int'>
+    readonly overBudgetEvents: FieldRef<"DashboardMetrics", 'Int'>
+    readonly upcomingEvents: FieldRef<"DashboardMetrics", 'Int'>
+    readonly recentEvents: FieldRef<"DashboardMetrics", 'Json'>
+    readonly chartsJson: FieldRef<"DashboardMetrics", 'Json'>
+    readonly statsJson: FieldRef<"DashboardMetrics", 'Json'>
+    readonly lastComputedAt: FieldRef<"DashboardMetrics", 'DateTime'>
+    readonly createdAt: FieldRef<"DashboardMetrics", 'DateTime'>
+    readonly updatedAt: FieldRef<"DashboardMetrics", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DashboardMetrics findUnique
+   */
+  export type DashboardMetricsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardMetrics to fetch.
+     */
+    where: DashboardMetricsWhereUniqueInput
+  }
+
+  /**
+   * DashboardMetrics findUniqueOrThrow
+   */
+  export type DashboardMetricsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardMetrics to fetch.
+     */
+    where: DashboardMetricsWhereUniqueInput
+  }
+
+  /**
+   * DashboardMetrics findFirst
+   */
+  export type DashboardMetricsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardMetrics to fetch.
+     */
+    where?: DashboardMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardMetrics to fetch.
+     */
+    orderBy?: DashboardMetricsOrderByWithRelationInput | DashboardMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardMetrics.
+     */
+    cursor?: DashboardMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardMetrics.
+     */
+    distinct?: DashboardMetricsScalarFieldEnum | DashboardMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardMetrics findFirstOrThrow
+   */
+  export type DashboardMetricsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardMetrics to fetch.
+     */
+    where?: DashboardMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardMetrics to fetch.
+     */
+    orderBy?: DashboardMetricsOrderByWithRelationInput | DashboardMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardMetrics.
+     */
+    cursor?: DashboardMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardMetrics.
+     */
+    distinct?: DashboardMetricsScalarFieldEnum | DashboardMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardMetrics findMany
+   */
+  export type DashboardMetricsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardMetrics to fetch.
+     */
+    where?: DashboardMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardMetrics to fetch.
+     */
+    orderBy?: DashboardMetricsOrderByWithRelationInput | DashboardMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DashboardMetrics.
+     */
+    cursor?: DashboardMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardMetrics.
+     */
+    skip?: number
+    distinct?: DashboardMetricsScalarFieldEnum | DashboardMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardMetrics create
+   */
+  export type DashboardMetricsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DashboardMetrics.
+     */
+    data: XOR<DashboardMetricsCreateInput, DashboardMetricsUncheckedCreateInput>
+  }
+
+  /**
+   * DashboardMetrics createMany
+   */
+  export type DashboardMetricsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DashboardMetrics.
+     */
+    data: DashboardMetricsCreateManyInput | DashboardMetricsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DashboardMetrics createManyAndReturn
+   */
+  export type DashboardMetricsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many DashboardMetrics.
+     */
+    data: DashboardMetricsCreateManyInput | DashboardMetricsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DashboardMetrics update
+   */
+  export type DashboardMetricsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DashboardMetrics.
+     */
+    data: XOR<DashboardMetricsUpdateInput, DashboardMetricsUncheckedUpdateInput>
+    /**
+     * Choose, which DashboardMetrics to update.
+     */
+    where: DashboardMetricsWhereUniqueInput
+  }
+
+  /**
+   * DashboardMetrics updateMany
+   */
+  export type DashboardMetricsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DashboardMetrics.
+     */
+    data: XOR<DashboardMetricsUpdateManyMutationInput, DashboardMetricsUncheckedUpdateManyInput>
+    /**
+     * Filter which DashboardMetrics to update
+     */
+    where?: DashboardMetricsWhereInput
+  }
+
+  /**
+   * DashboardMetrics upsert
+   */
+  export type DashboardMetricsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DashboardMetrics to update in case it exists.
+     */
+    where: DashboardMetricsWhereUniqueInput
+    /**
+     * In case the DashboardMetrics found by the `where` argument doesn't exist, create a new DashboardMetrics with this data.
+     */
+    create: XOR<DashboardMetricsCreateInput, DashboardMetricsUncheckedCreateInput>
+    /**
+     * In case the DashboardMetrics was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DashboardMetricsUpdateInput, DashboardMetricsUncheckedUpdateInput>
+  }
+
+  /**
+   * DashboardMetrics delete
+   */
+  export type DashboardMetricsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+    /**
+     * Filter which DashboardMetrics to delete.
+     */
+    where: DashboardMetricsWhereUniqueInput
+  }
+
+  /**
+   * DashboardMetrics deleteMany
+   */
+  export type DashboardMetricsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardMetrics to delete
+     */
+    where?: DashboardMetricsWhereInput
+  }
+
+  /**
+   * DashboardMetrics.organization
+   */
+  export type DashboardMetrics$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * DashboardMetrics without action
+   */
+  export type DashboardMetricsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardMetrics
+     */
+    select?: DashboardMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardMetricsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EventMetrics
+   */
+
+  export type AggregateEventMetrics = {
+    _count: EventMetricsCountAggregateOutputType | null
+    _avg: EventMetricsAvgAggregateOutputType | null
+    _sum: EventMetricsSumAggregateOutputType | null
+    _min: EventMetricsMinAggregateOutputType | null
+    _max: EventMetricsMaxAggregateOutputType | null
+  }
+
+  export type EventMetricsAvgAggregateOutputType = {
+    totalBudget: Decimal | null
+    totalSpent: Decimal | null
+    totalEstimated: Decimal | null
+    totalActual: Decimal | null
+    variance: Decimal | null
+    variancePercentage: number | null
+    pendingExpensesCount: number | null
+    approvedExpensesCount: number | null
+    rejectedExpensesCount: number | null
+    budgetItemsCount: number | null
+  }
+
+  export type EventMetricsSumAggregateOutputType = {
+    totalBudget: Decimal | null
+    totalSpent: Decimal | null
+    totalEstimated: Decimal | null
+    totalActual: Decimal | null
+    variance: Decimal | null
+    variancePercentage: number | null
+    pendingExpensesCount: number | null
+    approvedExpensesCount: number | null
+    rejectedExpensesCount: number | null
+    budgetItemsCount: number | null
+  }
+
+  export type EventMetricsMinAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    organizationId: string | null
+    totalBudget: Decimal | null
+    totalSpent: Decimal | null
+    totalEstimated: Decimal | null
+    totalActual: Decimal | null
+    variance: Decimal | null
+    variancePercentage: number | null
+    isOverBudget: boolean | null
+    pendingExpensesCount: number | null
+    approvedExpensesCount: number | null
+    rejectedExpensesCount: number | null
+    budgetItemsCount: number | null
+    lastComputedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EventMetricsMaxAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    organizationId: string | null
+    totalBudget: Decimal | null
+    totalSpent: Decimal | null
+    totalEstimated: Decimal | null
+    totalActual: Decimal | null
+    variance: Decimal | null
+    variancePercentage: number | null
+    isOverBudget: boolean | null
+    pendingExpensesCount: number | null
+    approvedExpensesCount: number | null
+    rejectedExpensesCount: number | null
+    budgetItemsCount: number | null
+    lastComputedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EventMetricsCountAggregateOutputType = {
+    id: number
+    eventId: number
+    organizationId: number
+    totalBudget: number
+    totalSpent: number
+    totalEstimated: number
+    totalActual: number
+    variance: number
+    variancePercentage: number
+    isOverBudget: number
+    totalsByCategory: number
+    pendingExpensesCount: number
+    approvedExpensesCount: number
+    rejectedExpensesCount: number
+    budgetItemsCount: number
+    lastComputedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EventMetricsAvgAggregateInputType = {
+    totalBudget?: true
+    totalSpent?: true
+    totalEstimated?: true
+    totalActual?: true
+    variance?: true
+    variancePercentage?: true
+    pendingExpensesCount?: true
+    approvedExpensesCount?: true
+    rejectedExpensesCount?: true
+    budgetItemsCount?: true
+  }
+
+  export type EventMetricsSumAggregateInputType = {
+    totalBudget?: true
+    totalSpent?: true
+    totalEstimated?: true
+    totalActual?: true
+    variance?: true
+    variancePercentage?: true
+    pendingExpensesCount?: true
+    approvedExpensesCount?: true
+    rejectedExpensesCount?: true
+    budgetItemsCount?: true
+  }
+
+  export type EventMetricsMinAggregateInputType = {
+    id?: true
+    eventId?: true
+    organizationId?: true
+    totalBudget?: true
+    totalSpent?: true
+    totalEstimated?: true
+    totalActual?: true
+    variance?: true
+    variancePercentage?: true
+    isOverBudget?: true
+    pendingExpensesCount?: true
+    approvedExpensesCount?: true
+    rejectedExpensesCount?: true
+    budgetItemsCount?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EventMetricsMaxAggregateInputType = {
+    id?: true
+    eventId?: true
+    organizationId?: true
+    totalBudget?: true
+    totalSpent?: true
+    totalEstimated?: true
+    totalActual?: true
+    variance?: true
+    variancePercentage?: true
+    isOverBudget?: true
+    pendingExpensesCount?: true
+    approvedExpensesCount?: true
+    rejectedExpensesCount?: true
+    budgetItemsCount?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EventMetricsCountAggregateInputType = {
+    id?: true
+    eventId?: true
+    organizationId?: true
+    totalBudget?: true
+    totalSpent?: true
+    totalEstimated?: true
+    totalActual?: true
+    variance?: true
+    variancePercentage?: true
+    isOverBudget?: true
+    totalsByCategory?: true
+    pendingExpensesCount?: true
+    approvedExpensesCount?: true
+    rejectedExpensesCount?: true
+    budgetItemsCount?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EventMetricsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventMetrics to aggregate.
+     */
+    where?: EventMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventMetrics to fetch.
+     */
+    orderBy?: EventMetricsOrderByWithRelationInput | EventMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EventMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EventMetrics
+    **/
+    _count?: true | EventMetricsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EventMetricsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EventMetricsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EventMetricsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EventMetricsMaxAggregateInputType
+  }
+
+  export type GetEventMetricsAggregateType<T extends EventMetricsAggregateArgs> = {
+        [P in keyof T & keyof AggregateEventMetrics]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEventMetrics[P]>
+      : GetScalarType<T[P], AggregateEventMetrics[P]>
+  }
+
+
+
+
+  export type EventMetricsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventMetricsWhereInput
+    orderBy?: EventMetricsOrderByWithAggregationInput | EventMetricsOrderByWithAggregationInput[]
+    by: EventMetricsScalarFieldEnum[] | EventMetricsScalarFieldEnum
+    having?: EventMetricsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EventMetricsCountAggregateInputType | true
+    _avg?: EventMetricsAvgAggregateInputType
+    _sum?: EventMetricsSumAggregateInputType
+    _min?: EventMetricsMinAggregateInputType
+    _max?: EventMetricsMaxAggregateInputType
+  }
+
+  export type EventMetricsGroupByOutputType = {
+    id: string
+    eventId: string
+    organizationId: string | null
+    totalBudget: Decimal | null
+    totalSpent: Decimal | null
+    totalEstimated: Decimal | null
+    totalActual: Decimal | null
+    variance: Decimal | null
+    variancePercentage: number | null
+    isOverBudget: boolean
+    totalsByCategory: JsonValue | null
+    pendingExpensesCount: number
+    approvedExpensesCount: number
+    rejectedExpensesCount: number
+    budgetItemsCount: number
+    lastComputedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EventMetricsCountAggregateOutputType | null
+    _avg: EventMetricsAvgAggregateOutputType | null
+    _sum: EventMetricsSumAggregateOutputType | null
+    _min: EventMetricsMinAggregateOutputType | null
+    _max: EventMetricsMaxAggregateOutputType | null
+  }
+
+  type GetEventMetricsGroupByPayload<T extends EventMetricsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EventMetricsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EventMetricsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EventMetricsGroupByOutputType[P]>
+            : GetScalarType<T[P], EventMetricsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EventMetricsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    organizationId?: boolean
+    totalBudget?: boolean
+    totalSpent?: boolean
+    totalEstimated?: boolean
+    totalActual?: boolean
+    variance?: boolean
+    variancePercentage?: boolean
+    isOverBudget?: boolean
+    totalsByCategory?: boolean
+    pendingExpensesCount?: boolean
+    approvedExpensesCount?: boolean
+    rejectedExpensesCount?: boolean
+    budgetItemsCount?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    event?: boolean | EventDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventMetrics"]>
+
+  export type EventMetricsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    organizationId?: boolean
+    totalBudget?: boolean
+    totalSpent?: boolean
+    totalEstimated?: boolean
+    totalActual?: boolean
+    variance?: boolean
+    variancePercentage?: boolean
+    isOverBudget?: boolean
+    totalsByCategory?: boolean
+    pendingExpensesCount?: boolean
+    approvedExpensesCount?: boolean
+    rejectedExpensesCount?: boolean
+    budgetItemsCount?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    event?: boolean | EventDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventMetrics"]>
+
+  export type EventMetricsSelectScalar = {
+    id?: boolean
+    eventId?: boolean
+    organizationId?: boolean
+    totalBudget?: boolean
+    totalSpent?: boolean
+    totalEstimated?: boolean
+    totalActual?: boolean
+    variance?: boolean
+    variancePercentage?: boolean
+    isOverBudget?: boolean
+    totalsByCategory?: boolean
+    pendingExpensesCount?: boolean
+    approvedExpensesCount?: boolean
+    rejectedExpensesCount?: boolean
+    budgetItemsCount?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EventMetricsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    event?: boolean | EventDefaultArgs<ExtArgs>
+  }
+  export type EventMetricsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    event?: boolean | EventDefaultArgs<ExtArgs>
+  }
+
+  export type $EventMetricsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EventMetrics"
+    objects: {
+      event: Prisma.$EventPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      eventId: string
+      organizationId: string | null
+      totalBudget: Prisma.Decimal | null
+      totalSpent: Prisma.Decimal | null
+      totalEstimated: Prisma.Decimal | null
+      totalActual: Prisma.Decimal | null
+      variance: Prisma.Decimal | null
+      variancePercentage: number | null
+      isOverBudget: boolean
+      totalsByCategory: Prisma.JsonValue | null
+      pendingExpensesCount: number
+      approvedExpensesCount: number
+      rejectedExpensesCount: number
+      budgetItemsCount: number
+      lastComputedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["eventMetrics"]>
+    composites: {}
+  }
+
+  type EventMetricsGetPayload<S extends boolean | null | undefined | EventMetricsDefaultArgs> = $Result.GetResult<Prisma.$EventMetricsPayload, S>
+
+  type EventMetricsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<EventMetricsFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: EventMetricsCountAggregateInputType | true
+    }
+
+  export interface EventMetricsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EventMetrics'], meta: { name: 'EventMetrics' } }
+    /**
+     * Find zero or one EventMetrics that matches the filter.
+     * @param {EventMetricsFindUniqueArgs} args - Arguments to find a EventMetrics
+     * @example
+     * // Get one EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EventMetricsFindUniqueArgs>(args: SelectSubset<T, EventMetricsFindUniqueArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one EventMetrics that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {EventMetricsFindUniqueOrThrowArgs} args - Arguments to find a EventMetrics
+     * @example
+     * // Get one EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EventMetricsFindUniqueOrThrowArgs>(args: SelectSubset<T, EventMetricsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first EventMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsFindFirstArgs} args - Arguments to find a EventMetrics
+     * @example
+     * // Get one EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EventMetricsFindFirstArgs>(args?: SelectSubset<T, EventMetricsFindFirstArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first EventMetrics that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsFindFirstOrThrowArgs} args - Arguments to find a EventMetrics
+     * @example
+     * // Get one EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EventMetricsFindFirstOrThrowArgs>(args?: SelectSubset<T, EventMetricsFindFirstOrThrowArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more EventMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.findMany()
+     * 
+     * // Get first 10 EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eventMetricsWithIdOnly = await prisma.eventMetrics.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EventMetricsFindManyArgs>(args?: SelectSubset<T, EventMetricsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a EventMetrics.
+     * @param {EventMetricsCreateArgs} args - Arguments to create a EventMetrics.
+     * @example
+     * // Create one EventMetrics
+     * const EventMetrics = await prisma.eventMetrics.create({
+     *   data: {
+     *     // ... data to create a EventMetrics
+     *   }
+     * })
+     * 
+     */
+    create<T extends EventMetricsCreateArgs>(args: SelectSubset<T, EventMetricsCreateArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many EventMetrics.
+     * @param {EventMetricsCreateManyArgs} args - Arguments to create many EventMetrics.
+     * @example
+     * // Create many EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EventMetricsCreateManyArgs>(args?: SelectSubset<T, EventMetricsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EventMetrics and returns the data saved in the database.
+     * @param {EventMetricsCreateManyAndReturnArgs} args - Arguments to create many EventMetrics.
+     * @example
+     * // Create many EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EventMetrics and only return the `id`
+     * const eventMetricsWithIdOnly = await prisma.eventMetrics.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EventMetricsCreateManyAndReturnArgs>(args?: SelectSubset<T, EventMetricsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a EventMetrics.
+     * @param {EventMetricsDeleteArgs} args - Arguments to delete one EventMetrics.
+     * @example
+     * // Delete one EventMetrics
+     * const EventMetrics = await prisma.eventMetrics.delete({
+     *   where: {
+     *     // ... filter to delete one EventMetrics
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EventMetricsDeleteArgs>(args: SelectSubset<T, EventMetricsDeleteArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one EventMetrics.
+     * @param {EventMetricsUpdateArgs} args - Arguments to update one EventMetrics.
+     * @example
+     * // Update one EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EventMetricsUpdateArgs>(args: SelectSubset<T, EventMetricsUpdateArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more EventMetrics.
+     * @param {EventMetricsDeleteManyArgs} args - Arguments to filter EventMetrics to delete.
+     * @example
+     * // Delete a few EventMetrics
+     * const { count } = await prisma.eventMetrics.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EventMetricsDeleteManyArgs>(args?: SelectSubset<T, EventMetricsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EventMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EventMetricsUpdateManyArgs>(args: SelectSubset<T, EventMetricsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one EventMetrics.
+     * @param {EventMetricsUpsertArgs} args - Arguments to update or create a EventMetrics.
+     * @example
+     * // Update or create a EventMetrics
+     * const eventMetrics = await prisma.eventMetrics.upsert({
+     *   create: {
+     *     // ... data to create a EventMetrics
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EventMetrics we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EventMetricsUpsertArgs>(args: SelectSubset<T, EventMetricsUpsertArgs<ExtArgs>>): Prisma__EventMetricsClient<$Result.GetResult<Prisma.$EventMetricsPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of EventMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsCountArgs} args - Arguments to filter EventMetrics to count.
+     * @example
+     * // Count the number of EventMetrics
+     * const count = await prisma.eventMetrics.count({
+     *   where: {
+     *     // ... the filter for the EventMetrics we want to count
+     *   }
+     * })
+    **/
+    count<T extends EventMetricsCountArgs>(
+      args?: Subset<T, EventMetricsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EventMetricsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EventMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EventMetricsAggregateArgs>(args: Subset<T, EventMetricsAggregateArgs>): Prisma.PrismaPromise<GetEventMetricsAggregateType<T>>
+
+    /**
+     * Group by EventMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventMetricsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EventMetricsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EventMetricsGroupByArgs['orderBy'] }
+        : { orderBy?: EventMetricsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EventMetricsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEventMetricsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EventMetrics model
+   */
+  readonly fields: EventMetricsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EventMetrics.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EventMetricsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    event<T extends EventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventDefaultArgs<ExtArgs>>): Prisma__EventClient<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EventMetrics model
+   */ 
+  interface EventMetricsFieldRefs {
+    readonly id: FieldRef<"EventMetrics", 'String'>
+    readonly eventId: FieldRef<"EventMetrics", 'String'>
+    readonly organizationId: FieldRef<"EventMetrics", 'String'>
+    readonly totalBudget: FieldRef<"EventMetrics", 'Decimal'>
+    readonly totalSpent: FieldRef<"EventMetrics", 'Decimal'>
+    readonly totalEstimated: FieldRef<"EventMetrics", 'Decimal'>
+    readonly totalActual: FieldRef<"EventMetrics", 'Decimal'>
+    readonly variance: FieldRef<"EventMetrics", 'Decimal'>
+    readonly variancePercentage: FieldRef<"EventMetrics", 'Float'>
+    readonly isOverBudget: FieldRef<"EventMetrics", 'Boolean'>
+    readonly totalsByCategory: FieldRef<"EventMetrics", 'Json'>
+    readonly pendingExpensesCount: FieldRef<"EventMetrics", 'Int'>
+    readonly approvedExpensesCount: FieldRef<"EventMetrics", 'Int'>
+    readonly rejectedExpensesCount: FieldRef<"EventMetrics", 'Int'>
+    readonly budgetItemsCount: FieldRef<"EventMetrics", 'Int'>
+    readonly lastComputedAt: FieldRef<"EventMetrics", 'DateTime'>
+    readonly createdAt: FieldRef<"EventMetrics", 'DateTime'>
+    readonly updatedAt: FieldRef<"EventMetrics", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EventMetrics findUnique
+   */
+  export type EventMetricsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which EventMetrics to fetch.
+     */
+    where: EventMetricsWhereUniqueInput
+  }
+
+  /**
+   * EventMetrics findUniqueOrThrow
+   */
+  export type EventMetricsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which EventMetrics to fetch.
+     */
+    where: EventMetricsWhereUniqueInput
+  }
+
+  /**
+   * EventMetrics findFirst
+   */
+  export type EventMetricsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which EventMetrics to fetch.
+     */
+    where?: EventMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventMetrics to fetch.
+     */
+    orderBy?: EventMetricsOrderByWithRelationInput | EventMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventMetrics.
+     */
+    cursor?: EventMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventMetrics.
+     */
+    distinct?: EventMetricsScalarFieldEnum | EventMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * EventMetrics findFirstOrThrow
+   */
+  export type EventMetricsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which EventMetrics to fetch.
+     */
+    where?: EventMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventMetrics to fetch.
+     */
+    orderBy?: EventMetricsOrderByWithRelationInput | EventMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventMetrics.
+     */
+    cursor?: EventMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventMetrics.
+     */
+    distinct?: EventMetricsScalarFieldEnum | EventMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * EventMetrics findMany
+   */
+  export type EventMetricsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which EventMetrics to fetch.
+     */
+    where?: EventMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventMetrics to fetch.
+     */
+    orderBy?: EventMetricsOrderByWithRelationInput | EventMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EventMetrics.
+     */
+    cursor?: EventMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventMetrics.
+     */
+    skip?: number
+    distinct?: EventMetricsScalarFieldEnum | EventMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * EventMetrics create
+   */
+  export type EventMetricsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EventMetrics.
+     */
+    data: XOR<EventMetricsCreateInput, EventMetricsUncheckedCreateInput>
+  }
+
+  /**
+   * EventMetrics createMany
+   */
+  export type EventMetricsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EventMetrics.
+     */
+    data: EventMetricsCreateManyInput | EventMetricsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EventMetrics createManyAndReturn
+   */
+  export type EventMetricsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many EventMetrics.
+     */
+    data: EventMetricsCreateManyInput | EventMetricsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EventMetrics update
+   */
+  export type EventMetricsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EventMetrics.
+     */
+    data: XOR<EventMetricsUpdateInput, EventMetricsUncheckedUpdateInput>
+    /**
+     * Choose, which EventMetrics to update.
+     */
+    where: EventMetricsWhereUniqueInput
+  }
+
+  /**
+   * EventMetrics updateMany
+   */
+  export type EventMetricsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EventMetrics.
+     */
+    data: XOR<EventMetricsUpdateManyMutationInput, EventMetricsUncheckedUpdateManyInput>
+    /**
+     * Filter which EventMetrics to update
+     */
+    where?: EventMetricsWhereInput
+  }
+
+  /**
+   * EventMetrics upsert
+   */
+  export type EventMetricsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EventMetrics to update in case it exists.
+     */
+    where: EventMetricsWhereUniqueInput
+    /**
+     * In case the EventMetrics found by the `where` argument doesn't exist, create a new EventMetrics with this data.
+     */
+    create: XOR<EventMetricsCreateInput, EventMetricsUncheckedCreateInput>
+    /**
+     * In case the EventMetrics was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EventMetricsUpdateInput, EventMetricsUncheckedUpdateInput>
+  }
+
+  /**
+   * EventMetrics delete
+   */
+  export type EventMetricsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+    /**
+     * Filter which EventMetrics to delete.
+     */
+    where: EventMetricsWhereUniqueInput
+  }
+
+  /**
+   * EventMetrics deleteMany
+   */
+  export type EventMetricsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventMetrics to delete
+     */
+    where?: EventMetricsWhereInput
+  }
+
+  /**
+   * EventMetrics without action
+   */
+  export type EventMetricsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventMetrics
+     */
+    select?: EventMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventMetricsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model VendorMetrics
+   */
+
+  export type AggregateVendorMetrics = {
+    _count: VendorMetricsCountAggregateOutputType | null
+    _avg: VendorMetricsAvgAggregateOutputType | null
+    _sum: VendorMetricsSumAggregateOutputType | null
+    _min: VendorMetricsMinAggregateOutputType | null
+    _max: VendorMetricsMaxAggregateOutputType | null
+  }
+
+  export type VendorMetricsAvgAggregateOutputType = {
+    totalContracts: number | null
+    totalSpent: Decimal | null
+    eventsCount: number | null
+  }
+
+  export type VendorMetricsSumAggregateOutputType = {
+    totalContracts: number | null
+    totalSpent: Decimal | null
+    eventsCount: number | null
+  }
+
+  export type VendorMetricsMinAggregateOutputType = {
+    id: string | null
+    vendorId: string | null
+    organizationId: string | null
+    totalContracts: number | null
+    totalSpent: Decimal | null
+    eventsCount: number | null
+    lastContractDate: Date | null
+    lastComputedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type VendorMetricsMaxAggregateOutputType = {
+    id: string | null
+    vendorId: string | null
+    organizationId: string | null
+    totalContracts: number | null
+    totalSpent: Decimal | null
+    eventsCount: number | null
+    lastContractDate: Date | null
+    lastComputedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type VendorMetricsCountAggregateOutputType = {
+    id: number
+    vendorId: number
+    organizationId: number
+    totalContracts: number
+    totalSpent: number
+    eventsCount: number
+    lastContractDate: number
+    lastComputedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type VendorMetricsAvgAggregateInputType = {
+    totalContracts?: true
+    totalSpent?: true
+    eventsCount?: true
+  }
+
+  export type VendorMetricsSumAggregateInputType = {
+    totalContracts?: true
+    totalSpent?: true
+    eventsCount?: true
+  }
+
+  export type VendorMetricsMinAggregateInputType = {
+    id?: true
+    vendorId?: true
+    organizationId?: true
+    totalContracts?: true
+    totalSpent?: true
+    eventsCount?: true
+    lastContractDate?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type VendorMetricsMaxAggregateInputType = {
+    id?: true
+    vendorId?: true
+    organizationId?: true
+    totalContracts?: true
+    totalSpent?: true
+    eventsCount?: true
+    lastContractDate?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type VendorMetricsCountAggregateInputType = {
+    id?: true
+    vendorId?: true
+    organizationId?: true
+    totalContracts?: true
+    totalSpent?: true
+    eventsCount?: true
+    lastContractDate?: true
+    lastComputedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type VendorMetricsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VendorMetrics to aggregate.
+     */
+    where?: VendorMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorMetrics to fetch.
+     */
+    orderBy?: VendorMetricsOrderByWithRelationInput | VendorMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VendorMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VendorMetrics
+    **/
+    _count?: true | VendorMetricsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: VendorMetricsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VendorMetricsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VendorMetricsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VendorMetricsMaxAggregateInputType
+  }
+
+  export type GetVendorMetricsAggregateType<T extends VendorMetricsAggregateArgs> = {
+        [P in keyof T & keyof AggregateVendorMetrics]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVendorMetrics[P]>
+      : GetScalarType<T[P], AggregateVendorMetrics[P]>
+  }
+
+
+
+
+  export type VendorMetricsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VendorMetricsWhereInput
+    orderBy?: VendorMetricsOrderByWithAggregationInput | VendorMetricsOrderByWithAggregationInput[]
+    by: VendorMetricsScalarFieldEnum[] | VendorMetricsScalarFieldEnum
+    having?: VendorMetricsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VendorMetricsCountAggregateInputType | true
+    _avg?: VendorMetricsAvgAggregateInputType
+    _sum?: VendorMetricsSumAggregateInputType
+    _min?: VendorMetricsMinAggregateInputType
+    _max?: VendorMetricsMaxAggregateInputType
+  }
+
+  export type VendorMetricsGroupByOutputType = {
+    id: string
+    vendorId: string
+    organizationId: string | null
+    totalContracts: number
+    totalSpent: Decimal | null
+    eventsCount: number
+    lastContractDate: Date | null
+    lastComputedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: VendorMetricsCountAggregateOutputType | null
+    _avg: VendorMetricsAvgAggregateOutputType | null
+    _sum: VendorMetricsSumAggregateOutputType | null
+    _min: VendorMetricsMinAggregateOutputType | null
+    _max: VendorMetricsMaxAggregateOutputType | null
+  }
+
+  type GetVendorMetricsGroupByPayload<T extends VendorMetricsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VendorMetricsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VendorMetricsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VendorMetricsGroupByOutputType[P]>
+            : GetScalarType<T[P], VendorMetricsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VendorMetricsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    organizationId?: boolean
+    totalContracts?: boolean
+    totalSpent?: boolean
+    eventsCount?: boolean
+    lastContractDate?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | VendorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vendorMetrics"]>
+
+  export type VendorMetricsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vendorId?: boolean
+    organizationId?: boolean
+    totalContracts?: boolean
+    totalSpent?: boolean
+    eventsCount?: boolean
+    lastContractDate?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    vendor?: boolean | VendorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vendorMetrics"]>
+
+  export type VendorMetricsSelectScalar = {
+    id?: boolean
+    vendorId?: boolean
+    organizationId?: boolean
+    totalContracts?: boolean
+    totalSpent?: boolean
+    eventsCount?: boolean
+    lastContractDate?: boolean
+    lastComputedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type VendorMetricsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | VendorDefaultArgs<ExtArgs>
+  }
+  export type VendorMetricsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vendor?: boolean | VendorDefaultArgs<ExtArgs>
+  }
+
+  export type $VendorMetricsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VendorMetrics"
+    objects: {
+      vendor: Prisma.$VendorPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      vendorId: string
+      organizationId: string | null
+      totalContracts: number
+      totalSpent: Prisma.Decimal | null
+      eventsCount: number
+      lastContractDate: Date | null
+      lastComputedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["vendorMetrics"]>
+    composites: {}
+  }
+
+  type VendorMetricsGetPayload<S extends boolean | null | undefined | VendorMetricsDefaultArgs> = $Result.GetResult<Prisma.$VendorMetricsPayload, S>
+
+  type VendorMetricsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<VendorMetricsFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: VendorMetricsCountAggregateInputType | true
+    }
+
+  export interface VendorMetricsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VendorMetrics'], meta: { name: 'VendorMetrics' } }
+    /**
+     * Find zero or one VendorMetrics that matches the filter.
+     * @param {VendorMetricsFindUniqueArgs} args - Arguments to find a VendorMetrics
+     * @example
+     * // Get one VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VendorMetricsFindUniqueArgs>(args: SelectSubset<T, VendorMetricsFindUniqueArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one VendorMetrics that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {VendorMetricsFindUniqueOrThrowArgs} args - Arguments to find a VendorMetrics
+     * @example
+     * // Get one VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VendorMetricsFindUniqueOrThrowArgs>(args: SelectSubset<T, VendorMetricsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first VendorMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsFindFirstArgs} args - Arguments to find a VendorMetrics
+     * @example
+     * // Get one VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VendorMetricsFindFirstArgs>(args?: SelectSubset<T, VendorMetricsFindFirstArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first VendorMetrics that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsFindFirstOrThrowArgs} args - Arguments to find a VendorMetrics
+     * @example
+     * // Get one VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VendorMetricsFindFirstOrThrowArgs>(args?: SelectSubset<T, VendorMetricsFindFirstOrThrowArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more VendorMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.findMany()
+     * 
+     * // Get first 10 VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const vendorMetricsWithIdOnly = await prisma.vendorMetrics.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VendorMetricsFindManyArgs>(args?: SelectSubset<T, VendorMetricsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a VendorMetrics.
+     * @param {VendorMetricsCreateArgs} args - Arguments to create a VendorMetrics.
+     * @example
+     * // Create one VendorMetrics
+     * const VendorMetrics = await prisma.vendorMetrics.create({
+     *   data: {
+     *     // ... data to create a VendorMetrics
+     *   }
+     * })
+     * 
+     */
+    create<T extends VendorMetricsCreateArgs>(args: SelectSubset<T, VendorMetricsCreateArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many VendorMetrics.
+     * @param {VendorMetricsCreateManyArgs} args - Arguments to create many VendorMetrics.
+     * @example
+     * // Create many VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VendorMetricsCreateManyArgs>(args?: SelectSubset<T, VendorMetricsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many VendorMetrics and returns the data saved in the database.
+     * @param {VendorMetricsCreateManyAndReturnArgs} args - Arguments to create many VendorMetrics.
+     * @example
+     * // Create many VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many VendorMetrics and only return the `id`
+     * const vendorMetricsWithIdOnly = await prisma.vendorMetrics.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VendorMetricsCreateManyAndReturnArgs>(args?: SelectSubset<T, VendorMetricsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a VendorMetrics.
+     * @param {VendorMetricsDeleteArgs} args - Arguments to delete one VendorMetrics.
+     * @example
+     * // Delete one VendorMetrics
+     * const VendorMetrics = await prisma.vendorMetrics.delete({
+     *   where: {
+     *     // ... filter to delete one VendorMetrics
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VendorMetricsDeleteArgs>(args: SelectSubset<T, VendorMetricsDeleteArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one VendorMetrics.
+     * @param {VendorMetricsUpdateArgs} args - Arguments to update one VendorMetrics.
+     * @example
+     * // Update one VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VendorMetricsUpdateArgs>(args: SelectSubset<T, VendorMetricsUpdateArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more VendorMetrics.
+     * @param {VendorMetricsDeleteManyArgs} args - Arguments to filter VendorMetrics to delete.
+     * @example
+     * // Delete a few VendorMetrics
+     * const { count } = await prisma.vendorMetrics.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VendorMetricsDeleteManyArgs>(args?: SelectSubset<T, VendorMetricsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VendorMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VendorMetricsUpdateManyArgs>(args: SelectSubset<T, VendorMetricsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one VendorMetrics.
+     * @param {VendorMetricsUpsertArgs} args - Arguments to update or create a VendorMetrics.
+     * @example
+     * // Update or create a VendorMetrics
+     * const vendorMetrics = await prisma.vendorMetrics.upsert({
+     *   create: {
+     *     // ... data to create a VendorMetrics
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the VendorMetrics we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VendorMetricsUpsertArgs>(args: SelectSubset<T, VendorMetricsUpsertArgs<ExtArgs>>): Prisma__VendorMetricsClient<$Result.GetResult<Prisma.$VendorMetricsPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of VendorMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsCountArgs} args - Arguments to filter VendorMetrics to count.
+     * @example
+     * // Count the number of VendorMetrics
+     * const count = await prisma.vendorMetrics.count({
+     *   where: {
+     *     // ... the filter for the VendorMetrics we want to count
+     *   }
+     * })
+    **/
+    count<T extends VendorMetricsCountArgs>(
+      args?: Subset<T, VendorMetricsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VendorMetricsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VendorMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VendorMetricsAggregateArgs>(args: Subset<T, VendorMetricsAggregateArgs>): Prisma.PrismaPromise<GetVendorMetricsAggregateType<T>>
+
+    /**
+     * Group by VendorMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VendorMetricsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VendorMetricsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VendorMetricsGroupByArgs['orderBy'] }
+        : { orderBy?: VendorMetricsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VendorMetricsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVendorMetricsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VendorMetrics model
+   */
+  readonly fields: VendorMetricsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VendorMetrics.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VendorMetricsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    vendor<T extends VendorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VendorDefaultArgs<ExtArgs>>): Prisma__VendorClient<$Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VendorMetrics model
+   */ 
+  interface VendorMetricsFieldRefs {
+    readonly id: FieldRef<"VendorMetrics", 'String'>
+    readonly vendorId: FieldRef<"VendorMetrics", 'String'>
+    readonly organizationId: FieldRef<"VendorMetrics", 'String'>
+    readonly totalContracts: FieldRef<"VendorMetrics", 'Int'>
+    readonly totalSpent: FieldRef<"VendorMetrics", 'Decimal'>
+    readonly eventsCount: FieldRef<"VendorMetrics", 'Int'>
+    readonly lastContractDate: FieldRef<"VendorMetrics", 'DateTime'>
+    readonly lastComputedAt: FieldRef<"VendorMetrics", 'DateTime'>
+    readonly createdAt: FieldRef<"VendorMetrics", 'DateTime'>
+    readonly updatedAt: FieldRef<"VendorMetrics", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VendorMetrics findUnique
+   */
+  export type VendorMetricsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorMetrics to fetch.
+     */
+    where: VendorMetricsWhereUniqueInput
+  }
+
+  /**
+   * VendorMetrics findUniqueOrThrow
+   */
+  export type VendorMetricsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorMetrics to fetch.
+     */
+    where: VendorMetricsWhereUniqueInput
+  }
+
+  /**
+   * VendorMetrics findFirst
+   */
+  export type VendorMetricsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorMetrics to fetch.
+     */
+    where?: VendorMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorMetrics to fetch.
+     */
+    orderBy?: VendorMetricsOrderByWithRelationInput | VendorMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VendorMetrics.
+     */
+    cursor?: VendorMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VendorMetrics.
+     */
+    distinct?: VendorMetricsScalarFieldEnum | VendorMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * VendorMetrics findFirstOrThrow
+   */
+  export type VendorMetricsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorMetrics to fetch.
+     */
+    where?: VendorMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorMetrics to fetch.
+     */
+    orderBy?: VendorMetricsOrderByWithRelationInput | VendorMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VendorMetrics.
+     */
+    cursor?: VendorMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VendorMetrics.
+     */
+    distinct?: VendorMetricsScalarFieldEnum | VendorMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * VendorMetrics findMany
+   */
+  export type VendorMetricsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * Filter, which VendorMetrics to fetch.
+     */
+    where?: VendorMetricsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VendorMetrics to fetch.
+     */
+    orderBy?: VendorMetricsOrderByWithRelationInput | VendorMetricsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VendorMetrics.
+     */
+    cursor?: VendorMetricsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VendorMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VendorMetrics.
+     */
+    skip?: number
+    distinct?: VendorMetricsScalarFieldEnum | VendorMetricsScalarFieldEnum[]
+  }
+
+  /**
+   * VendorMetrics create
+   */
+  export type VendorMetricsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a VendorMetrics.
+     */
+    data: XOR<VendorMetricsCreateInput, VendorMetricsUncheckedCreateInput>
+  }
+
+  /**
+   * VendorMetrics createMany
+   */
+  export type VendorMetricsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many VendorMetrics.
+     */
+    data: VendorMetricsCreateManyInput | VendorMetricsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * VendorMetrics createManyAndReturn
+   */
+  export type VendorMetricsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many VendorMetrics.
+     */
+    data: VendorMetricsCreateManyInput | VendorMetricsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VendorMetrics update
+   */
+  export type VendorMetricsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a VendorMetrics.
+     */
+    data: XOR<VendorMetricsUpdateInput, VendorMetricsUncheckedUpdateInput>
+    /**
+     * Choose, which VendorMetrics to update.
+     */
+    where: VendorMetricsWhereUniqueInput
+  }
+
+  /**
+   * VendorMetrics updateMany
+   */
+  export type VendorMetricsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VendorMetrics.
+     */
+    data: XOR<VendorMetricsUpdateManyMutationInput, VendorMetricsUncheckedUpdateManyInput>
+    /**
+     * Filter which VendorMetrics to update
+     */
+    where?: VendorMetricsWhereInput
+  }
+
+  /**
+   * VendorMetrics upsert
+   */
+  export type VendorMetricsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the VendorMetrics to update in case it exists.
+     */
+    where: VendorMetricsWhereUniqueInput
+    /**
+     * In case the VendorMetrics found by the `where` argument doesn't exist, create a new VendorMetrics with this data.
+     */
+    create: XOR<VendorMetricsCreateInput, VendorMetricsUncheckedCreateInput>
+    /**
+     * In case the VendorMetrics was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VendorMetricsUpdateInput, VendorMetricsUncheckedUpdateInput>
+  }
+
+  /**
+   * VendorMetrics delete
+   */
+  export type VendorMetricsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+    /**
+     * Filter which VendorMetrics to delete.
+     */
+    where: VendorMetricsWhereUniqueInput
+  }
+
+  /**
+   * VendorMetrics deleteMany
+   */
+  export type VendorMetricsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VendorMetrics to delete
+     */
+    where?: VendorMetricsWhereInput
+  }
+
+  /**
+   * VendorMetrics without action
+   */
+  export type VendorMetricsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VendorMetrics
+     */
+    select?: VendorMetricsSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VendorMetricsInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -27071,6 +30658,65 @@ export namespace Prisma {
   export type AiBudgetSuggestionScalarFieldEnum = (typeof AiBudgetSuggestionScalarFieldEnum)[keyof typeof AiBudgetSuggestionScalarFieldEnum]
 
 
+  export const DashboardMetricsScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    totalBudget: 'totalBudget',
+    totalExpenses: 'totalExpenses',
+    pendingApprovals: 'pendingApprovals',
+    overBudgetEvents: 'overBudgetEvents',
+    upcomingEvents: 'upcomingEvents',
+    recentEvents: 'recentEvents',
+    chartsJson: 'chartsJson',
+    statsJson: 'statsJson',
+    lastComputedAt: 'lastComputedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DashboardMetricsScalarFieldEnum = (typeof DashboardMetricsScalarFieldEnum)[keyof typeof DashboardMetricsScalarFieldEnum]
+
+
+  export const EventMetricsScalarFieldEnum: {
+    id: 'id',
+    eventId: 'eventId',
+    organizationId: 'organizationId',
+    totalBudget: 'totalBudget',
+    totalSpent: 'totalSpent',
+    totalEstimated: 'totalEstimated',
+    totalActual: 'totalActual',
+    variance: 'variance',
+    variancePercentage: 'variancePercentage',
+    isOverBudget: 'isOverBudget',
+    totalsByCategory: 'totalsByCategory',
+    pendingExpensesCount: 'pendingExpensesCount',
+    approvedExpensesCount: 'approvedExpensesCount',
+    rejectedExpensesCount: 'rejectedExpensesCount',
+    budgetItemsCount: 'budgetItemsCount',
+    lastComputedAt: 'lastComputedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EventMetricsScalarFieldEnum = (typeof EventMetricsScalarFieldEnum)[keyof typeof EventMetricsScalarFieldEnum]
+
+
+  export const VendorMetricsScalarFieldEnum: {
+    id: 'id',
+    vendorId: 'vendorId',
+    organizationId: 'organizationId',
+    totalContracts: 'totalContracts',
+    totalSpent: 'totalSpent',
+    eventsCount: 'eventsCount',
+    lastContractDate: 'lastContractDate',
+    lastComputedAt: 'lastComputedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type VendorMetricsScalarFieldEnum = (typeof VendorMetricsScalarFieldEnum)[keyof typeof VendorMetricsScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -27333,6 +30979,7 @@ export namespace Prisma {
     expenses?: ExpenseListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     notifications?: NotificationListRelationFilter
+    dashboardMetrics?: XOR<DashboardMetricsNullableRelationFilter, DashboardMetricsWhereInput> | null
   }
 
   export type OrganizationOrderByWithRelationInput = {
@@ -27349,6 +30996,7 @@ export namespace Prisma {
     expenses?: ExpenseOrderByRelationAggregateInput
     activityLogs?: ActivityLogOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
+    dashboardMetrics?: DashboardMetricsOrderByWithRelationInput
   }
 
   export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -27368,6 +31016,7 @@ export namespace Prisma {
     expenses?: ExpenseListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     notifications?: NotificationListRelationFilter
+    dashboardMetrics?: XOR<DashboardMetricsNullableRelationFilter, DashboardMetricsWhereInput> | null
   }, "id">
 
   export type OrganizationOrderByWithAggregationInput = {
@@ -27701,6 +31350,7 @@ export namespace Prisma {
     reports?: ReportListRelationFilter
     aiBudgetSuggestions?: AiBudgetSuggestionListRelationFilter
     strategicGoals?: StrategicGoalListRelationFilter
+    eventMetrics?: XOR<EventMetricsNullableRelationFilter, EventMetricsWhereInput> | null
   }
 
   export type EventOrderByWithRelationInput = {
@@ -27738,6 +31388,7 @@ export namespace Prisma {
     reports?: ReportOrderByRelationAggregateInput
     aiBudgetSuggestions?: AiBudgetSuggestionOrderByRelationAggregateInput
     strategicGoals?: StrategicGoalOrderByRelationAggregateInput
+    eventMetrics?: EventMetricsOrderByWithRelationInput
   }
 
   export type EventWhereUniqueInput = Prisma.AtLeast<{
@@ -27778,6 +31429,7 @@ export namespace Prisma {
     reports?: ReportListRelationFilter
     aiBudgetSuggestions?: AiBudgetSuggestionListRelationFilter
     strategicGoals?: StrategicGoalListRelationFilter
+    eventMetrics?: XOR<EventMetricsNullableRelationFilter, EventMetricsWhereInput> | null
   }, "id">
 
   export type EventOrderByWithAggregationInput = {
@@ -27978,6 +31630,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventListRelationFilter
     budgetItems?: BudgetItemListRelationFilter
     expenses?: ExpenseListRelationFilter
+    vendorMetrics?: XOR<VendorMetricsNullableRelationFilter, VendorMetricsWhereInput> | null
   }
 
   export type VendorOrderByWithRelationInput = {
@@ -27996,6 +31649,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventOrderByRelationAggregateInput
     budgetItems?: BudgetItemOrderByRelationAggregateInput
     expenses?: ExpenseOrderByRelationAggregateInput
+    vendorMetrics?: VendorMetricsOrderByWithRelationInput
   }
 
   export type VendorWhereUniqueInput = Prisma.AtLeast<{
@@ -28017,6 +31671,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventListRelationFilter
     budgetItems?: BudgetItemListRelationFilter
     expenses?: ExpenseListRelationFilter
+    vendorMetrics?: XOR<VendorMetricsNullableRelationFilter, VendorMetricsWhereInput> | null
   }, "id">
 
   export type VendorOrderByWithAggregationInput = {
@@ -29190,6 +32845,307 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"AiBudgetSuggestion"> | Date | string
   }
 
+  export type DashboardMetricsWhereInput = {
+    AND?: DashboardMetricsWhereInput | DashboardMetricsWhereInput[]
+    OR?: DashboardMetricsWhereInput[]
+    NOT?: DashboardMetricsWhereInput | DashboardMetricsWhereInput[]
+    id?: StringFilter<"DashboardMetrics"> | string
+    organizationId?: StringNullableFilter<"DashboardMetrics"> | string | null
+    totalBudget?: DecimalNullableFilter<"DashboardMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: DecimalNullableFilter<"DashboardMetrics"> | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFilter<"DashboardMetrics"> | number
+    overBudgetEvents?: IntFilter<"DashboardMetrics"> | number
+    upcomingEvents?: IntFilter<"DashboardMetrics"> | number
+    recentEvents?: JsonNullableFilter<"DashboardMetrics">
+    chartsJson?: JsonNullableFilter<"DashboardMetrics">
+    statsJson?: JsonNullableFilter<"DashboardMetrics">
+    lastComputedAt?: DateTimeNullableFilter<"DashboardMetrics"> | Date | string | null
+    createdAt?: DateTimeFilter<"DashboardMetrics"> | Date | string
+    updatedAt?: DateTimeFilter<"DashboardMetrics"> | Date | string
+    organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
+  }
+
+  export type DashboardMetricsOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    totalBudget?: SortOrderInput | SortOrder
+    totalExpenses?: SortOrderInput | SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+    recentEvents?: SortOrderInput | SortOrder
+    chartsJson?: SortOrderInput | SortOrder
+    statsJson?: SortOrderInput | SortOrder
+    lastComputedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type DashboardMetricsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    organizationId?: string
+    AND?: DashboardMetricsWhereInput | DashboardMetricsWhereInput[]
+    OR?: DashboardMetricsWhereInput[]
+    NOT?: DashboardMetricsWhereInput | DashboardMetricsWhereInput[]
+    totalBudget?: DecimalNullableFilter<"DashboardMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: DecimalNullableFilter<"DashboardMetrics"> | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFilter<"DashboardMetrics"> | number
+    overBudgetEvents?: IntFilter<"DashboardMetrics"> | number
+    upcomingEvents?: IntFilter<"DashboardMetrics"> | number
+    recentEvents?: JsonNullableFilter<"DashboardMetrics">
+    chartsJson?: JsonNullableFilter<"DashboardMetrics">
+    statsJson?: JsonNullableFilter<"DashboardMetrics">
+    lastComputedAt?: DateTimeNullableFilter<"DashboardMetrics"> | Date | string | null
+    createdAt?: DateTimeFilter<"DashboardMetrics"> | Date | string
+    updatedAt?: DateTimeFilter<"DashboardMetrics"> | Date | string
+    organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
+  }, "id" | "organizationId">
+
+  export type DashboardMetricsOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    totalBudget?: SortOrderInput | SortOrder
+    totalExpenses?: SortOrderInput | SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+    recentEvents?: SortOrderInput | SortOrder
+    chartsJson?: SortOrderInput | SortOrder
+    statsJson?: SortOrderInput | SortOrder
+    lastComputedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DashboardMetricsCountOrderByAggregateInput
+    _avg?: DashboardMetricsAvgOrderByAggregateInput
+    _max?: DashboardMetricsMaxOrderByAggregateInput
+    _min?: DashboardMetricsMinOrderByAggregateInput
+    _sum?: DashboardMetricsSumOrderByAggregateInput
+  }
+
+  export type DashboardMetricsScalarWhereWithAggregatesInput = {
+    AND?: DashboardMetricsScalarWhereWithAggregatesInput | DashboardMetricsScalarWhereWithAggregatesInput[]
+    OR?: DashboardMetricsScalarWhereWithAggregatesInput[]
+    NOT?: DashboardMetricsScalarWhereWithAggregatesInput | DashboardMetricsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DashboardMetrics"> | string
+    organizationId?: StringNullableWithAggregatesFilter<"DashboardMetrics"> | string | null
+    totalBudget?: DecimalNullableWithAggregatesFilter<"DashboardMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: DecimalNullableWithAggregatesFilter<"DashboardMetrics"> | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntWithAggregatesFilter<"DashboardMetrics"> | number
+    overBudgetEvents?: IntWithAggregatesFilter<"DashboardMetrics"> | number
+    upcomingEvents?: IntWithAggregatesFilter<"DashboardMetrics"> | number
+    recentEvents?: JsonNullableWithAggregatesFilter<"DashboardMetrics">
+    chartsJson?: JsonNullableWithAggregatesFilter<"DashboardMetrics">
+    statsJson?: JsonNullableWithAggregatesFilter<"DashboardMetrics">
+    lastComputedAt?: DateTimeNullableWithAggregatesFilter<"DashboardMetrics"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DashboardMetrics"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DashboardMetrics"> | Date | string
+  }
+
+  export type EventMetricsWhereInput = {
+    AND?: EventMetricsWhereInput | EventMetricsWhereInput[]
+    OR?: EventMetricsWhereInput[]
+    NOT?: EventMetricsWhereInput | EventMetricsWhereInput[]
+    id?: StringFilter<"EventMetrics"> | string
+    eventId?: StringFilter<"EventMetrics"> | string
+    organizationId?: StringNullableFilter<"EventMetrics"> | string | null
+    totalBudget?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalActual?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    variance?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: FloatNullableFilter<"EventMetrics"> | number | null
+    isOverBudget?: BoolFilter<"EventMetrics"> | boolean
+    totalsByCategory?: JsonNullableFilter<"EventMetrics">
+    pendingExpensesCount?: IntFilter<"EventMetrics"> | number
+    approvedExpensesCount?: IntFilter<"EventMetrics"> | number
+    rejectedExpensesCount?: IntFilter<"EventMetrics"> | number
+    budgetItemsCount?: IntFilter<"EventMetrics"> | number
+    lastComputedAt?: DateTimeNullableFilter<"EventMetrics"> | Date | string | null
+    createdAt?: DateTimeFilter<"EventMetrics"> | Date | string
+    updatedAt?: DateTimeFilter<"EventMetrics"> | Date | string
+    event?: XOR<EventRelationFilter, EventWhereInput>
+  }
+
+  export type EventMetricsOrderByWithRelationInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    totalBudget?: SortOrderInput | SortOrder
+    totalSpent?: SortOrderInput | SortOrder
+    totalEstimated?: SortOrderInput | SortOrder
+    totalActual?: SortOrderInput | SortOrder
+    variance?: SortOrderInput | SortOrder
+    variancePercentage?: SortOrderInput | SortOrder
+    isOverBudget?: SortOrder
+    totalsByCategory?: SortOrderInput | SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+    lastComputedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    event?: EventOrderByWithRelationInput
+  }
+
+  export type EventMetricsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    eventId?: string
+    AND?: EventMetricsWhereInput | EventMetricsWhereInput[]
+    OR?: EventMetricsWhereInput[]
+    NOT?: EventMetricsWhereInput | EventMetricsWhereInput[]
+    organizationId?: StringNullableFilter<"EventMetrics"> | string | null
+    totalBudget?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalActual?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    variance?: DecimalNullableFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: FloatNullableFilter<"EventMetrics"> | number | null
+    isOverBudget?: BoolFilter<"EventMetrics"> | boolean
+    totalsByCategory?: JsonNullableFilter<"EventMetrics">
+    pendingExpensesCount?: IntFilter<"EventMetrics"> | number
+    approvedExpensesCount?: IntFilter<"EventMetrics"> | number
+    rejectedExpensesCount?: IntFilter<"EventMetrics"> | number
+    budgetItemsCount?: IntFilter<"EventMetrics"> | number
+    lastComputedAt?: DateTimeNullableFilter<"EventMetrics"> | Date | string | null
+    createdAt?: DateTimeFilter<"EventMetrics"> | Date | string
+    updatedAt?: DateTimeFilter<"EventMetrics"> | Date | string
+    event?: XOR<EventRelationFilter, EventWhereInput>
+  }, "id" | "eventId">
+
+  export type EventMetricsOrderByWithAggregationInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    totalBudget?: SortOrderInput | SortOrder
+    totalSpent?: SortOrderInput | SortOrder
+    totalEstimated?: SortOrderInput | SortOrder
+    totalActual?: SortOrderInput | SortOrder
+    variance?: SortOrderInput | SortOrder
+    variancePercentage?: SortOrderInput | SortOrder
+    isOverBudget?: SortOrder
+    totalsByCategory?: SortOrderInput | SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+    lastComputedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EventMetricsCountOrderByAggregateInput
+    _avg?: EventMetricsAvgOrderByAggregateInput
+    _max?: EventMetricsMaxOrderByAggregateInput
+    _min?: EventMetricsMinOrderByAggregateInput
+    _sum?: EventMetricsSumOrderByAggregateInput
+  }
+
+  export type EventMetricsScalarWhereWithAggregatesInput = {
+    AND?: EventMetricsScalarWhereWithAggregatesInput | EventMetricsScalarWhereWithAggregatesInput[]
+    OR?: EventMetricsScalarWhereWithAggregatesInput[]
+    NOT?: EventMetricsScalarWhereWithAggregatesInput | EventMetricsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EventMetrics"> | string
+    eventId?: StringWithAggregatesFilter<"EventMetrics"> | string
+    organizationId?: StringNullableWithAggregatesFilter<"EventMetrics"> | string | null
+    totalBudget?: DecimalNullableWithAggregatesFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: DecimalNullableWithAggregatesFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: DecimalNullableWithAggregatesFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    totalActual?: DecimalNullableWithAggregatesFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    variance?: DecimalNullableWithAggregatesFilter<"EventMetrics"> | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: FloatNullableWithAggregatesFilter<"EventMetrics"> | number | null
+    isOverBudget?: BoolWithAggregatesFilter<"EventMetrics"> | boolean
+    totalsByCategory?: JsonNullableWithAggregatesFilter<"EventMetrics">
+    pendingExpensesCount?: IntWithAggregatesFilter<"EventMetrics"> | number
+    approvedExpensesCount?: IntWithAggregatesFilter<"EventMetrics"> | number
+    rejectedExpensesCount?: IntWithAggregatesFilter<"EventMetrics"> | number
+    budgetItemsCount?: IntWithAggregatesFilter<"EventMetrics"> | number
+    lastComputedAt?: DateTimeNullableWithAggregatesFilter<"EventMetrics"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EventMetrics"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EventMetrics"> | Date | string
+  }
+
+  export type VendorMetricsWhereInput = {
+    AND?: VendorMetricsWhereInput | VendorMetricsWhereInput[]
+    OR?: VendorMetricsWhereInput[]
+    NOT?: VendorMetricsWhereInput | VendorMetricsWhereInput[]
+    id?: StringFilter<"VendorMetrics"> | string
+    vendorId?: StringFilter<"VendorMetrics"> | string
+    organizationId?: StringNullableFilter<"VendorMetrics"> | string | null
+    totalContracts?: IntFilter<"VendorMetrics"> | number
+    totalSpent?: DecimalNullableFilter<"VendorMetrics"> | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFilter<"VendorMetrics"> | number
+    lastContractDate?: DateTimeNullableFilter<"VendorMetrics"> | Date | string | null
+    lastComputedAt?: DateTimeNullableFilter<"VendorMetrics"> | Date | string | null
+    createdAt?: DateTimeFilter<"VendorMetrics"> | Date | string
+    updatedAt?: DateTimeFilter<"VendorMetrics"> | Date | string
+    vendor?: XOR<VendorRelationFilter, VendorWhereInput>
+  }
+
+  export type VendorMetricsOrderByWithRelationInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    totalContracts?: SortOrder
+    totalSpent?: SortOrderInput | SortOrder
+    eventsCount?: SortOrder
+    lastContractDate?: SortOrderInput | SortOrder
+    lastComputedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    vendor?: VendorOrderByWithRelationInput
+  }
+
+  export type VendorMetricsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    vendorId?: string
+    AND?: VendorMetricsWhereInput | VendorMetricsWhereInput[]
+    OR?: VendorMetricsWhereInput[]
+    NOT?: VendorMetricsWhereInput | VendorMetricsWhereInput[]
+    organizationId?: StringNullableFilter<"VendorMetrics"> | string | null
+    totalContracts?: IntFilter<"VendorMetrics"> | number
+    totalSpent?: DecimalNullableFilter<"VendorMetrics"> | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFilter<"VendorMetrics"> | number
+    lastContractDate?: DateTimeNullableFilter<"VendorMetrics"> | Date | string | null
+    lastComputedAt?: DateTimeNullableFilter<"VendorMetrics"> | Date | string | null
+    createdAt?: DateTimeFilter<"VendorMetrics"> | Date | string
+    updatedAt?: DateTimeFilter<"VendorMetrics"> | Date | string
+    vendor?: XOR<VendorRelationFilter, VendorWhereInput>
+  }, "id" | "vendorId">
+
+  export type VendorMetricsOrderByWithAggregationInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    totalContracts?: SortOrder
+    totalSpent?: SortOrderInput | SortOrder
+    eventsCount?: SortOrder
+    lastContractDate?: SortOrderInput | SortOrder
+    lastComputedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: VendorMetricsCountOrderByAggregateInput
+    _avg?: VendorMetricsAvgOrderByAggregateInput
+    _max?: VendorMetricsMaxOrderByAggregateInput
+    _min?: VendorMetricsMinOrderByAggregateInput
+    _sum?: VendorMetricsSumOrderByAggregateInput
+  }
+
+  export type VendorMetricsScalarWhereWithAggregatesInput = {
+    AND?: VendorMetricsScalarWhereWithAggregatesInput | VendorMetricsScalarWhereWithAggregatesInput[]
+    OR?: VendorMetricsScalarWhereWithAggregatesInput[]
+    NOT?: VendorMetricsScalarWhereWithAggregatesInput | VendorMetricsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"VendorMetrics"> | string
+    vendorId?: StringWithAggregatesFilter<"VendorMetrics"> | string
+    organizationId?: StringNullableWithAggregatesFilter<"VendorMetrics"> | string | null
+    totalContracts?: IntWithAggregatesFilter<"VendorMetrics"> | number
+    totalSpent?: DecimalNullableWithAggregatesFilter<"VendorMetrics"> | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntWithAggregatesFilter<"VendorMetrics"> | number
+    lastContractDate?: DateTimeNullableWithAggregatesFilter<"VendorMetrics"> | Date | string | null
+    lastComputedAt?: DateTimeNullableWithAggregatesFilter<"VendorMetrics"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"VendorMetrics"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"VendorMetrics"> | Date | string
+  }
+
   export type OrganizationCreateInput = {
     id?: string
     name: string
@@ -29204,6 +33160,7 @@ export namespace Prisma {
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateInput = {
@@ -29220,6 +33177,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUpdateInput = {
@@ -29236,6 +33194,7 @@ export namespace Prisma {
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateInput = {
@@ -29252,6 +33211,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationCreateManyInput = {
@@ -29617,6 +33577,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateInput = {
@@ -29652,6 +33613,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventUpdateInput = {
@@ -29687,6 +33649,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateInput = {
@@ -29722,6 +33685,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventCreateManyInput = {
@@ -29930,6 +33894,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventCreateNestedManyWithoutVendorInput
     budgetItems?: BudgetItemCreateNestedManyWithoutVendorLinkInput
     expenses?: ExpenseCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsCreateNestedOneWithoutVendorInput
   }
 
   export type VendorUncheckedCreateInput = {
@@ -29947,6 +33912,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutVendorInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutVendorLinkInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsUncheckedCreateNestedOneWithoutVendorInput
   }
 
   export type VendorUpdateInput = {
@@ -29964,6 +33930,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventUpdateManyWithoutVendorNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutVendorLinkNestedInput
     expenses?: ExpenseUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorUncheckedUpdateInput = {
@@ -29981,6 +33948,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventUncheckedUpdateManyWithoutVendorNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutVendorLinkNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUncheckedUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorCreateManyInput = {
@@ -31192,6 +35160,353 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DashboardMetricsCreateInput = {
+    id?: string
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: number
+    overBudgetEvents?: number
+    upcomingEvents?: number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutDashboardMetricsInput
+  }
+
+  export type DashboardMetricsUncheckedCreateInput = {
+    id?: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: number
+    overBudgetEvents?: number
+    upcomingEvents?: number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DashboardMetricsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFieldUpdateOperationsInput | number
+    overBudgetEvents?: IntFieldUpdateOperationsInput | number
+    upcomingEvents?: IntFieldUpdateOperationsInput | number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutDashboardMetricsNestedInput
+  }
+
+  export type DashboardMetricsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFieldUpdateOperationsInput | number
+    overBudgetEvents?: IntFieldUpdateOperationsInput | number
+    upcomingEvents?: IntFieldUpdateOperationsInput | number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardMetricsCreateManyInput = {
+    id?: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: number
+    overBudgetEvents?: number
+    upcomingEvents?: number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DashboardMetricsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFieldUpdateOperationsInput | number
+    overBudgetEvents?: IntFieldUpdateOperationsInput | number
+    upcomingEvents?: IntFieldUpdateOperationsInput | number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardMetricsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFieldUpdateOperationsInput | number
+    overBudgetEvents?: IntFieldUpdateOperationsInput | number
+    upcomingEvents?: IntFieldUpdateOperationsInput | number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventMetricsCreateInput = {
+    id?: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: Decimal | DecimalJsLike | number | string | null
+    totalActual?: Decimal | DecimalJsLike | number | string | null
+    variance?: Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: number | null
+    isOverBudget?: boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: number
+    approvedExpensesCount?: number
+    rejectedExpensesCount?: number
+    budgetItemsCount?: number
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    event: EventCreateNestedOneWithoutEventMetricsInput
+  }
+
+  export type EventMetricsUncheckedCreateInput = {
+    id?: string
+    eventId: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: Decimal | DecimalJsLike | number | string | null
+    totalActual?: Decimal | DecimalJsLike | number | string | null
+    variance?: Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: number | null
+    isOverBudget?: boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: number
+    approvedExpensesCount?: number
+    rejectedExpensesCount?: number
+    budgetItemsCount?: number
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventMetricsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalActual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    isOverBudget?: BoolFieldUpdateOperationsInput | boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: IntFieldUpdateOperationsInput | number
+    approvedExpensesCount?: IntFieldUpdateOperationsInput | number
+    rejectedExpensesCount?: IntFieldUpdateOperationsInput | number
+    budgetItemsCount?: IntFieldUpdateOperationsInput | number
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    event?: EventUpdateOneRequiredWithoutEventMetricsNestedInput
+  }
+
+  export type EventMetricsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalActual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    isOverBudget?: BoolFieldUpdateOperationsInput | boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: IntFieldUpdateOperationsInput | number
+    approvedExpensesCount?: IntFieldUpdateOperationsInput | number
+    rejectedExpensesCount?: IntFieldUpdateOperationsInput | number
+    budgetItemsCount?: IntFieldUpdateOperationsInput | number
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventMetricsCreateManyInput = {
+    id?: string
+    eventId: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: Decimal | DecimalJsLike | number | string | null
+    totalActual?: Decimal | DecimalJsLike | number | string | null
+    variance?: Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: number | null
+    isOverBudget?: boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: number
+    approvedExpensesCount?: number
+    rejectedExpensesCount?: number
+    budgetItemsCount?: number
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventMetricsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalActual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    isOverBudget?: BoolFieldUpdateOperationsInput | boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: IntFieldUpdateOperationsInput | number
+    approvedExpensesCount?: IntFieldUpdateOperationsInput | number
+    rejectedExpensesCount?: IntFieldUpdateOperationsInput | number
+    budgetItemsCount?: IntFieldUpdateOperationsInput | number
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventMetricsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalActual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    isOverBudget?: BoolFieldUpdateOperationsInput | boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: IntFieldUpdateOperationsInput | number
+    approvedExpensesCount?: IntFieldUpdateOperationsInput | number
+    rejectedExpensesCount?: IntFieldUpdateOperationsInput | number
+    budgetItemsCount?: IntFieldUpdateOperationsInput | number
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorMetricsCreateInput = {
+    id?: string
+    organizationId?: string | null
+    totalContracts?: number
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    eventsCount?: number
+    lastContractDate?: Date | string | null
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendor: VendorCreateNestedOneWithoutVendorMetricsInput
+  }
+
+  export type VendorMetricsUncheckedCreateInput = {
+    id?: string
+    vendorId: string
+    organizationId?: string | null
+    totalContracts?: number
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    eventsCount?: number
+    lastContractDate?: Date | string | null
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VendorMetricsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalContracts?: IntFieldUpdateOperationsInput | number
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFieldUpdateOperationsInput | number
+    lastContractDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendor?: VendorUpdateOneRequiredWithoutVendorMetricsNestedInput
+  }
+
+  export type VendorMetricsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vendorId?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalContracts?: IntFieldUpdateOperationsInput | number
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFieldUpdateOperationsInput | number
+    lastContractDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorMetricsCreateManyInput = {
+    id?: string
+    vendorId: string
+    organizationId?: string | null
+    totalContracts?: number
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    eventsCount?: number
+    lastContractDate?: Date | string | null
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VendorMetricsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalContracts?: IntFieldUpdateOperationsInput | number
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFieldUpdateOperationsInput | number
+    lastContractDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorMetricsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vendorId?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalContracts?: IntFieldUpdateOperationsInput | number
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFieldUpdateOperationsInput | number
+    lastContractDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -31273,6 +35588,11 @@ export namespace Prisma {
     every?: NotificationWhereInput
     some?: NotificationWhereInput
     none?: NotificationWhereInput
+  }
+
+  export type DashboardMetricsNullableRelationFilter = {
+    is?: DashboardMetricsWhereInput | null
+    isNot?: DashboardMetricsWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -31782,6 +36102,11 @@ export namespace Prisma {
     none?: StrategicGoalWhereInput
   }
 
+  export type EventMetricsNullableRelationFilter = {
+    is?: EventMetricsWhereInput | null
+    isNot?: EventMetricsWhereInput | null
+  }
+
   export type EventStakeholderOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -31998,6 +36323,11 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type VendorMetricsNullableRelationFilter = {
+    is?: VendorMetricsWhereInput | null
+    isNot?: VendorMetricsWhereInput | null
   }
 
   export type VendorCountOrderByAggregateInput = {
@@ -32816,6 +37146,229 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type DashboardMetricsCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    totalBudget?: SortOrder
+    totalExpenses?: SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+    recentEvents?: SortOrder
+    chartsJson?: SortOrder
+    statsJson?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DashboardMetricsAvgOrderByAggregateInput = {
+    totalBudget?: SortOrder
+    totalExpenses?: SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+  }
+
+  export type DashboardMetricsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    totalBudget?: SortOrder
+    totalExpenses?: SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DashboardMetricsMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    totalBudget?: SortOrder
+    totalExpenses?: SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DashboardMetricsSumOrderByAggregateInput = {
+    totalBudget?: SortOrder
+    totalExpenses?: SortOrder
+    pendingApprovals?: SortOrder
+    overBudgetEvents?: SortOrder
+    upcomingEvents?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type EventMetricsCountOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    organizationId?: SortOrder
+    totalBudget?: SortOrder
+    totalSpent?: SortOrder
+    totalEstimated?: SortOrder
+    totalActual?: SortOrder
+    variance?: SortOrder
+    variancePercentage?: SortOrder
+    isOverBudget?: SortOrder
+    totalsByCategory?: SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventMetricsAvgOrderByAggregateInput = {
+    totalBudget?: SortOrder
+    totalSpent?: SortOrder
+    totalEstimated?: SortOrder
+    totalActual?: SortOrder
+    variance?: SortOrder
+    variancePercentage?: SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+  }
+
+  export type EventMetricsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    organizationId?: SortOrder
+    totalBudget?: SortOrder
+    totalSpent?: SortOrder
+    totalEstimated?: SortOrder
+    totalActual?: SortOrder
+    variance?: SortOrder
+    variancePercentage?: SortOrder
+    isOverBudget?: SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventMetricsMinOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    organizationId?: SortOrder
+    totalBudget?: SortOrder
+    totalSpent?: SortOrder
+    totalEstimated?: SortOrder
+    totalActual?: SortOrder
+    variance?: SortOrder
+    variancePercentage?: SortOrder
+    isOverBudget?: SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventMetricsSumOrderByAggregateInput = {
+    totalBudget?: SortOrder
+    totalSpent?: SortOrder
+    totalEstimated?: SortOrder
+    totalActual?: SortOrder
+    variance?: SortOrder
+    variancePercentage?: SortOrder
+    pendingExpensesCount?: SortOrder
+    approvedExpensesCount?: SortOrder
+    rejectedExpensesCount?: SortOrder
+    budgetItemsCount?: SortOrder
+  }
+
+  export type VendorMetricsCountOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    organizationId?: SortOrder
+    totalContracts?: SortOrder
+    totalSpent?: SortOrder
+    eventsCount?: SortOrder
+    lastContractDate?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type VendorMetricsAvgOrderByAggregateInput = {
+    totalContracts?: SortOrder
+    totalSpent?: SortOrder
+    eventsCount?: SortOrder
+  }
+
+  export type VendorMetricsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    organizationId?: SortOrder
+    totalContracts?: SortOrder
+    totalSpent?: SortOrder
+    eventsCount?: SortOrder
+    lastContractDate?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type VendorMetricsMinOrderByAggregateInput = {
+    id?: SortOrder
+    vendorId?: SortOrder
+    organizationId?: SortOrder
+    totalContracts?: SortOrder
+    totalSpent?: SortOrder
+    eventsCount?: SortOrder
+    lastContractDate?: SortOrder
+    lastComputedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type VendorMetricsSumOrderByAggregateInput = {
+    totalContracts?: SortOrder
+    totalSpent?: SortOrder
+    eventsCount?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -32865,6 +37418,12 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
+  export type DashboardMetricsCreateNestedOneWithoutOrganizationInput = {
+    create?: XOR<DashboardMetricsCreateWithoutOrganizationInput, DashboardMetricsUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: DashboardMetricsCreateOrConnectWithoutOrganizationInput
+    connect?: DashboardMetricsWhereUniqueInput
+  }
+
   export type UserUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -32912,6 +37471,12 @@ export namespace Prisma {
     connectOrCreate?: NotificationCreateOrConnectWithoutOrganizationInput | NotificationCreateOrConnectWithoutOrganizationInput[]
     createMany?: NotificationCreateManyOrganizationInputEnvelope
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput = {
+    create?: XOR<DashboardMetricsCreateWithoutOrganizationInput, DashboardMetricsUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: DashboardMetricsCreateOrConnectWithoutOrganizationInput
+    connect?: DashboardMetricsWhereUniqueInput
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -33024,6 +37589,16 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type DashboardMetricsUpdateOneWithoutOrganizationNestedInput = {
+    create?: XOR<DashboardMetricsCreateWithoutOrganizationInput, DashboardMetricsUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: DashboardMetricsCreateOrConnectWithoutOrganizationInput
+    upsert?: DashboardMetricsUpsertWithoutOrganizationInput
+    disconnect?: DashboardMetricsWhereInput | boolean
+    delete?: DashboardMetricsWhereInput | boolean
+    connect?: DashboardMetricsWhereUniqueInput
+    update?: XOR<XOR<DashboardMetricsUpdateToOneWithWhereWithoutOrganizationInput, DashboardMetricsUpdateWithoutOrganizationInput>, DashboardMetricsUncheckedUpdateWithoutOrganizationInput>
+  }
+
   export type UserUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -33120,6 +37695,16 @@ export namespace Prisma {
     update?: NotificationUpdateWithWhereUniqueWithoutOrganizationInput | NotificationUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: NotificationUpdateManyWithWhereWithoutOrganizationInput | NotificationUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput = {
+    create?: XOR<DashboardMetricsCreateWithoutOrganizationInput, DashboardMetricsUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: DashboardMetricsCreateOrConnectWithoutOrganizationInput
+    upsert?: DashboardMetricsUpsertWithoutOrganizationInput
+    disconnect?: DashboardMetricsWhereInput | boolean
+    delete?: DashboardMetricsWhereInput | boolean
+    connect?: DashboardMetricsWhereUniqueInput
+    update?: XOR<XOR<DashboardMetricsUpdateToOneWithWhereWithoutOrganizationInput, DashboardMetricsUpdateWithoutOrganizationInput>, DashboardMetricsUncheckedUpdateWithoutOrganizationInput>
   }
 
   export type OrganizationCreateNestedOneWithoutUsersInput = {
@@ -33816,6 +38401,12 @@ export namespace Prisma {
     connect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
   }
 
+  export type EventMetricsCreateNestedOneWithoutEventInput = {
+    create?: XOR<EventMetricsCreateWithoutEventInput, EventMetricsUncheckedCreateWithoutEventInput>
+    connectOrCreate?: EventMetricsCreateOrConnectWithoutEventInput
+    connect?: EventMetricsWhereUniqueInput
+  }
+
   export type EventAssignmentUncheckedCreateNestedManyWithoutEventInput = {
     create?: XOR<EventAssignmentCreateWithoutEventInput, EventAssignmentUncheckedCreateWithoutEventInput> | EventAssignmentCreateWithoutEventInput[] | EventAssignmentUncheckedCreateWithoutEventInput[]
     connectOrCreate?: EventAssignmentCreateOrConnectWithoutEventInput | EventAssignmentCreateOrConnectWithoutEventInput[]
@@ -33910,6 +38501,12 @@ export namespace Prisma {
     connectOrCreate?: StrategicGoalCreateOrConnectWithoutEventInput | StrategicGoalCreateOrConnectWithoutEventInput[]
     createMany?: StrategicGoalCreateManyEventInputEnvelope
     connect?: StrategicGoalWhereUniqueInput | StrategicGoalWhereUniqueInput[]
+  }
+
+  export type EventMetricsUncheckedCreateNestedOneWithoutEventInput = {
+    create?: XOR<EventMetricsCreateWithoutEventInput, EventMetricsUncheckedCreateWithoutEventInput>
+    connectOrCreate?: EventMetricsCreateOrConnectWithoutEventInput
+    connect?: EventMetricsWhereUniqueInput
   }
 
   export type EnumEventStatusFieldUpdateOperationsInput = {
@@ -34140,6 +38737,16 @@ export namespace Prisma {
     deleteMany?: StrategicGoalScalarWhereInput | StrategicGoalScalarWhereInput[]
   }
 
+  export type EventMetricsUpdateOneWithoutEventNestedInput = {
+    create?: XOR<EventMetricsCreateWithoutEventInput, EventMetricsUncheckedCreateWithoutEventInput>
+    connectOrCreate?: EventMetricsCreateOrConnectWithoutEventInput
+    upsert?: EventMetricsUpsertWithoutEventInput
+    disconnect?: EventMetricsWhereInput | boolean
+    delete?: EventMetricsWhereInput | boolean
+    connect?: EventMetricsWhereUniqueInput
+    update?: XOR<XOR<EventMetricsUpdateToOneWithWhereWithoutEventInput, EventMetricsUpdateWithoutEventInput>, EventMetricsUncheckedUpdateWithoutEventInput>
+  }
+
   export type EventAssignmentUncheckedUpdateManyWithoutEventNestedInput = {
     create?: XOR<EventAssignmentCreateWithoutEventInput, EventAssignmentUncheckedCreateWithoutEventInput> | EventAssignmentCreateWithoutEventInput[] | EventAssignmentUncheckedCreateWithoutEventInput[]
     connectOrCreate?: EventAssignmentCreateOrConnectWithoutEventInput | EventAssignmentCreateOrConnectWithoutEventInput[]
@@ -34328,6 +38935,16 @@ export namespace Prisma {
     deleteMany?: StrategicGoalScalarWhereInput | StrategicGoalScalarWhereInput[]
   }
 
+  export type EventMetricsUncheckedUpdateOneWithoutEventNestedInput = {
+    create?: XOR<EventMetricsCreateWithoutEventInput, EventMetricsUncheckedCreateWithoutEventInput>
+    connectOrCreate?: EventMetricsCreateOrConnectWithoutEventInput
+    upsert?: EventMetricsUpsertWithoutEventInput
+    disconnect?: EventMetricsWhereInput | boolean
+    delete?: EventMetricsWhereInput | boolean
+    connect?: EventMetricsWhereUniqueInput
+    update?: XOR<XOR<EventMetricsUpdateToOneWithWhereWithoutEventInput, EventMetricsUpdateWithoutEventInput>, EventMetricsUncheckedUpdateWithoutEventInput>
+  }
+
   export type UserCreateNestedOneWithoutEventsInput = {
     create?: XOR<UserCreateWithoutEventsInput, UserUncheckedCreateWithoutEventsInput>
     connectOrCreate?: UserCreateOrConnectWithoutEventsInput
@@ -34397,6 +39014,12 @@ export namespace Prisma {
     connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
   }
 
+  export type VendorMetricsCreateNestedOneWithoutVendorInput = {
+    create?: XOR<VendorMetricsCreateWithoutVendorInput, VendorMetricsUncheckedCreateWithoutVendorInput>
+    connectOrCreate?: VendorMetricsCreateOrConnectWithoutVendorInput
+    connect?: VendorMetricsWhereUniqueInput
+  }
+
   export type VendorEventUncheckedCreateNestedManyWithoutVendorInput = {
     create?: XOR<VendorEventCreateWithoutVendorInput, VendorEventUncheckedCreateWithoutVendorInput> | VendorEventCreateWithoutVendorInput[] | VendorEventUncheckedCreateWithoutVendorInput[]
     connectOrCreate?: VendorEventCreateOrConnectWithoutVendorInput | VendorEventCreateOrConnectWithoutVendorInput[]
@@ -34416,6 +39039,12 @@ export namespace Prisma {
     connectOrCreate?: ExpenseCreateOrConnectWithoutVendorLinkInput | ExpenseCreateOrConnectWithoutVendorLinkInput[]
     createMany?: ExpenseCreateManyVendorLinkInputEnvelope
     connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+  }
+
+  export type VendorMetricsUncheckedCreateNestedOneWithoutVendorInput = {
+    create?: XOR<VendorMetricsCreateWithoutVendorInput, VendorMetricsUncheckedCreateWithoutVendorInput>
+    connectOrCreate?: VendorMetricsCreateOrConnectWithoutVendorInput
+    connect?: VendorMetricsWhereUniqueInput
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -34478,6 +39107,16 @@ export namespace Prisma {
     deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
   }
 
+  export type VendorMetricsUpdateOneWithoutVendorNestedInput = {
+    create?: XOR<VendorMetricsCreateWithoutVendorInput, VendorMetricsUncheckedCreateWithoutVendorInput>
+    connectOrCreate?: VendorMetricsCreateOrConnectWithoutVendorInput
+    upsert?: VendorMetricsUpsertWithoutVendorInput
+    disconnect?: VendorMetricsWhereInput | boolean
+    delete?: VendorMetricsWhereInput | boolean
+    connect?: VendorMetricsWhereUniqueInput
+    update?: XOR<XOR<VendorMetricsUpdateToOneWithWhereWithoutVendorInput, VendorMetricsUpdateWithoutVendorInput>, VendorMetricsUncheckedUpdateWithoutVendorInput>
+  }
+
   export type VendorEventUncheckedUpdateManyWithoutVendorNestedInput = {
     create?: XOR<VendorEventCreateWithoutVendorInput, VendorEventUncheckedCreateWithoutVendorInput> | VendorEventCreateWithoutVendorInput[] | VendorEventUncheckedCreateWithoutVendorInput[]
     connectOrCreate?: VendorEventCreateOrConnectWithoutVendorInput | VendorEventCreateOrConnectWithoutVendorInput[]
@@ -34518,6 +39157,16 @@ export namespace Prisma {
     update?: ExpenseUpdateWithWhereUniqueWithoutVendorLinkInput | ExpenseUpdateWithWhereUniqueWithoutVendorLinkInput[]
     updateMany?: ExpenseUpdateManyWithWhereWithoutVendorLinkInput | ExpenseUpdateManyWithWhereWithoutVendorLinkInput[]
     deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
+  }
+
+  export type VendorMetricsUncheckedUpdateOneWithoutVendorNestedInput = {
+    create?: XOR<VendorMetricsCreateWithoutVendorInput, VendorMetricsUncheckedCreateWithoutVendorInput>
+    connectOrCreate?: VendorMetricsCreateOrConnectWithoutVendorInput
+    upsert?: VendorMetricsUpsertWithoutVendorInput
+    disconnect?: VendorMetricsWhereInput | boolean
+    delete?: VendorMetricsWhereInput | boolean
+    connect?: VendorMetricsWhereUniqueInput
+    update?: XOR<XOR<VendorMetricsUpdateToOneWithWhereWithoutVendorInput, VendorMetricsUpdateWithoutVendorInput>, VendorMetricsUncheckedUpdateWithoutVendorInput>
   }
 
   export type VendorCreateNestedOneWithoutVendorEventsInput = {
@@ -35301,6 +39950,58 @@ export namespace Prisma {
     update?: XOR<XOR<EventUpdateToOneWithWhereWithoutAiBudgetSuggestionsInput, EventUpdateWithoutAiBudgetSuggestionsInput>, EventUncheckedUpdateWithoutAiBudgetSuggestionsInput>
   }
 
+  export type OrganizationCreateNestedOneWithoutDashboardMetricsInput = {
+    create?: XOR<OrganizationCreateWithoutDashboardMetricsInput, OrganizationUncheckedCreateWithoutDashboardMetricsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutDashboardMetricsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type OrganizationUpdateOneWithoutDashboardMetricsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutDashboardMetricsInput, OrganizationUncheckedCreateWithoutDashboardMetricsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutDashboardMetricsInput
+    upsert?: OrganizationUpsertWithoutDashboardMetricsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutDashboardMetricsInput, OrganizationUpdateWithoutDashboardMetricsInput>, OrganizationUncheckedUpdateWithoutDashboardMetricsInput>
+  }
+
+  export type EventCreateNestedOneWithoutEventMetricsInput = {
+    create?: XOR<EventCreateWithoutEventMetricsInput, EventUncheckedCreateWithoutEventMetricsInput>
+    connectOrCreate?: EventCreateOrConnectWithoutEventMetricsInput
+    connect?: EventWhereUniqueInput
+  }
+
+  export type EventUpdateOneRequiredWithoutEventMetricsNestedInput = {
+    create?: XOR<EventCreateWithoutEventMetricsInput, EventUncheckedCreateWithoutEventMetricsInput>
+    connectOrCreate?: EventCreateOrConnectWithoutEventMetricsInput
+    upsert?: EventUpsertWithoutEventMetricsInput
+    connect?: EventWhereUniqueInput
+    update?: XOR<XOR<EventUpdateToOneWithWhereWithoutEventMetricsInput, EventUpdateWithoutEventMetricsInput>, EventUncheckedUpdateWithoutEventMetricsInput>
+  }
+
+  export type VendorCreateNestedOneWithoutVendorMetricsInput = {
+    create?: XOR<VendorCreateWithoutVendorMetricsInput, VendorUncheckedCreateWithoutVendorMetricsInput>
+    connectOrCreate?: VendorCreateOrConnectWithoutVendorMetricsInput
+    connect?: VendorWhereUniqueInput
+  }
+
+  export type VendorUpdateOneRequiredWithoutVendorMetricsNestedInput = {
+    create?: XOR<VendorCreateWithoutVendorMetricsInput, VendorUncheckedCreateWithoutVendorMetricsInput>
+    connectOrCreate?: VendorCreateOrConnectWithoutVendorMetricsInput
+    upsert?: VendorUpsertWithoutVendorMetricsInput
+    connect?: VendorWhereUniqueInput
+    update?: XOR<XOR<VendorUpdateToOneWithWhereWithoutVendorMetricsInput, VendorUpdateWithoutVendorMetricsInput>, VendorUncheckedUpdateWithoutVendorMetricsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -35747,6 +40448,22 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type UserCreateWithoutOrganizationInput = {
     id?: string
     fullName: string
@@ -35855,6 +40572,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventCreateNestedManyWithoutVendorInput
     budgetItems?: BudgetItemCreateNestedManyWithoutVendorLinkInput
     expenses?: ExpenseCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsCreateNestedOneWithoutVendorInput
   }
 
   export type VendorUncheckedCreateWithoutOrganizationInput = {
@@ -35871,6 +40589,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutVendorInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutVendorLinkInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsUncheckedCreateNestedOneWithoutVendorInput
   }
 
   export type VendorCreateOrConnectWithoutOrganizationInput = {
@@ -35915,6 +40634,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutOrganizationInput = {
@@ -35949,6 +40669,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutOrganizationInput = {
@@ -36067,6 +40788,41 @@ export namespace Prisma {
   export type NotificationCreateManyOrganizationInputEnvelope = {
     data: NotificationCreateManyOrganizationInput | NotificationCreateManyOrganizationInput[]
     skipDuplicates?: boolean
+  }
+
+  export type DashboardMetricsCreateWithoutOrganizationInput = {
+    id?: string
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: number
+    overBudgetEvents?: number
+    upcomingEvents?: number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DashboardMetricsUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: number
+    overBudgetEvents?: number
+    upcomingEvents?: number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DashboardMetricsCreateOrConnectWithoutOrganizationInput = {
+    where: DashboardMetricsWhereUniqueInput
+    create: XOR<DashboardMetricsCreateWithoutOrganizationInput, DashboardMetricsUncheckedCreateWithoutOrganizationInput>
   }
 
   export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -36304,6 +41060,47 @@ export namespace Prisma {
     readAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
   }
 
+  export type DashboardMetricsUpsertWithoutOrganizationInput = {
+    update: XOR<DashboardMetricsUpdateWithoutOrganizationInput, DashboardMetricsUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<DashboardMetricsCreateWithoutOrganizationInput, DashboardMetricsUncheckedCreateWithoutOrganizationInput>
+    where?: DashboardMetricsWhereInput
+  }
+
+  export type DashboardMetricsUpdateToOneWithWhereWithoutOrganizationInput = {
+    where?: DashboardMetricsWhereInput
+    data: XOR<DashboardMetricsUpdateWithoutOrganizationInput, DashboardMetricsUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type DashboardMetricsUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFieldUpdateOperationsInput | number
+    overBudgetEvents?: IntFieldUpdateOperationsInput | number
+    upcomingEvents?: IntFieldUpdateOperationsInput | number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardMetricsUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalExpenses?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pendingApprovals?: IntFieldUpdateOperationsInput | number
+    overBudgetEvents?: IntFieldUpdateOperationsInput | number
+    upcomingEvents?: IntFieldUpdateOperationsInput | number
+    recentEvents?: NullableJsonNullValueInput | InputJsonValue
+    chartsJson?: NullableJsonNullValueInput | InputJsonValue
+    statsJson?: NullableJsonNullValueInput | InputJsonValue
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationCreateWithoutUsersInput = {
     id?: string
     name: string
@@ -36317,6 +41114,7 @@ export namespace Prisma {
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutUsersInput = {
@@ -36332,6 +41130,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutUsersInput = {
@@ -36371,6 +41170,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutCreatorInput = {
@@ -36405,6 +41205,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutCreatorInput = {
@@ -36769,6 +41570,7 @@ export namespace Prisma {
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutUsersInput = {
@@ -36784,6 +41586,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type EventUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -37075,6 +41878,7 @@ export namespace Prisma {
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutSubscriptionsInput = {
@@ -37090,6 +41894,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutSubscriptionsInput = {
@@ -37149,6 +41954,7 @@ export namespace Prisma {
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutSubscriptionsInput = {
@@ -37164,6 +41970,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type SubscriptionHistoryUpsertWithWhereUniqueWithoutSubscriptionInput = {
@@ -37375,6 +42182,7 @@ export namespace Prisma {
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutEventsInput = {
@@ -37390,6 +42198,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutEventsInput = {
@@ -37896,6 +42705,51 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type EventMetricsCreateWithoutEventInput = {
+    id?: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: Decimal | DecimalJsLike | number | string | null
+    totalActual?: Decimal | DecimalJsLike | number | string | null
+    variance?: Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: number | null
+    isOverBudget?: boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: number
+    approvedExpensesCount?: number
+    rejectedExpensesCount?: number
+    budgetItemsCount?: number
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventMetricsUncheckedCreateWithoutEventInput = {
+    id?: string
+    organizationId?: string | null
+    totalBudget?: Decimal | DecimalJsLike | number | string | null
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: Decimal | DecimalJsLike | number | string | null
+    totalActual?: Decimal | DecimalJsLike | number | string | null
+    variance?: Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: number | null
+    isOverBudget?: boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: number
+    approvedExpensesCount?: number
+    rejectedExpensesCount?: number
+    budgetItemsCount?: number
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventMetricsCreateOrConnectWithoutEventInput = {
+    where: EventMetricsWhereUniqueInput
+    create: XOR<EventMetricsCreateWithoutEventInput, EventMetricsUncheckedCreateWithoutEventInput>
+  }
+
   export type OrganizationUpsertWithoutEventsInput = {
     update: XOR<OrganizationUpdateWithoutEventsInput, OrganizationUncheckedUpdateWithoutEventsInput>
     create: XOR<OrganizationCreateWithoutEventsInput, OrganizationUncheckedCreateWithoutEventsInput>
@@ -37920,6 +42774,7 @@ export namespace Prisma {
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutEventsInput = {
@@ -37935,6 +42790,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutCreatedEventsInput = {
@@ -38325,6 +43181,57 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"StrategicGoal"> | Date | string
   }
 
+  export type EventMetricsUpsertWithoutEventInput = {
+    update: XOR<EventMetricsUpdateWithoutEventInput, EventMetricsUncheckedUpdateWithoutEventInput>
+    create: XOR<EventMetricsCreateWithoutEventInput, EventMetricsUncheckedCreateWithoutEventInput>
+    where?: EventMetricsWhereInput
+  }
+
+  export type EventMetricsUpdateToOneWithWhereWithoutEventInput = {
+    where?: EventMetricsWhereInput
+    data: XOR<EventMetricsUpdateWithoutEventInput, EventMetricsUncheckedUpdateWithoutEventInput>
+  }
+
+  export type EventMetricsUpdateWithoutEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalActual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    isOverBudget?: BoolFieldUpdateOperationsInput | boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: IntFieldUpdateOperationsInput | number
+    approvedExpensesCount?: IntFieldUpdateOperationsInput | number
+    rejectedExpensesCount?: IntFieldUpdateOperationsInput | number
+    budgetItemsCount?: IntFieldUpdateOperationsInput | number
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventMetricsUncheckedUpdateWithoutEventInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalBudget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalEstimated?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalActual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    variancePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    isOverBudget?: BoolFieldUpdateOperationsInput | boolean
+    totalsByCategory?: NullableJsonNullValueInput | InputJsonValue
+    pendingExpensesCount?: IntFieldUpdateOperationsInput | number
+    approvedExpensesCount?: IntFieldUpdateOperationsInput | number
+    rejectedExpensesCount?: IntFieldUpdateOperationsInput | number
+    budgetItemsCount?: IntFieldUpdateOperationsInput | number
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateWithoutEventsInput = {
     id?: string
     fullName: string
@@ -38412,6 +43319,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutAssignmentsInput = {
@@ -38446,6 +43354,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutAssignmentsInput = {
@@ -38557,6 +43466,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutAssignmentsInput = {
@@ -38591,6 +43501,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventCreateWithoutStakeholdersInput = {
@@ -38625,6 +43536,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutStakeholdersInput = {
@@ -38659,6 +43571,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutStakeholdersInput = {
@@ -38709,6 +43622,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutStakeholdersInput = {
@@ -38743,6 +43657,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type OrganizationCreateWithoutVendorsInput = {
@@ -38758,6 +43673,7 @@ export namespace Prisma {
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutVendorsInput = {
@@ -38773,6 +43689,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutVendorsInput = {
@@ -38900,6 +43817,35 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type VendorMetricsCreateWithoutVendorInput = {
+    id?: string
+    organizationId?: string | null
+    totalContracts?: number
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    eventsCount?: number
+    lastContractDate?: Date | string | null
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VendorMetricsUncheckedCreateWithoutVendorInput = {
+    id?: string
+    organizationId?: string | null
+    totalContracts?: number
+    totalSpent?: Decimal | DecimalJsLike | number | string | null
+    eventsCount?: number
+    lastContractDate?: Date | string | null
+    lastComputedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VendorMetricsCreateOrConnectWithoutVendorInput = {
+    where: VendorMetricsWhereUniqueInput
+    create: XOR<VendorMetricsCreateWithoutVendorInput, VendorMetricsUncheckedCreateWithoutVendorInput>
+  }
+
   export type OrganizationUpsertWithoutVendorsInput = {
     update: XOR<OrganizationUpdateWithoutVendorsInput, OrganizationUncheckedUpdateWithoutVendorsInput>
     create: XOR<OrganizationCreateWithoutVendorsInput, OrganizationUncheckedCreateWithoutVendorsInput>
@@ -38924,6 +43870,7 @@ export namespace Prisma {
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutVendorsInput = {
@@ -38939,6 +43886,7 @@ export namespace Prisma {
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type VendorEventUpsertWithWhereUniqueWithoutVendorInput = {
@@ -38989,6 +43937,41 @@ export namespace Prisma {
     data: XOR<ExpenseUpdateManyMutationInput, ExpenseUncheckedUpdateManyWithoutVendorLinkInput>
   }
 
+  export type VendorMetricsUpsertWithoutVendorInput = {
+    update: XOR<VendorMetricsUpdateWithoutVendorInput, VendorMetricsUncheckedUpdateWithoutVendorInput>
+    create: XOR<VendorMetricsCreateWithoutVendorInput, VendorMetricsUncheckedCreateWithoutVendorInput>
+    where?: VendorMetricsWhereInput
+  }
+
+  export type VendorMetricsUpdateToOneWithWhereWithoutVendorInput = {
+    where?: VendorMetricsWhereInput
+    data: XOR<VendorMetricsUpdateWithoutVendorInput, VendorMetricsUncheckedUpdateWithoutVendorInput>
+  }
+
+  export type VendorMetricsUpdateWithoutVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalContracts?: IntFieldUpdateOperationsInput | number
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFieldUpdateOperationsInput | number
+    lastContractDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VendorMetricsUncheckedUpdateWithoutVendorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    totalContracts?: IntFieldUpdateOperationsInput | number
+    totalSpent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    eventsCount?: IntFieldUpdateOperationsInput | number
+    lastContractDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastComputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type VendorCreateWithoutVendorEventsInput = {
     id?: string
     name: string
@@ -39003,6 +43986,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutVendorsInput
     budgetItems?: BudgetItemCreateNestedManyWithoutVendorLinkInput
     expenses?: ExpenseCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsCreateNestedOneWithoutVendorInput
   }
 
   export type VendorUncheckedCreateWithoutVendorEventsInput = {
@@ -39019,6 +44003,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutVendorLinkInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsUncheckedCreateNestedOneWithoutVendorInput
   }
 
   export type VendorCreateOrConnectWithoutVendorEventsInput = {
@@ -39058,6 +44043,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutVendorEventsInput = {
@@ -39092,6 +44078,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutVendorEventsInput = {
@@ -39124,6 +44111,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutVendorsNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutVendorLinkNestedInput
     expenses?: ExpenseUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorUncheckedUpdateWithoutVendorEventsInput = {
@@ -39140,6 +44128,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutVendorLinkNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUncheckedUpdateOneWithoutVendorNestedInput
   }
 
   export type EventUpsertWithoutVendorEventsInput = {
@@ -39185,6 +44174,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutVendorEventsInput = {
@@ -39219,6 +44209,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventCreateWithoutStrategicGoalsInput = {
@@ -39253,6 +44244,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutStrategicGoalsInput = {
@@ -39287,6 +44279,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutStrategicGoalsInput = {
@@ -39389,6 +44382,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutStrategicGoalsInput = {
@@ -39423,6 +44417,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type BudgetItemUpsertWithWhereUniqueWithoutStrategicGoalInput = {
@@ -39473,6 +44468,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutBudgetItemsInput = {
@@ -39507,6 +44503,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutBudgetItemsInput = {
@@ -39528,6 +44525,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutVendorsInput
     vendorEvents?: VendorEventCreateNestedManyWithoutVendorInput
     expenses?: ExpenseCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsCreateNestedOneWithoutVendorInput
   }
 
   export type VendorUncheckedCreateWithoutBudgetItemsInput = {
@@ -39544,6 +44542,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutVendorInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsUncheckedCreateNestedOneWithoutVendorInput
   }
 
   export type VendorCreateOrConnectWithoutBudgetItemsInput = {
@@ -39766,6 +44765,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutBudgetItemsInput = {
@@ -39800,6 +44800,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type VendorUpsertWithoutBudgetItemsInput = {
@@ -39827,6 +44828,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutVendorsNestedInput
     vendorEvents?: VendorEventUpdateManyWithoutVendorNestedInput
     expenses?: ExpenseUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorUncheckedUpdateWithoutBudgetItemsInput = {
@@ -39843,6 +44845,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendorEvents?: VendorEventUncheckedUpdateManyWithoutVendorNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUncheckedUpdateOneWithoutVendorNestedInput
   }
 
   export type UserUpsertWithoutAssignedBudgetItemsInput = {
@@ -39992,6 +44995,7 @@ export namespace Prisma {
     events?: EventCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutExpensesInput = {
@@ -40007,6 +45011,7 @@ export namespace Prisma {
     events?: EventUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutExpensesInput = {
@@ -40046,6 +45051,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutExpensesInput = {
@@ -40080,6 +45086,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutExpensesInput = {
@@ -40148,6 +45155,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutVendorsInput
     vendorEvents?: VendorEventCreateNestedManyWithoutVendorInput
     budgetItems?: BudgetItemCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsCreateNestedOneWithoutVendorInput
   }
 
   export type VendorUncheckedCreateWithoutExpensesInput = {
@@ -40164,6 +45172,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutVendorInput
     budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutVendorLinkInput
+    vendorMetrics?: VendorMetricsUncheckedCreateNestedOneWithoutVendorInput
   }
 
   export type VendorCreateOrConnectWithoutExpensesInput = {
@@ -40312,6 +45321,7 @@ export namespace Prisma {
     events?: EventUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutExpensesInput = {
@@ -40327,6 +45337,7 @@ export namespace Prisma {
     events?: EventUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type EventUpsertWithoutExpensesInput = {
@@ -40372,6 +45383,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutExpensesInput = {
@@ -40406,6 +45418,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type BudgetItemUpsertWithoutExpensesInput = {
@@ -40486,6 +45499,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutVendorsNestedInput
     vendorEvents?: VendorEventUpdateManyWithoutVendorNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorUncheckedUpdateWithoutExpensesInput = {
@@ -40502,6 +45516,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     vendorEvents?: VendorEventUncheckedUpdateManyWithoutVendorNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUncheckedUpdateOneWithoutVendorNestedInput
   }
 
   export type UserUpsertWithoutExpensesInput = {
@@ -40833,6 +45848,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutInsightsInput = {
@@ -40867,6 +45883,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutInsightsInput = {
@@ -40917,6 +45934,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutInsightsInput = {
@@ -40951,6 +45969,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventCreateWithoutRoiMetricsInput = {
@@ -40985,6 +46004,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutRoiMetricsInput = {
@@ -41019,6 +46039,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutRoiMetricsInput = {
@@ -41069,6 +46090,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutRoiMetricsInput = {
@@ -41103,6 +46125,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventCreateWithoutCrmSyncInput = {
@@ -41137,6 +46160,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutCrmSyncInput = {
@@ -41171,6 +46195,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutCrmSyncInput = {
@@ -41221,6 +46246,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutCrmSyncInput = {
@@ -41255,6 +46281,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventCreateWithoutReportsInput = {
@@ -41289,6 +46316,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutReportsInput = {
@@ -41323,6 +46351,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutReportsInput = {
@@ -41464,6 +46493,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutReportsInput = {
@@ -41498,6 +46528,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type UserUpsertWithoutReportsInput = {
@@ -41609,6 +46640,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutFilesInput = {
@@ -41643,6 +46675,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutFilesInput = {
@@ -41857,6 +46890,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutFilesInput = {
@@ -41891,6 +46925,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type BudgetItemUpsertWithoutFilesInput = {
@@ -42113,6 +47148,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutNotesInput = {
@@ -42147,6 +47183,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutNotesInput = {
@@ -42252,6 +47289,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutNotesInput = {
@@ -42286,6 +47324,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type UserUpsertWithoutCreatedNotesInput = {
@@ -42362,6 +47401,7 @@ export namespace Prisma {
     events?: EventCreateNestedManyWithoutOrganizationInput
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutNotificationsInput = {
@@ -42377,6 +47417,7 @@ export namespace Prisma {
     events?: EventUncheckedCreateNestedManyWithoutOrganizationInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutNotificationsInput = {
@@ -42463,6 +47504,7 @@ export namespace Prisma {
     events?: EventUpdateManyWithoutOrganizationNestedInput
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutNotificationsInput = {
@@ -42478,6 +47520,7 @@ export namespace Prisma {
     events?: EventUncheckedUpdateManyWithoutOrganizationNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutNotificationsInput = {
@@ -42554,6 +47597,7 @@ export namespace Prisma {
     events?: EventCreateNestedManyWithoutOrganizationInput
     expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutActivityLogsInput = {
@@ -42569,6 +47613,7 @@ export namespace Prisma {
     events?: EventUncheckedCreateNestedManyWithoutOrganizationInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+    dashboardMetrics?: DashboardMetricsUncheckedCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutActivityLogsInput = {
@@ -42608,6 +47653,7 @@ export namespace Prisma {
     reports?: ReportCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutActivityLogsInput = {
@@ -42642,6 +47688,7 @@ export namespace Prisma {
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutActivityLogsInput = {
@@ -42728,6 +47775,7 @@ export namespace Prisma {
     events?: EventUpdateManyWithoutOrganizationNestedInput
     expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutActivityLogsInput = {
@@ -42743,6 +47791,7 @@ export namespace Prisma {
     events?: EventUncheckedUpdateManyWithoutOrganizationNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+    dashboardMetrics?: DashboardMetricsUncheckedUpdateOneWithoutOrganizationNestedInput
   }
 
   export type EventUpsertWithoutActivityLogsInput = {
@@ -42788,6 +47837,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutActivityLogsInput = {
@@ -42822,6 +47872,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type UserUpsertWithoutActivityLogsInput = {
@@ -42917,6 +47968,7 @@ export namespace Prisma {
     crmSync?: CRMSyncCreateNestedOneWithoutEventInput
     reports?: ReportCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsCreateNestedOneWithoutEventInput
   }
 
   export type EventUncheckedCreateWithoutAiBudgetSuggestionsInput = {
@@ -42951,6 +48003,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
     reports?: ReportUncheckedCreateNestedManyWithoutEventInput
     strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+    eventMetrics?: EventMetricsUncheckedCreateNestedOneWithoutEventInput
   }
 
   export type EventCreateOrConnectWithoutAiBudgetSuggestionsInput = {
@@ -43001,6 +48054,7 @@ export namespace Prisma {
     crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
     reports?: ReportUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutAiBudgetSuggestionsInput = {
@@ -43035,6 +48089,327 @@ export namespace Prisma {
     crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
+  }
+
+  export type OrganizationCreateWithoutDashboardMetricsInput = {
+    id?: string
+    name: string
+    industry?: string | null
+    logoUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutOrganizationInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutOrganizationInput
+    vendors?: VendorCreateNestedManyWithoutOrganizationInput
+    events?: EventCreateNestedManyWithoutOrganizationInput
+    expenses?: ExpenseCreateNestedManyWithoutOrganizationInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutOrganizationInput
+    notifications?: NotificationCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutDashboardMetricsInput = {
+    id?: string
+    name: string
+    industry?: string | null
+    logoUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutOrganizationInput
+    vendors?: VendorUncheckedCreateNestedManyWithoutOrganizationInput
+    events?: EventUncheckedCreateNestedManyWithoutOrganizationInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutOrganizationInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutDashboardMetricsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutDashboardMetricsInput, OrganizationUncheckedCreateWithoutDashboardMetricsInput>
+  }
+
+  export type OrganizationUpsertWithoutDashboardMetricsInput = {
+    update: XOR<OrganizationUpdateWithoutDashboardMetricsInput, OrganizationUncheckedUpdateWithoutDashboardMetricsInput>
+    create: XOR<OrganizationCreateWithoutDashboardMetricsInput, OrganizationUncheckedCreateWithoutDashboardMetricsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutDashboardMetricsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutDashboardMetricsInput, OrganizationUncheckedUpdateWithoutDashboardMetricsInput>
+  }
+
+  export type OrganizationUpdateWithoutDashboardMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutOrganizationNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutOrganizationNestedInput
+    vendors?: VendorUpdateManyWithoutOrganizationNestedInput
+    events?: EventUpdateManyWithoutOrganizationNestedInput
+    expenses?: ExpenseUpdateManyWithoutOrganizationNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutOrganizationNestedInput
+    notifications?: NotificationUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutDashboardMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutOrganizationNestedInput
+    vendors?: VendorUncheckedUpdateManyWithoutOrganizationNestedInput
+    events?: EventUncheckedUpdateManyWithoutOrganizationNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutOrganizationNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type EventCreateWithoutEventMetricsInput = {
+    id?: string
+    name: string
+    location?: string | null
+    venue?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    eventType?: string | null
+    type?: string | null
+    description?: string | null
+    status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutEventsInput
+    creator?: UserCreateNestedOneWithoutCreatedEventsInput
+    assignments?: EventAssignmentCreateNestedManyWithoutEventInput
+    stakeholders?: EventStakeholderCreateNestedManyWithoutEventInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutEventInput
+    expenses?: ExpenseCreateNestedManyWithoutEventInput
+    vendorEvents?: VendorEventCreateNestedManyWithoutEventInput
+    files?: FileCreateNestedManyWithoutEventInput
+    notes?: NoteCreateNestedManyWithoutEventInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutEventInput
+    insights?: InsightCreateNestedManyWithoutEventInput
+    roiMetrics?: ROIMetricsCreateNestedOneWithoutEventInput
+    crmSync?: CRMSyncCreateNestedOneWithoutEventInput
+    reports?: ReportCreateNestedManyWithoutEventInput
+    aiBudgetSuggestions?: AiBudgetSuggestionCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalCreateNestedManyWithoutEventInput
+  }
+
+  export type EventUncheckedCreateWithoutEventMetricsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    location?: string | null
+    venue?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    eventType?: string | null
+    type?: string | null
+    description?: string | null
+    status?: $Enums.EventStatus
+    attendees?: number | null
+    budget?: Decimal | DecimalJsLike | number | string | null
+    organizer?: string | null
+    client?: string | null
+    createdBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignments?: EventAssignmentUncheckedCreateNestedManyWithoutEventInput
+    stakeholders?: EventStakeholderUncheckedCreateNestedManyWithoutEventInput
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutEventInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutEventInput
+    vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutEventInput
+    files?: FileUncheckedCreateNestedManyWithoutEventInput
+    notes?: NoteUncheckedCreateNestedManyWithoutEventInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutEventInput
+    insights?: InsightUncheckedCreateNestedManyWithoutEventInput
+    roiMetrics?: ROIMetricsUncheckedCreateNestedOneWithoutEventInput
+    crmSync?: CRMSyncUncheckedCreateNestedOneWithoutEventInput
+    reports?: ReportUncheckedCreateNestedManyWithoutEventInput
+    aiBudgetSuggestions?: AiBudgetSuggestionUncheckedCreateNestedManyWithoutEventInput
+    strategicGoals?: StrategicGoalUncheckedCreateNestedManyWithoutEventInput
+  }
+
+  export type EventCreateOrConnectWithoutEventMetricsInput = {
+    where: EventWhereUniqueInput
+    create: XOR<EventCreateWithoutEventMetricsInput, EventUncheckedCreateWithoutEventMetricsInput>
+  }
+
+  export type EventUpsertWithoutEventMetricsInput = {
+    update: XOR<EventUpdateWithoutEventMetricsInput, EventUncheckedUpdateWithoutEventMetricsInput>
+    create: XOR<EventCreateWithoutEventMetricsInput, EventUncheckedCreateWithoutEventMetricsInput>
+    where?: EventWhereInput
+  }
+
+  export type EventUpdateToOneWithWhereWithoutEventMetricsInput = {
+    where?: EventWhereInput
+    data: XOR<EventUpdateWithoutEventMetricsInput, EventUncheckedUpdateWithoutEventMetricsInput>
+  }
+
+  export type EventUpdateWithoutEventMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutEventsNestedInput
+    creator?: UserUpdateOneWithoutCreatedEventsNestedInput
+    assignments?: EventAssignmentUpdateManyWithoutEventNestedInput
+    stakeholders?: EventStakeholderUpdateManyWithoutEventNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutEventNestedInput
+    expenses?: ExpenseUpdateManyWithoutEventNestedInput
+    vendorEvents?: VendorEventUpdateManyWithoutEventNestedInput
+    files?: FileUpdateManyWithoutEventNestedInput
+    notes?: NoteUpdateManyWithoutEventNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutEventNestedInput
+    insights?: InsightUpdateManyWithoutEventNestedInput
+    roiMetrics?: ROIMetricsUpdateOneWithoutEventNestedInput
+    crmSync?: CRMSyncUpdateOneWithoutEventNestedInput
+    reports?: ReportUpdateManyWithoutEventNestedInput
+    aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+  }
+
+  export type EventUncheckedUpdateWithoutEventMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    venue?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    eventType?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+    attendees?: NullableIntFieldUpdateOperationsInput | number | null
+    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    organizer?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignments?: EventAssignmentUncheckedUpdateManyWithoutEventNestedInput
+    stakeholders?: EventStakeholderUncheckedUpdateManyWithoutEventNestedInput
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutEventNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutEventNestedInput
+    vendorEvents?: VendorEventUncheckedUpdateManyWithoutEventNestedInput
+    files?: FileUncheckedUpdateManyWithoutEventNestedInput
+    notes?: NoteUncheckedUpdateManyWithoutEventNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutEventNestedInput
+    insights?: InsightUncheckedUpdateManyWithoutEventNestedInput
+    roiMetrics?: ROIMetricsUncheckedUpdateOneWithoutEventNestedInput
+    crmSync?: CRMSyncUncheckedUpdateOneWithoutEventNestedInput
+    reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
+    aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
+    strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+  }
+
+  export type VendorCreateWithoutVendorMetricsInput = {
+    id?: string
+    name: string
+    serviceType?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    phone?: string | null
+    gstNumber?: string | null
+    rating?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutVendorsInput
+    vendorEvents?: VendorEventCreateNestedManyWithoutVendorInput
+    budgetItems?: BudgetItemCreateNestedManyWithoutVendorLinkInput
+    expenses?: ExpenseCreateNestedManyWithoutVendorLinkInput
+  }
+
+  export type VendorUncheckedCreateWithoutVendorMetricsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    serviceType?: string | null
+    contactPerson?: string | null
+    email?: string | null
+    phone?: string | null
+    gstNumber?: string | null
+    rating?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    vendorEvents?: VendorEventUncheckedCreateNestedManyWithoutVendorInput
+    budgetItems?: BudgetItemUncheckedCreateNestedManyWithoutVendorLinkInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutVendorLinkInput
+  }
+
+  export type VendorCreateOrConnectWithoutVendorMetricsInput = {
+    where: VendorWhereUniqueInput
+    create: XOR<VendorCreateWithoutVendorMetricsInput, VendorUncheckedCreateWithoutVendorMetricsInput>
+  }
+
+  export type VendorUpsertWithoutVendorMetricsInput = {
+    update: XOR<VendorUpdateWithoutVendorMetricsInput, VendorUncheckedUpdateWithoutVendorMetricsInput>
+    create: XOR<VendorCreateWithoutVendorMetricsInput, VendorUncheckedCreateWithoutVendorMetricsInput>
+    where?: VendorWhereInput
+  }
+
+  export type VendorUpdateToOneWithWhereWithoutVendorMetricsInput = {
+    where?: VendorWhereInput
+    data: XOR<VendorUpdateWithoutVendorMetricsInput, VendorUncheckedUpdateWithoutVendorMetricsInput>
+  }
+
+  export type VendorUpdateWithoutVendorMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    serviceType?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    gstNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutVendorsNestedInput
+    vendorEvents?: VendorEventUpdateManyWithoutVendorNestedInput
+    budgetItems?: BudgetItemUpdateManyWithoutVendorLinkNestedInput
+    expenses?: ExpenseUpdateManyWithoutVendorLinkNestedInput
+  }
+
+  export type VendorUncheckedUpdateWithoutVendorMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    serviceType?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    gstNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vendorEvents?: VendorEventUncheckedUpdateManyWithoutVendorNestedInput
+    budgetItems?: BudgetItemUncheckedUpdateManyWithoutVendorLinkNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutVendorLinkNestedInput
   }
 
   export type UserCreateManyOrganizationInput = {
@@ -43245,6 +48620,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventUpdateManyWithoutVendorNestedInput
     budgetItems?: BudgetItemUpdateManyWithoutVendorLinkNestedInput
     expenses?: ExpenseUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorUncheckedUpdateWithoutOrganizationInput = {
@@ -43261,6 +48637,7 @@ export namespace Prisma {
     vendorEvents?: VendorEventUncheckedUpdateManyWithoutVendorNestedInput
     budgetItems?: BudgetItemUncheckedUpdateManyWithoutVendorLinkNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutVendorLinkNestedInput
+    vendorMetrics?: VendorMetricsUncheckedUpdateOneWithoutVendorNestedInput
   }
 
   export type VendorUncheckedUpdateManyWithoutOrganizationInput = {
@@ -43308,6 +48685,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutOrganizationInput = {
@@ -43342,6 +48720,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateManyWithoutOrganizationInput = {
@@ -43640,6 +49019,7 @@ export namespace Prisma {
     reports?: ReportUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateWithoutCreatorInput = {
@@ -43674,6 +49054,7 @@ export namespace Prisma {
     reports?: ReportUncheckedUpdateManyWithoutEventNestedInput
     aiBudgetSuggestions?: AiBudgetSuggestionUncheckedUpdateManyWithoutEventNestedInput
     strategicGoals?: StrategicGoalUncheckedUpdateManyWithoutEventNestedInput
+    eventMetrics?: EventMetricsUncheckedUpdateOneWithoutEventNestedInput
   }
 
   export type EventUncheckedUpdateManyWithoutCreatorInput = {
@@ -45234,6 +50615,18 @@ export namespace Prisma {
      * @deprecated Use AiBudgetSuggestionDefaultArgs instead
      */
     export type AiBudgetSuggestionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AiBudgetSuggestionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DashboardMetricsDefaultArgs instead
+     */
+    export type DashboardMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardMetricsDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use EventMetricsDefaultArgs instead
+     */
+    export type EventMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventMetricsDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use VendorMetricsDefaultArgs instead
+     */
+    export type VendorMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VendorMetricsDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

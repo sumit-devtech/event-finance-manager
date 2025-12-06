@@ -96,7 +96,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   try {
     // Fetch all data in parallel for better performance
-    const [eventResult, usersResult, strategicGoalsResult, vendorsResult, expensesResult, budgetItemsResult, notesResult, filesResult] = await Promise.allSettled([
+    // Also fetch event metrics (non-blocking, will be used if available)
+    const [eventResult, usersResult, strategicGoalsResult, vendorsResult, expensesResult, budgetItemsResult, notesResult, filesResult, eventMetricsResult] = await Promise.allSettled([
       api.get<EventDetail>(`/events/${eventId}`, { token: token || undefined }),
       user.role === "Admin"
         ? api.get<User[]>("/users", { token: token || undefined })
@@ -110,6 +111,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         console.error('📁 Route Loader - Files API Error:', error);
         return [];
       }),
+      api.get<any>(`/metrics/events/${eventId}`, { token: token || undefined }).catch(() => null),
     ]);
 
     const event = eventResult.status === "fulfilled" ? eventResult.value : null;
@@ -169,12 +171,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       eventFilesLength: Array.isArray(event.files) ? event.files.length : 'not array',
     });
     
+    // Get event metrics if available (for future use in displaying cached metrics)
+    const eventMetrics = eventMetricsResult.status === "fulfilled" ? eventMetricsResult.value : null;
+
     const eventWithBudgetItems = {
       ...event,
       budgetItems: budgetItemsResult.status === "fulfilled" ? budgetItems : (event.budgetItems || []),
       strategicGoals,
       notes: notesResult.status === "fulfilled" ? notes : (event.notes || []),
       files: files, // Always use the transformed files, even if empty array
+      eventMetrics, // Include metrics for potential future use
     };
     
     console.log('📁 Route Loader - Final Event Files:', {

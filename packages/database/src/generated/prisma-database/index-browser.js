@@ -390,6 +390,56 @@ exports.Prisma.AiBudgetSuggestionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.DashboardMetricsScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  totalBudget: 'totalBudget',
+  totalExpenses: 'totalExpenses',
+  pendingApprovals: 'pendingApprovals',
+  overBudgetEvents: 'overBudgetEvents',
+  upcomingEvents: 'upcomingEvents',
+  recentEvents: 'recentEvents',
+  chartsJson: 'chartsJson',
+  statsJson: 'statsJson',
+  lastComputedAt: 'lastComputedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EventMetricsScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  organizationId: 'organizationId',
+  totalBudget: 'totalBudget',
+  totalSpent: 'totalSpent',
+  totalEstimated: 'totalEstimated',
+  totalActual: 'totalActual',
+  variance: 'variance',
+  variancePercentage: 'variancePercentage',
+  isOverBudget: 'isOverBudget',
+  totalsByCategory: 'totalsByCategory',
+  pendingExpensesCount: 'pendingExpensesCount',
+  approvedExpensesCount: 'approvedExpensesCount',
+  rejectedExpensesCount: 'rejectedExpensesCount',
+  budgetItemsCount: 'budgetItemsCount',
+  lastComputedAt: 'lastComputedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VendorMetricsScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  organizationId: 'organizationId',
+  totalContracts: 'totalContracts',
+  totalSpent: 'totalSpent',
+  eventsCount: 'eventsCount',
+  lastContractDate: 'lastContractDate',
+  lastComputedAt: 'lastComputedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -492,7 +542,10 @@ exports.Prisma.ModelName = {
   Note: 'Note',
   Notification: 'Notification',
   ActivityLog: 'ActivityLog',
-  AiBudgetSuggestion: 'AiBudgetSuggestion'
+  AiBudgetSuggestion: 'AiBudgetSuggestion',
+  DashboardMetrics: 'DashboardMetrics',
+  EventMetrics: 'EventMetrics',
+  VendorMetrics: 'VendorMetrics'
 };
 
 /**

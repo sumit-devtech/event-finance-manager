@@ -4,12 +4,14 @@ import { ExpensesController, EventExpensesController } from "./expenses.controll
 import { PrismaModule } from "../prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { BudgetItemsModule } from "../budget-items/budget-items.module";
+import { MetricsModule } from "../metrics/metrics.module";
 
 @Module({
   imports: [
     PrismaModule,
     NotificationsModule,
     forwardRef(() => BudgetItemsModule),
+    MetricsModule,
   ],
   controllers: [ExpensesController, EventExpensesController],
   providers: [ExpensesService],

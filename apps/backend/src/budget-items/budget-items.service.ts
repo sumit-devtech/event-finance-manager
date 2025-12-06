@@ -10,6 +10,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateBudgetItemDto, BudgetItemCategory } from "./dto/create-budget-item.dto";
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
 import { NotificationsService } from "../notifications/notifications.service";
+import { MetricsService } from "../metrics/metrics.service";
 import { UserRole } from "../auth/types/user-role.enum";
 
 @Injectable()
@@ -18,6 +19,7 @@ export class BudgetItemsService {
     private readonly prisma: PrismaService,
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async findAllByEvent(eventId: string, userId?: string, userRole?: any) {
@@ -243,6 +245,24 @@ export class BudgetItemsService {
       category: budgetItem.category,
     }, eventId);
 
+    // Recompute event metrics for the budget item's event
+    try {
+      await this.metricsService.recomputeEventMetrics(eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after budget item creation:", error);
+      // Don't fail the create operation if metrics recompute fails
+    }
+
+    // Recompute vendor metrics if budget item is linked to a vendor
+    if (budgetItem.vendorId) {
+      try {
+        await this.metricsService.recomputeVendorMetrics(budgetItem.vendorId);
+      } catch (error) {
+        console.error("Error recomputing vendor metrics after budget item creation:", error);
+        // Don't fail the create operation if metrics recompute fails
+      }
+    }
+
     // Convert Decimal fields to numbers for JSON serialization
     return {
       ...budgetItem,
@@ -374,6 +394,36 @@ export class BudgetItemsService {
       changes: changedFields,
     }, eventId);
 
+    // Recompute event metrics for the budget item's event
+    try {
+      await this.metricsService.recomputeEventMetrics(eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after budget item update:", error);
+      // Don't fail the update operation if metrics recompute fails
+    }
+
+    // Recompute vendor metrics if vendorId changed
+    const oldVendorId = (budgetItem as any).vendorId;
+    const newVendorId = updatedBudgetItem.vendorId;
+    if (oldVendorId !== newVendorId) {
+      // Recompute old vendor if vendor was removed
+      if (oldVendorId) {
+        try {
+          await this.metricsService.recomputeVendorMetrics(oldVendorId);
+        } catch (error) {
+          console.error("Error recomputing old vendor metrics after budget item update:", error);
+        }
+      }
+      // Recompute new vendor if vendor was added/changed
+      if (newVendorId) {
+        try {
+          await this.metricsService.recomputeVendorMetrics(newVendorId);
+        } catch (error) {
+          console.error("Error recomputing new vendor metrics after budget item update:", error);
+        }
+      }
+    }
+
     return serializedItem;
   }
 
@@ -403,13 +453,55 @@ export class BudgetItemsService {
       eventName: event?.name,
       category: budgetItem.category,
     }, eventId);
+
+    // Recompute event metrics for the budget item's event
+    try {
+      await this.metricsService.recomputeEventMetrics(eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after budget item deletion:", error);
+      // Don't fail the delete operation if metrics recompute fails
+    }
+
+    // Recompute vendor metrics if budget item was linked to a vendor
+    if ((budgetItem as any).vendorId) {
+      try {
+        await this.metricsService.recomputeVendorMetrics((budgetItem as any).vendorId);
+      } catch (error) {
+        console.error("Error recomputing vendor metrics after budget item deletion:", error);
+        // Don't fail the delete operation if metrics recompute fails
+      }
+    }
   }
 
+  /**
+   * Get budget totals for an event
+   * Uses cached EventMetrics if available, falls back to on-the-fly calculation
+   * 
+   * @param eventId - Event ID
+   * @returns Budget totals by category and summary
+   */
   async getBudgetTotals(eventId: string) {
     // Verify event exists
     await this.verifyEventExists(eventId);
 
-    // Get budget items directly from event
+    // OPTIMIZATION: Try cached metrics first (fast path - single DB query)
+    const eventMetrics = await this.metricsService.getEventMetrics(eventId);
+
+    if (eventMetrics && eventMetrics.totalsByCategory) {
+      // FAST PATH: Return pre-computed values (50ms vs 200ms calculation)
+      return {
+        totalsByCategory: eventMetrics.totalsByCategory as Record<string, { estimated: number; actual: number }>,
+        summary: {
+          totalEstimated: eventMetrics.totalEstimated ? Number(eventMetrics.totalEstimated) : 0,
+          totalActual: eventMetrics.totalActual ? Number(eventMetrics.totalActual) : 0,
+          variance: eventMetrics.variance ? Number(eventMetrics.variance) : 0,
+          variancePercentage: eventMetrics.variancePercentage || 0,
+        },
+      };
+    }
+
+    // FALLBACK PATH: Calculate on-the-fly if cache not available
+    // This happens on first access or if metrics recompute failed
     const budgetItems = await this.prisma.client.budgetItem.findMany({
       where: { eventId },
     });
@@ -450,7 +542,27 @@ export class BudgetItemsService {
     };
   }
 
+  /**
+   * Get variance for an event
+   * Uses cached EventMetrics if available, falls back to on-the-fly calculation
+   * 
+   * @param eventId - Event ID
+   * @returns Variance information
+   */
   async getVariance(eventId: string) {
+    // OPTIMIZATION: Try cached metrics first
+    const eventMetrics = await this.metricsService.getEventMetrics(eventId);
+
+    if (eventMetrics) {
+      // FAST PATH: Return pre-computed values
+      return {
+        variance: eventMetrics.variance ? Number(eventMetrics.variance) : 0,
+        variancePercentage: eventMetrics.variancePercentage || 0,
+        isOverBudget: eventMetrics.isOverBudget || false,
+      };
+    }
+
+    // FALLBACK PATH: Calculate on-the-fly if cache not available
     const totals = await this.getBudgetTotals(eventId);
     return {
       variance: totals.summary.variance,

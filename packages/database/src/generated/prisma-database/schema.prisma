@@ -77,19 +77,20 @@ enum BillingCycle {
 
 // Multi-Tenancy Root
 model Organization {
-  id            String         @id @default(uuid())
-  name          String
-  industry      String?
-  logoUrl       String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  users         User[]
-  subscriptions Subscription[]
-  vendors       Vendor[]
-  events        Event[]
-  expenses      Expense[]
-  activityLogs  ActivityLog[]
-  notifications Notification[]
+  id               String            @id @default(uuid())
+  name             String
+  industry         String?
+  logoUrl          String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  users            User[]
+  subscriptions    Subscription[]
+  vendors          Vendor[]
+  events           Event[]
+  expenses         Expense[]
+  activityLogs     ActivityLog[]
+  notifications    Notification[]
+  dashboardMetrics DashboardMetrics?
 }
 
 // User Model
@@ -196,6 +197,7 @@ model Event {
   reports             Report[]
   aiBudgetSuggestions AiBudgetSuggestion[]
   strategicGoals      StrategicGoal[]
+  eventMetrics        EventMetrics?
 
   @@index([organizationId])
   @@index([organizationId, status])
@@ -244,7 +246,7 @@ model EventStakeholder {
 
 // Vendor Management
 model Vendor {
-  id             String        @id @default(uuid())
+  id             String         @id @default(uuid())
   organizationId String?
   name           String
   serviceType    String?
@@ -253,12 +255,13 @@ model Vendor {
   phone          String?
   gstNumber      String?
   rating         Float?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
   vendorEvents   VendorEvent[]
-  budgetItems    BudgetItem[]  @relation("BudgetItemVendor")
-  expenses       Expense[]     @relation("ExpenseVendor")
+  budgetItems    BudgetItem[]   @relation("BudgetItemVendor")
+  expenses       Expense[]      @relation("ExpenseVendor")
+  vendorMetrics  VendorMetrics?
 
   @@index([organizationId])
   @@index([name])
@@ -580,4 +583,72 @@ model AiBudgetSuggestion {
   @@index([createdAt])
   @@index([eventId, accepted])
   @@index([eventId, category])
+}
+
+// Pre-Computed Metrics Tables
+
+// Dashboard Metrics (Organization-level)
+model DashboardMetrics {
+  id               String        @id @default(uuid())
+  organizationId   String?       @unique
+  totalBudget      Decimal?      @db.Decimal(10, 2)
+  totalExpenses    Decimal?      @db.Decimal(10, 2)
+  pendingApprovals Int           @default(0)
+  overBudgetEvents Int           @default(0)
+  upcomingEvents   Int           @default(0)
+  recentEvents     Json? // JSON array of recent events
+  chartsJson       Json? // Monthly budget/spent, expense categories
+  statsJson        Json? // Total events, status breakdowns
+  lastComputedAt   DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  organization     Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+}
+
+// Event Metrics (Event-level)
+model EventMetrics {
+  id                    String    @id @default(uuid())
+  eventId               String    @unique
+  organizationId        String?
+  totalBudget           Decimal?  @db.Decimal(10, 2) // Sum of budget items estimatedCost
+  totalSpent            Decimal?  @db.Decimal(10, 2) // Sum of approved expenses
+  totalEstimated        Decimal?  @db.Decimal(10, 2) // Alias for totalBudget
+  totalActual           Decimal?  @db.Decimal(10, 2) // Alias for totalSpent
+  variance              Decimal?  @db.Decimal(10, 2)
+  variancePercentage    Float?
+  isOverBudget          Boolean   @default(false)
+  totalsByCategory      Json? // Category breakdown stored as JSON
+  pendingExpensesCount  Int       @default(0)
+  approvedExpensesCount Int       @default(0)
+  rejectedExpensesCount Int       @default(0)
+  budgetItemsCount      Int       @default(0)
+  lastComputedAt        DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  event                 Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([organizationId])
+  @@index([eventId, organizationId])
+}
+
+// Vendor Metrics (Vendor-level)
+model VendorMetrics {
+  id               String    @id @default(uuid())
+  vendorId         String    @unique
+  organizationId   String?
+  totalContracts   Int       @default(0) // Count of vendorEvents
+  totalSpent       Decimal?  @db.Decimal(10, 2) // Sum of approved expenses
+  eventsCount      Int       @default(0) // Alias for totalContracts
+  lastContractDate DateTime?
+  lastComputedAt   DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  vendor           Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([organizationId])
+  @@index([vendorId, organizationId])
 }
