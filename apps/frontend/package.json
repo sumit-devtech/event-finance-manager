@@ -5,15 +5,12 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "prebuild": "npm run fix-permissions || true",
     "build": "remix build",
-    "postbuild": "npm run fix-permissions || true",
-    "dev": "npm run fix-permissions && remix dev",
+    "dev": "remix dev",
     "lint": "eslint .",
     "start": "remix-serve ./build/index.js",
     "type-check": "tsc",
-    "clean": "npm run fix-permissions && rm -rf .cache build public/build",
-    "fix-permissions": "bash fix-build-permissions.sh || true"
+    "clean": "rm -rf .cache build public/build"
   },
   "dependencies": {
     "@event-finance-manager/database": "workspace:*",

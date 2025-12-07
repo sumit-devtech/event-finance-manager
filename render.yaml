@@ -6,7 +6,7 @@ services:
     region: oregon
     plan: starter
     buildCommand: pnpm install --no-frozen-lockfile --prod=false && pnpm --filter @event-finance-manager/database exec prisma generate && pnpm --filter @event-finance-manager/database build && pnpm --filter @event-finance-manager/backend build
-    startCommand: cd apps/backend && node dist/apps/backend/src/main.js
+    startCommand: cd apps/backend && node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
