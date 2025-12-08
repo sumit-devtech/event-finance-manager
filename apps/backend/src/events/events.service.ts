@@ -982,12 +982,6 @@ export class EventsService {
     // Verify event exists
     await this.findOne(eventId);
     
-    // Debug: Check if files exist in database
-    const fileCount = await this.prisma.client.file.count({
-      where: { eventId },
-    });
-    console.log(`📁 Backend getFiles - Event ${eventId} has ${fileCount} files in database`);
-    
     const files = await this.prisma.client.file.findMany({
       where: { eventId },
       select: {
@@ -1009,8 +1003,6 @@ export class EventsService {
         uploadedAt: 'desc',
       },
     });
-    
-    console.log(`📁 Backend getFiles - Found ${files.length} files for event ${eventId}:`, files.map(f => ({ id: f.id, filename: f.filename })));
     
     // Transform files to include uploader name
     return files.map(file => ({

@@ -255,8 +255,27 @@ export function EventDetailsModal({
       console.log('🔄 EventDetailsModal - Fetcher data received:', {
         hasData: !!data,
         hasEvent: data && typeof data === 'object' && 'event' in data,
+        hasSuccess: data && typeof data === 'object' && 'success' in data,
         dataKeys: data ? Object.keys(data) : [],
       });
+
+      // Check if this is a successful action (like approve/reject expense, delete budget item) that needs a refresh
+      if (data && typeof data === 'object' && 'success' in data && data.success && !('event' in data)) {
+        // This is a successful action response - refresh the event data to get updated data
+        if (event?.id && !isDemo && !isRefreshingRef.current) {
+          const now = Date.now();
+          if (now - lastRefreshTime.current > 500 && fetcher.state === 'idle') {
+            lastRefreshTime.current = now;
+            isRefreshingRef.current = true;
+            fetcher.load(`/events/${event.id}`);
+            // Reset refreshing flag after a short delay
+            setTimeout(() => {
+              isRefreshingRef.current = false;
+            }, 100);
+          }
+        }
+        return;
+      }
 
       if (data && typeof data === 'object' && 'event' in data) {
         // The route loader returns { event, users, vendors, expenses, user }
@@ -755,6 +774,7 @@ export function EventDetailsModal({
                     vendors={eventVendors}
                     isDemo={isDemo}
                     actionData={actionData}
+                    hideApprovalButtons={true}
                   />
                 );
               })()

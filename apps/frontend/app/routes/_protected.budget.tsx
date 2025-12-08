@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useSearchParams, useRevalidator, useActionData } from "@remix-run/react";
-import { useEffect } from "react";
+import { useLoaderData, useSearchParams, useRevalidator, useActionData, useFetcher } from "@remix-run/react";
+import { useEffect, useRef } from "react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session.server";
@@ -255,6 +255,7 @@ export async function action({ request }: ActionFunctionArgs) {
         estimatedCost?: number;
         actualCost?: number;
         vendor?: string | null;
+        vendorId?: string | null;
       } = {};
 
       const category = formData.get("category") as string;
@@ -263,31 +264,25 @@ export async function action({ request }: ActionFunctionArgs) {
       const description = formData.get("description") as string;
       if (description) payload.description = description;
 
-      const subcategory = formData.get("subcategory") as string;
-      // Always include subcategory, even if empty (to allow clearing the field)
-      payload.subcategory = subcategory !== null && subcategory !== undefined 
-        ? (subcategory.trim() || null) 
-        : null;
+      // FIELD 1: subcategory - ALWAYS include in payload (backend checks !== undefined)
+      const subcategoryValue = formData.get("subcategory");
+      payload.subcategory = (subcategoryValue && String(subcategoryValue).trim()) ? String(subcategoryValue).trim() : null;
 
+      // Always include status in payload - required for status updates
       const status = formData.get("status") as string;
       if (status) payload.status = status;
 
-      const notes = formData.get("notes") as string;
-      // Always include notes, even if empty (to allow clearing the field)
-      payload.notes = notes !== null && notes !== undefined 
-        ? (notes.trim() || null) 
-        : null;
+      // FIELD 2: notes - ALWAYS include in payload (backend checks !== undefined)
+      const notesValue = formData.get("notes");
+      payload.notes = (notesValue && String(notesValue).trim()) ? String(notesValue).trim() : null;
 
-      const assignedUser = formData.get("assignedUser") as string;
-      // Always include assignedUserId, even if empty (to allow clearing the field)
-      payload.assignedUserId = assignedUser !== null && assignedUser !== undefined 
-        ? (assignedUser.trim() || null) 
-        : null;
+      // FIELD 3: assignedUserId - ALWAYS include in payload (backend checks !== undefined)
+      const assignedUserValue = formData.get("assignedUser");
+      payload.assignedUserId = (assignedUserValue && String(assignedUserValue).trim()) ? String(assignedUserValue).trim() : null;
 
-      const strategicGoalId = formData.get("strategicGoalId") as string;
-      if (strategicGoalId !== null) {
-        payload.strategicGoalId = strategicGoalId.trim() || null;
-      }
+      // FIELD 4: strategicGoalId - ALWAYS include in payload (backend checks !== undefined)
+      const strategicGoalIdValue = formData.get("strategicGoalId");
+      payload.strategicGoalId = (strategicGoalIdValue && String(strategicGoalIdValue).trim()) ? String(strategicGoalIdValue).trim() : null;
 
       const estimatedCostStr = formData.get("estimatedCost") as string;
       if (estimatedCostStr !== null && estimatedCostStr !== '') {
@@ -305,10 +300,15 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }
 
-      const vendor = formData.get("vendor") as string;
-      if (vendor !== null) {
-        payload.vendor = vendor.trim() || null;
-      }
+      // FIELD 5: vendorId - ALWAYS include in payload (backend checks !== undefined)
+      const vendorIdValue = formData.get("vendorId");
+      payload.vendorId = (vendorIdValue && String(vendorIdValue).trim()) ? String(vendorIdValue).trim() : null;
+
+      const vendorValue = formData.get("vendor");
+      payload.vendor = (vendorValue && String(vendorValue).trim()) ? String(vendorValue).trim() : null;
+
+      // Debug: Log payload to verify all fields are included
+      console.log('Budget item update payload:', JSON.stringify(payload, null, 2));
 
       await api.put(
         `/budget-items/${budgetItemId}`,
@@ -332,6 +332,38 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ success: true, message: 'Budget item deleted successfully' });
     }
 
+    if (intent === "approveBudgetItem" || intent === "rejectBudgetItem") {
+      const budgetItemId = formData.get("budgetItemId") as string;
+      const comments = formData.get("comments") as string || undefined;
+
+      if (!budgetItemId) {
+        return json({ success: false, error: "Budget item ID is required" }, { status: 400 });
+      }
+
+      const action = intent === "approveBudgetItem" ? "approve" : "reject";
+
+      try {
+        await api.post(`/budget-items/${budgetItemId}/approve`, {
+          action,
+          comments,
+        }, {
+          token: token || undefined,
+        });
+
+        return json({
+          success: true,
+          message: `Budget item ${action === "approve" ? "approved" : "rejected"} successfully`
+        });
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.error || "Failed to approve/reject budget item";
+        console.error("Budget item approval error:", error);
+        return json(
+          { success: false, error: errorMessage },
+          { status: error?.statusCode || 500 }
+        );
+      }
+    }
+
     return json({ success: false, error: 'Invalid intent' }, { status: 400 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : (error as { error?: string })?.error || 'An error occurred';
@@ -347,6 +379,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function BudgetRoute() {
   const { user, events, budgetItems, budgetVersions, users, strategicGoals, vendors = [] } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
   const revalidator = useRevalidator();
   const isDemo = searchParams.get('demo') === 'true';
@@ -362,12 +395,40 @@ export default function BudgetRoute() {
     ? events.find((e: any) => e.id === eventId)
     : null;
 
+  // Track previous fetcher state to detect transitions
+  const prevFetcherStateRef = useRef<string>(fetcher.state);
+
   // Reload data after successful actions (same pattern as events route)
   useEffect(() => {
     if (actionData?.success) {
       revalidator.revalidate();
     }
   }, [actionData, revalidator]);
+
+  // Revalidate data when fetcher completes successfully (for approve/reject actions)
+  // This handles fetcher.submit() responses (approve/reject budget items)
+  useEffect(() => {
+    // Only revalidate when transitioning from submitting to idle (action just completed)
+    const wasSubmitting = prevFetcherStateRef.current === "submitting";
+    const isNowIdle = fetcher.state === "idle";
+
+    // Update the ref for next comparison
+    prevFetcherStateRef.current = fetcher.state;
+
+    if (wasSubmitting && isNowIdle) {
+      const fetcherData = fetcher.data as { error?: string; success?: boolean; message?: string } | undefined;
+
+      // If there's an error, don't revalidate
+      if (fetcherData?.error) {
+        return;
+      }
+
+      // Success - revalidate to refresh the budget items list
+      if (fetcherData?.success) {
+        revalidator.revalidate();
+      }
+    }
+  }, [fetcher.state, fetcher.data, revalidator]);
 
   // Event selector handler
   const handleEventChange = (newEventId: string) => {
@@ -437,6 +498,7 @@ export default function BudgetRoute() {
         vendors={vendors as unknown as VendorWithStats[]}
         isDemo={isDemo}
         actionData={actionData}
+        fetcher={fetcher}
       />
     </div>
   );

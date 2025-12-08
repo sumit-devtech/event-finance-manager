@@ -15,8 +15,11 @@ interface BudgetTableProps {
   onToggleExpand: (id: string | number) => void;
   onEdit: (item: BudgetLineItem) => void;
   onDelete: (id: string | number) => void;
+  onApprove?: (id: string | number) => void;
+  onReject?: (id: string | number) => void;
   onAddClick: () => void;
   canEditBudget: boolean;
+  canApprove?: boolean;
   isDemo: boolean;
   resetForm: () => void;
 }
@@ -29,8 +32,11 @@ export function BudgetTable({
   onToggleExpand,
   onEdit,
   onDelete,
+  onApprove,
+  onReject,
   onAddClick,
   canEditBudget,
+  canApprove = false,
   isDemo,
   resetForm,
 }: BudgetTableProps) {
@@ -108,7 +114,10 @@ export function BudgetTable({
                   onToggleExpand={() => onToggleExpand(line.id)}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  onApprove={onApprove}
+                  onReject={onReject}
                   canEditBudget={canEditBudget}
+                  canApprove={canApprove}
                   isDemo={isDemo}
                   showEventColumn={showEventColumn}
                 />

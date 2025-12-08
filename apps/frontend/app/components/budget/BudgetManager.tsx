@@ -18,7 +18,9 @@ import { BudgetItemForm } from './BudgetItemForm';
 import { useBudgetPermissions } from './hooks/useBudgetPermissions';
 import { useBudgetTransform } from './hooks/useBudgetTransform';
 import { useBudgetActions } from './hooks/useBudgetActions';
+import { useBudgetItemActions } from './hooks/useBudgetItemActions';
 import { getDefaultFormData, transformBudgetItem } from './utils/budgetTransformers';
+import { useFetcher } from '@remix-run/react';
 import { validateBudgetForm, validateEventSelection } from './utils/budgetValidators';
 import type { BudgetLineItem } from './utils/budgetTransformers';
 
@@ -38,6 +40,8 @@ interface BudgetManagerProps {
   vendors?: VendorWithStats[];
   isDemo?: boolean;
   actionData?: { success?: boolean; error?: string; message?: string } | null;
+  fetcher?: ReturnType<typeof useFetcher>;
+  hideApprovalButtons?: boolean;
 }
 
 export function BudgetManager({
@@ -51,14 +55,31 @@ export function BudgetManager({
   vendors = [],
   isDemo = false,
   actionData,
+  fetcher: externalFetcher,
+  hideApprovalButtons = false,
 }: BudgetManagerProps) {
   const navigation = useNavigation();
+  const internalFetcher = useFetcher();
+  const fetcher = externalFetcher || internalFetcher;
   const isSubmitting = navigation.state === 'submitting';
   const [showAddLine, setShowAddLine] = useState(false);
   const [wasSubmitting, setWasSubmitting] = useState(false);
   const [editingItem, setEditingItem] = useState<BudgetLineItem | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | number | null>(null);
-  const [formData, setFormData] = useState(getDefaultFormData());
+  const [formData, setFormData] = useState<{
+    category: string;
+    subcategory: string;
+    description: string;
+    estimatedCost: string;
+    actualCost: string;
+    status: string;
+    notes: string;
+    assignedUser: string;
+    strategicGoalId: string;
+    vendor: string;
+    vendorId: string;
+    fileAttachment: File | null;
+  }>(getDefaultFormData());
   const [error, setError] = useState<string | null>(null);
   const [demoBudgetLines, setDemoBudgetLines] = useState<BudgetLineItem[]>(demoBudgetLineItems);
 
@@ -71,11 +92,54 @@ export function BudgetManager({
     demoBudgetLines,
     currentUserName: user?.name,
   });
+  // Handle successful budget item deletion - refresh data
+  const handleDeleteSuccess = () => {
+    // Revalidate data to refresh budget items
+    if (externalFetcher && event?.id) {
+      // If we have external fetcher (from EventDetailsModal), reload event data
+      externalFetcher.load(`/events/${event.id}`);
+    } else {
+      // Otherwise, use navigation revalidation
+      window.location.reload();
+    }
+  };
+
   const { deleteConfirm, setDeleteConfirm, handleDelete, confirmDelete } = useBudgetActions({
     isDemo,
     demoBudgetLines,
     setDemoBudgetLines,
+    fetcher,
+    onDeleteSuccess: handleDeleteSuccess,
   });
+  const { handleApprove, handleReject } = useBudgetItemActions({
+    fetcher,
+    isDemo,
+    user,
+  });
+
+  // Check if user can approve budget items (Admin or EventManager)
+  const canApproveBudget = isDemo || (user && (user.role === 'Admin' || user.role === 'EventManager' || user.role === 'admin' || user.role === 'EventManager'));
+
+  // Sync formData when editingItem changes to ensure all fields are populated
+  useEffect(() => {
+    if (editingItem && showAddLine) {
+      const assignedUserId = editingItem.assignedUserId || '';
+      setFormData({
+        category: editingItem.category || '',
+        subcategory: editingItem.subcategory || '',
+        description: editingItem.description || '',
+        estimatedCost: editingItem.estimatedCost !== undefined && editingItem.estimatedCost !== null ? editingItem.estimatedCost.toString() : '',
+        actualCost: editingItem.actualCost !== undefined && editingItem.actualCost !== null ? editingItem.actualCost.toString() : '',
+        status: editingItem.status || BUDGET_ITEM_STATUS.PENDING,
+        notes: editingItem.notes || '',
+        assignedUser: assignedUserId || '',
+        strategicGoalId: editingItem.strategicGoalId || '',
+        vendor: editingItem.vendor || '',
+        vendorId: editingItem.vendorId || '',
+        fileAttachment: null,
+      });
+    }
+  }, [editingItem, showAddLine]);
 
   // Close form when submission completes successfully
   useEffect(() => {
@@ -83,25 +147,30 @@ export function BudgetManager({
       setWasSubmitting(true);
     } else if (navigation.state === 'idle' && wasSubmitting && showAddLine) {
       // Submission completed - check for errors in actionData
-      if (actionData?.error) {
+      if (actionData && typeof actionData === 'object' && 'error' in actionData) {
         // Error occurred - keep form open and show error
-        setError(actionData.error);
+        setError(actionData.error as string);
         setWasSubmitting(false);
-      } else if (actionData?.success !== false) {
+      } else if (actionData && typeof actionData === 'object' && ('success' in actionData ? actionData.success !== false : true)) {
         // Success - close form and reset
         setShowAddLine(false);
         setEditingItem(null);
         setFormData(getDefaultFormData());
         setError(null);
         setWasSubmitting(false);
-        // Data will refresh via route revalidation
+
+        // Refresh data if we have external fetcher (from EventDetailsModal)
+        if (externalFetcher && event?.id) {
+          externalFetcher.load(`/events/${event.id}`);
+        }
+        // Otherwise, data will refresh via route revalidation
       } else {
         setWasSubmitting(false);
       }
     } else if (navigation.state === 'idle') {
       setWasSubmitting(false);
     }
-  }, [navigation.state, showAddLine, wasSubmitting, actionData]);
+  }, [navigation.state, showAddLine, wasSubmitting, actionData, externalFetcher, event?.id]);
 
   // Get users for user assignment
   const availableUsers = users.length > 0 ? users : (organization?.members || []);
@@ -161,24 +230,9 @@ export function BudgetManager({
 
   const handleEdit = (item: BudgetLineItem) => {
     setEditingItem(item);
-    // Ensure all fields are populated correctly
-    const assignedUserId = item.assignedUserId || '';
-    setFormData({
-      category: item.category || '',
-      subcategory: item.subcategory || '',
-      description: item.description || '',
-      estimatedCost: item.estimatedCost !== undefined && item.estimatedCost !== null ? item.estimatedCost.toString() : '',
-      actualCost: item.actualCost !== undefined && item.actualCost !== null ? item.actualCost.toString() : '',
-      status: item.status || BUDGET_ITEM_STATUS.PENDING,
-      notes: item.notes || '',
-      assignedUser: assignedUserId || '',
-      strategicGoalId: item.strategicGoalId || '',
-      vendor: item.vendor || '',
-      vendorId: item.vendorId || '',
-      fileAttachment: null,
-    });
     setShowAddLine(true);
     setError(null);
+    // formData will be populated by useEffect when editingItem changes
   };
 
   const handleAddClick = () => {
@@ -225,8 +279,11 @@ export function BudgetManager({
         onToggleExpand={handleToggleExpand}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onApprove={hideApprovalButtons ? undefined : handleApprove}
+        onReject={hideApprovalButtons ? undefined : handleReject}
         onAddClick={handleAddClick}
         canEditBudget={permissions.canEditBudget}
+        canApprove={hideApprovalButtons ? false : (canApproveBudget || false)}
         isDemo={isDemo}
         resetForm={() => setFormData(getDefaultFormData())}
       />

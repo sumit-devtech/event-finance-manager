@@ -57,7 +57,7 @@ export function getBudgetStatusColor(status: string): string {
   switch (status) {
     case 'Approved': return 'bg-green-100 text-green-700 border-green-200';
     case 'Pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    case 'Closed': return 'bg-gray-100 text-gray-700 border-gray-200';
+    case 'Rejected': return 'bg-red-100 text-red-700 border-red-200';
     default: return 'bg-gray-100 text-gray-700 border-gray-200';
   }
 }

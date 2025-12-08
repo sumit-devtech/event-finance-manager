@@ -15,7 +15,7 @@ export enum BudgetItemCategory {
 export enum BudgetItemStatus {
   Pending = "Pending",
   Approved = "Approved",
-  Closed = "Closed",
+  Rejected = "Rejected",
 }
 
 export class CreateBudgetItemDto {

@@ -166,7 +166,9 @@ export function useExpenseActions({
       formDataToSubmit.append("intent", EXPENSE_INTENTS.APPROVE);
       formDataToSubmit.append("expenseId", String(id));
 
-      fetcher.submit(formDataToSubmit, { method: "post" });
+      // Submit to the event route if we have an event, otherwise submit to expenses route
+      const actionUrl = event?.id ? `/events/${event.id}` : "/expenses";
+      fetcher.submit(formDataToSubmit, { method: "post", action: actionUrl });
     }
   };
 
@@ -203,7 +205,9 @@ export function useExpenseActions({
       formDataToSubmit.append("intent", EXPENSE_INTENTS.REJECT);
       formDataToSubmit.append("expenseId", String(id));
 
-      fetcher.submit(formDataToSubmit, { method: "post" });
+      // Submit to the event route if we have an event, otherwise submit to expenses route
+      const actionUrl = event?.id ? `/events/${event.id}` : "/expenses";
+      fetcher.submit(formDataToSubmit, { method: "post", action: actionUrl });
     }
   };
 

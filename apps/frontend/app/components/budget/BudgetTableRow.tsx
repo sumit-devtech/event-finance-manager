@@ -2,8 +2,8 @@
  * Budget Table Row Component
  */
 
-import { Edit, Trash, FileText, User as UserIcon, Clock } from '../Icons';
-import { BUDGET_EXPANDED_LABELS, BUDGET_EMPTY_STATES, BUDGET_VARIANCE_LABELS } from '~/constants/budget';
+import { Edit, Trash, FileText, User as UserIcon, Clock, Check, X } from '../Icons';
+import { BUDGET_EXPANDED_LABELS, BUDGET_EMPTY_STATES, BUDGET_VARIANCE_LABELS, BUDGET_ITEM_STATUS } from '~/constants/budget';
 import { DEFAULT_STRINGS } from '~/constants/common';
 import { getBudgetItemStatusColor, formatVariance } from './utils/budgetHelpers';
 import { formatDateTime } from '~/lib/utils';
@@ -15,7 +15,10 @@ interface BudgetTableRowProps {
   onToggleExpand: () => void;
   onEdit: (item: BudgetLineItem) => void;
   onDelete: (id: string | number) => void;
+  onApprove?: (id: string | number) => void;
+  onReject?: (id: string | number) => void;
   canEditBudget: boolean;
+  canApprove?: boolean;
   isDemo: boolean;
   showEventColumn: boolean;
 }
@@ -26,7 +29,10 @@ export function BudgetTableRow({
   onToggleExpand,
   onEdit,
   onDelete,
+  onApprove,
+  onReject,
   canEditBudget,
+  canApprove = false,
   isDemo,
   showEventColumn,
 }: BudgetTableRowProps) {
@@ -67,6 +73,30 @@ export function BudgetTableRow({
         </td>
         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2">
+            {line.status === BUDGET_ITEM_STATUS.PENDING && canApprove && onApprove && onReject && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onApprove(line.id);
+                  }}
+                  className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
+                  title="Approve"
+                >
+                  <Check size={16} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReject(line.id);
+                  }}
+                  className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                  title="Reject"
+                >
+                  <X size={16} />
+                </button>
+              </>
+            )}
             {canEditBudget && !isDemo && (
               <>
                 <button

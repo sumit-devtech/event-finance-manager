@@ -109,7 +109,7 @@ export function ExpenseTracker({
     event,
   });
 
-  // Handle fetcher state changes - close modal when submission completes
+  // Handle fetcher state changes - close modal when submission completes and refresh data
   useEffect(() => {
     if (!fetcher) return;
 
@@ -133,6 +133,16 @@ export function ExpenseTracker({
         // Check for error
         if (typeof fetcherData === 'object' && 'error' in fetcherData) {
           toast.error(fetcherData.error);
+          wasSubmittingRef.current = false;
+          previousFetcherStateRef.current = currentState;
+          return;
+        }
+
+        // Check if this is a successful approve/reject action
+        if (typeof fetcherData === 'object' && fetcherData.success && fetcherData.message) {
+          // This is a successful approve/reject - refresh the expense list
+          // The success toast is already shown by useExpenseActions hook
+          revalidator.revalidate();
           wasSubmittingRef.current = false;
           previousFetcherStateRef.current = currentState;
           return;

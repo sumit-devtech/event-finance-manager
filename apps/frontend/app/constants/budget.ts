@@ -9,7 +9,7 @@ import { USER_ROLES } from './roles';
 export const BUDGET_ITEM_STATUS = {
   PENDING: 'Pending',
   APPROVED: 'Approved',
-  CLOSED: 'Closed',
+  REJECTED: 'Rejected',
 } as const;
 
 export type BudgetItemStatus = typeof BUDGET_ITEM_STATUS[keyof typeof BUDGET_ITEM_STATUS];
@@ -17,7 +17,7 @@ export type BudgetItemStatus = typeof BUDGET_ITEM_STATUS[keyof typeof BUDGET_ITE
 export const BUDGET_ITEM_STATUS_OPTIONS = [
   { value: BUDGET_ITEM_STATUS.PENDING, label: BUDGET_ITEM_STATUS.PENDING },
   { value: BUDGET_ITEM_STATUS.APPROVED, label: BUDGET_ITEM_STATUS.APPROVED },
-  { value: BUDGET_ITEM_STATUS.CLOSED, label: BUDGET_ITEM_STATUS.CLOSED },
+  { value: BUDGET_ITEM_STATUS.REJECTED, label: BUDGET_ITEM_STATUS.REJECTED },
 ] as const;
 
 // Budget Item Categories

@@ -18,6 +18,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { BudgetItemsService } from "./budget-items.service";
 import { CreateBudgetItemDto } from "./dto/create-budget-item.dto";
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
+import { ApproveBudgetItemDto } from "./dto/approve-budget-item.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
@@ -133,6 +134,22 @@ export class BudgetItemsController {
     @Request() req,
   ) {
     await this.budgetItemsService.deleteFile(budgetItemId, fileId, req.user.id);
+  }
+
+  @Post("budget-items/:id/approve")
+  @Roles(UserRole.Admin, UserRole.EventManager)
+  @UseGuards(RolesGuard)
+  approveOrReject(
+    @Param("id") id: string,
+    @Body() approveBudgetItemDto: ApproveBudgetItemDto,
+    @Request() req,
+  ) {
+    return this.budgetItemsService.approveOrReject(
+      id,
+      approveBudgetItemDto,
+      req.user.id,
+      req.user.role,
+    );
   }
 }
 

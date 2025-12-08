@@ -9,7 +9,7 @@ export {
 } from "@event-finance-manager/database";
 
 // Define these locally since they're not exported from the database package
-export type BudgetItemStatus = "Pending" | "Approved" | "Closed";
+export type BudgetItemStatus = "Pending" | "Approved" | "Rejected";
 export type BudgetStatus = "Draft" | "Review" | "Approved";
 
 // Union types for better type safety
@@ -25,7 +25,7 @@ export type BudgetItemCategoryType =
   | "Technology"
   | "Miscellaneous";
 export type ExpenseStatusType = "Pending" | "Approved" | "Rejected";
-export type BudgetItemStatusType = "Pending" | "Approved" | "Closed";
+export type BudgetItemStatusType = "Pending" | "Approved" | "Rejected";
 export type BudgetStatusType = "Draft" | "Review" | "Approved";
 export type NotificationTypeType = "Info" | "Warning" | "Error" | "Success";
 

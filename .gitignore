@@ -47,6 +47,9 @@ lerna-debug.log*
 *.cache
 *.log
 
+# Prisma generated files
+packages/database/src/generated/
+
 # Excluded apps and packages (not part of this branch)
 apps/backend-simplifi/
 apps/simplifi-frontend/

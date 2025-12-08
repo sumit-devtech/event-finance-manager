@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useLoaderData, useActionData, useNavigation, useSubmit, Link } from "@remix-run/react";
+import { Form, useLoaderData, useActionData, useNavigation, useSubmit, Link, useRevalidator } from "@remix-run/react";
 import { requireAuth } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session.server";
@@ -127,21 +127,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const notes = notesResult.status === "fulfilled" ? (notesResult.value || []) : [];
     
     // Handle files result - IMPORTANT: Check if API call succeeded
-    console.log('📁 Route Loader - Files Result:', {
-      status: filesResult.status,
-      hasValue: filesResult.status === "fulfilled",
-      value: filesResult.status === "fulfilled" ? filesResult.value : null,
-      error: filesResult.status === "rejected" ? filesResult.reason : null,
-      errorMessage: filesResult.status === "rejected" ? (filesResult.reason?.message || filesResult.reason) : null,
-    });
-    
     const rawFiles = filesResult.status === "fulfilled" ? (filesResult.value || []) : [];
-    console.log('📁 Route Loader - Raw Files:', {
-      rawFiles,
-      length: rawFiles.length,
-      isArray: Array.isArray(rawFiles),
-      firstFile: rawFiles[0] || null,
-    });
 
     // Transform files from backend format (filename, mimeType) to frontend format (name, type)
     const files = rawFiles.map((file: any) => ({
@@ -152,24 +138,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       uploadedAt: file.uploadedAt,
       uploadedBy: file.uploadedBy || undefined,
     }));
-    
-    console.log('📁 Route Loader - Transformed Files:', {
-      files,
-      filesLength: files.length,
-      filesIsArray: Array.isArray(files),
-      firstFile: files[0] || null,
-    });
 
     // Merge budgetItems, strategicGoals, notes, and files into event - always use fetched data if API call succeeded, even if empty
     // This ensures we have the most up-to-date data from the endpoints
-    console.log('📁 Route Loader - Before Merge:', {
-      filesResultStatus: filesResult.status,
-      filesToMerge: files,
-      filesLength: files.length,
-      eventHasFiles: 'files' in event,
-      eventFilesValue: event.files,
-      eventFilesLength: Array.isArray(event.files) ? event.files.length : 'not array',
-    });
     
     // Get event metrics if available (for future use in displaying cached metrics)
     const eventMetrics = eventMetricsResult.status === "fulfilled" ? eventMetricsResult.value : null;
@@ -182,14 +153,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       files: files, // Always use the transformed files, even if empty array
       eventMetrics, // Include metrics for potential future use
     };
-    
-    console.log('📁 Route Loader - Final Event Files:', {
-      files: eventWithBudgetItems.files,
-      filesLength: eventWithBudgetItems.files?.length || 0,
-      filesIsArray: Array.isArray(eventWithBudgetItems.files),
-      eventKeys: Object.keys(eventWithBudgetItems),
-      hasFilesKey: 'files' in eventWithBudgetItems,
-    });
 
     return json({ event: eventWithBudgetItems, users, vendors, expenses, files, user });
   } catch (error: any) {
@@ -240,7 +203,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (intent === "unassignUser") {
       const userId = formData.get("userId") as string;
       await api.delete(`/events/${eventId}/assign/${userId}`, tokenOption);
-      return redirect(`/events/${eventId}`);
+      // Return JSON instead of redirect to prevent page reload and modal closure
+      return json({ success: true, message: "User removed successfully" });
     }
 
     if (intent === "uploadFile") {
@@ -255,7 +219,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (intent === "deleteFile") {
       const fileId = formData.get("fileId") as string;
       await api.delete(`/events/${eventId}/files/${fileId}`, tokenOption);
-      return redirect(`/events/${eventId}`);
+      // Return JSON instead of redirect to prevent page reload and modal closure
+      return json({ success: true, message: "File deleted successfully" });
     }
 
     if (intent === "createNote") {
@@ -285,10 +250,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const category = formData.get("category") as string;
       const description = formData.get("description") as string;
       const subcategory = formData.get("subcategory") as string;
+      const status = formData.get("status") as string;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : undefined;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : undefined;
       const vendorId = formData.get("vendorId") as string || undefined;
       const assignedUserId = formData.get("assignedUserId") as string || formData.get("assignedUser") as string || undefined;
+      const notes = formData.get("notes") as string;
+      const strategicGoalId = formData.get("strategicGoalId") as string;
+      const vendor = formData.get("vendor") as string;
 
       const payload: any = {
         category,
@@ -302,6 +271,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         payload.subcategory = subcategory.trim();
       }
 
+      if (status) {
+        payload.status = status;
+      }
+
       if (vendorId && vendorId.trim()) {
         payload.vendorId = vendorId.trim();
       }
@@ -309,6 +282,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
       // Include assignedUserId if provided
       if (assignedUserId && assignedUserId.trim()) {
         payload.assignedUserId = assignedUserId.trim();
+      }
+
+      // Always include notes, even if empty (to allow clearing the field)
+      if (notes !== null && notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+
+      if (strategicGoalId !== null && strategicGoalId !== undefined && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
+      }
+
+      if (vendor !== null && vendor !== undefined && vendor.trim()) {
+        payload.vendor = vendor.trim() || null;
       }
 
       await api.post(`/events/${eventId}/budget-items`, payload, tokenOption);
@@ -320,10 +306,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const category = formData.get("category") as string;
       const description = formData.get("description") as string;
       const subcategory = formData.get("subcategory") as string;
+      const status = formData.get("status") as string;
       const estimatedCost = formData.get("estimatedCost") ? parseFloat(formData.get("estimatedCost") as string) : null;
       const actualCost = formData.get("actualCost") ? parseFloat(formData.get("actualCost") as string) : null;
       const vendorId = formData.get("vendorId") as string || undefined;
       const assignedUserId = formData.get("assignedUserId") as string || formData.get("assignedUser") as string || undefined;
+      const notes = formData.get("notes") as string;
+      const strategicGoalId = formData.get("strategicGoalId") as string;
+      const vendor = formData.get("vendor") as string;
 
       const payload: any = {
         category,
@@ -331,6 +321,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
         estimatedCost,
         actualCost,
       };
+
+      // Always include status in payload - required for status updates
+      if (status) {
+        payload.status = status;
+      }
 
       // Always include subcategory, even if empty (to allow clearing the field)
       if (subcategory !== null && subcategory !== undefined) {
@@ -346,6 +341,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
         payload.assignedUserId = assignedUserId.trim() || null;
       }
 
+      // Always include notes, even if empty (to allow clearing the field)
+      if (notes !== null && notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+
+      if (strategicGoalId !== null && strategicGoalId !== undefined && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
+      }
+
+      if (vendor !== null && vendor !== undefined) {
+        payload.vendor = vendor.trim() || null;
+      }
+
       await api.put(`/budget-items/${budgetItemId}`, payload, tokenOption);
       return redirect(`/events/${eventId}`);
     }
@@ -353,7 +361,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (intent === "deleteBudgetItem") {
       const budgetItemId = formData.get("budgetItemId") as string;
       await api.delete(`/budget-items/${budgetItemId}`, tokenOption);
-      return redirect(`/events/${eventId}`);
+      // Return JSON instead of redirect to prevent page reload and modal closure
+      return json({ success: true, message: "Budget item deleted successfully" });
     }
 
     if (intent === "createExpense") {
@@ -451,8 +460,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         priority,
       };
 
-      await api.post(`/events/${eventId}/strategic-goals`, payload, tokenOption);
-      return redirect(`/events/${eventId}`);
+      try {
+        await api.post(`/events/${eventId}/strategic-goals`, payload, tokenOption);
+        return json({ success: true, message: "Strategic goal created successfully" });
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.error || "Failed to create strategic goal";
+        console.error("Strategic goal creation error:", error);
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 400 });
+      }
     }
 
     if (intent === "updateStrategicGoal") {
@@ -477,14 +492,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
         priority,
       };
 
-      await api.put(`/events/${eventId}/strategic-goals/${goalId}`, payload, tokenOption);
-      return redirect(`/events/${eventId}`);
+      try {
+        await api.put(`/events/${eventId}/strategic-goals/${goalId}`, payload, tokenOption);
+        return json({ success: true, message: "Strategic goal updated successfully" });
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.error || "Failed to update strategic goal";
+        console.error("Strategic goal update error:", error);
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 400 });
+      }
     }
 
     if (intent === "deleteStrategicGoal") {
       const goalId = formData.get("goalId") as string;
-      await api.delete(`/events/${eventId}/strategic-goals/${goalId}`, tokenOption);
-      return redirect(`/events/${eventId}`);
+      try {
+        await api.delete(`/events/${eventId}/strategic-goals/${goalId}`, tokenOption);
+        return json({ success: true, message: "Strategic goal deleted successfully" });
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.error || "Failed to delete strategic goal";
+        console.error("Strategic goal deletion error:", error);
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 400 });
+      }
     }
 
     return json({ error: "Invalid action" }, { status: 400 });
@@ -518,6 +545,7 @@ export default function EventDetailPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
+  const revalidator = useRevalidator();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -596,6 +624,14 @@ export default function EventDetailPage() {
     setDeleteConfirm({ isOpen: true, type: 'budgetItem', id: budgetItemId });
   };
 
+  // Handle successful delete actions without closing modals
+  useEffect(() => {
+    if (actionData && typeof actionData === 'object' && 'success' in actionData && (actionData as any).success && navigation.state === 'idle') {
+      // Revalidate data to refresh the event details
+      revalidator.revalidate();
+    }
+  }, [actionData, navigation.state, revalidator]);
+
   const confirmDelete = () => {
     if (!deleteConfirm.id || !deleteConfirm.type) return;
 
@@ -611,13 +647,16 @@ export default function EventDetailPage() {
       formData.append("budgetItemId", deleteConfirm.id);
     }
     submit(formData, { method: "post" });
-    toast.success(
-      deleteConfirm.type === 'unassign' ? 'User removed successfully' :
-        deleteConfirm.type === 'file' ? 'File deleted successfully' :
-          'Budget item deleted successfully'
-    );
+    // Don't show toast here - wait for actionData success
     setDeleteConfirm({ isOpen: false, type: null, id: null });
   };
+
+  // Show toast when delete succeeds
+  useEffect(() => {
+    if (actionData && typeof actionData === 'object' && 'success' in actionData && (actionData as any).success && 'message' in actionData && navigation.state === 'idle') {
+      toast.success((actionData as any).message);
+    }
+  }, [actionData, navigation.state]);
 
   const handleEditBudgetItem = (item: EventDetail["budgetItems"][0]) => {
     setSelectedBudgetItem(item);

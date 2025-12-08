@@ -7,11 +7,13 @@ import {
   forwardRef,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateBudgetItemDto, BudgetItemCategory } from "./dto/create-budget-item.dto";
+import { CreateBudgetItemDto, BudgetItemCategory, BudgetItemStatus } from "./dto/create-budget-item.dto";
 import { UpdateBudgetItemDto } from "./dto/update-budget-item.dto";
+import { ApproveBudgetItemDto } from "./dto/approve-budget-item.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import { MetricsService } from "../metrics/metrics.service";
 import { UserRole } from "../auth/types/user-role.enum";
+import { NotificationType } from "@event-finance-manager/database";
 
 @Injectable()
 export class BudgetItemsService {
@@ -43,7 +45,22 @@ export class BudgetItemsService {
             title: true,
           },
         },
-      },
+        workflows: {
+          include: {
+            approver: {
+              select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+              },
+            },
+          },
+          orderBy: {
+            actionAt: "desc",
+          },
+        },
+      } as any,
       orderBy: {
         createdAt: "desc",
       },
@@ -119,7 +136,22 @@ export class BudgetItemsService {
             title: true,
           },
         },
-      },
+        workflows: {
+          include: {
+            approver: {
+              select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+              },
+            },
+          },
+          orderBy: {
+            actionAt: "desc",
+          },
+        },
+      } as any,
     });
 
     if (!budgetItem) {
@@ -176,6 +208,9 @@ export class BudgetItemsService {
     } else {
       result.strategicGoal = null;
     }
+
+    // Include workflows for approval tracking
+    result.workflows = budgetItemWithRelations.workflows || [];
 
     return result;
   }
@@ -328,6 +363,20 @@ export class BudgetItemsService {
       changedFields.push('vendorId');
     }
     if (updateBudgetItemDto.status !== undefined && updateBudgetItemDto.status !== (budgetItem as any).status) {
+      const currentStatus = (budgetItem as any).status;
+      const newStatus = updateBudgetItemDto.status;
+      
+      // Prevent direct status changes to Approved - must use approval workflow
+      if (newStatus === BudgetItemStatus.Approved && currentStatus !== BudgetItemStatus.Approved) {
+        throw new BadRequestException("Cannot directly set status to Approved. Please use the approval endpoint.");
+      }
+      
+      // Prevent direct status changes to Rejected - must use approval workflow
+      if (newStatus === BudgetItemStatus.Rejected && currentStatus !== BudgetItemStatus.Rejected) {
+        throw new BadRequestException("Cannot directly set status to Rejected. Please use the approval endpoint.");
+      }
+      
+      // Allow changing from Approved/Rejected back to Pending
       updateData.status = updateBudgetItemDto.status;
       changedFields.push('status');
     }
@@ -425,6 +474,153 @@ export class BudgetItemsService {
     }
 
     return serializedItem;
+  }
+
+  async approveOrReject(
+    id: string,
+    approveBudgetItemDto: ApproveBudgetItemDto,
+    userId: string,
+    userRole: UserRole,
+  ) {
+    const budgetItem = await this.findOne(id, userId, userRole);
+    const currentStatus = (budgetItem as any).status;
+
+    // Only pending budget items can be approved/rejected
+    if (currentStatus !== BudgetItemStatus.Pending) {
+      throw new BadRequestException("Can only approve or reject pending budget items");
+    }
+
+    // Check permissions - Manager or Admin can approve
+    if (userRole !== UserRole.Admin && userRole !== UserRole.EventManager) {
+      throw new ForbiddenException("Only managers and admins can approve budget items");
+    }
+
+    let newStatus: BudgetItemStatus = currentStatus;
+
+    // Handle rejection - either Manager or Admin can reject immediately
+    if (approveBudgetItemDto.action === "reject") {
+      newStatus = BudgetItemStatus.Rejected; // Set status to Rejected
+    }
+    // Handle approval
+    else if (approveBudgetItemDto.action === "approve") {
+      // Since status is Pending, allow approval regardless of previous workflow records
+      // (Previous records might be stale or from a previous cycle where status was reset)
+      // The status check above ensures we only approve Pending items
+      if (userRole === UserRole.EventManager) {
+        newStatus = BudgetItemStatus.Approved; // Final approval
+      } else if (userRole === UserRole.Admin) {
+        newStatus = BudgetItemStatus.Approved; // Final approval
+      }
+    }
+
+    // Create approval workflow record
+    await this.prisma.client.approvalWorkflow.create({
+      data: {
+        budgetItemId: id,
+        approverId: userId,
+        action: approveBudgetItemDto.action === "approve" ? "approved" : "rejected",
+        comments: approveBudgetItemDto.comments || null,
+      } as any,
+    });
+
+    // Update budget item status
+    const updatedBudgetItem = await this.prisma.client.budgetItem.update({
+      where: { id },
+      data: {
+        status: newStatus,
+        lastEditedBy: userId,
+        lastEditedAt: new Date(),
+      },
+      include: {
+        event: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        vendorLink: true,
+        assignedUser: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+        workflows: {
+          include: {
+            approver: {
+              select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+              },
+            },
+          },
+          orderBy: {
+            actionAt: "desc",
+          },
+        },
+      } as any,
+    });
+
+    // Convert Decimal fields to numbers for JSON serialization
+    const result: any = {
+      ...updatedBudgetItem,
+      estimatedCost: updatedBudgetItem.estimatedCost ? (typeof updatedBudgetItem.estimatedCost === 'object' && 'toNumber' in updatedBudgetItem.estimatedCost 
+        ? updatedBudgetItem.estimatedCost.toNumber() 
+        : Number(updatedBudgetItem.estimatedCost)) 
+        : null,
+      actualCost: updatedBudgetItem.actualCost ? (typeof updatedBudgetItem.actualCost === 'object' && 'toNumber' in updatedBudgetItem.actualCost 
+        ? updatedBudgetItem.actualCost.toNumber() 
+        : Number(updatedBudgetItem.actualCost)) 
+        : null,
+      workflows: updatedBudgetItem.workflows,
+    };
+
+    // Recompute event metrics after status change
+    try {
+      await this.metricsService.recomputeEventMetrics((budgetItem as any).eventId);
+    } catch (error) {
+      console.error("Error recomputing metrics after budget item approval/rejection:", error);
+    }
+
+    // Create activity log
+    await this.createActivityLog(userId, `budget-item.${approveBudgetItemDto.action}`, {
+      budgetItemId: id,
+      eventId: (budgetItem as any).eventId,
+      action: approveBudgetItemDto.action,
+    }, (budgetItem as any).eventId);
+
+    // Notify creator about approval/rejection
+    const event = updatedBudgetItem.event as any;
+    if (event?.createdBy) {
+      let notificationTitle = "";
+      let notificationMessage = "";
+
+      if (approveBudgetItemDto.action === "reject") {
+        notificationTitle = "Budget Item Rejected";
+        notificationMessage = `Your budget item "${updatedBudgetItem.description}" has been rejected.${approveBudgetItemDto.comments ? ` Comments: ${approveBudgetItemDto.comments}` : ""}`;
+      } else {
+        notificationTitle = "Budget Item Approved";
+        notificationMessage = `Your budget item "${updatedBudgetItem.description}" has been approved.`;
+      }
+
+      await this.notificationsService.createNotification({
+        userId: event.createdBy,
+        organizationId: undefined, // Will be set by service
+        type: approveBudgetItemDto.action === "approve" ? NotificationType.Success : NotificationType.Warning,
+        title: notificationTitle,
+        message: notificationMessage,
+        metadata: {
+          budgetItemId: id,
+          eventId: (budgetItem as any).eventId,
+          action: approveBudgetItemDto.action,
+        },
+      });
+    }
+
+    return result;
   }
 
   async remove(id: string, userId: string, userRole?: any): Promise<void> {

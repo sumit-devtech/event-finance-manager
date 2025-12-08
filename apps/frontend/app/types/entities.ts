@@ -7,7 +7,7 @@ import type {
 } from "@event-finance-manager/database";
 
 // Define enum types locally (these match the Prisma schema enums)
-export type BudgetItemStatus = 'Pending' | 'Approved' | 'Closed';
+export type BudgetItemStatus = 'Pending' | 'Approved' | 'Rejected';
 export type BudgetStatus = 'Draft' | 'Review' | 'Approved';
 
 // Base entity types from Prisma

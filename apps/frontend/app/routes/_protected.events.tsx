@@ -135,6 +135,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
       const estimatedCostStr = formData.get("estimatedCost") as string;
       const actualCostStr = formData.get("actualCost") as string;
+      const subcategory = formData.get("subcategory") as string;
+      const status = formData.get("status") as string;
+      const notes = formData.get("notes") as string;
+      const assignedUser = formData.get("assignedUser") as string;
+      const strategicGoalId = formData.get("strategicGoalId") as string;
+      const vendorId = formData.get("vendorId") as string;
       const vendor = formData.get("vendor") as string;
 
       const payload: any = {
@@ -156,8 +162,35 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }
 
-      if (vendor && vendor.trim()) {
-        payload.vendor = vendor.trim();
+      // Always include subcategory, even if empty (to allow clearing the field)
+      if (subcategory !== null && subcategory !== undefined) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+
+      if (status) {
+        payload.status = status;
+      }
+
+      // Always include notes, even if empty (to allow clearing the field)
+      if (notes !== null && notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+
+      // Always include assignedUserId, even if empty (to allow clearing the field)
+      if (assignedUser !== null && assignedUser !== undefined) {
+        payload.assignedUserId = assignedUser.trim() || null;
+      }
+
+      if (strategicGoalId !== null && strategicGoalId !== undefined && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
+      }
+
+      if (vendorId !== null && vendorId !== undefined && vendorId.trim()) {
+        payload.vendorId = vendorId.trim();
+      }
+
+      if (vendor !== null && vendor !== undefined && vendor.trim()) {
+        payload.vendor = vendor.trim() || null;
       }
 
       await api.post(
@@ -183,6 +216,12 @@ export async function action({ request }: ActionFunctionArgs) {
       const description = formData.get("description") as string;
       if (description) payload.description = description;
 
+      const subcategory = formData.get("subcategory") as string;
+      // Always include subcategory, even if empty (to allow clearing the field)
+      if (subcategory !== null && subcategory !== undefined) {
+        payload.subcategory = subcategory.trim() || null;
+      }
+
       const estimatedCostStr = formData.get("estimatedCost") as string;
       if (estimatedCostStr) {
         const estimatedCost = parseFloat(estimatedCostStr);
@@ -199,8 +238,35 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }
 
+      const status = formData.get("status") as string;
+      if (status) {
+        payload.status = status;
+      }
+
+      const notes = formData.get("notes") as string;
+      // Always include notes, even if empty (to allow clearing the field)
+      if (notes !== null && notes !== undefined) {
+        payload.notes = notes.trim() || null;
+      }
+
+      const assignedUser = formData.get("assignedUser") as string;
+      // Always include assignedUserId, even if empty (to allow clearing the field)
+      if (assignedUser !== null && assignedUser !== undefined) {
+        payload.assignedUserId = assignedUser.trim() || null;
+      }
+
+      const strategicGoalId = formData.get("strategicGoalId") as string;
+      if (strategicGoalId !== null && strategicGoalId !== undefined && strategicGoalId.trim()) {
+        payload.strategicGoalId = strategicGoalId.trim();
+      }
+
+      const vendorId = formData.get("vendorId") as string;
+      if (vendorId !== null && vendorId !== undefined) {
+        payload.vendorId = vendorId.trim() || null;
+      }
+
       const vendor = formData.get("vendor") as string;
-      if (vendor !== null) {
+      if (vendor !== null && vendor !== undefined) {
         payload.vendor = vendor.trim() || null;
       }
 

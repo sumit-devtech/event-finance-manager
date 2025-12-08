@@ -55,7 +55,7 @@ enum ExpenseStatus {
 enum BudgetItemStatus {
   Pending
   Approved
-  Closed
+  Rejected
 }
 
 enum BudgetStatus {
@@ -334,6 +334,7 @@ model BudgetItem {
   strategicGoal   StrategicGoal?     @relation(fields: [strategicGoalId], references: [id])
   files           File[]
   expenses        Expense[]          @relation("ExpenseBudgetItem")
+  workflows       ApprovalWorkflow[]
 
   @@index([eventId])
   @@index([category])
@@ -386,20 +387,24 @@ model Expense {
 }
 
 model ApprovalWorkflow {
-  id         String   @id @default(uuid())
-  expenseId  String
-  approverId String?
-  action     String // approved / rejected
-  comments   String?
-  actionAt   DateTime @default(now())
-  expense    Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  approver   User?    @relation("ApproverWorkflow", fields: [approverId], references: [id])
+  id          String      @id @default(uuid())
+  expenseId   String?
+  budgetItemId String?
+  approverId  String?
+  action      String // approved / rejected
+  comments    String?
+  actionAt    DateTime    @default(now())
+  expense     Expense?    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  budgetItem  BudgetItem? @relation(fields: [budgetItemId], references: [id], onDelete: Cascade)
+  approver    User?       @relation("ApproverWorkflow", fields: [approverId], references: [id])
 
   @@index([expenseId])
+  @@index([budgetItemId])
   @@index([approverId])
   @@index([action])
   @@index([actionAt])
   @@index([expenseId, actionAt])
+  @@index([budgetItemId, actionAt])
   @@index([approverId, actionAt])
 }
 

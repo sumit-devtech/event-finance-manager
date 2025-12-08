@@ -12,6 +12,7 @@ import {
   BUDGET_FORM_LABELS,
   BUDGET_ITEM_CATEGORY_OPTIONS,
   BUDGET_ITEM_STATUS_OPTIONS,
+  BUDGET_ITEM_STATUS,
   DEFAULT_BUDGET_FORM_DATA,
 } from '~/constants/budget';
 import { DEFAULT_STRINGS } from '~/constants/common';
@@ -233,12 +234,43 @@ export function BudgetItemForm({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {BUDGET_FORM_LABELS.STATUS} *
               </label>
-              <Dropdown
-                value={formData.status}
-                onChange={(value) => onFormDataChange({ status: value })}
-                options={[...BUDGET_ITEM_STATUS_OPTIONS]}
-                placeholder={BUDGET_FORM_LABELS.SELECT_STATUS}
-              />
+              {editingItem && editingItem.status === BUDGET_ITEM_STATUS.REJECTED ? (
+                <>
+                  <Dropdown
+                    value={formData.status}
+                    onChange={(value) => onFormDataChange({ status: value })}
+                    options={[
+                      { value: BUDGET_ITEM_STATUS.PENDING, label: BUDGET_ITEM_STATUS.PENDING },
+                      { value: BUDGET_ITEM_STATUS.REJECTED, label: BUDGET_ITEM_STATUS.REJECTED },
+                    ]}
+                    placeholder={BUDGET_FORM_LABELS.SELECT_STATUS}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This item was rejected. Change status to "Pending" to resubmit for approval.
+                  </p>
+                </>
+              ) : (
+                <Dropdown
+                  value={formData.status}
+                  onChange={(value) => onFormDataChange({ status: value })}
+                  options={
+                    editingItem && editingItem.status === BUDGET_ITEM_STATUS.APPROVED
+                      ? [
+                        { value: BUDGET_ITEM_STATUS.PENDING, label: BUDGET_ITEM_STATUS.PENDING },
+                        { value: BUDGET_ITEM_STATUS.APPROVED, label: BUDGET_ITEM_STATUS.APPROVED },
+                      ]
+                      : [
+                        { value: BUDGET_ITEM_STATUS.PENDING, label: BUDGET_ITEM_STATUS.PENDING },
+                      ]
+                  }
+                  placeholder={BUDGET_FORM_LABELS.SELECT_STATUS}
+                />
+              )}
+              {!editingItem && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Note: Status can be set to "Pending". "Approved" and "Rejected" are set through the approval workflow.
+                </p>
+              )}
             </div>
 
             <div>
