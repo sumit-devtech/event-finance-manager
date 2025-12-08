@@ -311,6 +311,7 @@ export async function fetchAlerts(
     message: string;
     count?: number;
     urgent: boolean;
+    details?: string;
   }>
 > {
   const alerts: Array<{
@@ -319,6 +320,7 @@ export async function fetchAlerts(
     message: string;
     count?: number;
     urgent: boolean;
+    details?: string;
   }> = [];
 
   // 1. Pending expense approvals
@@ -378,7 +380,7 @@ export async function fetchAlerts(
 
   // 3. Fetch notifications from API
   try {
-    const notifications = await api.get<Array<{ type: string }>>("/notifications?read=false", {
+    const notifications = await api.get<Array<{ type: string; title: string; message: string | null }>>("/notifications?read=false", {
       token: token || undefined,
     });
 
@@ -387,22 +389,26 @@ export async function fetchAlerts(
       const warningNotifications = notifications.filter((n) => n.type === "Warning");
 
       if (errorNotifications.length > 0) {
+        const firstNotification = errorNotifications[0];
         alerts.push({
           id: "notifications-error",
           type: "notification",
           message: `${errorNotifications.length} urgent notification${errorNotifications.length > 1 ? "s" : ""}`,
           count: errorNotifications.length,
           urgent: true,
+          details: firstNotification.title || firstNotification.message || undefined,
         });
       }
 
       if (warningNotifications.length > 0 && errorNotifications.length === 0) {
+        const firstNotification = warningNotifications[0];
         alerts.push({
           id: "notifications-warning",
           type: "notification",
           message: `${warningNotifications.length} notification${warningNotifications.length > 1 ? "s" : ""} require attention`,
           count: warningNotifications.length,
           urgent: false,
+          details: firstNotification.title || firstNotification.message || undefined,
         });
       }
     }

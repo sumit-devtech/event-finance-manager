@@ -109,7 +109,7 @@ export function ExpenseTracker({
     event,
   });
 
-  // Handle fetcher state changes - only close modal when transitioning from submitting to idle
+  // Handle fetcher state changes - close modal when submission completes
   useEffect(() => {
     if (!fetcher) return;
 
@@ -121,9 +121,12 @@ export function ExpenseTracker({
       wasSubmittingRef.current = true;
     }
 
-    // Only process when fetcher transitions from submitting to idle
-    if (currentState === "idle" && wasSubmittingRef.current && previousState === "submitting") {
-      // When fetcher completes, check for errors or success
+    // Check if fetcher completed - handles both JSON responses (submitting->idle) and redirects (submitting->loading->idle)
+    const isCompleting = currentState === "idle" && wasSubmittingRef.current &&
+      (previousState === "submitting" || previousState === "loading");
+
+    if (isCompleting) {
+    // When fetcher completes, check for errors
       if (fetcher.data) {
         const fetcherData = fetcher.data as any;
 
@@ -131,30 +134,23 @@ export function ExpenseTracker({
         if (typeof fetcherData === 'object' && 'error' in fetcherData) {
           toast.error(fetcherData.error);
           wasSubmittingRef.current = false;
-          // Don't close wizard on error - let user retry
           previousFetcherStateRef.current = currentState;
           return;
         }
       }
 
       // Success case - close wizard and refresh data
-      // For redirects, fetcher.data will be undefined but state will be idle
-      // The route will revalidate and initialExpenses will update via useExpenseTransform
       if (showAddExpense) {
         setShowAddExpense(false);
-        // Show success message
         toast.success(EXPENSE_MESSAGES.SUBMITTED_SUCCESS);
-        // Revalidate to refresh expenses list
         revalidator.revalidate();
-        // Reset wizard form state by triggering a re-render
-        // The ExpenseWizard will reset when isOpen becomes false
       }
       wasSubmittingRef.current = false;
     }
 
     // Update previous state
     previousFetcherStateRef.current = currentState;
-  }, [fetcher?.state, fetcher?.data, showAddExpense]);
+  }, [fetcher?.state, fetcher?.data, showAddExpense, revalidator]);
 
   // Calculate statistics (use event-filtered expenses if event is provided)
   const { statusCounts, totalExpenses, approvedTotal, pendingTotal } =

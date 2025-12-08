@@ -9,7 +9,57 @@ import type { EventWithDetails } from "~/types";
  * Calculate budget health status for an event
  */
 export function getBudgetHealth(event: EventWithDetails | any): string {
-  const percentage = ((event.spent || 0) / (event.budget || 1)) * 100;
+  // Try to get budget from event.budget field first (handle null, undefined, 0)
+  let budget = event.budget ?? 0;
+  if (budget === null || budget === undefined) {
+    budget = 0;
+  }
+  
+  // If budget is 0, try calculating from budget items (estimatedCost)
+  if (budget === 0 && event.budgetItems && Array.isArray(event.budgetItems) && event.budgetItems.length > 0) {
+    budget = event.budgetItems.reduce((sum: number, item: any) => {
+      const estimated = item.estimatedCost || 0;
+      return sum + (typeof estimated === 'number' ? estimated : parseFloat(String(estimated)) || 0);
+    }, 0);
+  }
+  
+  const spent = event.spent ?? 0;
+  
+  // Debug logging for all events to help diagnose
+  if (typeof window !== 'undefined') {
+    const percentage = budget > 0 ? (spent / budget) * 100 : (spent > 0 ? Infinity : 0);
+    console.log('[BudgetHealth]', {
+      eventName: event.name || event.id,
+      budget,
+      spent,
+      percentage: budget > 0 ? percentage.toFixed(2) + '%' : (spent > 0 ? '∞% (over budget)' : '0%'),
+      isOverBudget: spent > budget && budget > 0,
+      hasBudgetItems: !!(event.budgetItems && Array.isArray(event.budgetItems) && event.budgetItems.length > 0),
+    });
+  }
+  
+  // If no budget set and no spent, return healthy (can't determine health)
+  if (budget === 0 && spent === 0) {
+    return BUDGET_HEALTH_FILTERS.HEALTHY;
+  }
+  
+  // If spent > 0 but budget is 0, it's over budget (CRITICAL)
+  if (budget === 0 && spent > 0) {
+    return BUDGET_HEALTH_FILTERS.CRITICAL;
+  }
+  
+  // If budget is 0, can't calculate percentage, return healthy
+  if (budget === 0) {
+    return BUDGET_HEALTH_FILTERS.HEALTHY;
+  }
+  
+  const percentage = (spent / budget) * 100;
+  
+  // Over budget (>=100%) is always CRITICAL - check this FIRST
+  if (percentage >= 100) {
+    return BUDGET_HEALTH_FILTERS.CRITICAL;
+  }
+  
   if (percentage < 50) return BUDGET_HEALTH_FILTERS.HEALTHY;
   if (percentage < 75) return BUDGET_HEALTH_FILTERS.WARNING;
   if (percentage < 90) return BUDGET_HEALTH_FILTERS.CAUTION;

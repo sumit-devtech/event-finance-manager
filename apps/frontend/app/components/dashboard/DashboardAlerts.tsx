@@ -54,7 +54,14 @@ export const DashboardAlerts = memo(function DashboardAlerts({
                   >
                     {alert.message}
                   </p>
-                  {alert.count && alert.count > 1 && (
+                  {alert.details && (
+                    <p
+                      className={`text-sm mt-1 ${alert.urgent ? "text-red-700" : "text-amber-700"}`}
+                    >
+                      {alert.details}
+                    </p>
+                  )}
+                  {alert.count && alert.count > 1 && !alert.details && (
                     <p
                       className={`text-sm mt-1 ${alert.urgent ? "text-red-700" : "text-amber-700"}`}
                     >
@@ -63,12 +70,24 @@ export const DashboardAlerts = memo(function DashboardAlerts({
                   )}
                 </div>
               </div>
-              {alert.type === "approval" && (
+              {(alert.type === "approval" || alert.type === "notification") && (
                 <Link
-                  to={isDemo ? "/expenses?demo=true" : "/expenses"}
+                  to={
+                    alert.type === "approval"
+                      ? isDemo ? "/expenses?demo=true&status=Pending" : "/expenses?status=Pending"
+                      : isDemo ? "/notifications?demo=true" : "/notifications"
+                  }
                   className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                 >
-                  Review
+                  {alert.type === "approval" ? "Review" : "View"}
+                </Link>
+              )}
+              {alert.type === "overspending" && (
+                <Link
+                  to={isDemo ? "/events?demo=true" : "/events"}
+                  className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  View Events
                 </Link>
               )}
             </div>

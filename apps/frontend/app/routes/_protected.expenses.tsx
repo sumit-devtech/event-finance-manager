@@ -67,13 +67,11 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ success: true, message: "Demo mode: Changes are not saved" });
   }
 
-  // Get formData first to check intent
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   // For getExpenseDetails, we need JSON response, so check auth without redirecting
   if (intent === "getExpenseDetails") {
-    // Check authentication without redirecting (for JSON responses)
     const user = await getCurrentUser(request);
     if (!user) {
       return json({
@@ -111,29 +109,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const user = await requireAuth(request);
   const token = await getAuthTokenFromSession(request);
   const tokenOption = token ? { token } : {};
-
-  // Handle expense detail fetch - check this early before other intents
-  if (intent === "getExpenseDetails") {
-    const expenseId = String(formData.get("expenseId") || "");
-    if (!expenseId) {
-      return json({ error: "Expense ID is required" }, { status: 400 });
-    }
-
-    if (!token) {
-      return json({ error: "Authentication required" }, { status: 401 });
-    }
-
-    try {
-      const expense = await api.get(`/expenses/${expenseId}`, tokenOption);
-      return json({ expense });
-    } catch (error: any) {
-      console.error('Error fetching expense details:', error);
-      return json({
-        error: error.message || "Failed to fetch expense details",
-        statusCode: error.statusCode || 500
-      }, { status: error.statusCode || 500 });
-    }
-  }
 
   try {
     if (intent === "createExpense" || intent === "create") {
@@ -184,16 +159,28 @@ export async function action({ request }: ActionFunctionArgs) {
       return redirect("/expenses");
     }
 
-    if (intent === "approve" || intent === "reject") {
+    if (intent === "approve" || intent === "reject" || intent === "approveExpense" || intent === "rejectExpense") {
       const expenseId = formData.get("expenseId") as string;
       const comments = formData.get("comments") as string || undefined;
 
-      await api.post(`/expenses/${expenseId}/approve`, {
-        action: intent === "approve" ? "approve" : "reject",
-        comments,
-      }, tokenOption);
+      if (!expenseId) {
+        return json({ success: false, error: "Expense ID is required" }, { status: 400 });
+      }
 
-      return redirect("/expenses");
+      const action = (intent === "approve" || intent === "approveExpense") ? "approve" : "reject";
+
+      try {
+        await api.post(`/expenses/${expenseId}/approve`, {
+          action,
+          comments,
+        }, tokenOption);
+
+        return json({ success: true, message: `Expense ${action === "approve" ? "approved" : "rejected"} successfully` });
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.error || "Failed to approve/reject expense";
+        console.error("Expense approval error:", error);
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 400 });
+      }
     }
 
     return json({ error: "Invalid action" }, { status: 400 });
@@ -219,7 +206,7 @@ export default function ExpensesRoute() {
   const prevFetcherStateRef = useRef<string>(fetcher.state);
   
   // Revalidate data when fetcher completes successfully
-  // This handles both JSON responses and redirects (approve/reject return redirects)
+  // This handles both JSON responses (approve/reject) and redirects (create expense)
   useEffect(() => {
     // Only revalidate when transitioning from submitting to idle (action just completed)
     // This prevents multiple revalidations and page flickering
@@ -230,13 +217,15 @@ export default function ExpensesRoute() {
     prevFetcherStateRef.current = fetcher.state;
     
     if (wasSubmitting && isNowIdle) {
-      const fetcherData = fetcher.data as { error?: string } | undefined;
+      const fetcherData = fetcher.data as { error?: string; success?: boolean; message?: string } | undefined;
       
       // If there's an error, don't revalidate
       if (fetcherData?.error) {
         return;
       }
 
+      // Success messages are handled by useExpenseActions hook
+      // Just revalidate to refresh the data
       revalidator.revalidate();
     }
   }, [fetcher.state, fetcher.data, revalidator]);

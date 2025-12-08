@@ -43,15 +43,11 @@ export function useExpenseActions({
       return;
     }
 
-    const fetcherData = fetcher.data as { error?: string } | undefined;
+    const fetcherData = fetcher.data as { error?: string; success?: boolean; message?: string } | undefined;
     
-    // Only handle errors - successful redirects don't have error data
+    // Handle errors
     if (fetcherData?.error) {
       const expenseId = processingExpenseIdRef.current;
-      
-      // Check if it's a manager approval required error (already handled in handleApprove)
-      const isManagerApprovalError = fetcherData.error.toLowerCase().includes('manager') && 
-                                     fetcherData.error.toLowerCase().includes('approve');
       
       // Only revert the specific expense that had the error
       if (expenseId) {
@@ -69,16 +65,19 @@ export function useExpenseActions({
       // Clear processing state
       processingExpenseIdRef.current = null;
       
-      // Show error message (already handled in handleApprove for manager approval case)
-      if (!isManagerApprovalError) {
-        toast.error(fetcherData.error);
-      }
-    } else {
-      // Success case - clear the processing state and previous state
+      // Show error message
+      toast.error(fetcherData.error);
+    } else if (fetcherData?.success) {
+      // Success case - clear the processing state and show success message
       const expenseId = processingExpenseIdRef.current;
       if (expenseId) {
         previousExpenseStatesRef.current.delete(expenseId);
         processingExpenseIdRef.current = null;
+      }
+      
+      // Show success message if provided
+      if (fetcherData.message) {
+        toast.success(fetcherData.message);
       }
     }
   }, [fetcher?.state, fetcher?.data, setExpenses]);
@@ -138,23 +137,6 @@ export function useExpenseActions({
     const expenseToApprove = expenses.find(exp => exp.id === id);
     if (!expenseToApprove) return;
 
-    // Check if admin approval requires manager approval first
-    if (!isDemo && (user?.role === 'Admin' || user?.role === 'admin')) {
-      const workflows = expenseToApprove._original?.workflows || [];
-      // Check if there's a manager approval (EventManager role)
-      const hasManagerApproval = workflows.some((w: any) => {
-        if (w.action !== 'approved') return false;
-        // Backend uses UserRole.EventManager which is "EventManager"
-        const approverRole = w.approver?.role;
-        return approverRole === 'EventManager';
-      });
-      
-      if (!hasManagerApproval) {
-        toast.error("Manager approval is required before Admin can give final approval. Please wait for a Manager to approve this expense first.");
-        return;
-      }
-    }
-
     // Track which expense is being processed
     processingExpenseIdRef.current = id;
     
@@ -163,16 +145,17 @@ export function useExpenseActions({
       previousExpenseStatesRef.current.set(id, expenseToApprove);
     }
 
-    // Optimistically update state immediately for better UX
-    setExpenses(
-      expenses.map(exp =>
-        exp.id === id
-          ? { ...exp, status: EXPENSE_STATUS.APPROVED, approver: user?.name || DEFAULT_EXPENSE_VALUES.APPROVER }
-          : exp
-      )
-    );
+    // Don't do optimistic update - let server data refresh handle it
 
     if (isDemo) {
+      // For demo, update optimistically
+      setExpenses(
+        expenses.map(exp =>
+          exp.id === id
+            ? { ...exp, status: EXPENSE_STATUS.APPROVED, approver: user?.name || DEFAULT_EXPENSE_VALUES.APPROVER }
+            : exp
+        )
+      );
       toast.success("Expense approved successfully (Demo Mode)");
       processingExpenseIdRef.current = null;
       return;

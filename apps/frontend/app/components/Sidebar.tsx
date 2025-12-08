@@ -1,6 +1,5 @@
 import { Link, useLocation, Form } from "@remix-run/react";
-import { LayoutDashboard, Calendar, DollarSign, Receipt, Users, BarChart3, UserCog, LogOut, Store } from 'lucide-react';
-import { CheckCircle } from './Icons';
+import { LayoutDashboard, Calendar, DollarSign, Receipt, Users, BarChart3, UserCog, LogOut, Store, Bell } from 'lucide-react';
 import type { User } from "~/lib/auth";
 import logoImage from '~/assets/owl-logo.png';
 
@@ -26,13 +25,10 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
   const baseMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'events', label: 'Events', icon: Calendar, href: '/events' },
-    { id: 'budgets', label: 'Budgets', icon: DollarSign, href: '/budget' },
-    { id: 'expenses', label: 'Expenses', icon: Receipt, href: '/expenses' },
+    { id: 'budgets', label: 'Budget Planning', icon: DollarSign, href: '/budget' },
+    { id: 'expenses', label: 'Expenses & Approvals', icon: Receipt, href: '/expenses' },
     { id: 'vendors', label: 'Vendors', icon: Store, href: '/vendors' },
-    // Show Approvals for Admin and EventManager
-    ...(user && (user.role === 'Admin' || user.role === 'admin' || user.role === 'EventManager' || isDemo)
-      ? [{ id: 'approvals', label: 'Approvals', icon: CheckCircle, href: '/approvals' }]
-      : []),
+    { id: 'notifications', label: 'Notifications', icon: Bell, href: '/notifications' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics' },
     { id: 'reports', label: 'Reports', icon: BarChart3, href: '/reports' },
     // Show Users menu for Admin users (check both 'Admin' and 'admin' case variations)

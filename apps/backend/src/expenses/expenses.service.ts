@@ -577,16 +577,14 @@ export class ExpensesService {
     // Handle approval
     else if (approveExpenseDto.action === ExpenseAction.Approve) {
       if (userRole === UserRole.EventManager) {
-        // Manager approval - keep as Pending, wait for Admin
+        // Manager approval - final approval (no longer requires Admin)
         if (hasManagerApproval) {
           throw new BadRequestException("Manager has already approved this expense");
         }
-        newStatus = ExpenseStatus.Pending; // Still pending, waiting for Admin
+        newStatus = ExpenseStatus.Approved; // Final approval
+        shouldUpdateBudget = true;
       } else if (userRole === UserRole.Admin) {
-        // Admin approval - final approval
-        if (!hasManagerApproval) {
-          throw new BadRequestException("Manager must approve before Admin can give final approval");
-        }
+        // Admin approval - final approval (can approve directly without manager)
         if (hasAdminApproval) {
           throw new BadRequestException("Admin has already approved this expense");
         }

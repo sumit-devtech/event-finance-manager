@@ -58,6 +58,7 @@ export interface DashboardAlert {
   message: string;
   count?: number;
   urgent: boolean;
+  details?: string; // Preview/details about what requires attention
 }
 
 /**

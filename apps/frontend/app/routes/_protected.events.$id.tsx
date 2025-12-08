@@ -406,16 +406,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return redirect(`/events/${eventId}`);
     }
 
-    if (intent === "approveExpense" || intent === "rejectExpense") {
+    if (intent === "approveExpense" || intent === "rejectExpense" || intent === "approve" || intent === "reject") {
       const expenseId = formData.get("expenseId") as string;
       const comments = formData.get("comments") as string || undefined;
 
-      await api.post(`/expenses/${expenseId}/approve`, {
-        action: intent === "approveExpense" ? "approve" : "reject",
-        comments,
-      }, tokenOption);
+      if (!expenseId) {
+        return json({ success: false, error: "Expense ID is required" }, { status: 400 });
+      }
 
-      return redirect(`/events/${eventId}`);
+      const action = (intent === "approveExpense" || intent === "approve") ? "approve" : "reject";
+
+      try {
+        await api.post(`/expenses/${expenseId}/approve`, {
+          action,
+          comments,
+        }, tokenOption);
+
+        return json({ success: true, message: `Expense ${action === "approve" ? "approved" : "rejected"} successfully` });
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.error || "Failed to approve/reject expense";
+        console.error("Expense approval error:", error);
+        return json({ success: false, error: errorMessage }, { status: error?.statusCode || 400 });
+      }
     }
 
     if (intent === "createStrategicGoal") {

@@ -168,6 +168,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         message: string;
         count?: number;
         urgent: boolean;
+        details?: string;
       }> = [];
 
       // Add pending approvals alert from cached metrics
@@ -194,7 +195,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
       // Fetch notifications for alerts (lightweight query)
       try {
-        const notifications = await api.get<Array<{ type: string }>>("/notifications?read=false", {
+        const notifications = await api.get<Array<{ type: string; title: string; message: string | null }>>("/notifications?read=false", {
           token: token || undefined,
         });
 
@@ -203,22 +204,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
           const warningNotifications = notifications.filter((n) => n.type === "Warning");
 
           if (errorNotifications.length > 0) {
+            const firstNotification = errorNotifications[0];
             alerts.push({
               id: "notifications-error",
               type: "notification",
               message: `${errorNotifications.length} urgent notification${errorNotifications.length > 1 ? "s" : ""}`,
               count: errorNotifications.length,
               urgent: true,
+              details: firstNotification.title || firstNotification.message || undefined,
             });
           }
 
           if (warningNotifications.length > 0 && errorNotifications.length === 0) {
+            const firstNotification = warningNotifications[0];
             alerts.push({
               id: "notifications-warning",
               type: "notification",
               message: `${warningNotifications.length} notification${warningNotifications.length > 1 ? "s" : ""} require attention`,
               count: warningNotifications.length,
               urgent: false,
+              details: firstNotification.title || firstNotification.message || undefined,
             });
           }
         }
