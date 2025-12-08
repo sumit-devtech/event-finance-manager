@@ -26,6 +26,8 @@ export function useBudgetActions({
   const internalFetcher = useFetcher();
   const fetcher = externalFetcher || internalFetcher;
   const wasSubmittingRef = useRef(false);
+  const pendingDeleteIdRef = useRef<string | number | null>(null);
+  const lastSuccessKeyRef = useRef<string | null>(null);
   
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; itemId: string | number | null }>({
     isOpen: false,
@@ -51,7 +53,11 @@ export function useBudgetActions({
       if (fetcher.data) {
         const data = fetcher.data as any;
         if (data.success && data.message) {
-          toast.success(data.message);
+          const successKey = `${pendingDeleteIdRef.current ?? ''}-${data.message}`;
+          if (successKey !== lastSuccessKeyRef.current) {
+            lastSuccessKeyRef.current = successKey;
+            toast.success(data.message);
+          }
           setDeleteConfirm({ isOpen: false, itemId: null });
           // Call success callback to refresh data
           if (onDeleteSuccess) {
@@ -81,6 +87,7 @@ export function useBudgetActions({
       const formData = new FormData();
       formData.append('intent', BUDGET_INTENTS.DELETE_BUDGET_ITEM);
       formData.append('budgetItemId', deleteConfirm.itemId.toString());
+      pendingDeleteIdRef.current = deleteConfirm.itemId;
       
       // Submit to /events route which returns JSON (not redirect)
       fetcher.submit(formData, { method: 'post', action: '/events' });

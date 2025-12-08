@@ -775,6 +775,7 @@ export function EventDetailsModal({
                     isDemo={isDemo}
                     actionData={actionData}
                     hideApprovalButtons={true}
+                    fetcher={fetcher}
                   />
                 );
               })()
