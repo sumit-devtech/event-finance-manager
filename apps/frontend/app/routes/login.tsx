@@ -69,7 +69,6 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === "register") {
     const name = formData.get("name");
     const confirmPassword = formData.get("confirmPassword");
-    const accountType = formData.get("accountType");
 
     if (!name || typeof name !== "string") {
       return json(

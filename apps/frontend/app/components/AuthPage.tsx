@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Form, Link, useSearchParams } from '@remix-run/react';
-import { ArrowLeft, Mail, Lock, User, Building2 } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, User } from 'lucide-react';
 import logoWhite from '~/assets/logo-white.png';
 import logoImage from '~/assets/owl-logo.png';
 import illustrationImage from '~/assets/illustration.png';
@@ -14,7 +14,6 @@ export function AuthPage({ actionData, redirectTo = "/dashboard" }: AuthPageProp
   const [searchParams] = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
   const [isLogin, setIsLogin] = useState(true);
-  const [accountType, setAccountType] = useState<'individual' | 'organization'>('individual');
   const [error, setError] = useState('');
 
   // Update error from server response
@@ -146,43 +145,9 @@ export function AuthPage({ actionData, redirectTo = "/dashboard" }: AuthPageProp
                 </div>
               )}
 
-          {/* Account Type Selection (Register Only) */}
-          {!isLogin && (
-                <div className="mb-4 md:mb-6">
-                  <label className="block text-gray-700 mb-2 md:mb-3 text-sm md:text-base font-medium">Account Type</label>
-                  <div className="grid grid-cols-2 gap-3 md:gap-4">
-                <button
-                  type="button"
-                  onClick={() => setAccountType('individual')}
-                      className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
-                    accountType === 'individual'
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                      <User className={`mx-auto mb-1 md:mb-2 md:w-6 md:h-6 ${accountType === 'individual' ? 'text-blue-600' : 'text-gray-400'}`} size={20} />
-                      <p className="text-xs md:text-sm">Individual</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccountType('organization')}
-                      className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
-                    accountType === 'organization'
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                      <Building2 className={`mx-auto mb-1 md:mb-2 md:w-6 md:h-6 ${accountType === 'organization' ? 'text-blue-600' : 'text-gray-400'}`} size={20} />
-                      <p className="text-xs md:text-sm">Organization</p>
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Form */}
               <Form method="post" action="/login" className="space-y-3 md:space-y-4">
-            <input type="hidden" name="intent" value={isLogin ? "login" : "register"} />
-            <input type="hidden" name="accountType" value={accountType} />
+                <input type="hidden" name="intent" value={isLogin ? "login" : "register"} />
                 <input type="hidden" name="redirectTo" value={redirectTo} />
 
             {!isLogin && (
