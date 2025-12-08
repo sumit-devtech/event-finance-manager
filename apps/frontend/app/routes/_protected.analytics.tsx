@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { requireAuth } from "~/lib/auth.server";
+import { requireAuth, requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
@@ -30,8 +30,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json<LoaderData>({ user: null as any, events: demoAnalyticsEvents as unknown as EventWithDetails[], roiMetrics: demoROIMetrics });
   }
 
-  // Otherwise, require authentication
-  const user = await requireAuth(request);
+  // Require authentication with role check (Admin, EventManager, Finance can access analytics)
+  const user = await requireRole(request, ["Admin", "EventManager", "Finance"]);
   const token = await getAuthTokenFromSession(request);
 
   try {

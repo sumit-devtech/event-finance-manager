@@ -30,8 +30,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
-  // Otherwise, require authentication
+  // Require authentication - Viewers cannot access expenses
   const user = await requireAuth(request);
+  // Check if user is Viewer and redirect if so
+  if (user.role === "Viewer") {
+    throw new Response("Unauthorized - Viewers cannot access expenses", { status: 403 });
+  }
   const token = await getAuthTokenFromSession(request);
 
   try {
@@ -107,6 +111,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // For other actions, use requireAuth (which may redirect)
   const user = await requireAuth(request);
+  // Check if user is Viewer and deny access
+  if (user.role === "Viewer") {
+    return json({ error: "Unauthorized - Viewers cannot perform expense actions" }, { status: 403 });
+  }
   const token = await getAuthTokenFromSession(request);
   const tokenOption = token ? { token } : {};
 

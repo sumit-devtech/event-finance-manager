@@ -21,20 +21,31 @@ export function Sidebar({ user, organization, isMobileMenuOpen, setIsMobileMenuO
     console.log('[Sidebar] Is Admin?', user?.role === 'Admin' || user?.role === 'admin');
   }
   
-  // Base menu items - append ?demo=true if in demo mode
+  // Role-based menu item visibility
+  const isAdmin = user?.role === 'Admin' || user?.role === 'admin' || isDemo;
+  const isEventManager = user?.role === 'EventManager' || isDemo;
+  const isFinance = user?.role === 'Finance' || isDemo;
+  const isViewer = user?.role === 'Viewer' && !isDemo;
+
+  // Base menu items - filtered by role
   const baseMenuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { id: 'events', label: 'Events', icon: Calendar, href: '/events' },
-    { id: 'budgets', label: 'Budget Planning', icon: DollarSign, href: '/budget' },
-    { id: 'expenses', label: 'Expenses & Approvals', icon: Receipt, href: '/expenses' },
-    { id: 'vendors', label: 'Vendors', icon: Store, href: '/vendors' },
-    { id: 'notifications', label: 'Notifications', icon: Bell, href: '/notifications' },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics' },
-    { id: 'reports', label: 'Reports', icon: BarChart3, href: '/reports' },
-    // Show Users menu for Admin users (check both 'Admin' and 'admin' case variations)
-    // Also show in demo mode for testing
-    ...(user && (user.role === 'Admin' || user.role === 'admin' || isDemo) ? [{ id: 'users', label: 'Users', icon: UserCog, href: '/users' }] : []),
-    ...(organization && !isDemo ? [{ id: 'team', label: 'Team', icon: UserCog, href: '/team' }] : []),
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard', roles: ['Admin', 'EventManager', 'Finance', 'Viewer'] },
+    { id: 'events', label: 'Events', icon: Calendar, href: '/events', roles: ['Admin', 'EventManager', 'Finance', 'Viewer'] },
+    // Budget Planning - not available to Viewers
+    ...(!isViewer ? [{ id: 'budgets', label: 'Budget Planning', icon: DollarSign, href: '/budget', roles: ['Admin', 'EventManager', 'Finance'] }] : []),
+    // Expenses - not available to Viewers
+    ...(!isViewer ? [{ id: 'expenses', label: 'Expenses & Approvals', icon: Receipt, href: '/expenses', roles: ['Admin', 'EventManager', 'Finance'] }] : []),
+    // Vendors - Admin, EventManager, Finance only
+    ...((isAdmin || isEventManager || isFinance) ? [{ id: 'vendors', label: 'Vendors', icon: Store, href: '/vendors', roles: ['Admin', 'EventManager', 'Finance'] }] : []),
+    { id: 'notifications', label: 'Notifications', icon: Bell, href: '/notifications', roles: ['Admin', 'EventManager', 'Finance', 'Viewer'] },
+    // Analytics - Admin, EventManager, Finance only
+    ...((isAdmin || isEventManager || isFinance) ? [{ id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics', roles: ['Admin', 'EventManager', 'Finance'] }] : []),
+    // Reports - Admin, EventManager, Finance only
+    ...((isAdmin || isEventManager || isFinance) ? [{ id: 'reports', label: 'Reports', icon: BarChart3, href: '/reports', roles: ['Admin', 'EventManager', 'Finance'] }] : []),
+    // Users - Admin only
+    ...(isAdmin ? [{ id: 'users', label: 'Users', icon: UserCog, href: '/users', roles: ['Admin'] }] : []),
+    // Team - Admin only (if organization exists)
+    ...(isAdmin && organization && !isDemo ? [{ id: 'team', label: 'Team', icon: UserCog, href: '/team', roles: ['Admin'] }] : []),
   ];
 
   // Append ?demo=true to all routes if in demo mode

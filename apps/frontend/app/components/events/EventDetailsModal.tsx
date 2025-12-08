@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Calendar, MapPin, Users, DollarSign, CheckCircle, Clock, 
   TrendingUp, FileText, X, Target, Folder, Edit, Receipt
@@ -14,6 +14,7 @@ import type { EventWithDetails, VendorWithStats, ExpenseWithVendor, StrategicGoa
 import type { User } from "~/lib/auth";
 import type { EventStatus } from "~/types";
 import { Dropdown } from '../shared';
+import { useRoleAccess } from '~/hooks/useRoleAccess';
 
 // Types for event files and notes
 type EventFile = {
@@ -78,6 +79,43 @@ export function EventDetailsModal({
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
   const navigation = useNavigation();
+  
+  // Role-based permissions
+  const roleAccess = useRoleAccess(user, isDemo);
+  const permissions = useMemo(() => {
+    const isAdmin = user?.role === 'Admin' || user?.role === 'admin' || isDemo;
+    const isEventManager = user?.role === 'EventManager' || isDemo;
+    const isFinance = user?.role === 'Finance' || isDemo;
+    const isViewer = user?.role === 'Viewer' && !isDemo;
+    
+    // Check if user can edit this specific event
+    const canEditThisEvent = roleAccess.canEditEvent({
+      createdBy: event.createdBy,
+      assignments: event.assignments || [],
+    });
+    
+    return {
+      isAdmin,
+      isEventManager,
+      isFinance,
+      isViewer,
+      canEditEvent: canEditThisEvent,
+      canDeleteEvent: roleAccess.canDeleteEvent,
+      canManageBudget: roleAccess.canManageBudget,
+      canViewReports: roleAccess.canViewReports,
+      canCreateExpense: roleAccess.canCreateExpense,
+      canApproveExpense: roleAccess.canApproveExpense,
+      canEditStatus: canEditThisEvent,
+      canViewBudget: !isViewer || isDemo,
+      canViewTransactions: !isViewer || isDemo,
+      canViewStrategicGoals: !isViewer || isDemo,
+      canViewDocuments: !isViewer || isDemo,
+      canViewNotes: !isViewer || isDemo,
+      canEditDocuments: canEditThisEvent,
+      canEditNotes: (isAdmin || isEventManager) && !isViewer || isDemo,
+      canEditStrategicGoals: canEditThisEvent,
+    };
+  }, [user, isDemo, event, roleAccess]);
   
   // Track if we've done initial load to avoid reloading unnecessarily
   const [hasInitialLoad, setHasInitialLoad] = useState(false);
@@ -383,16 +421,25 @@ export function EventDetailsModal({
     }
   }, [fetcher.data, fetcher.state, loadingEvent, event?.id]);
 
-  const sections = [
-    { id: 'overview', label: 'Overview', icon: FileText },
-    { id: 'budget', label: 'Budget Planner', icon: DollarSign },
-    { id: 'transactions', label: 'Transactions', icon: Receipt },
-    { id: 'strategic-goals', label: 'Strategic Goals', icon: Target },
-    { id: 'documents', label: 'Documents', icon: Folder },
-    { id: 'notes', label: 'Notes', icon: Edit },
-  ];
+  // Filter sections based on role permissions
+  const sections = useMemo(() => {
+    const allSections = [
+      { id: 'overview', label: 'Overview', icon: FileText, permission: true }, // Always visible
+      { id: 'budget', label: 'Budget Planner', icon: DollarSign, permission: permissions.canViewBudget },
+      { id: 'transactions', label: 'Transactions', icon: Receipt, permission: permissions.canViewTransactions },
+      { id: 'strategic-goals', label: 'Strategic Goals', icon: Target, permission: permissions.canViewStrategicGoals },
+      { id: 'documents', label: 'Documents', icon: Folder, permission: permissions.canViewDocuments },
+      { id: 'notes', label: 'Notes', icon: Edit, permission: permissions.canViewNotes },
+    ];
+    return allSections.filter(section => section.permission);
+  }, [permissions]);
 
   const handleStatusChange = async (newStatus: string) => {
+    // Check permission before allowing status change
+    if (!permissions.canEditStatus && !isDemo) {
+      return;
+    }
+    
     // Keep status lowercase for internal state
     const lowercaseStatus = newStatus.toLowerCase();
     setStatus(lowercaseStatus);
@@ -559,7 +606,7 @@ export function EventDetailsModal({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-4">
-              {user?.role !== 'Viewer' && (
+              {permissions.canEditStatus ? (
                 <div className="min-w-[120px]">
                   <Dropdown
                     value={status?.toLowerCase() || 'planning'}
@@ -575,8 +622,7 @@ export function EventDetailsModal({
                     className="text-xs sm:text-sm"
                   />
                 </div>
-              )}
-              {user?.role === 'Viewer' && (
+              ) : (
                 <span className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium bg-gray-50 text-gray-600 capitalize">
                   {event.status || 'planning'}
                 </span>
@@ -584,6 +630,7 @@ export function EventDetailsModal({
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:flex"
+                aria-label="Close modal"
               >
                 <X size={20} className="text-gray-600" />
               </button>
@@ -750,7 +797,7 @@ export function EventDetailsModal({
               </div>
             )}
 
-            {activeSection === 'budget' && (
+            {activeSection === 'budget' && permissions.canViewBudget && (
               (() => {
                 console.log('📊 Budget Section - Displaying Budget Items:', {
                   eventId: currentEvent.id,
@@ -781,7 +828,7 @@ export function EventDetailsModal({
               })()
             )}
 
-            {activeSection === 'transactions' && (
+            {activeSection === 'transactions' && permissions.canViewTransactions && (
               (() => {
                 console.log('💰 Transactions Section - Displaying Expenses:', {
                   eventId: currentEvent.id,
@@ -805,7 +852,7 @@ export function EventDetailsModal({
               })()
             )}
 
-            {activeSection === 'strategic-goals' && (
+            {activeSection === 'strategic-goals' && permissions.canViewStrategicGoals && (
               (() => {
                 console.log('🔍 Strategic Goals State:', eventStrategicGoals);
                 const goals = eventStrategicGoals.map(goal => {
@@ -856,7 +903,7 @@ export function EventDetailsModal({
               })()
             )}
 
-            {activeSection === 'documents' && (
+            {activeSection === 'documents' && permissions.canViewDocuments && (
               (() => {
                 console.log('📁 Documents Section - Displaying Files:', {
                   eventId: currentEvent.id,
@@ -873,13 +920,13 @@ export function EventDetailsModal({
                     user={user ?? null}
                     fetcher={fetcher}
                     onUpload={async (file) => {
-                      if (!isDemo) {
+                      if (!isDemo && permissions.canEditDocuments) {
                         // File upload is handled by EventDocuments component via fetcher submission
                         console.log('File upload initiated:', file.name);
                       }
                     }}
                     onDelete={async (documentId) => {
-                      if (!isDemo) {
+                      if (!isDemo && permissions.canEditDocuments) {
                         // File deletion is handled by EventDocuments component via fetcher submission
                         console.log('File deletion initiated:', documentId);
                       }
@@ -889,7 +936,7 @@ export function EventDetailsModal({
               })()
             )}
 
-            {activeSection === 'notes' && (
+            {activeSection === 'notes' && permissions.canViewNotes && (
               <EventNotes
                 eventId={currentEvent.id}
                 notes={eventNotes}
@@ -900,7 +947,7 @@ export function EventDetailsModal({
                   // In demo mode, update local state to keep notes in sync
                   // In non-demo mode, EventNotes uses fetcher submissions which are handled
                   // by the route handler and trigger a reload via fetcher
-                  if (isDemo) {
+                  if (isDemo && permissions.canEditNotes) {
                     setEventNotes(notes);
                     // Also update fullEvent to keep it consistent
                     setFullEvent({ ...currentEvent, notes });

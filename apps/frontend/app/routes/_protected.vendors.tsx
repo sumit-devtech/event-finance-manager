@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { requireAuth } from "~/lib/auth.server";
+import { requireAuth, requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
@@ -30,8 +30,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json<LoaderData>({ user: null as any, vendors: demoVendors });
   }
 
-  // Otherwise, require authentication
-  const user = await requireAuth(request);
+  // Require authentication with role check (Admin, EventManager, Finance can access vendors)
+  const user = await requireRole(request, ["Admin", "EventManager", "Finance"]);
   const token = await getAuthTokenFromSession(request);
 
   try {
@@ -47,7 +47,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const user = await requireAuth(request);
+  // Require role check for vendor actions (Admin, EventManager, Finance)
+  const user = await requireRole(request, ["Admin", "EventManager", "Finance"]);
   const token = await getAuthTokenFromSession(request);
   const formData = await request.formData();
   const intent = formData.get("intent");

@@ -1,7 +1,7 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSearchParams, useRevalidator, useActionData, useFetcher } from "@remix-run/react";
 import { useEffect, useRef } from "react";
-import { requireAuth } from "~/lib/auth.server";
+import { requireAuth, requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
@@ -47,8 +47,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
-  // Otherwise, require authentication
+  // Require authentication - Viewers cannot access budget management
   const user = await requireAuth(request);
+  // Check if user is Viewer and redirect if so
+  if (user.role === "Viewer") {
+    throw new Response("Unauthorized - Viewers cannot access budget management", { status: 403 });
+  }
   const token = await getAuthTokenFromSession(request);
 
   try {
@@ -151,7 +155,11 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ success: true, message: 'Demo mode: Changes not saved' });
   }
 
+  // Require authentication - Viewers cannot perform budget actions
   const user = await requireAuth(request);
+  if (user.role === "Viewer") {
+    return json({ success: false, error: "Unauthorized - Viewers cannot perform budget actions" }, { status: 403 });
+  }
   const token = await getAuthTokenFromSession(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
