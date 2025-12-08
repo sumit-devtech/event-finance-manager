@@ -35,40 +35,41 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Request() req) {
+    console.log('[UsersController] findAll - organizationId:', req.user.organizationId);
+    return this.usersService.findAll(req.user.organizationId);
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.usersService.findOne(id);
+  findOne(@Param("id") id: string, @Request() req) {
+    return this.usersService.findOne(id, req.user.organizationId);
   }
 
   @Put(":id")
   update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto, @Request() req) {
-    return this.usersService.update(id, updateUserDto, req.user.id);
+    return this.usersService.update(id, updateUserDto, req.user.id, req.user.organizationId);
   }
 
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param("id") id: string, @Request() req) {
-    await this.usersService.remove(id, req.user.id);
+    await this.usersService.remove(id, req.user.id, req.user.organizationId);
   }
 
   @Put(":id/role")
   assignRole(@Param("id") id: string, @Body() assignRoleDto: AssignRoleDto, @Request() req) {
-    return this.usersService.assignRole(id, assignRoleDto, req.user.id);
+    return this.usersService.assignRole(id, assignRoleDto, req.user.id, req.user.organizationId);
   }
 
   @Post(":id/events")
   @HttpCode(HttpStatus.CREATED)
   assignEvent(@Param("id") id: string, @Body() assignEventDto: AssignEventDto, @Request() req) {
-    return this.usersService.assignEvent(id, assignEventDto, req.user.id);
+    return this.usersService.assignEvent(id, assignEventDto, req.user.id, req.user.organizationId);
   }
 
   @Get(":id/activity-logs")
-  getActivityLogs(@Param("id") id: string, @Query("eventId") eventId?: string) {
-    return this.usersService.getActivityLogs(id, eventId);
+  getActivityLogs(@Param("id") id: string, @Query("eventId") eventId: string | undefined, @Request() req) {
+    return this.usersService.getActivityLogs(id, eventId, req.user.organizationId);
   }
 }
 

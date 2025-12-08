@@ -21,8 +21,12 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  async findAll() {
+  async findAll(organizationId?: string) {
+    console.log('[UsersService] findAll - Filtering by organizationId:', organizationId);
     const users = await this.prisma.client.user.findMany({
+      where: {
+        organizationId: organizationId || null,
+      },
       select: {
         id: true,
         email: true,
@@ -68,9 +72,12 @@ export class UsersService {
     return transformed;
   }
 
-  async findOne(id: string) {
-    const user = await this.prisma.client.user.findUnique({
-      where: { id },
+  async findOne(id: string, organizationId?: string) {
+    const user = await this.prisma.client.user.findFirst({
+      where: { 
+        id,
+        organizationId: organizationId || null,
+      },
       select: {
         id: true,
         email: true,
@@ -200,10 +207,15 @@ export class UsersService {
     };
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, adminUserId: string) {
-    // Get raw user data from database (not transformed)
-    const user = await this.prisma.client.user.findUnique({
-      where: { id },
+  async update(id: string, updateUserDto: UpdateUserDto, adminUserId: string, organizationId?: string) {
+    // Get raw user data from database (not transformed) - verify user exists and belongs to organization
+    await this.findOne(id, organizationId);
+    
+    const user = await this.prisma.client.user.findFirst({
+      where: { 
+        id,
+        organizationId: organizationId || null,
+      },
       select: {
         id: true,
         email: true,
@@ -257,7 +269,7 @@ export class UsersService {
     }
 
     if (Object.keys(updateData).length === 0) {
-      return this.findOne(id);
+      return this.findOne(id, organizationId);
     }
 
     const updatedUser = await this.prisma.client.user.update({
@@ -289,8 +301,8 @@ export class UsersService {
     };
   }
 
-  async remove(id: string, adminUserId: string) {
-    const user = await this.findOne(id);
+  async remove(id: string, adminUserId: string, organizationId?: string) {
+    const user = await this.findOne(id, organizationId);
     const userEmail = user.email;
 
     await this.prisma.client.user.delete({
@@ -304,9 +316,15 @@ export class UsersService {
     });
   }
 
-  async assignRole(userId: string, assignRoleDto: AssignRoleDto, adminUserId: string) {
-    const user = await this.prisma.client.user.findUnique({
-      where: { id: userId },
+  async assignRole(userId: string, assignRoleDto: AssignRoleDto, adminUserId: string, organizationId?: string) {
+    // Verify user exists and belongs to organization
+    const existingUser = await this.findOne(userId, organizationId);
+    
+    const user = await this.prisma.client.user.findFirst({
+      where: { 
+        id: userId,
+        organizationId: organizationId || null,
+      },
       select: { role: true, fullName: true, email: true },
     });
 
@@ -317,7 +335,7 @@ export class UsersService {
     const oldRole = user.role;
 
     if (oldRole === assignRoleDto.role) {
-      return this.findOne(userId);
+      return this.findOne(userId, organizationId);
     }
 
     await this.prisma.client.user.update({
@@ -333,12 +351,12 @@ export class UsersService {
       newRole: assignRoleDto.role,
     });
 
-    return this.findOne(userId);
+    return this.findOne(userId, organizationId);
   }
 
-  async assignEvent(userId: string, assignEventDto: AssignEventDto, adminUserId: string) {
-    // Verify user exists
-    await this.findOne(userId);
+  async assignEvent(userId: string, assignEventDto: AssignEventDto, adminUserId: string, organizationId?: string) {
+    // Verify user exists and belongs to organization
+    await this.findOne(userId, organizationId);
 
     // Verify event exists
     const event = await this.prisma.client.event.findUnique({
@@ -422,9 +440,9 @@ export class UsersService {
     return assignment;
   }
 
-  async getActivityLogs(userId: string, eventId?: string) {
-    // Verify user exists
-    await this.findOne(userId);
+  async getActivityLogs(userId: string, eventId?: string, organizationId?: string) {
+    // Verify user exists and belongs to organization
+    await this.findOne(userId, organizationId);
 
     const where: any = { userId };
     if (eventId) {
