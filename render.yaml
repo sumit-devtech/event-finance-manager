@@ -18,6 +18,20 @@ services:
         sync: false  # Generate a secure random string and set in Render dashboard
       - key: FRONTEND_URL
         sync: false  # Set this manually after frontend is deployed (e.g., https://event-finance-manager-frontend.onrender.com)
+      # Resend SMTP Configuration (Recommended)
+      - key: RESEND_API_KEY
+        sync: false  # Resend API key from https://resend.com/api-keys
+      - key: SMTP_FROM
+        sync: false  # From email address (must be verified in Resend, e.g., noreply@yourdomain.com)
+      # Alternative: Custom SMTP Configuration (if not using Resend)
+      - key: SMTP_HOST
+        sync: false  # SMTP server host (e.g., smtp.gmail.com)
+      - key: SMTP_PORT
+        sync: false  # SMTP port (e.g., 587)
+      - key: SMTP_USER
+        sync: false  # SMTP username/email
+      - key: SMTP_PASSWORD
+        sync: false  # SMTP password/app password
 
   # Frontend Web Service
   - type: web

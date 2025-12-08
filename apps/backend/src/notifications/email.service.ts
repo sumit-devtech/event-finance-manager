@@ -1,8 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NotificationType } from "@event-finance-manager/database";
+import { Resend } from "resend";
 
-// Dynamic import for nodemailer
+// Dynamic import for nodemailer (fallback)
 let nodemailer: any;
 try {
   nodemailer = require("nodemailer");
@@ -23,17 +24,44 @@ interface EmailOptions {
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private transporter: any = null;
+  private resend: Resend | null = null;
 
   constructor(private configService: ConfigService) {
-    this.initializeTransporter();
+    this.initializeEmailService();
   }
 
-  private initializeTransporter() {
+  private initializeEmailService() {
+    // Check for Resend API key first (preferred method - uses API directly)
+    const resendApiKey = this.configService.get<string>("RESEND_API_KEY");
+    
+    if (resendApiKey) {
+      const smtpFrom = this.configService.get<string>("SMTP_FROM");
+      
+      if (!smtpFrom) {
+        this.logger.warn(
+          "RESEND_API_KEY found but SMTP_FROM is missing. Email notifications will be disabled.",
+        );
+        return;
+      }
+
+      try {
+        // Use Resend API directly (more reliable than SMTP)
+        this.resend = new Resend(resendApiKey);
+        this.logger.log(`✅ Email service initialized with Resend API (from: ${smtpFrom})`);
+        return;
+      } catch (error) {
+        this.logger.error("Failed to initialize Resend API:", error);
+        // Fall through to SMTP fallback
+      }
+    }
+
+    // Fallback to SMTP if Resend API key not found or initialization failed
     if (!nodemailer) {
       this.logger.warn("nodemailer not installed. Email notifications will be disabled.");
       return;
     }
 
+    // Fallback to custom SMTP configuration
     const smtpHost = this.configService.get<string>("SMTP_HOST");
     const smtpPort = this.configService.get<number>("SMTP_PORT", 587);
     const smtpUser = this.configService.get<string>("SMTP_USER");
@@ -57,12 +85,46 @@ export class EmailService {
       },
     });
 
-    this.logger.log("Email transporter initialized");
+    this.logger.log("Email transporter initialized with custom SMTP");
   }
 
   async sendNotificationEmail(options: EmailOptions): Promise<void> {
+    const fromEmail = this.configService.get<string>("SMTP_FROM") || this.configService.get<string>("SMTP_USER");
+
+    // Use Resend API if available (preferred method)
+    if (this.resend) {
+      try {
+        const htmlContent = this.generateEmailTemplate(options);
+        const textContent = this.generateTextContent(options);
+
+        this.logger.log(`📧 Sending email via Resend API from ${fromEmail} to ${options.to}`);
+
+        const result = await this.resend.emails.send({
+          from: fromEmail,
+          to: options.to,
+          subject: options.title,
+          html: htmlContent,
+          text: textContent,
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message || "Resend API error");
+        }
+
+        this.logger.log(`✅ Email sent successfully to ${options.to} (ID: ${result.data?.id})`);
+        return;
+      } catch (error: any) {
+        this.logger.error(`❌ Failed to send email via Resend API to ${options.to}:`, {
+          message: error.message,
+          error: error,
+        });
+        throw error;
+      }
+    }
+
+    // Fallback to SMTP
     if (!this.transporter) {
-      this.logger.warn("Email transporter not initialized. Skipping email send.");
+      this.logger.warn("Email service not initialized. Skipping email send.");
       return;
     }
 
@@ -70,17 +132,25 @@ export class EmailService {
       const htmlContent = this.generateEmailTemplate(options);
       const textContent = this.generateTextContent(options);
 
+      this.logger.log(`📧 Sending email via SMTP from ${fromEmail} to ${options.to}`);
+
       await this.transporter.sendMail({
-        from: this.configService.get<string>("SMTP_FROM") || this.configService.get<string>("SMTP_USER"),
+        from: fromEmail,
         to: options.to,
         subject: options.title,
         text: textContent,
         html: htmlContent,
       });
 
-      this.logger.log(`Email sent successfully to ${options.to}`);
-    } catch (error) {
-      this.logger.error(`Failed to send email to ${options.to}:`, error);
+      this.logger.log(`✅ Email sent successfully to ${options.to}`);
+    } catch (error: any) {
+      this.logger.error(`❌ Failed to send email via SMTP to ${options.to}:`, {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        response: error.response,
+        responseCode: error.responseCode,
+      });
       throw error;
     }
   }

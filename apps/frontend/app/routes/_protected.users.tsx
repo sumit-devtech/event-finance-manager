@@ -48,19 +48,49 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireRole(request, ["Admin"]);
   const token = await getAuthTokenFromSession(request);
 
-  const [users, events] = await Promise.all([
-    api.get<UserWithCounts[]>("/users", { token: token || undefined }),
-    api.get<any[]>("/events", { token: token || undefined }),
-  ]);
+  if (!token) {
+    console.error("No authentication token found in session");
+    return json({
+      users: [],
+      events: [],
+      currentUser: user,
+      error: "Authentication token not found"
+    });
+  }
 
-  // Backend now includes assignedEventIds in findAll() response, so no need for N+1 queries
-  // Map users to ensure assignedEventIds is always an array
-  const usersWithAssignments = users.map((u) => ({
-    ...u,
-    assignedEventIds: (u as any).assignedEventIds || [],
-  }));
+  try {
+    const [usersResult, eventsResult] = await Promise.allSettled([
+      api.get<UserWithCounts[]>("/users", { token }),
+      api.get<any[]>("/events", { token }),
+    ]);
 
-  return json({ users: usersWithAssignments, events, currentUser: user });
+    const users = usersResult.status === "fulfilled" ? usersResult.value : [];
+    const events = eventsResult.status === "fulfilled" ? eventsResult.value : [];
+
+    if (usersResult.status === "rejected") {
+      console.error("Error fetching users:", usersResult.reason);
+    }
+    if (eventsResult.status === "rejected") {
+      console.error("Error fetching events:", eventsResult.reason);
+    }
+
+    // Backend now includes assignedEventIds in findAll() response, so no need for N+1 queries
+    // Map users to ensure assignedEventIds is always an array
+    const usersWithAssignments = users.map((u) => ({
+      ...u,
+      assignedEventIds: (u as any).assignedEventIds || [],
+    }));
+
+    return json({ users: usersWithAssignments, events, currentUser: user });
+  } catch (error: any) {
+    console.error("Error fetching users data:", error);
+    return json({
+      users: [],
+      events: [],
+      currentUser: user,
+      error: error?.message || "Failed to load users data"
+    });
+  }
 }
 
 /**
