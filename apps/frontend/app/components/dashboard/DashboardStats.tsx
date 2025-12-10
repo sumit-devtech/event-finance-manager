@@ -1,7 +1,7 @@
 /**
  * Dashboard Stats Component
  * Displays budget overview cards (Total Budget, Utilized, Remaining)
- * All calculations are done server-side, component only displays
+ * Enterprise design: white cards, subtle borders, minimal indicators
  */
 
 import { memo, useMemo } from "react";
@@ -25,34 +25,25 @@ export const DashboardStats = memo(function DashboardStats({ totals }: Dashboard
         label: "Total Budget",
         value: totals.totalBudget,
         icon: DollarSign,
-        color: "blue",
         description: "All events combined",
-        bgColor: "bg-blue-100",
-        iconColor: "text-blue-600",
-        dotColor: "bg-blue-500",
       },
       {
         label: "Utilized",
         value: totals.totalSpent,
         icon: TrendingUp,
-        color: totals.status.text.split("-")[1], // Extract color from status
         description: `${totals.utilizationPercentage.toFixed(1)}% - ${totals.status.label}`,
-        bgColor: totals.status.bg,
-        iconColor: totals.status.text,
-        dotColor: totals.status.indicator,
-        borderColor: totals.status.border,
+        statusColor: totals.utilizationPercentage > 100
+          ? "#D92C2C"
+          : totals.utilizationPercentage > 80
+            ? "#FF751F"
+            : "#1BBE63",
       },
       {
         label: "Remaining",
         value: Math.abs(totals.totalRemaining),
         icon: DollarSign,
-        color: totals.totalRemaining < 0 ? "red" : "emerald",
         description: totals.totalRemaining < 0 ? "Over budget" : "Available",
-        bgColor: totals.totalRemaining < 0 ? "bg-red-100" : "bg-emerald-100",
-        iconColor: totals.totalRemaining < 0 ? "text-red-600" : "text-emerald-600",
-        dotColor: totals.totalRemaining < 0 ? "bg-red-500" : "bg-emerald-500",
-        borderColor: totals.totalRemaining < 0 ? "border-red-200" : "border-emerald-200",
-        textColor: totals.totalRemaining < 0 ? "text-red-600" : "text-emerald-600",
+        statusColor: totals.totalRemaining < 0 ? "#D92C2C" : "#5E5E5E",
       },
     ],
     [totals]
@@ -65,24 +56,25 @@ export const DashboardStats = memo(function DashboardStats({ totals }: Dashboard
         return (
           <div
             key={index}
-            className={`bg-white p-5 md:p-6 rounded-xl border-2 ${card.borderColor || "border-gray-200"} hover:shadow-lg transition-all`}
+            className="bg-white p-5 rounded-[6px] border border-[#E2E2E2] hover:border-[#C6C6C6] transition-colors"
           >
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+              <p className="text-xs font-medium text-[#5E5E5E] uppercase tracking-wide">
                 {card.label}
               </p>
-              <div className={`p-2.5 ${card.bgColor} rounded-lg`}>
-                <Icon size={20} className={card.iconColor} />
+              <div className="p-2 rounded-[6px] bg-[#F3F3F6]">
+                <Icon size={18} className="text-[#5E5E5E]" />
               </div>
             </div>
-            <p
-              className={`text-3xl md:text-4xl font-bold mb-2 ${card.textColor || "text-gray-900"}`}
-            >
+            <p className="text-2xl md:text-3xl font-bold mb-2 text-[#1A1A1A]">
               ${card.value.toLocaleString()}
             </p>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${card.dotColor}`}></div>
-              <p className={`text-xs ${card.textColor || "text-gray-500"} ${index === 1 ? "font-medium" : ""}`}>
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: card.statusColor || "#5E5E5E" }}
+              ></div>
+              <p className={`text-xs text-[#5E5E5E] ${index === 1 ? "font-medium" : ""}`}>
                 {card.description}
               </p>
             </div>

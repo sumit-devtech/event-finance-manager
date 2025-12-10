@@ -17,20 +17,20 @@ export function EmptyState({
   onAction,
 }: EmptyStateComponentProps) {
   return (
-    <div className="text-center py-12 bg-card rounded-lg border border-border">
+    <div className="text-center py-12 bg-white rounded-[6px] border border-[#E2E2E2]">
       {icon && (
-        <div className="flex justify-center items-center mb-4 text-muted-foreground">
+        <div className="flex justify-center items-center mb-4 text-[#A9A9A9]">
           {icon}
         </div>
       )}
-      <h3 className="mb-2 font-semibold text-lg text-card-foreground">{title}</h3>
+      <h3 className="mb-2 font-semibold text-base text-[#1A1A1A]">{title}</h3>
       {description && (
-        <p className="text-muted-foreground mb-4">{description}</p>
+        <p className="text-[#5E5E5E] mb-4 text-sm">{description}</p>
       )}
       {onAction && actionLabel && (
         <button
           onClick={onAction}
-          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] transition-colors text-sm font-medium"
         >
           {actionLabel}
         </button>

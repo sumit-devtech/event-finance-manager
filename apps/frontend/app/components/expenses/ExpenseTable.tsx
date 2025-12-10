@@ -87,10 +87,10 @@ export function ExpenseTable({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">{EXPENSE_LABELS.EXPENSE_SUBMISSIONS}</h3>
-        <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+    <div className="bg-white rounded-[6px] border border-[#E2E2E2]">
+      <div className="p-6 border-b border-[#E2E2E2] flex items-center justify-between">
+        <h3 className="text-base font-semibold text-[#1A1A1A]">{EXPENSE_LABELS.EXPENSE_SUBMISSIONS}</h3>
+        <button className="flex items-center gap-2 px-4 h-9 border border-[#E2E2E2] rounded-[6px] hover:bg-[#F3F3F6] transition-colors text-sm text-[#5E5E5E]">
           <Download size={16} />
           <span>{EXPENSE_LABELS.EXPORT}</span>
         </button>
@@ -111,7 +111,7 @@ export function ExpenseTable({
                         e.stopPropagation();
                         onApprove(typedExpense.id);
                       }}
-                      className="p-2 hover:bg-green-50 rounded-lg text-green-600 transition-colors"
+                      className="p-2 hover:bg-[#1BBE63]/10 rounded-[6px] text-[#1BBE63] transition-colors"
                       title={EXPENSE_LABELS.APPROVE}
                     >
                       <Check size={16} />
@@ -121,7 +121,7 @@ export function ExpenseTable({
                         e.stopPropagation();
                         onReject(typedExpense.id);
                       }}
-                      className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                      className="p-2 hover:bg-[#D92C2C]/10 rounded-[6px] text-[#D92C2C] transition-colors"
                       title={EXPENSE_LABELS.REJECT}
                     >
                       <X size={16} />
@@ -133,7 +133,7 @@ export function ExpenseTable({
                     e.stopPropagation();
                     onRowClick(typedExpense);
                   }}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  className="text-[#672AFA] hover:text-[#5A1FE6] text-sm font-medium"
                 >
                   {EXPENSE_LABELS.VIEW}
                 </button>

@@ -18,7 +18,7 @@ export function ViewDetailsButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-sm"
     >
       <span>{label}</span>
     </button>
@@ -40,7 +40,7 @@ export function EditButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="px-4 h-9 border border-[#672AFA] text-[#672AFA] bg-white rounded-[6px] hover:bg-[#F3F3F6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       title="Edit"
     >
       <Edit size={size} />
@@ -83,7 +83,7 @@ export function DeleteButton({
       <button
         onClick={handleClick}
         disabled={disabled}
-        className="px-4 py-2 border border-destructive/30 text-destructive rounded-lg hover:bg-destructive/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-4 h-9 border border-[#D92C2C]/30 text-[#D92C2C] bg-white rounded-[6px] hover:bg-[#D92C2C]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         title="Delete"
       >
         <Trash size={size} />

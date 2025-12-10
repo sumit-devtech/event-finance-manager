@@ -4,7 +4,7 @@ import { requireAuth, requireRole } from "~/lib/auth.server";
 import { api } from "~/lib/api";
 import { getAuthTokenFromSession } from "~/lib/session.server";
 import type { User } from "~/lib/auth";
-import { VendorManager } from "~/components/VendorManager";
+import { VendorManager } from "~/components/vendor";
 import { demoVendors } from "~/lib/demoData";
 import type { CreateVendorDto, UpdateVendorDto, VendorWithStats } from "~/types";
 import type { SerializeFrom } from "@remix-run/node";

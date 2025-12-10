@@ -11,13 +11,13 @@ interface FormFieldProps {
 
 export function FormField({ label, required = false, error, children, className = "" }: FormFieldProps) {
   return (
-    <div className={className}>
-      <label className="block text-foreground mb-2 font-medium">
-        {label} {required && <span className="text-destructive">*</span>}
+    <div className={`${className} mb-4`}>
+      <label className="block text-[#1A1A1A] mb-2 text-xs font-medium">
+        {label} {required && <span className="text-[#D92C2C]">*</span>}
       </label>
       {children}
       {error && (
-        <p className="text-sm text-destructive mt-1">{error}</p>
+        <p className="text-xs text-[#D92C2C] mt-1">{error}</p>
       )}
     </div>
   );
@@ -30,8 +30,7 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export function FormInput({ error, className = "", ...props }: FormInputProps) {
   return (
     <input
-      className={`w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground ${
-        error ? "border-destructive" : ""
+      className={`w-full px-4 h-9 border border-[#E2E2E2] rounded-[6px] focus:outline-none focus:ring-2 focus:ring-[#672AFA] focus:border-[#672AFA] bg-white text-[#1A1A1A] placeholder:text-[#A9A9A9] ${error ? "border-[#D92C2C]" : ""
       } ${className}`}
       {...props}
     />
@@ -81,8 +80,7 @@ interface FormTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaEle
 export function FormTextarea({ error, className = "", ...props }: FormTextareaProps) {
   return (
     <textarea
-      className={`w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground resize-none ${
-        error ? "border-destructive" : ""
+      className={`w-full px-4 py-2 min-h-[36px] border border-[#E2E2E2] rounded-[6px] focus:outline-none focus:ring-2 focus:ring-[#672AFA] focus:border-[#672AFA] bg-white text-[#1A1A1A] placeholder:text-[#A9A9A9] resize-none ${error ? "border-[#D92C2C]" : ""
       } ${className}`}
       {...props}
     />

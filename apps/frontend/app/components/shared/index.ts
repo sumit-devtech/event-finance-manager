@@ -20,4 +20,6 @@ export { ConfirmDialog } from "./ConfirmDialog";
 export { ProgressBar } from "./ProgressBar";
 export { ExpenseWizard } from "./ExpenseWizard";
 export type { ExpenseFormData } from "./ExpenseWizard";
+export { StatusChip } from "./StatusChip";
+export type { StatusType } from "./StatusChip";
 

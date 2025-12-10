@@ -62,46 +62,46 @@ export function BudgetTable({
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="border-b border-[#ECECF1]">
             <tr>
               {showEventColumn && (
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                   {BUDGET_TABLE_HEADERS.EVENT}
                 </th>
               )}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.CATEGORY}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.SUBCATEGORY}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.DESCRIPTION}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.ESTIMATED}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.ACTUAL}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.VARIANCE}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.STATUS}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.ASSIGNED}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 h-9 text-left text-xs font-medium text-[#5E5E5E] uppercase tracking-wider">
                 {BUDGET_TABLE_HEADERS.ACTIONS}
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-[#ECECF1]">
             {budgetLines.length === 0 ? (
               <tr>
-                <td colSpan={colSpan} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={colSpan} className="px-6 py-8 text-center text-[#5E5E5E] text-sm">
                   {BUDGET_MESSAGES.NO_ITEMS} {event?.id ? BUDGET_MESSAGES.NO_ITEMS_WITH_EVENT : BUDGET_MESSAGES.NO_ITEMS_WITHOUT_EVENT}
                 </td>
               </tr>

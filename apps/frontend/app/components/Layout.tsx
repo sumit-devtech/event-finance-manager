@@ -93,9 +93,9 @@ export function Layout({ user }: LayoutProps) {
         )}
         
         {/* Header - Fixed at top */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 flex-shrink-0 relative">
+          <header className="bg-white border-b border-[#E2E2E2] sticky top-0 z-40 flex-shrink-0 relative">
           <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
+              <div className="flex justify-between items-center h-14">
               {/* Mobile menu button */}
               <button
                 type="button"
@@ -123,14 +123,14 @@ export function Layout({ user }: LayoutProps) {
               
               {/* Desktop title */}
               <div className="hidden lg:flex items-center">
-                <h1 className="text-xl font-semibold text-gray-900">
+                  <h1 className="text-xl font-semibold text-[#1A1A1A]">
                   Event Finance Manager
                 </h1>
               </div>
               
               {/* Mobile title */}
               <div className="lg:hidden flex items-center flex-1 justify-center">
-                <h1 className="text-lg font-semibold text-gray-900">
+                  <h1 className="text-lg font-semibold text-[#1A1A1A]">
                   Event Finance
                 </h1>
               </div>

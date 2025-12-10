@@ -27,31 +27,35 @@ export function DataCard({
 }: DataCardProps) {
   return (
     <div
-      className={`bg-card text-card-foreground rounded-lg border border-border p-6 hover:shadow-lg transition-shadow ${className}`}
+      className={`bg-white text-[#1A1A1A] rounded-[6px] border border-[#E2E2E2] p-5 hover:border-[#C6C6C6] transition-colors ${className}`}
       onClick={onCardClick}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="mb-2 text-lg font-semibold text-card-foreground">{title}</h3>
+          <h3 className="mb-2 text-base font-semibold text-[#1A1A1A]">{title}</h3>
           {subtitle && (
-            <p className="text-sm text-muted-foreground mb-2">{subtitle}</p>
+            <p className="text-sm text-[#5E5E5E] mb-2">{subtitle}</p>
           )}
           {badge && (
             <span
-              className={`inline-block px-3 py-1 rounded-full text-sm ${
+              className={`inline-block px-2 py-1 rounded-[6px] text-xs font-medium ${
                 badge.color === 'blue' || !badge.color
-                  ? "bg-primary/10 text-primary"
+                ? "bg-[#672AFA]/10 text-[#672AFA]"
                   : badge.color === 'red'
-                  ? "bg-destructive/10 text-destructive"
-                  : "bg-secondary text-secondary-foreground"
+                  ? "bg-[#D92C2C]/10 text-[#D92C2C]"
+                  : badge.color === 'green'
+                    ? "bg-[#1BBE63]/10 text-[#1BBE63]"
+                    : badge.color === 'orange'
+                      ? "bg-[#FF751F]/10 text-[#FF751F]"
+                      : "bg-[#F3F3F6] text-[#5E5E5E]"
               }`}
             >
               {badge.label}
             </span>
           )}
         </div>
-        {icon && <div className="text-right">{icon}</div>}
+        {icon && <div className="text-right text-[#5E5E5E]">{icon}</div>}
       </div>
 
       {/* Metadata */}
@@ -60,9 +64,9 @@ export function DataCard({
           {metadata.map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 text-muted-foreground"
+              className="flex items-center gap-2 text-[#5E5E5E]"
             >
-              {item.icon && <div className="flex-shrink-0">{item.icon}</div>}
+              {item.icon && <div className="flex-shrink-0 text-[#5E5E5E]">{item.icon}</div>}
               <span className="text-sm">{item.value}</span>
             </div>
           ))}
@@ -71,12 +75,12 @@ export function DataCard({
 
       {/* Stats */}
       {stats.length > 0 && (
-        <div className="border-t border-border pt-4 mb-4">
+        <div className="border-t border-[#E2E2E2] pt-4 mb-4">
           <div className="grid grid-cols-2 gap-4">
             {stats.map((stat, index) => (
               <div key={index}>
-                <p className="text-muted-foreground text-sm mb-1">{stat.label}</p>
-                <p className="text-card-foreground">
+                <p className="text-[#5E5E5E] text-sm mb-1">{stat.label}</p>
+                <p className="text-[#1A1A1A] text-sm">
                   {stat.value}
                 </p>
               </div>

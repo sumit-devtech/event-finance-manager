@@ -22,8 +22,8 @@ export const DashboardBudgetOverview = memo(function DashboardBudgetOverview({
   if (expenseCategories.length === 0) return null;
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg border border-gray-200">
-      <h3 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Budget Overview by Category</h3>
+    <div className="bg-white p-5 rounded-[6px] border border-[#E2E2E2]">
+      <h3 className="text-base font-semibold mb-4 text-[#1A1A1A]">Budget Overview by Category</h3>
       <div className="space-y-4">
         {expenseCategories.map((category, index) => {
           const percentage = category.value;
@@ -37,10 +37,10 @@ export const DashboardBudgetOverview = memo(function DashboardBudgetOverview({
           return (
             <div key={index}>
               <div className="flex items-center justify-between mb-2 gap-2">
-                <span className="text-sm md:text-base text-gray-700 truncate">
+                <span className="text-sm text-[#1A1A1A] truncate">
                   {category.name}
                 </span>
-                <span className="text-xs md:text-sm text-gray-600 whitespace-nowrap">
+                <span className="text-xs text-[#5E5E5E] whitespace-nowrap">
                   {category.value}%
                 </span>
               </div>

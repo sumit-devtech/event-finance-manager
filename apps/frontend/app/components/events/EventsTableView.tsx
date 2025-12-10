@@ -29,33 +29,33 @@ export function EventsTableView({
   const isAllSelected = events.length > 0 && selectedEvents.size === events.length;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-[6px] border border-[#E2E2E2] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="border-b border-[#ECECF1]">
             <tr>
               {canPerformBulkActions && (
-                <th className="px-4 py-3 text-left">
+                <th className="px-4 h-9 text-left">
                   <input
                     type="checkbox"
                     checked={isAllSelected}
                     onChange={onSelectAll}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 text-[#672AFA] border-[#E2E2E2] rounded focus:ring-2 focus:ring-[#672AFA] cursor-pointer"
                   />
                 </th>
               )}
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Event Name</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Type</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Owner</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Region</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Date</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Budget Utilized</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">ROI %</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Status</th>
-              <th className="px-4 py-3 text-left text-sm text-gray-700">Actions</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Event Name</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Type</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Owner</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Region</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Date</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Budget Utilized</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">ROI %</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Status</th>
+              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-[#ECECF1]">
             {events.map((event) => (
               <EventTableRow
                 key={event.id}

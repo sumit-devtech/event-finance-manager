@@ -51,39 +51,39 @@ export function formatDateTime(date: string | Date | null | undefined): string {
 }
 
 /**
- * Get status color classes for budget items
+ * Get status color classes for budget items - Enterprise Design System
  */
 export function getBudgetStatusColor(status: string): string {
   switch (status) {
-    case 'Approved': return 'bg-green-100 text-green-700 border-green-200';
-    case 'Pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    case 'Rejected': return 'bg-red-100 text-red-700 border-red-200';
-    default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    case 'Approved': return 'bg-[#1BBE63]/10 text-[#1BBE63]';
+    case 'Pending': return 'bg-[#FF751F]/10 text-[#FF751F]';
+    case 'Rejected': return 'bg-[#D92C2C]/10 text-[#D92C2C]';
+    default: return 'bg-[#F3F3F6] text-[#5E5E5E]';
   }
 }
 
 /**
- * Get status color classes for expenses
+ * Get status color classes for expenses - Enterprise Design System
  */
 export function getExpenseStatusColor(status: string): string {
   switch (status.toLowerCase()) {
-    case 'approved': return 'bg-green-100 text-green-700';
-    case 'pending': return 'bg-yellow-100 text-yellow-700';
-    case 'rejected': return 'bg-red-100 text-red-700';
-    default: return 'bg-gray-100 text-gray-700';
+    case 'approved': return 'bg-[#1BBE63]/10 text-[#1BBE63]';
+    case 'pending': return 'bg-[#FF751F]/10 text-[#FF751F]';
+    case 'rejected': return 'bg-[#D92C2C]/10 text-[#D92C2C]';
+    default: return 'bg-[#F3F3F6] text-[#5E5E5E]';
   }
 }
 
 /**
- * Get status color classes for events
+ * Get status color classes for events - Enterprise Design System
  */
 export function getEventStatusColor(status: string): string {
   switch (status?.toLowerCase()) {
-    case 'completed': return 'bg-gray-100 text-gray-700';
-    case 'active': return 'bg-green-100 text-green-700';
-    case 'planning': return 'bg-blue-100 text-blue-700';
-    case 'cancelled': return 'bg-red-100 text-red-700';
-    default: return 'bg-gray-100 text-gray-700';
+    case 'completed': return 'bg-[#F3F3F6] text-[#5E5E5E]';
+    case 'active': return 'bg-[#1BBE63]/10 text-[#1BBE63]';
+    case 'planning': return 'bg-[#4B8CF7]/10 text-[#4B8CF7]';
+    case 'cancelled': return 'bg-[#D92C2C]/10 text-[#D92C2C]';
+    default: return 'bg-[#F3F3F6] text-[#5E5E5E]';
   }
 }
 

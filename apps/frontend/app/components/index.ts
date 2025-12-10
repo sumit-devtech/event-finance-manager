@@ -28,5 +28,5 @@ export { SubscriptionPage } from './SubscriptionPage';
 export { TeamAssignments } from './TeamAssignments';
 export { TeamManagement } from './TeamManagement';
 export { UserProfile } from './UserProfile';
-export { VendorManager } from './VendorManager';
+export { VendorManager } from './vendor';
 

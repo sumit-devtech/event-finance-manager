@@ -17,21 +17,21 @@ export function DataTable<T extends Record<string, unknown>>({
   className = "",
 }: DataTableProps<T>) {
   return (
-    <div className={`relative w-full overflow-x-auto ${className}`}>
+    <div className={`relative w-full overflow-x-auto bg-white rounded-[6px] border border-[#E2E2E2] ${className}`}>
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-b border-gray-200 bg-gray-50">
+          <tr className="border-b border-[#ECECF1]">
             {columns.map((column, index) => (
               <th
                 key={index}
-                className={`px-4 py-3 text-left text-sm font-semibold text-gray-900 ${
+                className={`px-4 h-9 text-left text-sm font-medium text-[#1A1A1A] ${
                   column.width ? `w-[${column.width}]` : ""
                 }`}
               >
                 {column.label}
               </th>
             ))}
-            {actions && <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>}
+            {actions && <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@ export function DataTable<T extends Record<string, unknown>>({
             <tr>
               <td
                 colSpan={columns.length + (actions ? 1 : 0)}
-                className="px-4 py-8 text-center text-gray-500"
+                className="px-4 py-8 text-center text-[#5E5E5E] text-sm"
               >
                 No data available
               </td>
@@ -49,14 +49,14 @@ export function DataTable<T extends Record<string, unknown>>({
               <tr
                 key={(item as any).id || rowIndex}
                 onClick={() => onRowClick?.(item)}
-                className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${
+                className={`border-b border-[#ECECF1] hover:bg-[#F9F9FC] transition-colors ${
                   onRowClick ? "cursor-pointer" : ""
                 }`}
               >
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex}
-                    className={`px-4 py-4 text-sm text-gray-900 ${
+                    className={`px-4 h-9 text-sm text-[#1A1A1A] ${
                       column.align === "center"
                         ? "text-center"
                         : column.align === "right"
@@ -71,7 +71,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 ))}
                 {actions && (
                   <td
-                    className="px-4 py-4 text-sm"
+                    className="px-4 h-9 text-sm"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {actions(item)}
