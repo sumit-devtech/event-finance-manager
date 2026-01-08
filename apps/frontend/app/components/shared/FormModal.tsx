@@ -39,9 +39,9 @@ export function FormModal({
         <div className="p-6 border-b border-[#E2E2E2] flex-shrink-0">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-[#1A1A1A]">{title}</h3>
+              <h3 className="text-h3 text-[#1A1A1A]">{title}</h3>
               {subtitle && (
-                <p className="text-[#5E5E5E] mt-1 text-sm">{subtitle}</p>
+                <p className="text-interface text-[#5E5E5E] mt-1">{subtitle}</p>
               )}
             </div>
             <button
@@ -68,7 +68,7 @@ export function FormModal({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 h-9 border border-[#E2E2E2] rounded-[6px] text-[#5E5E5E] hover:bg-[#F3F3F6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            className="px-4 h-9 border border-[#E2E2E2] rounded-[6px] text-interface text-[#5E5E5E] hover:bg-[#F3F3F6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             Cancel
           </button>
@@ -76,7 +76,7 @@ export function FormModal({
             type="submit"
             form="form-modal-form"
             disabled={submitDisabled || isLoading}
-            className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm font-medium"
+            className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-interface font-medium"
           >
             {isLoading && <Loader size={16} className="animate-spin" />}
             {isLoading ? "Saving..." : submitLabel}

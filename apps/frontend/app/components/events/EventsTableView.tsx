@@ -44,15 +44,10 @@ export function EventsTableView({
                   />
                 </th>
               )}
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Event Name</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Type</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Owner</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Region</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Date</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Budget Utilized</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">ROI %</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Status</th>
-              <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Actions</th>
+              <th className="px-4 h-9 text-left text-interface-bold text-[#1A1A1A]">Event</th>
+              <th className="px-4 h-9 text-left text-interface-bold text-[#1A1A1A]">Budget</th>
+              <th className="px-4 h-9 text-left text-interface-bold text-[#1A1A1A]">Status</th>
+              <th className="px-4 h-9 text-left text-interface-bold text-[#1A1A1A]">Owner</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#ECECF1]">

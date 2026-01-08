@@ -36,10 +36,10 @@ export function DetailsModal({
         <div className="p-6 border-b border-[#E2E2E2] flex-shrink-0">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-xl font-semibold mb-2 text-[#1A1A1A]">{title}</h3>
+              <h3 className="text-h3 mb-2 text-[#1A1A1A]">{title}</h3>
               {subtitle && (
                 <div className="flex items-center gap-3">
-                  {typeof subtitle === 'string' ? <span className="text-[#5E5E5E] text-sm">{subtitle}</span> : subtitle}
+                  {typeof subtitle === 'string' ? <span className="text-interface text-[#5E5E5E]">{subtitle}</span> : subtitle}
                 </div>
               )}
             </div>
@@ -56,12 +56,12 @@ export function DetailsModal({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {sections.map((section, index) => (
             <div key={index}>
-              <h4 className="text-base font-semibold mb-3 text-[#1A1A1A]">{section.title}</h4>
+              <h4 className="text-interface-bold mb-3 text-[#1A1A1A]">{section.title}</h4>
               {section.content && <div className="mb-4">{section.content}</div>}
               {section.items && section.items.length > 0 && (
                 <div className="space-y-3">
                   {section.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="flex items-center gap-3 text-[#1A1A1A] text-sm">
+                    <div key={itemIndex} className="flex items-center gap-3 text-interface text-[#1A1A1A]">
                       {item.icon && <div className="text-[#5E5E5E]">{item.icon}</div>}
                       <span className="font-medium">{item.label}:</span>
                       <span>{item.value}</span>
@@ -79,14 +79,14 @@ export function DetailsModal({
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] transition-colors text-sm font-medium"
+                className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] transition-colors text-interface font-medium"
               >
                 Edit
               </button>
             )}
             {actions?.map((action, index) => {
               // Determine button styling based on label and variant
-              let buttonClasses = "px-4 h-9 rounded-[6px] transition-colors text-sm font-medium";
+              let buttonClasses = "px-4 h-9 rounded-[6px] transition-colors text-interface font-medium";
               
               if (action.variant === "primary") {
                 buttonClasses += " bg-[#672AFA] text-white hover:bg-[#5A1FE6]";
@@ -111,7 +111,7 @@ export function DetailsModal({
             {!onEdit && !actions && (
               <button
                 onClick={onClose}
-                className="px-4 h-9 border border-[#E2E2E2] text-[#5E5E5E] rounded-[6px] hover:bg-[#F3F3F6] transition-colors text-sm font-medium"
+                className="px-4 h-9 border border-[#E2E2E2] text-[#5E5E5E] rounded-[6px] hover:bg-[#F3F3F6] transition-colors text-interface font-medium"
               >
                 Close
               </button>

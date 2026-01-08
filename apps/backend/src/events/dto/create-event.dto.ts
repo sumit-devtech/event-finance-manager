@@ -1,12 +1,9 @@
 import { IsString, IsOptional, IsDateString, IsEnum, IsInt, IsNumber, Min } from "class-validator";
 import { Type } from "class-transformer";
+import { EventStatus } from "@event-finance-manager/database";
 
-export enum EventStatus {
-  Planning = "Planning",
-  Active = "Active",
-  Completed = "Completed",
-  Cancelled = "Cancelled",
-}
+// Re-export EventStatus for backward compatibility
+export { EventStatus };
 
 export class CreateEventDto {
   @IsString()

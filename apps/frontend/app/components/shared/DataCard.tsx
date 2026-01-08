@@ -33,9 +33,9 @@ export function DataCard({
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="mb-2 text-base font-semibold text-[#1A1A1A]">{title}</h3>
+          <h3 className="mb-2 text-interface-bold text-[#1A1A1A]">{title}</h3>
           {subtitle && (
-            <p className="text-sm text-[#5E5E5E] mb-2">{subtitle}</p>
+            <p className="text-interface text-[#5E5E5E] mb-2">{subtitle}</p>
           )}
           {badge && (
             <span
@@ -79,8 +79,8 @@ export function DataCard({
           <div className="grid grid-cols-2 gap-4">
             {stats.map((stat, index) => (
               <div key={index}>
-                <p className="text-[#5E5E5E] text-sm mb-1">{stat.label}</p>
-                <p className="text-[#1A1A1A] text-sm">
+                <p className="text-interface text-[#5E5E5E] mb-1">{stat.label}</p>
+                <p className="text-interface-bold text-[#1A1A1A]">
                   {stat.value}
                 </p>
               </div>

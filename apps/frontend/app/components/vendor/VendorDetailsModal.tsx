@@ -115,3 +115,18 @@ export function VendorDetailsModal({ vendor, onClose, onEdit, canEdit }: VendorD
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

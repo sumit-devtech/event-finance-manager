@@ -17,7 +17,8 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { EventsService } from "./events.service";
-import { CreateEventDto, EventStatus } from "./dto/create-event.dto";
+import { CreateEventDto } from "./dto/create-event.dto";
+import { EventStatus } from "@event-finance-manager/database";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";

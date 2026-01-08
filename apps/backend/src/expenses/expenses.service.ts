@@ -921,9 +921,11 @@ export class ExpensesService {
     try {
       const event = await this.prisma.client.event.findUnique({
         where: { id: eventId },
-        include: {
+        select: {
+          id: true,
+          organizationId: true,
           organization: {
-            include: {
+            select: {
               users: {
                 where: {
                   role: UserRole.Admin,
@@ -966,12 +968,14 @@ export class ExpensesService {
       // Get event manager and admin users
       const event = await this.prisma.client.event.findUnique({
         where: { id: eventId },
-        include: {
+        select: {
+          id: true,
+          organizationId: true,
           assignments: {
             where: {
               role: "Manager",
             },
-            include: {
+            select: {
               user: {
                 select: {
                   id: true,
@@ -981,7 +985,7 @@ export class ExpensesService {
             },
           },
           organization: {
-            include: {
+            select: {
               users: {
                 where: {
                   role: UserRole.Admin,

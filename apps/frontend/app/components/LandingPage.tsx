@@ -76,11 +76,17 @@ export function LandingPage() {
               <Zap size={14} className="md:w-4 md:h-4" />
               <span className="text-xs md:text-sm">Now with AI-powered insights</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 md:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold leading-tight">
-              Event Budget Planning Made Simple
+            <h1 className="text-display mb-4 md:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Ready to Simplifi your Event Budgeting?
+            </h1>
+            <h2 className="text-h1 mb-4 md:mb-6 text-gray-900">
+              Meet Simplifi! Your Event Budget OS
             </h2>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8">
-              Plan, track, and optimize your event budgets with powerful analytics and team collaboration tools.
+            <p className="text-body text-gray-600 mb-6 md:mb-8">
+              A unified platform for planning, tracking, approvals, and ROI purpose-built for event-led organizations that need financial clarity.
+            </p>
+            <p className="text-body text-gray-600 mb-6 md:mb-8">
+              From planning to reconciliation
             </p>
             <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3 md:gap-4">
               <Link
@@ -112,8 +118,8 @@ export function LandingPage() {
       {/* Features Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-8 md:mb-12">
-          <h3 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">Everything you need to manage events</h3>
-          <p className="text-gray-600 text-sm md:text-base lg:text-lg px-4">Powerful features to streamline your event budgeting workflow</p>
+          <h3 className="text-h2 mb-2 md:mb-4 text-[#1A1A1A]">Everything you need to manage events</h3>
+          <p className="text-body text-[#5E5E5E] px-4">Powerful features to streamline your event budgeting workflow</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {features.map((feature, index) => {
@@ -123,8 +129,8 @@ export function LandingPage() {
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3 md:mb-4">
                   <Icon className="text-blue-600 md:w-6 md:h-6" size={20} />
                 </div>
-                <h4 className="font-semibold mb-2 text-base md:text-lg">{feature.title}</h4>
-                <p className="text-gray-600 text-sm md:text-base">{feature.description}</p>
+                <h4 className="text-interface-bold mb-2 text-[#1A1A1A]">{feature.title}</h4>
+                <p className="text-interface text-[#5E5E5E]">{feature.description}</p>
               </div>
             );
           })}
@@ -134,8 +140,8 @@ export function LandingPage() {
       {/* Pricing Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-8 md:mb-12">
-          <h3 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">Simple, transparent pricing</h3>
-          <p className="text-gray-600 text-sm md:text-base lg:text-lg px-4">Choose the plan that's right for your team</p>
+          <h3 className="text-h2 mb-2 md:mb-4 text-[#1A1A1A]">Simple, transparent pricing</h3>
+          <p className="text-body text-[#5E5E5E] px-4">Choose the plan that's right for your team</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {plans.map((plan, index) => (
@@ -152,12 +158,12 @@ export function LandingPage() {
                   Most Popular
                 </div>
               )}
-              <h4 className="text-lg md:text-xl font-bold mb-2">{plan.name}</h4>
+              <h4 className="text-h3 mb-2 text-[#1A1A1A]">{plan.name}</h4>
               <div className="mb-2">
-                <span className="text-3xl md:text-4xl font-bold">{plan.price}</span>
-                {plan.price !== '$0' && <span className="text-gray-600 text-sm md:text-base">/month</span>}
+                <span className="text-h1 text-[#1A1A1A]">{plan.price}</span>
+                {plan.price !== '$0' && <span className="text-interface text-[#5E5E5E]">/month</span>}
               </div>
-              <p className="text-gray-600 text-sm md:text-base mb-4 md:mb-6">{plan.description}</p>
+              <p className="text-body text-[#5E5E5E] mb-4 md:mb-6">{plan.description}</p>
               <Link
                 to="/login"
                 className={`w-full py-2.5 md:py-3 rounded-lg mb-4 md:mb-6 transition-colors block text-center text-sm md:text-base ${
@@ -184,8 +190,8 @@ export function LandingPage() {
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl md:rounded-2xl p-6 md:p-12 text-center text-white">
-          <h3 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Ready to get started?</h3>
-          <p className="text-base md:text-xl mb-6 md:mb-8 opacity-90 px-4">
+          <h3 className="text-h2 mb-3 md:mb-4">Ready to get started?</h3>
+          <p className="text-body mb-6 md:mb-8 opacity-90 px-4">
             Join thousands of event planners who trust Simplifi
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">

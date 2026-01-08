@@ -38,3 +38,18 @@ export function VendorStats({ totalVendors, totalSpent, avgRating }: VendorStats
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -24,14 +24,14 @@ export function DataTable<T extends Record<string, unknown>>({
             {columns.map((column, index) => (
               <th
                 key={index}
-                className={`px-4 h-9 text-left text-sm font-medium text-[#1A1A1A] ${
+                className={`px-4 h-9 text-left text-interface-bold text-[#1A1A1A] ${
                   column.width ? `w-[${column.width}]` : ""
                 }`}
               >
                 {column.label}
               </th>
             ))}
-            {actions && <th className="px-4 h-9 text-left text-sm font-medium text-[#1A1A1A]">Actions</th>}
+            {actions && <th className="px-4 h-9 text-left text-interface-bold text-[#1A1A1A]">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@ export function DataTable<T extends Record<string, unknown>>({
             <tr>
               <td
                 colSpan={columns.length + (actions ? 1 : 0)}
-                className="px-4 py-8 text-center text-[#5E5E5E] text-sm"
+                className="px-4 py-8 text-center text-interface text-[#5E5E5E]"
               >
                 No data available
               </td>
@@ -56,7 +56,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex}
-                    className={`px-4 h-9 text-sm text-[#1A1A1A] ${
+                    className={`px-4 h-9 text-interface text-[#1A1A1A] ${
                       column.align === "center"
                         ? "text-center"
                         : column.align === "right"
@@ -71,7 +71,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 ))}
                 {actions && (
                   <td
-                    className="px-4 h-9 text-sm"
+                    className="px-4 h-9 text-interface"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {actions(item)}

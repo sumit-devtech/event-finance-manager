@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { ExpenseStatus } from "@event-finance-manager/database";
+import { ExpenseStatus, EventStatus } from "@event-finance-manager/database";
 
 /**
  * MetricsService - Pre-computed Metrics Management
@@ -106,10 +106,10 @@ export class MetricsService {
     // Calculate stats
     const stats = {
       totalEvents: events.length,
-      activeEvents: events.filter((e) => e.status === "Active").length,
-      completedEvents: events.filter((e) => e.status === "Completed").length,
-      planningEvents: events.filter((e) => e.status === "Planning").length,
-      cancelledEvents: events.filter((e) => e.status === "Cancelled").length,
+      activeEvents: events.filter((e) => e.status === EventStatus.Active).length,
+      completedEvents: events.filter((e) => e.status === EventStatus.Completed).length,
+      planningEvents: events.filter((e) => e.status === EventStatus.Planning).length,
+      cancelledEvents: events.filter((e) => e.status === EventStatus.Cancelled).length,
     };
 
     // Calculate monthly budget/spent data (last 6 months)

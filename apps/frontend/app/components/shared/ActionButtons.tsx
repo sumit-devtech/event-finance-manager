@@ -18,7 +18,7 @@ export function ViewDetailsButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-sm"
+      className="px-4 h-9 bg-[#672AFA] text-white rounded-[6px] hover:bg-[#5A1FE6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-interface font-medium"
     >
       <span>{label}</span>
     </button>

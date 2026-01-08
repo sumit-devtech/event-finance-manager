@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsDateString, IsEnum, IsInt, IsNumber, Min } from "class-validator";
 import { Type } from "class-transformer";
-import { EventStatus } from "./create-event.dto";
+import { EventStatus } from "@event-finance-manager/database";
 
 export class UpdateEventDto {
   @IsOptional()

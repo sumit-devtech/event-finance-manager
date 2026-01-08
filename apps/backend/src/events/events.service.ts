@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException, Inject, forwardRef } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateEventDto, EventStatus } from "./dto/create-event.dto";
+import { CreateEventDto } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { AssignUserDto } from "./dto/assign-user.dto";
 import { UpdateStatusDto } from "./dto/update-status.dto";
@@ -8,7 +8,7 @@ import { NotificationsService } from "../notifications/notifications.service";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { MetricsService } from "../metrics/metrics.service";
 import { UserRole } from "../auth/types/user-role.enum";
-import { ExpenseStatus } from "@event-finance-manager/database";
+import { ExpenseStatus, EventStatus } from "@event-finance-manager/database";
 
 @Injectable()
 export class EventsService {

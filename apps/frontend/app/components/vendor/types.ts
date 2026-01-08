@@ -8,3 +8,18 @@ export type VendorWithStatsFlexible = Omit<VendorWithStats, 'createdAt' | 'updat
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
